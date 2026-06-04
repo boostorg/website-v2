@@ -147,9 +147,8 @@ def ai_filter_terms(
     `known_libraries` is rendered into the system prompt so the model never
     rejects a real library it doesn't recognize (e.g., "Asio", "Lockfree").
 
-    Raises OpenAIError, ValueError, or JSONDecodeError on LLM failure — the
-    task layer catches these and skips the DB write so last month's data
-    stays in place.
+    Raises `OpenAIError` / `JSONDecodeError` on LLM failure — the task layer
+    retries via `autoretry_for`.
     """
     if not candidates:
         return []
@@ -200,8 +199,9 @@ def ai_filter_terms(
 def refresh_popular_search_terms() -> dict[str, int | bool]:
     """Fetch Algolia top searches, LLM-filter, and upsert into PopularSearchTerm.
 
-    On any LLM failure (network / parse / unexpected shape) we log and return
-    early with no DB writes, leaving the previous month's data intact.
+    `OpenAIError` and `JSONDecodeError` propagate for the task's
+    `autoretry_for` to catch — LLM output is non-deterministic, so a fresh
+    completion often rescues a malformed-JSON run.
     """
     version = Version.objects.most_recent()
     if not version:
@@ -217,14 +217,7 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
     }
     cleaned = _filter_searches(searches, excluded)
     known_libraries = get_known_library_names()
-
-    try:
-        ai_kept = ai_filter_terms(cleaned, known_libraries=known_libraries)
-    except (OpenAIError, ValueError, json.JSONDecodeError) as exc:
-        logger.error("popular_search_terms.ai_filter_failed", error=str(exc))
-        return {
-            "updated": 0, "new": 0, "ai_kept": 0, "demoted": 0, "skipped": True
-        }
+    ai_kept = ai_filter_terms(cleaned, known_libraries=known_libraries)
 
     # Tie-break: at equal search_count, library-name matches outrank random
     # words. Alphabetical as a final stable tiebreaker.

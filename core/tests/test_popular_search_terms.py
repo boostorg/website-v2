@@ -207,18 +207,39 @@ def test_refresh_lowercases_ai_display_label(live_version, mock_algolia, mock_ai
     assert PopularSearchTerm.objects.get().label == "data processing"
 
 
-def test_refresh_skips_db_write_on_ai_failure(live_version, mock_algolia, mock_ai):
-    """LLM outage must NOT result in unfiltered Algolia data leaking into the DB."""
+def test_refresh_propagates_openai_error_for_celery_retry(
+    live_version, mock_algolia, mock_ai
+):
+    """OpenAIError must escape the service so the Celery task's
+    `autoretry_for=(OpenAIError,)` can fire — but no Algolia data may have
+    been written to the DB before it raises."""
     PopularSearchTerm.objects.create(label="previous", rank=1, search_count=10)
     _set_searches(mock_algolia, [("networking", 50), ("math", 30)])
     mock_ai.chat.completions.create.side_effect = OpenAIError("upstream timeout")
 
-    result = refresh_popular_search_terms()
+    with pytest.raises(OpenAIError):
+        refresh_popular_search_terms()
 
-    assert result == {
-        "updated": 0, "new": 0, "ai_kept": 0, "demoted": 0, "skipped": True
-    }
     # Pre-existing row is untouched; no Algolia payload landed.
+    assert list(PopularSearchTerm.objects.values_list("label", flat=True)) == [
+        "previous"
+    ]
+
+
+def test_refresh_propagates_json_decode_error_for_celery_retry(
+    live_version, mock_algolia, mock_ai
+):
+    """Malformed JSON propagates so the task's `autoretry_for` can re-roll —
+    LLM output isn't deterministic, so a fresh completion may parse cleanly."""
+    PopularSearchTerm.objects.create(label="previous", rank=1, search_count=10)
+    _set_searches(mock_algolia, [("networking", 50)])
+    bad_response = MagicMock()
+    bad_response.choices = [MagicMock(message=MagicMock(content="not json {{{"))]
+    mock_ai.chat.completions.create.return_value = bad_response
+
+    with pytest.raises(json.JSONDecodeError):
+        refresh_popular_search_terms()
+
     assert list(PopularSearchTerm.objects.values_list("label", flat=True)) == [
         "previous"
     ]
