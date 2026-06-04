@@ -590,7 +590,7 @@ class CustomSocialSignupViewView(ClaimExistingAccountMixin, SocialSignupView):
         return res if res else super().form_invalid(form)
 
 
-class CustomSignupView(ClaimExistingAccountMixin, SignupView):
+class CustomSignupView(ClaimExistingAccountMixin, V3Mixin, SignupView):
     """
     Override the allauth SignupView to customize behavior:
 
@@ -598,6 +598,23 @@ class CustomSignupView(ClaimExistingAccountMixin, SignupView):
     because one was created for them, and it has not been claimed. This happens
     with authors and maintainers.
     """
+
+    v3_template_name = "v3/accounts/signup.html"
+
+    def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
+        context["password_rules"] = build_password_rules()
+        context["page_title"] = getattr(self, "page_title", "Account")
+        context["foreground_image_url"] = large_static(
+            "img/v3/auth-page/auth-page-foreground.png"
+        )
+        context["background_image_url"] = large_static(
+            "img/v3/auth-page/auth-page-background.png"
+        )
+        context["login_url"] = reverse_lazy("v3-login")
+        context["signup_url"] = reverse_lazy("v3-signup")
+        context["password_reset_url"] = reverse_lazy("v3-password-reset")
+        return context
 
     def form_invalid(self, form):
         """

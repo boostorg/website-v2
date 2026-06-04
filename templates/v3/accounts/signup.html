@@ -18,15 +18,16 @@
     redirect_field_value  (string, optional, default unset) — URL to redirect to after signup; hidden input omitted when unset
     password_rules        (list, optional, default unset) — rule objects for password validation checklist
 {% endcomment %}
-{% load static %}
+{% load static socialaccount %}
 {% block auth_content %}
   <div class="auth-page__header">
     <h1 class="auth-page__title">Create an account</h1>
     <p class="auth-page__subtitle">Advance your career, learn from experts, and help shape the future of Boost and C++.</p>
   </div>
   <form class="auth-page__card"
+    id="signup_form"
     method="post"
-    action=""
+    action="/accounts/signup/"
     novalidate
     {# djlint:off #}
       x-data="{ hasErrors: false }"
@@ -62,8 +63,10 @@
   </form>
   <p class="auth-page__divider">OR</p>
   <div class="auth-page__social-card">
-    {% include "v3/includes/_button.html" with label="Continue with GitHub" url="#" icon_name="github" style="secondary" %}
-    {% include "v3/includes/_button.html" with label="Continue with Google" url="#" icon_name="google-colored" style="secondary" %}
+    {% provider_login_url "github" process="login" scope=scope auth_params=auth_params as github_oauth_url %}
+    {% provider_login_url "google" process="login" scope=scope auth_params=auth_params as google_oauth_url %}
+    {% include "v3/includes/_button.html" with label="Continue with GitHub" url=github_oauth_url icon_name="github" style="secondary" %}
+    {% include "v3/includes/_button.html" with label="Continue with Google" url=google_oauth_url icon_name="google-colored" style="secondary" %}
     {% include "v3/includes/_button.html" with label="Already have an account? Sign in →" url=login_url style="primary" %}
   </div>
 {% endblock auth_content %}

@@ -21,7 +21,11 @@ class V3Mixin:
     v3_template_name = None
 
     def dispatch(self, request, *args, **kwargs):
-        if self.v3_template_name and flag_is_active(request, "v3"):
+        if (
+            self.v3_template_name
+            and flag_is_active(request, "v3")
+            and request.method == "GET"
+        ):
             self._v3_active = True
             return self.render_v3_response()
         self._v3_active = False
