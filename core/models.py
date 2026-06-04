@@ -188,22 +188,31 @@ class PopularSearchTerm(models.Model):
     """Top popular Algolia search terms, refreshed weekly by Celery.
 
     Each weekly refresh runs an LLM quality check to drop typos/garbage
-    before any row is written. Set `rank=0` on an admin-created row to pin
-    it above Algolia-fetched terms.
+    before any row is written. Tick `is_pinned` on an admin-created row to
+    pin it above Algolia-fetched terms; the weekly refresh leaves
+    `is_pinned` alone.
     """
 
     label = models.CharField(max_length=128, unique=True)
     rank = models.PositiveSmallIntegerField()
     search_count = models.PositiveIntegerField(default=0)
+    is_pinned = models.BooleanField(
+        default=False,
+        help_text=(
+            "Pin this term above Algolia-derived rows on the homepage. "
+            "Use rank to order among multiple pins."
+        ),
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = PopularSearchTermManager()
 
     class Meta:
-        ordering = ["rank", "label"]
+        ordering = ["-is_pinned", "rank", "label"]
 
     def __str__(self):
-        return f"{self.rank}. {self.label} ({self.search_count})"
+        pin = "[PIN] " if self.is_pinned else ""
+        return f"{pin}{self.rank}. {self.label} ({self.search_count})"
 
 
 class PopularSearchTermExclusion(models.Model):

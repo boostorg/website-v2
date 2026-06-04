@@ -110,12 +110,15 @@ class PopularSearchTermAdmin(admin.ModelAdmin):
         "rank",
         "label",
         "search_count",
+        "is_pinned",
         "on_homepage",
         "updated_at",
     )
     list_display_links = ("label",)
+    list_editable = ("is_pinned",)
+    list_filter = ("is_pinned",)
     search_fields = ("label",)
-    ordering = ("rank",)
+    ordering = ("-is_pinned", "rank")
     actions = ("move_to_exclusions",)
 
     def get_urls(self):

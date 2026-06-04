@@ -55,7 +55,7 @@ class RenderedContentManager(models.Manager):
 
 class PopularSearchTermManager(models.Manager):
     def visible(self):
-        """Rows safe to display, ordered by rank.
+        """Rows safe to display, pinned first then by rank.
 
         Filters out labels (case-insensitively) present in
         `PopularSearchTermExclusion`, so admin-added exclusions take effect
@@ -74,5 +74,5 @@ class PopularSearchTermManager(models.Manager):
         return (
             self.annotate(label_lower=Lower("label"))
             .exclude(label_lower__in=excluded_lower)
-            .order_by("rank")
+            .order_by("-is_pinned", "rank")
         )

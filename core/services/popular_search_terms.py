@@ -219,6 +219,8 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
             if existing:
                 # Refresh the label too — lets historical title-cased rows
                 # converge to the current lowercase convention on next match.
+                # `is_pinned` is curator-owned and intentionally never touched
+                # by the service.
                 existing.label = display_label
                 existing.search_count = count
                 existing.rank = i

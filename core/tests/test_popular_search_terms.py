@@ -362,11 +362,13 @@ def test_visible_returns_all_when_no_exclusions(db):
     assert PopularSearchTerm.objects.visible().count() == 2
 
 
-def test_curator_row_with_low_rank_orders_first_in_visible(
+def test_pinned_row_orders_first_in_visible(
     live_version, mock_algolia, mock_ai
 ):
-    """rank=0 on a curator row pins it above Algolia rows in visible()."""
-    PopularSearchTerm.objects.create(label="Sponsored Term", rank=0, search_count=0)
+    """is_pinned=True puts a row above all Algolia-derived rows in visible()."""
+    PopularSearchTerm.objects.create(
+        label="Sponsored Term", rank=99, search_count=0, is_pinned=True
+    )
     payload = [("networking", 50), ("math", 30)]
     _set_searches(mock_algolia, payload)
     _ai_keeps_all(mock_ai, payload)
@@ -378,6 +380,53 @@ def test_curator_row_with_low_rank_orders_first_in_visible(
     )
     assert visible_labels[0] == "Sponsored Term"
     assert set(visible_labels) == {"Sponsored Term", "networking", "math"}
+
+
+def test_refresh_never_touches_is_pinned(live_version, mock_algolia, mock_ai):
+    """The service is forbidden from flipping `is_pinned`; that field is curator-owned.
+
+    Regression test: covers both the upsert path (existing pinned row matches
+    an AI label) and the create path (a brand-new row from Algolia must
+    default to unpinned).
+    """
+    pinned = PopularSearchTerm.objects.create(
+        label="asio", rank=50, search_count=0, is_pinned=True
+    )
+    # AI returns "asio" (matches the pinned row) and "regex" (a fresh row).
+    _set_searches(mock_algolia, [("asio", 99), ("regex", 10)])
+    _ai_keeps_all(mock_ai, [("asio", 99), ("regex", 10)])
+
+    refresh_popular_search_terms()
+
+    pinned.refresh_from_db()
+    # is_pinned is preserved; rank/count still refresh from this run.
+    assert pinned.is_pinned is True
+    assert pinned.rank == 1
+    assert pinned.search_count == 99
+    # Brand-new Algolia row defaults to unpinned.
+    assert PopularSearchTerm.objects.get(label="regex").is_pinned is False
+    # Pin still leads visible() regardless of rank.
+    visible_labels = list(
+        PopularSearchTerm.objects.visible().values_list("label", flat=True)
+    )
+    assert visible_labels[0] == "asio"
+
+
+def test_multiple_pins_order_by_rank_among_themselves(db):
+    """When several rows are pinned, `rank` orders them; Algolia rows come after."""
+    PopularSearchTerm.objects.create(
+        label="pin-b", rank=2, search_count=0, is_pinned=True
+    )
+    PopularSearchTerm.objects.create(
+        label="pin-a", rank=1, search_count=0, is_pinned=True
+    )
+    PopularSearchTerm.objects.create(label="algolia-top", rank=1, search_count=100)
+
+    visible_labels = list(
+        PopularSearchTerm.objects.visible().values_list("label", flat=True)
+    )
+
+    assert visible_labels == ["pin-a", "pin-b", "algolia-top"]
 
 
 # ---------- PopularSearchTermAdmin UX ----------

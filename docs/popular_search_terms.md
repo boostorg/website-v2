@@ -22,14 +22,14 @@ Whatever survives this check is what shows up on the homepage. There is no admin
 
 Chips are ordered first by how often the term was searched. When two terms tie on search count, **a known Boost library name ranks above a generic term**. So if "asio" and "performance" were searched the same number of times, "asio" gets the higher slot. Alphabetical order breaks any remaining ties.
 
-Manually curated rows (admin-created keyword badges, used to feature a term Algolia isn't surfacing yet) sit above all Algolia-derived rows.
+Pinned rows (rows with the **Pinned?** checkbox ticked in admin) sit above all Algolia-derived rows regardless of search count. When more than one row is pinned, they order amongst themselves by `rank` — set `rank=1` on the row you want first, `rank=2` next, and so on.
 
 ## Admin overrides
 
 Three escape hatches let curators correct the LLM's decisions:
 
 - **Move to exclusions** — if the LLM kept a term you don't want shown, select it in admin and run "Move selected to exclusions (homepage banlist)". The keyword badge disappears from the homepage immediately, and future refreshes will skip the term too.
-- **Manual pin** — if the LLM rejected something you do want shown (or you want to promote a brand-new library before user search volume catches up), add a row directly in admin. Rows added this way are pinned above Algolia-derived keyword badges.
+- **Manual pin** — if the LLM rejected something you do want shown (or you want to promote a brand-new library before user search volume catches up), add a row in admin and tick the **Pinned?** column. The weekly refresh never touches `is_pinned`, so the pin survives every run.
 - **Refresh now** — instead of waiting for next Monday's run, hit the "Refresh from Algolia" button on the admin changelist to trigger a refresh on demand. Useful after editing the exclusion list or adding a pin.
 
 ## Failure modes
