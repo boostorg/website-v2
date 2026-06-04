@@ -109,9 +109,6 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         ctx["join_developers_links"] = build_join_developers_links()
 
         # Popular Search Terms
-        # .visible() also drops admin-added exclusions, so curating the
-        # PopularSearchTermExclusion table takes effect on the next request
-        # rather than waiting on the next monthly Algolia refresh.
         ctx["popular_terms"] = list(
             PopularSearchTerm.objects.visible()[:HOMEPAGE_POPULAR_TERMS_DISPLAY]
         )
