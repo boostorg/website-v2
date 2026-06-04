@@ -307,12 +307,21 @@
     </div>
   {% endwith %}
 
-  {% if library_intro %}
+  {% if library_intro_few or library_intro_three or library_intro_many %}
     {% with section_title="Library Intro Card" %}
       <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
         <h3>{{ section_title }}</h3>
         <div class="v3-examples-section__example-box">
-          {% with intro=library_intro %}
+          <h4 class="py-large">Few contributors — no scroll</h4>
+          {% with intro=library_intro_few %}
+            {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
+          {% endwith %}
+          <h4 class="py-large">Three contributors — at the visible cap, no scroll</h4>
+          {% with intro=library_intro_three %}
+            {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
+          {% endwith %}
+          <h4 class="py-large">Many contributors — scroll visible</h4>
+          {% with intro=library_intro_many %}
             {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
           {% endwith %}
         </div>

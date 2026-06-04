@@ -2048,42 +2048,62 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         # Hardcoded for the demo page. The production library intro context is
         # built by `libraries.utils.build_library_intro_context`; reuse it when
         # integrating this component into the real library pages.
-        context["library_intro"] = {
-            "library_name": "Boost.Beast.",
-            "description": (
-                "Lightweight utilities that power dozens of other Boost libraries"
+        #
+        # Demo variants for the Library Intro Card scrollable behaviour:
+        # "few" stays under the 3-row cap (no scroll); "many" exceeds it.
+        _intro_avatar = large_static("img/v3/demo-page/avatar.png")
+        _intro_bio = "Big C++ fan. Not quite kidney-donation level, but close."
+        _intro_description = (
+            "Lightweight utilities that power dozens of other Boost libraries"
+        )
+
+        def _intro_authors(*authors):
+            return [
+                {
+                    "name": name,
+                    "role": role,
+                    "avatar_url": _intro_avatar,
+                    "badge": badge,
+                    "bio": _intro_bio,
+                    "profile_url": "",
+                }
+                for name, role, badge in authors
+            ]
+
+        def _intro_card(library_name, authors):
+            return {
+                "library_name": library_name,
+                "description": _intro_description,
+                "authors": authors,
+                "cta_url": "#",
+            }
+
+        context["library_intro_few"] = _intro_card(
+            "Boost.Core.",
+            _intro_authors(
+                ("Vinnie Falco", "Author", BadgeToken.TIER_3),
+                ("Alex Wells", "Contributor", BadgeToken.TIER_2),
             ),
-            "authors": [
-                {
-                    "name": "Vinnie Falco",
-                    "role": "Author",
-                    "avatar_url": large_static("img/v3/demo-page/avatar.png"),
-                    "badge_url": large_static("img/v3/badges/badge-first-place.png"),
-                    "badge": "",
-                    "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
-                    "profile_url": "",
-                },
-                {
-                    "name": "Alex Wells",
-                    "role": "Contributor",
-                    "avatar_url": large_static("img/v3/demo-page/avatar.png"),
-                    "badge_url": "",
-                    "badge": "",
-                    "bio": "C++ enthusiast who has worked at Intel and Microsoft.",
-                    "profile_url": "",
-                },
-                {
-                    "name": "Dave Abrahams",
-                    "role": "Contributor",
-                    "avatar_url": large_static("img/v3/demo-page/avatar.png"),
-                    "badge_url": large_static("img/v3/badges/badge-bronze.png"),
-                    "badge": "",
-                    "bio": "Contributor to Boost since 2009.",
-                    "profile_url": "",
-                },
-            ],
-            "cta_url": "#",
-        }
+        )
+        context["library_intro_three"] = _intro_card(
+            "Boost.Asio.",
+            _intro_authors(
+                ("Vinnie Falco", "Author", BadgeToken.TIER_3),
+                ("Alex Wells", "Maintainer", BadgeToken.TIER_2),
+                ("Dave Abrahams", "Contributor", BadgeToken.TIER_1),
+            ),
+        )
+        context["library_intro_many"] = _intro_card(
+            "Boost.Beast.",
+            _intro_authors(
+                ("Vinnie Falco", "Author", BadgeToken.TIER_3),
+                ("Alex Wells", "Maintainer", BadgeToken.TIER_2),
+                ("Dave Abrahams", "Contributor", BadgeToken.TIER_1),
+                ("Beman Dawes", "Contributor", BadgeToken.TIER_3),
+                ("Hartmut Kaiser", "Contributor", BadgeToken.TIER_2),
+                ("Andrey Semashev", "Contributor", BadgeToken.TIER_1),
+            ),
+        )
 
         latest = Version.objects.most_recent()
         if latest:
