@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("core", "0006_sitesettings_pinned_community_libraries"),
-        ("libraries", "0041_librarycodesnippet"),
+        ("libraries", "0040_libraryversion_cpp_standard_maximum"),
     ]
 
     operations = [

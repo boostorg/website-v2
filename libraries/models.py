@@ -15,8 +15,6 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.db.models.functions import Upper
-from wagtail.admin.panels import FieldPanel
-from wagtail.snippets.models import register_snippet
 
 from config import settings
 from core.custom_model_fields import NullableFileField
@@ -762,24 +760,3 @@ def delete_release_report_files(sender, instance, **kwargs):
     """Delete file from storage when ReleaseReport is deleted."""
     if instance.file:
         instance.file.delete(save=False)
-
-
-@register_snippet
-class LibraryCodeSnippet(models.Model):
-    """Editor-managed code sample shown in the homepage Get Started card for
-    whichever library is featured."""
-
-    library = models.OneToOneField(
-        "libraries.Library",
-        on_delete=models.CASCADE,
-        related_name="code_snippet",
-    )
-    code = models.TextField()
-
-    panels = [
-        FieldPanel("library"),
-        FieldPanel("code"),
-    ]
-
-    def __str__(self):
-        return self.library.display_name
