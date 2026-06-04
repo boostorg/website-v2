@@ -9,6 +9,7 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
+from django.conf import settings
 from openai import OpenAIError
 from model_bakery import baker
 
@@ -16,7 +17,6 @@ from core.models import PopularSearchTerm, PopularSearchTermExclusion
 from core.services.popular_search_terms import (
     ALGOLIA_FETCH_LIMIT,
     LOOKBACK_DAYS,
-    MIN_SEARCH_COUNT,
     STORED_TOP_N,
     get_known_library_names,
     refresh_popular_search_terms,
@@ -127,7 +127,7 @@ def test_refresh_drops_short_queries_and_low_counts_before_ai(
         [
             ("networking", 50),  # keep
             ("a", 100),  # drop: too short
-            ("rare", MIN_SEARCH_COUNT - 1),  # drop: count below threshold
+            ("rare", settings.POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT - 1),  # drop: count below threshold
             ("math", 5),  # keep
         ],
     )

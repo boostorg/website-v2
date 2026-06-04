@@ -25,7 +25,8 @@ logger = logging.getLogger(__name__)
 ALGOLIA_FETCH_LIMIT = 100
 STORED_TOP_N = 20
 MIN_QUERY_LEN = 3
-MIN_SEARCH_COUNT = 1
+# Minimum search_count threshold lives in Django settings
+# (POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT) so prod can raise it without a deploy.
 # 14-day window matches the weekly task cadence with one week of overlap, so a
 # popular term doesn't immediately drop off the moment its peak rolls past.
 LOOKBACK_DAYS = 14
@@ -103,11 +104,12 @@ def _fetch_top_searches(client: AnalyticsClientSync, index: str) -> list[dict]:
 
 
 def _filter_searches(searches: list[dict], excluded: set[str]) -> list[tuple[str, int]]:
+    min_count = settings.POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT
     cleaned: list[tuple[str, int]] = []
     for row in searches:
         label = (row.get("search") or "").strip()
         count = row.get("count") or 0
-        if len(label) < MIN_QUERY_LEN or count < MIN_SEARCH_COUNT:
+        if len(label) < MIN_QUERY_LEN or count < min_count:
             continue
         if label.lower() in excluded:
             continue
