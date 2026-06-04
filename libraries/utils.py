@@ -20,7 +20,6 @@ from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils.text import slugify
 
-from core.constants import BadgeToken
 from libraries.constants import (
     DEFAULT_LIBRARIES_LANDING_VIEW,
     SELECTED_BOOST_VERSION_COOKIE_NAME,

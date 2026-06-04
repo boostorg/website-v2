@@ -95,7 +95,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         ctx["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS
         ctx["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
 
-        # Why Boost Card 
+        # Why Boost Card
         ctx["why_boost_cards"] = WHY_BOOST_CARDS
 
         # Posts Card
@@ -106,24 +106,24 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
 
         # Upcoming Events
         ctx["upcoming_events"] = upcoming_events(self.get_events(), 4)
-        
+
         # Testimonial Card
         ctx["testimonial_cards"] = get_testimonial_cards(limit=5)
-        
+
         # Get Started Card
         ctx["get_started_code"] = build_get_started_code()
 
         # Library Intro Card
         ctx["library_intro"] = build_library_intro()
-        
+
         # "Boost in numbers" is project-wide, not tied to the featured library.
         ctx["commits_data"] = commit_data_to_stats_bars(
             get_commit_data_by_release(limit=10)
         )
-        
+
         # Hero Image
         ctx.update(hero_image_context())
-        
+
         return ctx
 
 
