@@ -257,17 +257,9 @@ class Entry(models.Model):
         return reverse("news-detail", args=[self.slug])
 
     def to_v3_post_card_dict(self, author_role=None):
-        """Dict shape consumed by `v3/includes/_post_card.html` items.
-
-        Tag-to-display mapping is centralized via `POST_CARD_TAG_LABELS`;
-        tags not in that mapping fall back to title-case. `author_role`
-        is forwarded to `User.to_v3_profile_dict`; None lets the user's
-        own role come through. Pass `url_builder=request.build_absolute_uri`
-        (or any `str -> str` callable) when the surface needs absolute
-        URLs; the default returns the relative URL.
-        """
+        """Dict shape consumed by `v3/includes/_post_card.html` items."""
         category = ""
-        
+
         if self.tag:
             tag_key = str(self.tag).lower()
             category = POST_CARD_TAG_LABELS.get(tag_key, self.tag.capitalize())
