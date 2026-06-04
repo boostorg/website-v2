@@ -61,7 +61,9 @@ bump2version==1.0.1
 bumpversion==0.6.0
     # via -r ./requirements.in
 celery==5.6.2
-    # via -r ./requirements.in
+    # via
+    #   -r ./requirements.in
+    #   flower
 certifi==2026.1.4
     # via
     #   elasticsearch
@@ -251,6 +253,8 @@ filelock==3.20.3
     # via virtualenv
 filetype==1.2.0
     # via willow
+flower==2.2.0
+    # via -r ./requirements.in
 fonttools==4.61.1
     # via matplotlib
 frozenlist==1.8.0
@@ -278,6 +282,8 @@ httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via openai
+humanize==4.16.0
+    # via flower
 identify==2.6.16
     # via pre-commit
 idna==3.18
@@ -410,6 +416,8 @@ pluggy==1.6.0
     #   pytest-cov
 pre-commit==4.5.1
     # via -r ./requirements.in
+prometheus-client==0.26.0
+    # via flower
 prompt-toolkit==3.0.52
     # via
     #   click-repl
@@ -483,7 +491,9 @@ python-json-logger==4.0.0
 pytokens==0.4.1
     # via black
 pytz==2026.2
-    # via dateparser
+    # via
+    #   dateparser
+    #   flower
 pyyaml==6.0.3
     # via
     #   django-pattern-library
@@ -538,6 +548,8 @@ tld==0.13.2
     # via courlan
 tokenize-rt==6.2.0
     # via django-upgrade
+tornado==6.5.10
+    # via flower
 tqdm==4.67.3
     # via openai
 trafilatura==2.0.0

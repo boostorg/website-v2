@@ -313,4 +313,5 @@ gatewayStaticIpv6: cppal-dev-gateway-ipv6
 redisInstall: false
 celeryInstall: true
 maildevInstall: true
+flowerInstall: true
 hpaMinReplicas: 2

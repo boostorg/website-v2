@@ -50,6 +50,7 @@ structlog
 
 # Celery
 celery
+flower
 redis>=5,<6
 
 # Testing

@@ -62,6 +62,52 @@ data:
           alias /etc/nginx/robots.d/robots.txt;
       }
 
+      {{- if .Values.flowerInstall }}
+
+      # Used for the per-request lookup of the flower Service below. This resolver
+      # ignores the search domains in /etc/resolv.conf, so names must be fully
+      # qualified.
+      resolver kube-dns.kube-system.svc.cluster.local valid=300s ipv6=off;
+
+      location /flower/ {
+          # flower_auth returns 204 for staff and 403 for everyone else. nginx
+          # turns any other status from an auth_request into a 500.
+          auth_request /internal/flower-auth/;
+          error_page 401 403 = @flower_login_redirect;
+
+          # A variable here makes nginx look the name up per request, so nginx
+          # still starts if the flower Service doesn't exist. There's no path after
+          # the port, so the /flower/ prefix is passed on, as --url-prefix=flower
+          # expects.
+          set $flower_upstream "flower.{{ .Release.Namespace }}.svc.cluster.local:5555";
+          proxy_pass http://$flower_upstream;
+      }
+
+      location = /internal/flower-auth/ {
+          internal;
+          proxy_pass http://unix:/run/gunicorn.sock;
+          # The subrequest is a GET but carries the original request's headers. Drop
+          # the body, or a POST to Flower leaves gunicorn waiting for one.
+          proxy_pass_request_body off;
+          # Any proxy_set_header here replaces all of the server-level ones.
+          proxy_set_header Content-Length "";
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+      }
+
+      location @flower_login_redirect {
+          # nginx can't URL-encode the query string, and an unencoded "&" would cut
+          # the next parameter short, so only the path is passed on.
+          if ($request_uri ~ "^([^?]*)") {
+              set $flower_next $1;
+          }
+          return 302 https://$host/accounts/login/?next=$flower_next;
+      }
+
+      {{- end }}
+
       location @django1 {
           proxy_pass http://unix:/run/gunicorn.sock;
           proxy_intercept_errors on;

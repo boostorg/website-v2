@@ -37,6 +37,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_GET
 from django.views.generic import TemplateView
 from waffle import flag_is_active
 
@@ -2482,3 +2483,18 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         }
 
         return context
+
+
+@require_GET
+def flower_auth(request):
+    """Answer nginx's auth_request subrequest for /flower/.
+
+    Returns 204 for active staff and 403 for everyone else, which nginx turns
+    into a redirect to the login page. nginx treats any other status as a 500,
+    so this mustn't redirect itself, e.g. with @login_required. nginx calls it
+    for every Flower request, including assets, so keep it cheap.
+    """
+    user = request.user
+    if user.is_authenticated and user.is_active and user.is_staff:
+        return HttpResponse(status=204)
+    return HttpResponse(status=403)
