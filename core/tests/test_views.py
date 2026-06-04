@@ -634,3 +634,29 @@ def test_docs_libs_latest_clears_the_selected_version_cookie(
     cleared = response.cookies[SELECTED_BOOST_VERSION_COOKIE_NAME]
     assert cleared.value == ""
     assert cleared["max-age"] == 0
+
+
+def test_flower_auth_anonymous_user(tp):
+    tp.response_403(tp.get("flower-auth"))
+
+
+def test_flower_auth_regular_user(tp, user):
+    tp.login(user)
+    tp.response_403(tp.get("flower-auth"))
+
+
+def test_flower_auth_inactive_staff_user(tp, staff_user):
+    staff_user.is_active = False
+    staff_user.save()
+    tp.client.force_login(staff_user)
+    tp.response_403(tp.get("flower-auth"))
+
+
+def test_flower_auth_staff_user(tp, staff_user):
+    tp.login(staff_user)
+    tp.response_204(tp.get("flower-auth"))
+
+
+def test_flower_auth_only_allows_get(tp, staff_user):
+    tp.login(staff_user)
+    tp.response_405(tp.post("flower-auth"))

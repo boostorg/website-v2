@@ -1,0 +1,97 @@
+# Gated independently from .Values.celeryInstall so Flower can be flipped on per environment
+# (e.g. dev/stage yes, production no — or vice versa).
+
+{{- if .Values.flowerInstall }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flower
+  labels:
+    app: flower
+    env: {{.Values.deploymentEnvironment}}
+spec:
+  # Flower aggregates Celery events in-memory; a second replica would just show a different
+  # partial view depending on which pod the Service hashed you to. Keep it at 1.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flower
+      env: {{.Values.deploymentEnvironment}}
+  template:
+    metadata:
+      labels:
+        app: flower
+        env: {{.Values.deploymentEnvironment}}
+        imageTag: "{{.Values.ImageTag}}"
+    spec:
+      # Otherwise Kubernetes sets FLOWER_PORT=tcp://<ip>:5555 for the flower Service,
+      # and Flower reads FLOWER_* variables as its own options.
+      enableServiceLinks: false
+{{- if .Values.hostAliases }}
+      hostAliases:
+{{ toYaml .Values.hostAliases | indent 8 }}
+{{- end }}
+      containers:
+        -
+          name: flower
+          image: {{.Values.Image}}:{{.Values.ImageTag}}
+          # --url-prefix=flower is the critical bit: it tells Flower to generate every
+          # asset URL, link, and form action with a /flower/ prefix, so it works
+          # behind nginx at https://www.boost.org/flower/ without any response rewriting.
+          #
+          # No --basic-auth here on purpose: authorization is performed by the nginx
+          # sidecar via `auth_request` -> a Django view that checks is_staff. Flower
+          # itself never sees an unauthorized request because nginx blocks them upstream.
+          # If the nginx auth ever needs to be bypassed for debugging, you can
+          # `kubectl port-forward svc/flower 5555:5555` and reach Flower directly.
+          command:
+            - celery
+            - -A
+            - config
+            - flower
+            - --address=0.0.0.0
+            - --port=5555
+            - --url-prefix=flower
+          ports:
+            - name: flower
+              containerPort: 5555
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 250m
+              ephemeral-storage: 512Mi
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 512Mi
+              memory: 256Mi
+          # Same Env block the workers use — Flower needs the broker URL (Redis), DB
+          # credentials, and anything else config.celery touches at import time.
+          env:
+{{ toYaml .Values.Env | indent 12 }}
+
+---
+# ClusterIP only — nginx (in the boost pod) reaches this in-cluster as
+# `flower.<namespace>.svc.cluster.local`.
+# No Ingress, no HTTPRoute, no Gateway listener: public traffic still enters the cluster
+# via the existing Gateway → boost-gateway-svc → nginx, which then proxies /flower/ here.
+apiVersion: v1
+kind: Service
+metadata:
+  name: flower
+  labels:
+    app: flower
+    env: {{.Values.deploymentEnvironment}}
+spec:
+  type: ClusterIP
+  selector:
+    app: flower
+    env: {{.Values.deploymentEnvironment}}
+  ports:
+    - name: flower
+      port: 5555
+      targetPort: flower
+      protocol: TCP
+
+{{ end }}

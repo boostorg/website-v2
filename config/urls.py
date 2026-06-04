@@ -41,6 +41,7 @@ from core.views import (
     StaticContentTemplateView,
     StorybookView,
     UserGuideTemplateView,
+    flower_auth,
 )
 from marketing.views import PlausibleRedirectView
 from libraries.api import LibrarySearchView
@@ -393,6 +394,7 @@ urlpatterns = (
             include("patches.urls", namespace="patches-urls"),
         ),
         # Internal functions
+        path("internal/flower-auth/", flower_auth, name="flower-auth"),
         path("internal/clear-cache/", ClearCacheView.as_view(), name="clear-cache"),
         # Storybook — pre-built static bundle, staff only
         path("storybook/", StorybookView.as_view(), {"path": ""}, name="storybook"),

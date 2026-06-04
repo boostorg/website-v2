@@ -224,3 +224,6 @@ celeryInstall: false
 # values file, and never in production. See docs/email.md
 maildevInstall: false
 maildevImageTag: "2.2.1"
+# Flower (Celery monitoring UI) proxied through the boost-pod nginx sidecar
+# at /flower/. Off by default; enable per-environment.
+flowerInstall: false
