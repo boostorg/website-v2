@@ -63,10 +63,17 @@
   </form>
   <p class="auth-page__divider">OR</p>
   <div class="auth-page__social-card">
-    {% provider_login_url "github" process="login" scope=scope auth_params=auth_params as github_oauth_url %}
-    {% provider_login_url "google" process="login" scope=scope auth_params=auth_params as google_oauth_url %}
-    {% include "v3/includes/_button.html" with label="Continue with GitHub" url=github_oauth_url icon_name="github" style="secondary" %}
-    {% include "v3/includes/_button.html" with label="Continue with Google" url=google_oauth_url icon_name="google-colored" style="secondary" %}
+    {% get_providers as socialaccount_providers %}
+    {% if socialaccount_providers %}
+      {% for provider in socialaccount_providers %}
+        {% provider_login_url provider process="login" scope=scope auth_params=auth_params as href %}
+          {% if provider.name == "GitHub" %}
+            {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="github" style="secondary" %}
+          {% elif provider.name == "Google" %}
+            {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="google-colored" style="secondary" %}
+          {% endif %}
+      {% endfor %}
+    {% endif %}
     {% include "v3/includes/_button.html" with label="Already have an account? Sign in →" url=login_url style="primary" %}
   </div>
 {% endblock auth_content %}
