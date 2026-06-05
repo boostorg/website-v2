@@ -1,3 +1,26 @@
+/* Header row: heading on the left, optional action button on the right */
+.release-highlights__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-default);
+  padding: 0 var(--space-card);
+}
+
+.release-highlights__header .card-group__heading {
+  padding: 0;
+}
+
+.release-highlights__header .btn-icon-library {
+  height: 32px;
+  padding: var(--space-default) var(--space-large);
+}
+
+.release-highlights__header .btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
 .release-highlight {
   display: flex;
   flex-direction: column;
