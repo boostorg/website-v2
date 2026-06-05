@@ -23,9 +23,17 @@ def _avatar_url(testimonial):
 
 
 def _author_role_html(testimonial):
-    """Render the role RichTextField, expanding Wagtail link formats; safe for direct template output."""
+    """Render the role RichTextField, expanding Wagtail link formats; safe for direct template output.
+
+    Links open in a new tab to match the rest of the testimonial author profile.
+    """
     role = testimonial.author_role or ""
-    return mark_safe(expand_db_html(role)) if role else ""
+    if not role:
+        return ""
+    expanded = expand_db_html(role).replace(
+        "<a ", '<a target="_blank" rel="noopener noreferrer" '
+    )
+    return mark_safe(expanded)
 
 
 def _to_card(testimonial, *, prev_slug, next_slug):

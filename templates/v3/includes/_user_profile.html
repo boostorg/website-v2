@@ -13,12 +13,15 @@
     - achievement_label  (string, optional) — Hover label for achievement counter
     - bio                (string, optional) — short bio
 
+  Other variables:
+    - new_tab (bool, optional) — when True, profile links open in a new tab
+
   Usage:
     {% include "v3/includes/_user_profile.html" with author=author %}
 {% endcomment %}
 <div class="user-profile{% if author.bio %} user-profile--has-bio{% endif %}" role="group" aria-label="{{ author.name }}">
   {% if author.profile_url %}
-    <a href="{{ author.profile_url }}" class="user-profile__avatar-link">
+    <a href="{{ author.profile_url }}" class="user-profile__avatar-link" {% if new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
       {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name size="xl" only %}
     </a>
   {% else %}
@@ -30,7 +33,7 @@
       <span class="user-profile__name-group">
         {% if author.name %}
           {% if author.profile_url %}
-            <a href="{{ author.profile_url }}" class="user-profile__name">{{ author.name }}</a>
+            <a href="{{ author.profile_url }}" class="user-profile__name" {% if new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>{{ author.name }}</a>
           {% else %}
             <span class="user-profile__name">{{ author.name }}</span>
           {% endif %}
