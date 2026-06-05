@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, FormView
 from django.views.generic.base import TemplateView
@@ -22,11 +22,9 @@ from allauth.socialaccount.views import SignupView as SocialSignupView
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from waffle import flag_is_active
 
 from core.constants import BadgeToken
-from core.mixins import V3Mixin
-from core.templatetags.custom_static import large_static
+from core.mixins import V3Mixin, V3AuthContextMixin
 from libraries.models import CommitAuthorEmail
 from .forms import (
     PreferencesForm,
@@ -590,7 +588,7 @@ class CustomSocialSignupViewView(ClaimExistingAccountMixin, SocialSignupView):
         return res if res else super().form_invalid(form)
 
 
-class CustomSignupView(ClaimExistingAccountMixin, V3Mixin, SignupView):
+class CustomSignupView(ClaimExistingAccountMixin, V3AuthContextMixin, SignupView):
     """
     Override the allauth SignupView to customize behavior:
 
@@ -600,21 +598,6 @@ class CustomSignupView(ClaimExistingAccountMixin, V3Mixin, SignupView):
     """
 
     v3_template_name = "v3/accounts/signup.html"
-
-    def get_v3_context_data(self, **kwargs):
-        context = super().get_v3_context_data(**kwargs)
-        context["password_rules"] = build_password_rules()
-        context["page_title"] = getattr(self, "page_title", "Account")
-        context["foreground_image_url"] = large_static(
-            "img/v3/auth-page/auth-page-foreground.png"
-        )
-        context["background_image_url"] = large_static(
-            "img/v3/auth-page/auth-page-background.png"
-        )
-        context["login_url"] = reverse_lazy("v3-login")
-        context["signup_url"] = reverse_lazy("v3-signup")
-        context["password_reset_url"] = reverse_lazy("v3-password-reset")
-        return context
 
     def form_invalid(self, form):
         """
@@ -640,29 +623,6 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
         context["EMAIL_CONFIRMATION_EXPIRE_DAYS"] = (
             app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS
         )
-        return context
-
-
-class V3AuthContextMixin(V3Mixin):
-    """Shared context for all V3 auth pages (signup, login, password reset, etc.)."""
-
-    def dispatch(self, request, *args, **kwargs):
-        if not flag_is_active(request, "v3"):
-            return HttpResponseNotFound()
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_v3_context_data(self, **kwargs):
-        context = super().get_v3_context_data(**kwargs)
-        context["page_title"] = getattr(self, "page_title", "Account")
-        context["foreground_image_url"] = large_static(
-            "img/v3/auth-page/auth-page-foreground.png"
-        )
-        context["background_image_url"] = large_static(
-            "img/v3/auth-page/auth-page-background.png"
-        )
-        context["login_url"] = reverse_lazy("v3-login")
-        context["signup_url"] = reverse_lazy("v3-signup")
-        context["password_reset_url"] = reverse_lazy("v3-password-reset")
         return context
 
 

@@ -1,6 +1,8 @@
-from django.http import Http404
-from django.urls import URLPattern, URLResolver, get_resolver
+from django.http import Http404, HttpResponseNotFound
+from django.urls import URLPattern, URLResolver, get_resolver, reverse_lazy
 from waffle import flag_is_active
+
+from core.templatetags.custom_static import large_static
 
 
 class V3Mixin:
@@ -67,3 +69,26 @@ def iter_v3_views():
                     yield entry, view_class
 
     yield from walk(get_resolver().url_patterns)
+
+
+class V3AuthContextMixin(V3Mixin):
+    """Shared context for all V3 auth pages (signup, login, password reset, etc.)."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            return HttpResponseNotFound()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
+        context["page_title"] = getattr(self, "page_title", "Account")
+        context["foreground_image_url"] = large_static(
+            "img/v3/auth-page/auth-page-foreground.png"
+        )
+        context["background_image_url"] = large_static(
+            "img/v3/auth-page/auth-page-background.png"
+        )
+        context["login_url"] = reverse_lazy("v3-login")
+        context["signup_url"] = reverse_lazy("v3-signup")
+        context["password_reset_url"] = reverse_lazy("v3-password-reset")
+        return context
