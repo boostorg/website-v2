@@ -5,7 +5,8 @@ reset flows (those live in their own integration tickets). It renders the
 templates in ``templates/emails/`` and sends them through the project's
 configured email backend (``settings.EMAIL_BACKEND``) -- the same backend the
 real transactional emails use. Locally that is the ``maildev`` SMTP container
-(``EMAIL_HOST``/``EMAIL_PORT``); deployed environments use the configured ESP.
+(``EMAIL_HOST``/``EMAIL_PORT``); deployed environments use the configured email
+service provider.
 
 Examples
 --------
@@ -14,15 +15,23 @@ Send both emails to your local maildev inbox::
     python manage.py send_test_emails --to you@example.com
 
 By default the email images are embedded inline (multipart/related CID parts) so
-they render even when the static host is not publicly reachable. This requires an
-SMTP backend (the local default). Pass ``--no-inline-images`` together with
-``--base-url`` to instead reference the images served from the real host (S3
-large-static) -- needed when sending through a non-SMTP ESP backend.
+they render even when the static host is not publicly reachable. This works with
+both SMTP backends (maildev, or your own SMTP server) and API
+email-service-provider backends (any Anymail backend). Pass
+``--no-inline-images`` together with ``--base-url`` to instead reference the
+images served from the real host (S3 large-static).
+
+To send real preview emails through your own email service provider in local
+development, point the email settings at it -- an SMTP provider via the
+``EMAIL_*`` settings, or an Anymail API backend via ``EMAIL_BACKEND`` +
+``ANYMAIL`` -- and use a ``DEFAULT_FROM_EMAIL`` / ``--from-email`` on a domain
+that provider has verified.
 """
 
 import re
 import time
 from email.message import EmailMessage as PyEmailMessage
+from email.mime.image import MIMEImage
 
 import djclick as click
 from django.conf import settings
@@ -77,23 +86,55 @@ def _collect_inline_images(html):
 
 
 def _send_inline(connection, subject, text_body, html_body, from_email, recipient):
-    """Build a multipart/related message with inline images and SMTP-send it."""
+    """Send a message with inline (CID) images, for any email backend.
+
+    The two backends need different handling (Django 6 dropped the high-level
+    ``multipart/related`` hooks, so attachments otherwise land in a flat
+    ``multipart/mixed``):
+
+    * SMTP (maildev, or your own SMTP server) -- hand-build a proper
+      ``multipart/alternative[text, multipart/related[html, images]]`` tree so
+      clients render the ``cid:`` references inline.
+    * API email service provider (any Anymail backend) -- attach the images
+      as ``Content-ID`` inline parts; Anymail turns those into the provider's
+      native inline images.
+    """
     html_body, images = _collect_inline_images(html_body)
 
-    msg = PyEmailMessage()
-    msg["Subject"] = subject
-    msg["From"] = from_email
-    msg["To"] = recipient
-    msg.set_content(text_body)
-    msg.add_alternative(html_body, subtype="html")
-    # The HTML alternative is the last payload; attach images related to it so
-    # clients resolve the cid: references (multipart/related).
-    html_part = msg.get_payload()[-1]
-    for cid, subtype, data in images:
-        html_part.add_related(data, maintype="image", subtype=subtype, cid=f"<{cid}>")
+    if "smtp" in settings.EMAIL_BACKEND:
+        msg = PyEmailMessage()
+        msg["Subject"] = subject
+        msg["From"] = from_email
+        msg["To"] = recipient
+        msg.set_content(text_body)
+        msg.add_alternative(html_body, subtype="html")
+        # The HTML alternative is the last payload; attach the images to it so
+        # they form a multipart/related group resolving the cid: references.
+        html_part = msg.get_payload()[-1]
+        for cid, subtype, data in images:
+            html_part.add_related(
+                data, maintype="image", subtype=subtype, cid=f"<{cid}>"
+            )
+        connection.open()
+        # No from_addr/to_addrs: let smtplib derive the envelope from the
+        # headers so a "Name <addr>" --from-email still yields a bare MAIL FROM.
+        connection.connection.send_message(msg)
+        return
 
-    connection.open()
-    connection.connection.send_message(msg, from_addr=from_email, to_addrs=[recipient])
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=text_body,
+        from_email=from_email,
+        to=[recipient],
+        connection=connection,
+    )
+    msg.attach_alternative(html_body, "text/html")
+    for cid, subtype, data in images:
+        image = MIMEImage(data, _subtype=subtype)
+        image.add_header("Content-ID", f"<{cid}>")
+        image.add_header("Content-Disposition", "inline", filename=cid)
+        msg.attach(image)
+    msg.send()
 
 
 @click.command()
@@ -116,7 +157,11 @@ def _send_inline(connection, subject, text_body, html_body, from_email, recipien
     "--from-email",
     default=settings.DEFAULT_FROM_EMAIL,
     show_default=True,
-    help="From address.",
+    help=(
+        "From address. Overrides DEFAULT_FROM_EMAIL -- use a domain your email "
+        "service provider has verified (most providers require the sender "
+        "domain to be verified)."
+    ),
 )
 @click.option(
     "--base-url",
@@ -128,14 +173,17 @@ def _send_inline(connection, subject, text_body, html_body, from_email, recipien
     "--inline-images/--no-inline-images",
     default=True,
     show_default=True,
-    help="Embed images as inline CID parts (recommended for previews; SMTP only).",
+    help="Embed images as inline CID parts (recommended for previews).",
 )
 @click.option(
     "--delay",
     type=float,
     default=0.0,
     show_default=True,
-    help="Seconds to wait between messages (raise it if your ESP rate-limits bursts).",
+    help=(
+        "Seconds to wait between messages (raise it if your email service "
+        "provider rate-limits bursts)."
+    ),
 )
 def command(
     recipient,
@@ -153,14 +201,10 @@ def command(
         scheme, host = "https", base_url
 
     # Use the project's configured email backend -- the same one the real
-    # transactional emails go through (local maildev SMTP, or the deployed ESP).
+    # transactional emails go through (local maildev SMTP, or the deployed
+    # email service provider).
     connection = get_connection()
     is_smtp = "smtp" in settings.EMAIL_BACKEND
-    if inline_images and not is_smtp:
-        raise click.ClickException(
-            "Inline images require an SMTP backend, but EMAIL_BACKEND is "
-            f"{settings.EMAIL_BACKEND!r}. Re-run with --no-inline-images."
-        )
     target = (
         f"{settings.EMAIL_HOST}:{settings.EMAIL_PORT}"
         if is_smtp
