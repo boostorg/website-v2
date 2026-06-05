@@ -599,6 +599,11 @@ class CustomSignupView(ClaimExistingAccountMixin, V3AuthContextMixin, SignupView
 
     v3_template_name = "v3/accounts/signup.html"
 
+    def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
+        context["password_rules"] = build_password_rules()
+        return context
+
     def form_invalid(self, form):
         """
         Override this form to catch users who were created as part of the GitHub data
@@ -623,16 +628,6 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
         context["EMAIL_CONFIRMATION_EXPIRE_DAYS"] = (
             app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS
         )
-        return context
-
-
-class V3SignupView(V3AuthContextMixin, TemplateView):
-    v3_template_name = "v3/accounts/signup.html"
-    page_title = "Create An Account"
-
-    def get_v3_context_data(self, **kwargs):
-        context = super().get_v3_context_data(**kwargs)
-        context["password_rules"] = build_password_rules()
         return context
 
 
