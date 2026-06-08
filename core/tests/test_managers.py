@@ -8,7 +8,6 @@ from django.utils import timezone
 
 from ..models import RenderedContent
 
-
 TEST_CACHES = {
     "static_content": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

@@ -9,7 +9,6 @@ from django.utils import timezone
 from config.celery import app
 from mailing_list.models import SubscriptionStatus, UserMailingListSubscription
 
-
 logger = structlog.getLogger(__name__)
 
 
