@@ -17,7 +17,6 @@ from news.models import Entry
 from testimonials.models import Testimonial
 from core.mock_data import SharedResources
 
-
 logger = structlog.get_logger()
 
 

@@ -37,7 +37,6 @@ from versions.releases import (
     store_release_notes_for_version,
 )
 
-
 logger = structlog.get_logger()
 
 
@@ -633,8 +632,7 @@ def skip_tag(name, new=False):
 # is configured via the WHATS_NEW_MODEL setting (env-driven; see settings.py).
 WHATS_NEW_MAX_INPUT_CHARS = 100_000
 
-WHATS_NEW_SYSTEM_PROMPT = dedent(
-    """
+WHATS_NEW_SYSTEM_PROMPT = dedent("""
     You are a technical writer for the Boost C++ library ecosystem. Your job is
     to read a Boost release note and generate a "What's New" summary for the
     Boost website.
@@ -673,8 +671,7 @@ WHATS_NEW_SYSTEM_PROMPT = dedent(
 
     Output: Return only the Markdown unordered list. No preamble, no
     explanation, no additional commentary.
-    """
-).strip()
+    """).strip()
 
 
 def _dependency_stats_block(version: Version) -> str | None:

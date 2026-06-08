@@ -256,8 +256,7 @@ def github_action_boostdep_output_artifact():
     A shortened example of the content in the artifact output by the
     dependency_report.yaml action
     """
-    return dedent(
-        """\
+    return dedent("""\
         Dependencies for version boost-1.33.0
         Dependencies for version boost-1.34.0
         Dependencies for version boost-1.35.0
@@ -265,5 +264,4 @@ def github_action_boostdep_output_artifact():
         Dependencies for version boost-1.85.0
         algorithm -> array assert bind concept_check config core
         numeric~conversion -> array
-        callable_traits ->"""
-    )
+        callable_traits ->""")
