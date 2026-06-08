@@ -13,7 +13,7 @@
     {% if title %}<span class="card__title">{{ title }}</span>{% endif %}
   </div>
   <hr class="card__hr" />
-  <div class="card__column px-large">
+  <div class="card__column card__column--base px-large">
     {% if text %}<span>{{ text }}</span>{% endif %}
     {% if image_url %}<img class="card__image" src="{{ image_url }}" alt="{{ image_alt|default:'' }}">{% endif %}
   </div>

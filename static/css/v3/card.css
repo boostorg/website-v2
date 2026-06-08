@@ -62,6 +62,12 @@
   letter-spacing: var(--letter-spacing-tight);
 }
 
+/* Basic/Text card bodies use the base (16px) size per design, not the
+   18px default shared with cards like the mailing list. */
+.card__column--base {
+  font-size: var(--font-size-base);
+}
+
 .card__header {
   align-self: stretch;
   display: flex;
