@@ -12,6 +12,30 @@ from news.utils import set_video_thumbnail
 logger = structlog.get_logger(__name__)
 
 
+def _truncate_to_length(text: str, max_length: int) -> str:
+    """Trim ``text`` to at most ``max_length`` characters at a natural boundary.
+
+    Truncates text from from generated LLM summary so that it does not go 
+    above 1,000 characters, in accordance to Design templates.
+    """
+    text = text.strip()
+    if len(text) <= max_length:
+        return text
+
+    window = text[:max_length]
+    # Prefer the last sentence-ending punctuation, but only if it keeps at least
+    # half the maximum length so we don't return a tiny fragment.
+    sentence_end = max(window.rfind("."), window.rfind("!"), window.rfind("?"))
+    if sentence_end >= max_length // 2:
+        return window[: sentence_end + 1].strip()
+
+    # Otherwise cut at the last word boundary, leaving room for the ellipsis.
+    word_end = window.rfind(" ")
+    if word_end == -1:
+        word_end = max_length - 1
+    return window[:word_end].rstrip() + "…"
+
+
 def generate_summary(
     content: str,
     title: str,
@@ -33,6 +57,10 @@ def generate_summary(
         logger.warning("No content provided to summarize, skipping.")
         raise ValueError("No content provided to summarize.")
     logger.info(f"Summarizing {content[:100]=}... with {model=}")
+    # The model can't reliably count characters, so anchor it at a target well
+    # below the hard cap. Overshoots then land under ``max_length``, and
+    # ``_truncate_to_length`` guarantees the rest.
+    target_length = int(max_length * 0.7)
     system_prompt = dedent(
         f"""
         You are an experienced technical writer tasked with summarizing content. Provide
@@ -40,9 +68,9 @@ def generate_summary(
         The title is also provided and may be in the content, repeating it in the
         summary would be redundant so should be avoided.
         Your summary should be concise, clear, and capture the main points of the
-        content. It should be less than {max_length} characters, with a single paragraph
-        of text, without going into detail. Before returning your response, check if
-        it's less than {max_length} characters, if not, shorten it until it is.
+        content. Write a single short paragraph of roughly 7 to 9 sentences, aiming for
+        about {target_length} characters and never exceeding {max_length} characters.
+        Favor fewer, tighter sentences over a longer summary.
         Write summaries in an impersonal, passive voice, never attributing actions to
         'the author' or similar.
         If no content is provided, do not return anything at all.
@@ -76,7 +104,11 @@ def generate_summary(
     except (AttributeError, IndexError) as e:
         logger.error(f"Error getting summarized content: {e=}")
         return None
+    if not summary:
+        return summary
     logger.info(f"Received summarized content for {summary[:100]=}: {len(summary)=}...")
+    summary = _truncate_to_length(summary, max_length)
+    logger.info(f"Final summary length after truncation: {len(summary)=}")
     return summary
 
 
