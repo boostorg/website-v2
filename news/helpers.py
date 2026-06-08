@@ -1,5 +1,86 @@
+import ipaddress
+import socket
+from urllib.parse import urljoin, urlparse
+
+import requests
 from bs4 import BeautifulSoup
 import trafilatura
+
+# Hostnames that should never be fetched server-side, regardless of resolution.
+_BLOCKED_HOSTNAMES = {"localhost"}
+
+
+class UnsafeURLError(Exception):
+    """Raised when a URL (or a redirect target) points at a non-public host."""
+
+
+def _is_public_ip(ip_str: str) -> bool:
+    """True only for globally routable addresses. ``is_global`` rejects
+    loopback, private, link-local, multicast, reserved and unspecified ranges
+    (e.g. 127.0.0.1, 10.x, 169.254.169.254, ::1) in one check."""
+    try:
+        return ipaddress.ip_address(ip_str).is_global
+    except ValueError:
+        return False
+
+
+def _url_host_is_safe(url: str) -> bool:
+    """True if ``url`` is an http(s) URL whose host resolves only to public IPs.
+
+    Blocks SSRF to internal/loopback/link-local targets. Resolves the hostname
+    and requires *every* returned address to be public, so a name that maps to
+    a private IP is rejected. IP-literal hosts are checked directly.
+    """
+    try:
+        parsed = urlparse(url)
+    except ValueError:
+        return False
+    if parsed.scheme not in ("http", "https") or not parsed.hostname:
+        return False
+    host = parsed.hostname
+    if host.lower() in _BLOCKED_HOSTNAMES:
+        return False
+    # IP literal: check it directly without a DNS lookup.
+    try:
+        ipaddress.ip_address(host)
+        return _is_public_ip(host)
+    except ValueError:
+        pass
+    # Hostname: resolve and require ALL addresses to be public.
+    try:
+        infos = socket.getaddrinfo(host, parsed.port, proto=socket.IPPROTO_TCP)
+    except socket.gaierror:
+        return False
+    addresses = {info[4][0] for info in infos}
+    return bool(addresses) and all(_is_public_ip(addr) for addr in addresses)
+
+
+def safe_get(
+    url: str, *, timeout: float = 10, max_redirects: int = 5
+) -> requests.Response:
+    """GET ``url`` with SSRF protection.
+
+    Redirects are followed manually so each hop's host is re-validated — a
+    public URL can otherwise 302 to an internal one. Raises ``UnsafeURLError``
+    if the URL or any redirect target isn't a public http(s) host; network
+    failures propagate as ``requests.RequestException``.
+
+    Residual gap: DNS rebinding (host resolves public at check time, private at
+    connect time) is not closed — that needs pinning the validated IP into the
+    connection. Acceptable here given the endpoint is also gated by auth + rate
+    limiting; revisit if the threat model tightens.
+    """
+    for _ in range(max_redirects + 1):
+        if not _url_host_is_safe(url):
+            raise UnsafeURLError(url)
+        resp = requests.get(url, timeout=timeout, allow_redirects=False)
+        if not resp.is_redirect:
+            return resp
+        location = resp.headers.get("Location")
+        if not location:
+            return resp
+        url = urljoin(url, location)
+    raise UnsafeURLError(f"too many redirects: {url}")
 
 
 def extract_content(html: str) -> str:

@@ -6,7 +6,7 @@ import structlog
 from config.celery import app
 from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL, SUMMARIZATION_MODEL
 from news.constants import CONTENT_SUMMARIZATION_THRESHOLD
-from news.helpers import extract_article
+from news.helpers import UnsafeURLError, extract_article, safe_get
 from news.utils import set_video_thumbnail
 
 logger = structlog.get_logger(__name__)
@@ -172,12 +172,15 @@ def set_summary_for_link_entry(pk: int):
     entry = Entry.objects.get(pk=pk)
     try:
         logger.info(f"Fetching content from {entry.external_url=} for entry.{pk=}")
-        response = requests.get(entry.external_url, timeout=10)
+        response = safe_get(entry.external_url, timeout=10)
         response.raise_for_status()
         markup = response.text
         logger.debug(f"Fetched {len(markup)=} for entry.{pk=}...")
         _title, content = extract_article(markup, url=entry.external_url)
         logger.info(f"extracted content from {entry.external_url=}, {markup[:100]=}")
+    except UnsafeURLError:
+        logger.warning(f"Refusing to fetch unsafe {entry.external_url=} for {pk=}")
+        return
     except requests.RequestException as e:
         logger.error(f"Error fetching content from {entry.external_url=}: {e=}")
         return

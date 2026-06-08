@@ -1,6 +1,5 @@
 from datetime import timedelta
 from functools import partial
-from urllib.parse import urlparse
 
 import requests
 
@@ -49,7 +48,7 @@ from .constants import (
 )
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
 from .models import BlogPost, Entry, Link, News, Poll, Video
-from .helpers import extract_article
+from .helpers import UnsafeURLError, extract_article, safe_get
 from .tasks import generate_summary
 from .notifications import (
     send_email_news_approved,
@@ -628,26 +627,8 @@ def generate_description(request):
     return JsonResponse({"description": summary.strip()})
 
 
-def _is_fetchable_url(url: str) -> bool:
-    """Basic safety check before the server fetches a user-supplied URL: it must
-    be an absolute http(s) URL with a hostname. Re-checked server-side so the
-    endpoint can't be driven with non-http schemes even if the client guard is
-    bypassed.
-
-    SECURITY: this is NOT full SSRF protection. With the cppalliance.org
-    allowlist gone, this endpoint will fetch any public http(s) URL, so a caller
-    could aim it at internal hosts (e.g. 169.254.169.254, localhost, private
-    ranges). Before shipping, add @login_required + rate limiting (already noted
-    below) AND an SSRF guard: resolve the host and reject private/link-local/
-    loopback IPs, and disable or validate redirects on the fetch."""
-    try:
-        p = urlparse(url)
-    except Exception:
-        return False
-    return p.scheme in ("http", "https") and bool(p.hostname)
-
-
 _LINK_FETCH_ERROR = "We couldn't read that link. Please check the URL and try again."
+_LINK_INVALID_ERROR = "Please enter a valid, public http(s) link."
 
 
 @require_POST
@@ -655,28 +636,29 @@ def generate_link_description(request):
     """Fetch the linked page, extract its main text, and summarize it.
 
     Works for any public http(s) URL (trafilatura isolates the main article and
-    falls back to a visible-text dump for unusual templates).
+    falls back to a visible-text dump for unusual templates). The fetch goes
+    through ``safe_get``, which blocks SSRF to internal/private hosts and
+    re-validates redirect targets.
 
-    Three failure modes return separate JSON errors:
-      - URL isn't a valid http(s) link (400).
+    Failure modes return separate JSON errors:
+      - URL is missing, malformed, or points at a non-public host (400).
       - Fetch failed or no readable text could be extracted (502, "couldn't
         read that link").
       - Summarization failed or returned empty (502, "couldn't generate").
 
     NOTE: intentionally not login-gated yet (matches `generate_description`).
-    Add @login_required + rate-limiting AND an SSRF guard before this ships —
-    see _is_fetchable_url.
+    Add @login_required + rate-limiting before this ships.
     """
     url = request.POST.get("url", "").strip()
-    if not _is_fetchable_url(url):
-        return JsonResponse(
-            {"error": "Please enter a valid http(s) link."},
-            status=400,
-        )
+    if not url:
+        return JsonResponse({"error": _LINK_INVALID_ERROR}, status=400)
 
     try:
-        resp = requests.get(url, timeout=10)
+        resp = safe_get(url, timeout=10)
         resp.raise_for_status()
+    except UnsafeURLError:
+        logger.warning("generate_link_description: blocked unsafe url", url=url)
+        return JsonResponse({"error": _LINK_INVALID_ERROR}, status=400)
     except requests.RequestException:
         logger.exception("generate_link_description: fetch failed", url=url)
         return JsonResponse({"error": _LINK_FETCH_ERROR}, status=502)
