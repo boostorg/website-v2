@@ -34,6 +34,7 @@ from .acl import can_approve
 from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
 from .models import BlogPost, Entry, Link, News, Poll, Video
+from .services import news_type_label
 from .notifications import (
     send_email_news_approved,
     send_email_news_needs_moderation,
@@ -229,7 +230,6 @@ class EntryDetailView(V3Mixin, DetailView):
     template_name = "news/detail.html"
     v3_template_name = "news/v3/detail.html"
 
-    CATEGORY_LABELS = {"blogpost": "blog"}
     AUTHOR_PREFETCH = ("author__maintainers",)
 
     def get_queryset(self):
@@ -273,7 +273,7 @@ class EntryDetailView(V3Mixin, DetailView):
             related_qs = related_qs.exclude(pk=next_entry.pk)
         return {
             "post_author": user_profile_card(entry.author),
-            "post_tag": self.CATEGORY_LABELS.get(entry.tag, entry.tag),
+            "post_tag": news_type_label(entry.tag),
             "next_post_items": (
                 [self._post_card_item(next_entry)] if next_entry else []
             ),
@@ -290,7 +290,7 @@ class EntryDetailView(V3Mixin, DetailView):
             "description": entry.summary or "",
             "url": reverse("news-detail", args=[entry.slug]),
             "date": entry.publish_at,
-            "category": cls.CATEGORY_LABELS.get(entry.tag, entry.tag).capitalize(),
+            "category": news_type_label(entry.tag),
             "author": user_profile_card(entry.author),
         }
 

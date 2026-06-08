@@ -91,7 +91,7 @@ from .tasks import (
 
 from libraries.models import Category, Library, LibraryVersion, Tier
 from news.models import Entry
-from news.services import get_latest_post_cards
+from news.services import get_latest_post_cards, news_type_label
 from libraries.utils import (
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
@@ -301,17 +301,12 @@ class CommunityView(V3Mixin, TemplateView):
             .select_related("author")
             .order_by("-publish_at")[:4]
         )
-        tag_display = {"blogpost": "Blog"}
         ctx["posts"] = [
             {
                 "title": entry.title,
                 "url": self.request.build_absolute_uri(entry.get_absolute_url()),
                 "date": entry.publish_at,
-                "category": (
-                    tag_display.get(str(entry.tag).lower(), entry.tag.capitalize())
-                    if entry.tag
-                    else ""
-                ),
+                "category": news_type_label(entry.tag) if entry.tag else "",
                 # TODO: populate from DB once entry tags are persisted
                 "tag": "",
                 "author": {

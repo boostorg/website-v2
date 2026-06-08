@@ -1,5 +1,18 @@
 from .models import Entry
 
+# Display labels for a post's type "chip" (the small category label on post
+# cards and headers). Maps a raw news_type/tag to a human-facing label; anything
+# not listed is title-cased. Single source of truth so the label can't drift
+# between the post-card service, the community page, and the news detail view.
+NEWS_TYPE_LABELS = {"blogpost": "Blog"}
+
+
+def news_type_label(news_type: str) -> str:
+    """Human-facing label for a post's type chip (e.g. 'blogpost' -> 'Blog')."""
+    news_type = (news_type or "news").lower()
+    return NEWS_TYPE_LABELS.get(news_type, news_type.capitalize())
+
+
 # The canonical "post card" dict shape consumed by the v3 latest-posts card.
 # Every content source (news Entry models today, Wagtail pages later) must map
 # into this same shape so downstream templates don't have to branch on origin:
@@ -26,12 +39,12 @@ def _entry_to_post_card(entry: Entry) -> dict:
         "title": entry.title,
         "url": entry.get_absolute_url(),
         "date": entry.publish_at,
-        "category": entry.determined_news_type or "news",
+        "category": news_type_label(entry.determined_news_type),
         "tag": "",
         "author": {
             "name": getattr(author, "display_name", None) or str(author),
             "profile_url": None,
-            "role": "Author",
+            "role": author.role,
             "avatar_url": (
                 author.get_avatar_url() if hasattr(author, "get_avatar_url") else ""
             ),
