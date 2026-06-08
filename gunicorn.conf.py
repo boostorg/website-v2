@@ -3,7 +3,6 @@
 import os
 from psycogreen.gevent import patch_psycopg  # use this if you use gevent workers
 
-
 BASE_DIR = os.environ["H"] if os.environ.get("H", None) else "/code"
 
 accesslog = "-"

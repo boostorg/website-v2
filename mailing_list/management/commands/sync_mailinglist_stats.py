@@ -113,15 +113,13 @@ def create_commitauthors(conn: Connection):
     columns = ["email", "name"]
     # Uses a named cursor to use a serverside postgres cursor
     with conn.cursor(name="commitauthor_sync") as cursor:
-        cursor.execute(
-            """
+        cursor.execute("""
                 SELECT
                     LOWER(sender_id) AS email
                     , (ARRAY_AGG(distinct(sender_name)))[1] as name
                 FROM hyperkitty_email
                 GROUP BY LOWER(sender_id);
-            """
-        )
+            """)
         rows = []
         for i, data in enumerate(cursor):
             row = {x: data[j] for j, x in enumerate(columns)}

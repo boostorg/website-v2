@@ -10,7 +10,6 @@ from .models import Preferences
 from news.models import NEWS_MODELS
 from news.acl import can_approve
 
-
 User = get_user_model()
 
 NEWS_ENTRY_CHOICES = [(m.news_type, m._meta.verbose_name.title()) for m in NEWS_MODELS]

@@ -16,7 +16,6 @@ from django.core.management import CommandError
 from core.constants import SLACK_URL
 from slack.models import SlackUser, SlackActivityBucket, Channel, parse_ts
 
-
 client = WebClient(token=settings.SLACK_BOT_TOKEN)
 client.retry_handlers.append(RateLimitErrorRetryHandler(max_retry_count=10))
 
