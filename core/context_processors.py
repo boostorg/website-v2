@@ -9,7 +9,6 @@ from libraries.utils import get_version_from_cookie
 from versions.converters import BoostVersionSlugConverter
 from versions.models import Version
 
-
 _BOOST_VERSION_SLUG_ROUTE_TOKEN = (
     f"<{BoostVersionSlugConverter.URL_TYPE_NAME}:version_slug>"
 )

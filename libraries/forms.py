@@ -290,7 +290,7 @@ class CreateReportForm(CreateReportFullForm):
         # NOTE TO FUTURE DEVS: remember to account for the fact that a report
         #  configuration may not match with a real version in frequent cases where
         #  reports are generated before the release version has been created.
-        (report_before_release, prior_version, version) = determine_versions(
+        report_before_release, prior_version, version = determine_versions(
             report_configuration.version
         )
 
@@ -368,13 +368,11 @@ class CreateReportForm(CreateReportFullForm):
         git_graph_data = get_git_graph_data(prior_version, version)
         download = get_download_links(version, base_uri)
         ### completed task handling ###
-        (mailinglist_contributor_release_count, mailinglist_contributor_new_count) = (
+        mailinglist_contributor_release_count, mailinglist_contributor_new_count = (
             mailing_list_contributors_task.get()
         )
-        (mailinglist_post_stats, total_mailinglist_count) = (
-            mailing_list_stats_task.get()
-        )
-        (commit_contributors_release_count, commit_contributors_new_count) = (
+        mailinglist_post_stats, total_mailinglist_count = mailing_list_stats_task.get()
+        commit_contributors_release_count, commit_contributors_new_count = (
             commit_contributors_task.get()
         )
         (
@@ -382,7 +380,7 @@ class CreateReportForm(CreateReportFullForm):
             mailinglist_wordcloud_base64,
             mailinglist_wordcloud_top_words,
         ) = mailinglist_wordcloud_task.get()
-        (search_wordcloud_base64, search_wordcloud_top_words, search_stats) = (
+        search_wordcloud_base64, search_wordcloud_top_words, search_stats = (
             search_wordcloud_task.get()
         )
         global_contributors_new_count = new_contributors_count_task.get()
@@ -441,7 +439,7 @@ class CreateReportForm(CreateReportFullForm):
         # NOTE TO FUTURE DEVS: remember to account for the fact that a report
         #  configuration may not match with a real version in frequent cases where
         #  reports are generated before the release version has been created.
-        (report_before_release, prior_version, version) = determine_versions(
+        report_before_release, prior_version, version = determine_versions(
             report_configuration.version
         )
 

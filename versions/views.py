@@ -201,8 +201,7 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
         ]
         ctx["release_notes"] = {
             "title": f"Release notes version {obj.display_name}",
-            "html": dedent(
-                """\
+            "html": dedent("""\
                 <h2>Dependencies</h2>
                 <p>There was 1 dependency added (in 1 library) and 16 dependencies removed (in 10 libraries) this release.</p>
                 <ul>
@@ -228,8 +227,7 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
                 <li>Added a new configuration parameter "reactor" / "reset_edge_on_partial_read", which determines whether a partial read consumes the edge when using epoll.</li>
                 <li>Added the missing preprocessor check for BOOST_ASIO_DISABLE_TIMERFD.</li>
                 <li>Implemented a compile-time feature detection mechanism for io_uring.</li>
-                </ul>"""
-            ),
+                </ul>"""),
         }
         top_contributors = self.get_top_contributors_release(obj)
         if top_contributors:

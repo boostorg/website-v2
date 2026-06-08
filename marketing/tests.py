@@ -43,7 +43,7 @@ def test_qrc_falls_back_to_remote_addr_when_no_xff(tp):
     tp.response_302(res)
     assert res["Location"] == "/library/latest/algorithm/"
 
-    (_, kwargs) = post_mock.call_args
+    _, kwargs = post_mock.call_args
     headers = kwargs["headers"]
     assert headers["X-Forwarded-For"] == "127.0.0.1"  # Django test client default
 

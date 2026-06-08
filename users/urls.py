@@ -4,7 +4,6 @@ from django.urls import path
 
 from . import api
 
-
 router = DefaultRouter()
 router.register(r"users", api.UserViewSet, basename="user")
 
