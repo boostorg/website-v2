@@ -21,7 +21,6 @@ from news.views import (
     VideoListView,
 )
 
-
 urlpatterns = [
     path("", EntryListView.as_view(), name="news"),
     path("blogpost/", BlogPostListView.as_view(), name="news-blogpost-list"),

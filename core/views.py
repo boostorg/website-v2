@@ -1954,8 +1954,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         ]
         context["markdown_data"] = {
             "title": "Markdown Block",
-            "markdown": dedent(
-                """
+            "markdown": dedent("""
 
             ######Insert anything Required
 
@@ -1965,8 +1964,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
             * list
 
             Or **bold** and *italics* and whatever it needs to be formatted or [use links](https://www.example.com)!
-            """
-            ),
+            """),
             "button_url": "#",
             "button_label": "Optional CTA Button",
             "button_style": "primary",

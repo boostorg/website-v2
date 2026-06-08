@@ -57,7 +57,6 @@ from .tasks import (
 )
 from .utils import generate_release_report_filename
 
-
 logger = structlog.get_logger()
 
 
@@ -277,7 +276,7 @@ class ReleaseReportView(TemplateView):
         # NOTE TO FUTURE DEVS: remember to account for the fact that a report
         #  configuration may not match with a real version in frequent cases where
         #  reports are generated before the release version has been created.
-        (report_before_release, prior_version, version) = determine_versions(
+        report_before_release, prior_version, version = determine_versions(
             report_configuration.version
         )
 

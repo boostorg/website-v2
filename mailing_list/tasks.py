@@ -5,7 +5,6 @@ from django.conf import settings
 
 from config.celery import app
 
-
 logger = structlog.getLogger(__name__)
 
 

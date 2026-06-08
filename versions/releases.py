@@ -15,7 +15,6 @@ from core.models import RenderedContent
 
 from .models import Version, VersionFile
 
-
 logger = structlog.get_logger(__name__)
 session = requests.Session()
 
