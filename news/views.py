@@ -49,7 +49,7 @@ from .constants import (
 )
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
 from .models import BlogPost, Entry, Link, News, Poll, Video
-from .helpers import extract_cppalliance_post
+from .helpers import extract_article
 from .tasks import generate_summary
 from .notifications import (
     send_email_news_approved,
@@ -628,19 +628,23 @@ def generate_description(request):
     return JsonResponse({"description": summary.strip()})
 
 
-def _is_cppalliance_blog_url(url: str) -> bool:
-    """Same constraints as the frontend's `linkUrlValid`: HTTPS + cppalliance.org
-    host + `.html` path. Re-checked server-side so the endpoint can't be hit
-    with arbitrary URLs even if someone bypasses the client-side guard."""
+def _is_fetchable_url(url: str) -> bool:
+    """Basic safety check before the server fetches a user-supplied URL: it must
+    be an absolute http(s) URL with a hostname. Re-checked server-side so the
+    endpoint can't be driven with non-http schemes even if the client guard is
+    bypassed.
+
+    SECURITY: this is NOT full SSRF protection. With the cppalliance.org
+    allowlist gone, this endpoint will fetch any public http(s) URL, so a caller
+    could aim it at internal hosts (e.g. 169.254.169.254, localhost, private
+    ranges). Before shipping, add @login_required + rate limiting (already noted
+    below) AND an SSRF guard: resolve the host and reject private/link-local/
+    loopback IPs, and disable or validate redirects on the fetch."""
     try:
         p = urlparse(url)
     except Exception:
         return False
-    return (
-        p.scheme == "https"
-        and p.hostname == "cppalliance.org"
-        and p.path.endswith(".html")
-    )
+    return p.scheme in ("http", "https") and bool(p.hostname)
 
 
 _LINK_FETCH_ERROR = "We couldn't read that link. Please check the URL and try again."
@@ -648,21 +652,25 @@ _LINK_FETCH_ERROR = "We couldn't read that link. Please check the URL and try ag
 
 @require_POST
 def generate_link_description(request):
-    """Fetch a cppalliance.org blog post, extract its text, and summarize it.
+    """Fetch the linked page, extract its main text, and summarize it.
+
+    Works for any public http(s) URL (trafilatura isolates the main article and
+    falls back to a visible-text dump for unusual templates).
 
     Three failure modes return separate JSON errors:
-      - URL didn't pass the cppalliance.org / HTTPS / .html check (400).
-      - Fetch failed or the page didn't match the blog template (502, "couldn't
+      - URL isn't a valid http(s) link (400).
+      - Fetch failed or no readable text could be extracted (502, "couldn't
         read that link").
       - Summarization failed or returned empty (502, "couldn't generate").
 
     NOTE: intentionally not login-gated yet (matches `generate_description`).
-    Add @login_required + rate-limiting before this ships.
+    Add @login_required + rate-limiting AND an SSRF guard before this ships —
+    see _is_fetchable_url.
     """
     url = request.POST.get("url", "").strip()
-    if not _is_cppalliance_blog_url(url):
+    if not _is_fetchable_url(url):
         return JsonResponse(
-            {"error": "Auto-Generate only works for .html links from cppalliance.org."},
+            {"error": "Please enter a valid http(s) link."},
             status=400,
         )
 
@@ -673,9 +681,9 @@ def generate_link_description(request):
         logger.exception("generate_link_description: fetch failed", url=url)
         return JsonResponse({"error": _LINK_FETCH_ERROR}, status=502)
 
-    title, body = extract_cppalliance_post(resp.text)
+    title, body = extract_article(resp.text, url=url)
     if not body:
-        # Page fetched OK but didn't match the cppalliance blog template.
+        # Page fetched OK but no readable text could be isolated.
         logger.warning("generate_link_description: extraction empty", url=url)
         return JsonResponse({"error": _LINK_FETCH_ERROR}, status=502)
 

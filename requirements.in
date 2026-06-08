@@ -74,6 +74,8 @@ uv
 mistletoe
 python-frontmatter
 beautifulsoup4
+# Main-content extraction from arbitrary web pages (Link post Auto-Generate)
+trafilatura
 
 # used in old mailinglist migrations, squash them and this can probably be removed
 django-mptt==0.14
