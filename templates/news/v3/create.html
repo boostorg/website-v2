@@ -166,6 +166,8 @@
         contentSaveStatus: '',       // same states, for the Content field
         _descriptionSaveTimer: null,
         _contentSaveTimer: null,
+        _titleSaveTimer: null,
+        titleEl: null,               // cached reference to the (non-Alpine) title input
         errors: {
           post_type:    '',
           title:        '{{ form.title.errors.0|default:""|escapejs }}',
@@ -178,8 +180,13 @@
         get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
 
         init() {
-          // Restore saved Content and Description drafts for the current post
-          // type. On a fresh load with no draft this leaves the field untouched.
+          // The title input is rendered by the shared field include (not
+          // Alpine-bound), so cache it and drive its draft via the DOM.
+          this.titleEl = this.$root.querySelector('input[name="title"]');
+          if (this.titleEl) this.titleEl.addEventListener('input', () => this.onTitleEdited());
+          // Restore saved Title, Content, and Description drafts for the current
+          // post type. On a fresh load with no draft this leaves fields untouched.
+          this.restoreTitleDraft();
           this.restoreContentDraft();
           this.restoreDescriptionDraft();
         },
@@ -191,10 +198,13 @@
           // draft belonging to the newly selected type.
           clearTimeout(this._descriptionSaveTimer);
           clearTimeout(this._contentSaveTimer);
+          clearTimeout(this._titleSaveTimer);
+          this.saveTitleDraft();
           this.saveContentDraft();
           this.saveDescriptionDraft();
           this.postType = value;
           this.errors.post_type = '';
+          this.restoreTitleDraft({ allowEmpty: true });
           this.restoreContentDraft({ allowEmpty: true });
           this.restoreDescriptionDraft({ allowEmpty: true });
         },
@@ -218,6 +228,36 @@
           window.dispatchEvent(new CustomEvent('wysiwyg-set-content', {
             detail: { id: 'field-content', value: markdown },
           }));
+        },
+
+        titleDraftKey() {
+          return 'boost:createPost:titleDraft:' + (this.postType || '');
+        },
+
+        onTitleEdited() {
+          clearTimeout(this._titleSaveTimer);
+          this._titleSaveTimer = setTimeout(() => this.saveTitleDraft(), 800);
+        },
+
+        saveTitleDraft() {
+          if (!this.titleEl) return;
+          try {
+            const value = this.titleEl.value;
+            if (value) localStorage.setItem(this.titleDraftKey(), value);
+            else localStorage.removeItem(this.titleDraftKey());
+          } catch (_) {}
+        },
+
+        restoreTitleDraft({ allowEmpty = false } = {}) {
+          if (!this.titleEl) return;
+          let saved = null;
+          try { saved = localStorage.getItem(this.titleDraftKey()); } catch (_) {}
+          if (saved !== null) this.titleEl.value = saved;
+          else if (allowEmpty) this.titleEl.value = '';
+        },
+
+        clearTitleDraft() {
+          try { localStorage.removeItem(this.titleDraftKey()); } catch (_) {}
         },
 
         // ── Description draft: localStorage, keyed per post type ─────────────
@@ -386,6 +426,7 @@
             // Validation passed; the form will POST — drop the saved drafts.
             // (On a server-side reject, the description re-initializes from
             //  `form.summary.value` so the user's text stays visible.)
+            this.clearTitleDraft();
             this.clearContentDraft();
             this.clearDescriptionDraft();
           }
