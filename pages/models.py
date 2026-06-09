@@ -233,11 +233,6 @@ class PostPage(BasePage):
         ctx["post_author"] = self.author
         return ctx
 
-    def get_listing_url(self, request=None, current_site=None):
-        if self.stream_content_type == "url":
-            return self.content[0]
-        return super().get_url(request, current_site)
-
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
@@ -326,12 +321,12 @@ class PostPage(BasePage):
             return self.tags.first()
         return self.post_content_type
 
-    @property
+    @cached_property
     def external_url(self):
         if self.post_content_type == "Link":
             return self.content[0]
         elif self.post_content_type == "Video":
-            return self.content[0].value["video"].url
+            return self.content[0].value.url
         else:
             return None
 

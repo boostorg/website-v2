@@ -26,7 +26,7 @@ def set_video_thumbnail(video: typing.Union["Video", "PostPage"]):
 
     if isinstance(video, Video) and not video.is_video:
         raise Exception(f"{video} is not a video, cannot set thumbnail.")
-    elif isinstance(video, PostPage) and not video.post_content_type != "video":
+    elif isinstance(video, PostPage) and not video.post_content_type == "Video":
         raise Exception(f"{video}'s content is not a video, cannot set thumbnail.")
 
     url = YOUTUBE_OEMBED_ENDPOINT + f"?url={video.external_url}"
