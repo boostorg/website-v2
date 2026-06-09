@@ -9,6 +9,10 @@ import trafilatura
 # Hostnames that should never be fetched server-side, regardless of resolution.
 _BLOCKED_HOSTNAMES = {"localhost"}
 
+# Hard cap on a fetched body. Generous for an article, but bounds the memory and
+# worker time a single (possibly hostile) response can consume.
+MAX_FETCH_BYTES = 2_000_000  # 2 MB
+
 
 class UnsafeURLError(Exception):
     """Raised when a URL (or a redirect target) points at a non-public host."""
@@ -61,9 +65,11 @@ def safe_get(
     """GET ``url`` with SSRF protection.
 
     Redirects are followed manually so each hop's host is re-validated — a
-    public URL can otherwise 302 to an internal one. Raises ``UnsafeURLError``
-    if the URL or any redirect target isn't a public http(s) host; network
-    failures propagate as ``requests.RequestException``.
+    public URL can otherwise 302 to an internal one. The response body is capped
+    at ``MAX_FETCH_BYTES`` (checked against ``Content-Length`` and again while
+    streaming, since the header can be absent or wrong). Raises ``UnsafeURLError``
+    if the URL or any redirect target isn't a public http(s) host, or the body
+    exceeds the cap; network failures propagate as ``requests.RequestException``.
 
     Residual gap: DNS rebinding (host resolves public at check time, private at
     connect time) is not closed — that needs pinning the validated IP into the
@@ -73,13 +79,32 @@ def safe_get(
     for _ in range(max_redirects + 1):
         if not _url_host_is_safe(url):
             raise UnsafeURLError(url)
-        resp = requests.get(url, timeout=timeout, allow_redirects=False)
-        if not resp.is_redirect:
-            return resp
-        location = resp.headers.get("Location")
-        if not location:
-            return resp
-        url = urljoin(url, location)
+        resp = requests.get(url, timeout=timeout, allow_redirects=False, stream=True)
+        if resp.is_redirect:
+            location = resp.headers.get("Location")
+            resp.close()
+            if not location:
+                resp._content = b""
+                return resp
+            url = urljoin(url, location)
+            continue
+        # Reject early if the server declares an oversized body, then enforce the
+        # cap while streaming in case Content-Length is missing or understated.
+        declared = resp.headers.get("Content-Length")
+        if declared and declared.isdigit() and int(declared) > MAX_FETCH_BYTES:
+            resp.close()
+            raise UnsafeURLError(f"response too large: {url}")
+        chunks, total = [], 0
+        for chunk in resp.iter_content(8192):
+            total += len(chunk)
+            if total > MAX_FETCH_BYTES:
+                resp.close()
+                raise UnsafeURLError(f"response too large: {url}")
+            chunks.append(chunk)
+        # Populate the body so callers can use resp.text/.content normally despite
+        # stream=True (which otherwise defers — and would bypass — the read).
+        resp._content = b"".join(chunks)
+        return resp
     raise UnsafeURLError(f"too many redirects: {url}")
 
 
