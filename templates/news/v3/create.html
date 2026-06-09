@@ -215,6 +215,8 @@
         _linkDescriptionSaveTimer: null,
         _titleSaveTimer: null,
         titleEl: null,               // cached reference to the (non-Alpine) title input
+        _externalUrlSaveTimer: null,
+        externalUrlEl: null,         // cached reference to the (non-Alpine) Link URL input
         errors: {
           post_type:    '',
           title:        '{{ form.title.errors.0|default:""|escapejs }}',
@@ -244,10 +246,14 @@
           // Alpine-bound), so cache it and drive its draft via the DOM.
           this.titleEl = this.$root.querySelector('input[name="title"]');
           if (this.titleEl) this.titleEl.addEventListener('input', () => this.onTitleEdited());
-          // Restore saved Title / Content / Description / Link-Description drafts
-          // for the current post type. On a fresh load with no draft this leaves
-          // the field untouched.
+          // Same for the Link URL input (shown for Link and Video post types).
+          this.externalUrlEl = this.$root.querySelector('input[name="external_url"]');
+          if (this.externalUrlEl) this.externalUrlEl.addEventListener('input', () => this.onExternalUrlEdited());
+          // Restore saved Title / Link URL / Content / Description / Link-Description
+          // drafts for the current post type. On a fresh load with no draft this
+          // leaves the field untouched.
           this.restoreTitleDraft();
+          this.restoreExternalUrlDraft();
           this.restoreContentDraft();
           this.restoreDescriptionDraft();
           this.restoreLinkDescriptionDraft();
@@ -262,13 +268,16 @@
           clearTimeout(this._contentSaveTimer);
           clearTimeout(this._linkDescriptionSaveTimer);
           clearTimeout(this._titleSaveTimer);
+          clearTimeout(this._externalUrlSaveTimer);
           this.saveTitleDraft();
+          this.saveExternalUrlDraft();
           this.saveContentDraft();
           this.saveDescriptionDraft();
           this.saveLinkDescriptionDraft();
           this.postType = value;
           this.errors.post_type = '';
           this.restoreTitleDraft({ allowEmpty: true });
+          this.restoreExternalUrlDraft({ allowEmpty: true });
           this.restoreContentDraft({ allowEmpty: true });
           this.restoreDescriptionDraft({ allowEmpty: true });
           this.restoreLinkDescriptionDraft({ allowEmpty: true });
@@ -323,6 +332,37 @@
 
         clearTitleDraft() {
           try { localStorage.removeItem(this.titleDraftKey()); } catch (_) {}
+        },
+
+
+        externalUrlDraftKey() {
+          return 'boost:createPost:externalUrlDraft:' + (this.postType || '');
+        },
+
+        onExternalUrlEdited() {
+          clearTimeout(this._externalUrlSaveTimer);
+          this._externalUrlSaveTimer = setTimeout(() => this.saveExternalUrlDraft(), 800);
+        },
+
+        saveExternalUrlDraft() {
+          if (!this.externalUrlEl) return;
+          try {
+            const value = this.externalUrlEl.value;
+            if (value) localStorage.setItem(this.externalUrlDraftKey(), value);
+            else localStorage.removeItem(this.externalUrlDraftKey());
+          } catch (_) {}
+        },
+
+        restoreExternalUrlDraft({ allowEmpty = false } = {}) {
+          if (!this.externalUrlEl) return;
+          let saved = null;
+          try { saved = localStorage.getItem(this.externalUrlDraftKey()); } catch (_) {}
+          if (saved !== null) { this.externalUrlEl.value = saved; this.externalUrl = saved; }
+          else if (allowEmpty) { this.externalUrlEl.value = ''; this.externalUrl = ''; }
+        },
+
+        clearExternalUrlDraft() {
+          try { localStorage.removeItem(this.externalUrlDraftKey()); } catch (_) {}
         },
 
         // ── Description draft: localStorage, keyed per post type ─────────────
@@ -567,6 +607,7 @@
             // (On a server-side reject, the description re-initializes from
             //  `form.summary.value` so the user's text stays visible.)
             this.clearTitleDraft();
+            this.clearExternalUrlDraft();
             this.clearContentDraft();
             this.clearDescriptionDraft();
             this.clearLinkDescriptionDraft();
