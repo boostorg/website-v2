@@ -134,8 +134,31 @@
             </div>
           </div>
 
-          <div class="field create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
-            {% include "v3/includes/_field_textarea.html" with name="description" field_id="description" label="Description" value=form.summary.value|default_if_none:"" alpine_disabled_expr="isWriteUp" alpine_x_model="linkDescription" alpine_at_input="onLinkDescriptionEdited($event)" char_counter_max=1000 %}
+          <div class="field field--textarea create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
+            <div class="create-post-page__field-header">
+              <label class="field__label" for="field-description">Description</label>
+              <span class="create-post-page__char-counter" aria-hidden="true" x-text="(1000 - (linkDescription ? linkDescription.length : 0)).toLocaleString() + ' left'">1,000 left</span>
+            </div>
+            <div class="field__control field__control--textarea" x-show="!linkGenerating">
+              <textarea
+                class="field__input field__input--textarea"
+                id="field-description"
+                name="description"
+                rows="4"
+                maxlength="1000"
+                placeholder="What would you like to write?"
+                :disabled="isWriteUp"
+                x-model="linkDescription"
+                @input="onLinkDescriptionEdited($event)"
+              ></textarea>
+            </div>
+            {% comment %} Shown while Auto-Generate is in flight (visually replaces the textarea), mirroring the Blog/News Description section. {% endcomment %}
+            <div class="field__control field__control--textarea create-post-page__generating-placeholder" role="status" aria-live="polite" x-show="linkGenerating" x-cloak>
+              <span class="create-post-page__generating-message">
+                {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__generating-icon" icon_size=16 %}
+                <span>Hold on! We are generating a description for your content, it may take a few seconds</span>
+              </span>
+            </div>
             {% comment %} Auto-Generate is Link-only (Video is out of scope). Disabled until the link field holds a valid http(s) URL. {% endcomment %}
             <div class="create-post-page__description-actions" x-show="isLink" x-cloak>
               <button type="button" class="btn btn-secondary create-post-page__generate-btn" @click="generateLinkDescription()" :disabled="!linkUrlValid || linkGenerating">Auto-Generate Description</button>
