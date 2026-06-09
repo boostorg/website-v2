@@ -12,6 +12,7 @@ from pages.blocks import POST_BLOCKS
 from pages.mixins import BasePage
 
 from news.tasks import summary_dispatcher
+from news.tasks import set_thumbnail_for_video_page
 
 logger = get_logger(__name__)
 
@@ -244,7 +245,11 @@ class PostPage(BasePage):
 
         if not self.summary:
             logger.info(f"Passing {self.pk=} to dispatcher")
-            summary_dispatcher.delay(self.pk)
+            summary_dispatcher.delay(self.pk, "PostPage")
+
+        if not self.video_thumbnail and self.post_content_type == "Video":
+            logger.info(f"Setting thumbnail for {self.pk=}")
+            set_thumbnail_for_video_page.delay(self.pk)
 
         return result
 
@@ -321,12 +326,14 @@ class PostPage(BasePage):
             return self.tags.first()
         return self.post_content_type
 
-    @cached_property
+    @property
     def external_url(self):
-        if not self.post_content_type == "Link":
-            return None
-        else:
+        if self.post_content_type == "Link":
             return self.content[0]
+        elif self.post_content_type == "Video":
+            return self.content[0].value["video"].url
+        else:
+            return None
 
     content_panels = BasePage.content_panels + [
         "content",
