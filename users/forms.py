@@ -11,7 +11,6 @@ from .models import Preferences
 from news.models import NEWS_MODELS
 from news.acl import can_approve
 
-
 User = get_user_model()
 
 NEWS_ENTRY_CHOICES = [(m.news_type, m._meta.verbose_name.title()) for m in NEWS_MODELS]
@@ -180,16 +179,6 @@ class DeleteAccountForm(forms.Form):
         return verify
 
 
-class UserBioForm(forms.Form):
-    bio = forms.CharField(max_length=4096, required=False)
-    one_line_bio = forms.CharField(max_length=80, required=False)
-    github_profile = forms.CharField(max_length=80, required=False)
-    website = forms.CharField(max_length=80, required=False)
-    email = forms.CharField(max_length=80, required=False)
-    slack = forms.CharField(max_length=80, required=False)
-    role = forms.ChoiceField()
-
-
 class V3ProfileLinkChoices(models.TextChoices):
     GITHUB = "github"
     WEBSITE = "website"
@@ -215,6 +204,27 @@ V3CommitEmailFormSet = forms.formset_factory(V3CommitEmailForm, extra=0)
 
 
 class V3UserProfileForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        links = kwargs.pop("user_links", None)
+        commit_emails = kwargs.pop("commit_emails", None)
+        super().__init__(*args, **kwargs)
+        if links:
+            self.link_formset = V3ProfileLinkFormset(
+                initial=[
+                    {"type": x, "value": links.get(x, "")}
+                    for x in V3ProfileLinkChoices.values
+                ],
+            )
+        if commit_emails:
+            self.commit_email_formset = V3CommitEmailFormSet(
+                initial=[
+                    {
+                        "email": x,
+                    }
+                    for x in commit_emails
+                ],
+            )
+
     # Left Column Fields
     tagline = forms.CharField(
         max_length=70,
@@ -264,7 +274,7 @@ class V3UserProfileForm(forms.Form):
     override_commit_author_name = forms.BooleanField(
         help_text="Globally replaces your git commit author name with username value set above"
     )
-    ovverride_commit_author_email = forms.BooleanField(
+    override_commit_author_email = forms.BooleanField(
         help_text="Links your login to an existing commit-author email after verification"
     )
 

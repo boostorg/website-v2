@@ -92,7 +92,7 @@
           {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
           {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
           x-show="!jsReady"
-          :disabled="jsReady || {{disabled}}"
+          :disabled="jsReady || {{disabled|default:"false"}}"
           @change="$dispatch('field-change', { name: '{{ name }}', value: $event.target.value, label: $event.target.options[$event.target.selectedIndex].text })">
     {% if placeholder %}<option value="">{{ placeholder }}</option>{% endif %}
     {% for value, label in options %}

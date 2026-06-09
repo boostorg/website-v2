@@ -29,9 +29,6 @@
     <span class="checkbox__label">{{ label }}</span>
   </label>
   {% if help_text %}
-    <p class="field__help field__checkbox__help"
-        id="field-{{ name }}-help"
-        x-show="!{{ alpine_error }}"
-        {% if error %}style="display:none"{% endif %}>{{ help_text }}</p>
+    <p class="field__help field__checkbox__help" id="field-{{ name }}-help">{{ help_text }}</p>
   {% endif %}
 </div>
