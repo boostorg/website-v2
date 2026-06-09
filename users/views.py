@@ -23,6 +23,8 @@ from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
+from waffle import flag_is_active
+
 from core.constants import BadgeToken
 from core.mixins import V3Mixin, V3AuthContextMixin
 from libraries.models import CommitAuthorEmail
@@ -32,6 +34,7 @@ from .forms import (
     UserProfilePhotoForm,
     DeleteAccountForm,
     V3UserProfileForm,
+    CustomSignUpForm,
 )
 from .models import User
 from .password_rules import build_password_rules
@@ -598,6 +601,11 @@ class CustomSignupView(ClaimExistingAccountMixin, V3AuthContextMixin, SignupView
     """
 
     v3_template_name = "v3/accounts/signup.html"
+
+    def get_form_class(self):
+        if flag_is_active(self.request, "v3"):
+            return CustomSignUpForm
+        return super().get_form_class()
 
     def get_v3_context_data(self, **kwargs):
         context = super().get_v3_context_data(**kwargs)

@@ -6,6 +6,7 @@ from django.db import models
 from django import forms
 
 from allauth.account.forms import ResetPasswordKeyForm
+from allauth.account.forms import SignupForm
 
 from .models import Preferences
 from news.models import NEWS_MODELS
@@ -23,6 +24,10 @@ class CustomResetPasswordFromKeyForm(ResetPasswordKeyForm):
         result = super().save(**kwargs)
         self.user.claim()
         return result
+
+
+class CustomSignUpForm(SignupForm):
+    accept_terms_of_use = forms.BooleanField(required=True)
 
 
 class PreferencesForm(forms.ModelForm):

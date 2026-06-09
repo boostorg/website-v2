@@ -670,6 +670,10 @@
   color: var(--color-text-primary, #050816);
 }
 
+.checkbox__label a {
+  text-decoration: underline;
+}
+
 .checkbox--disabled {
   opacity: 0.5;
   cursor: not-allowed;

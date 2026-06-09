@@ -24,7 +24,7 @@
     <h1 class="auth-page__title">Create an account</h1>
     <p class="auth-page__subtitle">Advance your career, learn from experts, and help shape the future of Boost and C++.</p>
   </div>
-  <form class="auth-page__card"
+  <form class="auth-page__card auth-page__signup-form"
     id="signup_form"
     method="post"
     action="/accounts/signup/"
@@ -54,26 +54,43 @@
       {% for error in form.non_field_errors %}<p class="field__error" role="alert">{{ error }}</p>{% endfor %}
     {% endif %}
     {% include "v3/includes/_field_checkbox.html" with name="mailing_list" label="Also join the Boost Developers Mailing List" %}
+    <label class="checkbox" for="checkbox-accept_terms_of_use">
+        <input
+          class="checkbox__input"
+          type="checkbox"
+          id="checkbox-accept_terms_of_use"
+          name="accept_terms_of_use"
+          value="on"
+          required
+        >
+          <span class="checkbox__box" aria-hidden="true">
+            {% include "includes/icon.html" with icon_name="check" icon_class="checkbox__check" %}
+          </span>
+          <span class="checkbox__label">I have read and accepted the <a href="{% url 'terms-of-use' %}">Term of Use</a> for this service</span>
+    </label>
     {% if redirect_field_value %}
       <input type="hidden"
              name="{{ redirect_field_name }}"
              value="{{ redirect_field_value }}">
     {% endif %}
     {% include "v3/includes/_button.html" with label="Create Account" type="submit" style="primary" alpine_disabled="hasErrors" %}
-  </form>
-  <p class="auth-page__divider">OR</p>
-  <div class="auth-page__social-card">
+    <p class="auth-page__divider">OR</p>
     {% get_providers as socialaccount_providers %}
     {% if socialaccount_providers %}
-      {% for provider in socialaccount_providers %}
-        {% provider_login_url provider process="login" scope=scope auth_params=auth_params as href %}
-          {% if provider.name == "GitHub" %}
-            {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="github" style="secondary" %}
-          {% elif provider.name == "Google" %}
-            {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="google-colored" style="secondary" %}
-          {% endif %}
-      {% endfor %}
+    {% for provider in socialaccount_providers %}
+    <label for="checkbox-{{provider.name}}">
+    {% provider_login_url provider process="login" scope=scope auth_params=auth_params as href %}
+    <input class="auth-page__invisible-check" id="checkbox-{{provider.name}}" type="checkbox">
+    <div>
+    {% if provider.name == "GitHub" %}
+    {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="github" style="secondary" %}
+    {% elif provider.name == "Google" %}
+    {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="google-colored" style="secondary" %}
+    {% endif %}
+    </div>
+    </label>
+    {% endfor %}
     {% endif %}
     {% include "v3/includes/_button.html" with label="Already have an account? Sign in →" url=login_url style="primary" %}
-  </div>
+  </form>
 {% endblock auth_content %}
