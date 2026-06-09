@@ -68,7 +68,7 @@ def basic_conversion(entry: Entry, index_page: PostIndexPage):
 def command():
     post_index_page = PostIndexPage.objects.first()
     if not post_index_page:
-        raise Exception(
+        raise click.ClickException(
             "No Post Index Page found. Create one before running this command."
         )
 
@@ -102,7 +102,7 @@ def command():
         page.content = [
             {
                 "type": "video",
-                "value": {"video": video.external_url},
+                "value": video.external_url,
             }
         ]
         page.video_thumbnail = video.thumbnail
