@@ -123,8 +123,14 @@ def summarize_content(
 
 
 @app.task
-def save_entry_summary_value(summary: str, pk: int):
+def save_entry_summary_value(summary: str | None, pk: int):
     from news.models import Entry
+
+    # generate_summary returns None/"" on malformed or empty model output; saving
+    # that would clobber an existing Entry.summary, so treat it as "do not save".
+    if not summary:
+        logger.warning(f"Skipping summary save for {pk=}: empty/malformed model output")
+        return
 
     entry = Entry.objects.get(pk=pk)
     entry.summary = summary
@@ -177,7 +183,9 @@ def set_summary_for_link_entry(pk: int):
         markup = response.text
         logger.debug(f"Fetched {len(markup)=} for entry.{pk=}...")
         _title, content = extract_article(markup, url=entry.external_url)
-        logger.info(f"extracted content from {entry.external_url=}, {markup[:100]=}")
+        logger.info(
+            f"extracted content from {entry.external_url=}, extracted_chars={len(content)}"
+        )
     except UnsafeURLError:
         logger.warning(f"Refusing to fetch unsafe {entry.external_url=} for {pk=}")
         return

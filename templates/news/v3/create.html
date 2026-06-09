@@ -106,6 +106,7 @@
                 rows="4"
                 maxlength="1000"
                 placeholder="What would you like to write?"
+                :disabled="!isWriteUp"
                 x-model="description"
                 @input="onDescriptionEdited($event)"
               ></textarea>
