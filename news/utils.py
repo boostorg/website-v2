@@ -12,16 +12,22 @@ from wagtail.images.models import Image
 
 if typing.TYPE_CHECKING:
     from news.models import Video
+    from pages.models import PostPage
 
 
-def set_video_thumbnail(video: "Video"):
+def set_video_thumbnail(video: typing.Union["Video", "PostPage"]):
     """
     Given a video model, use oembed to fetch the thumbnail and save it to the model
     """
+    from news.models import Video
+    from pages.models import PostPage
+
     YOUTUBE_OEMBED_ENDPOINT = "https://www.youtube.com/oembed"
 
-    if not video.is_video:
+    if isinstance(video, Video) and not video.is_video:
         raise Exception(f"{video} is not a video, cannot set thumbnail.")
+    elif isinstance(video, PostPage) and not video.post_content_type != "video":
+        raise Exception(f"{video}'s content is not a video, cannot set thumbnail.")
 
     url = YOUTUBE_OEMBED_ENDPOINT + f"?url={video.external_url}"
     response = requests.get(url)
@@ -40,7 +46,11 @@ def set_video_thumbnail(video: "Video"):
         width=json.get("thumbnail_width"),
         height=json.get("thumbnail_height"),
     )
-    video.thumbnail = image
+
+    if isinstance(video, Video):
+        video.thumbnail = image
+    elif isinstance(video, PostPage):
+        video.video_thumbnail = image
     video.save()
 
 
