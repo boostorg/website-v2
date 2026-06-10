@@ -163,7 +163,7 @@ body:has(.auth-page) .header {
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spaceing-tight);
+  letter-spacing: var(--letter-spacing-tight);
   margin-bottom: var(--space-large) !important;
 }
 
@@ -190,7 +190,7 @@ body:has(.auth-page) .header {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-default);
-  letter-spacing: var(--letter-spaceing-tight);
+  letter-spacing: var(--letter-spacing-tight);
   margin: 0;
   display: flex;
   flex-direction: row;
