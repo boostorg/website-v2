@@ -1,7 +1,7 @@
-"""Send the transactional email templates (Story #2431) to a test inbox.
+"""Send the transactional email templates to a test inbox.
 
 Frontend test helper only -- this does NOT touch the real sign-up / password
-reset flows (those live in their own integration tickets). It renders the
+reset flows. It renders the
 templates in ``templates/emails/`` and sends them through the project's
 configured email backend (``settings.EMAIL_BACKEND``) -- the same backend the
 real transactional emails use. Locally that is the ``maildev`` SMTP container
@@ -195,7 +195,7 @@ def command(
     inline_images,
     delay,
 ):
-    """Render and send the Story #2431 transactional email templates."""
+    """Render and send the transactional email templates."""
     scheme, _, host = base_url.partition("://")
     if not host:  # base_url given without a scheme
         scheme, host = "https", base_url
