@@ -54,7 +54,7 @@
       {% for error in form.non_field_errors %}<p class="field__error" role="alert">{{ error }}</p>{% endfor %}
     {% endif %}
     {% include "v3/includes/_field_checkbox.html" with name="mailing_list" label="Also join the Boost Developers Mailing List" %}
-    <label class="checkbox" for="checkbox-accept_terms_of_use">
+    <label class="checkbox  auth-page_tou-checkbox" for="checkbox-accept_terms_of_use">
         <input
           class="checkbox__input"
           type="checkbox"
@@ -73,21 +73,23 @@
              name="{{ redirect_field_name }}"
              value="{{ redirect_field_value }}">
     {% endif %}
+
+    <label class="auth-page__invisible-check-label" for="checkbox-create">
+    <input name="invisible-check-protect" class="checkbox__input" id="checkbox-create" type="checkbox">
     {% include "v3/includes/_button.html" with label="Create Account" type="submit" style="primary" alpine_disabled="hasErrors" %}
+    </label>
     <p class="auth-page__divider">OR</p>
     {% get_providers as socialaccount_providers %}
     {% if socialaccount_providers %}
     {% for provider in socialaccount_providers %}
-    <label for="checkbox-{{provider.name}}">
+    <label class="auth-page__invisible-check-label" for="checkbox-{{provider.name}}">
     {% provider_login_url provider process="login" scope=scope auth_params=auth_params as href %}
-    <input class="auth-page__invisible-check" id="checkbox-{{provider.name}}" type="checkbox">
-    <div>
+    <input name="invisible-check-protect" class="checkbox__input" id="checkbox-{{provider.name}}" type="checkbox">
     {% if provider.name == "GitHub" %}
     {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="github" style="secondary" %}
     {% elif provider.name == "Google" %}
     {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="google-colored" style="secondary" %}
     {% endif %}
-    </div>
     </label>
     {% endfor %}
     {% endif %}

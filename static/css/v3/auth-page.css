@@ -185,21 +185,21 @@ body:has(.auth-page) .header {
   cursor: default;
 }
 
-.auth-page__signup-form:not(:has(input[name="accept_terms_of_use"]:checked)):has(input[name="checkbox-GitHub"]:checked) input[name="accept_terms_of_use"] {
-  background-color: var(--color-surface-error-weak, #fdf2f2);
-  border-color: var(--color-stroke-error, #d53f3f33);
+.auth-page__signup-form:has(input[name="invisible-check-protect"]:checked):not(:has(input[name="accept_terms_of_use"]:checked)) .auth-page_tou-checkbox .checkbox__box {
+  background-color: var(--color-surface-error-weak);
+  border-color: var(--color-stroke-error);
 }
 
-.auth-page__invisible-check {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+.auth-page__signup-form:has(input[name="invisible-check-protect"]:checked):not(:has(input[name="accept_terms_of_use"]:checked)) .auth-page_tou-checkbox .checkbox__label {
+  color: var(--color-text-error);
+}
+
+.auth-page__signup-form:has(input[name="invisible-check-protect"]:checked):not(:has(input[name="accept_terms_of_use"]:checked)) .auth-page__invisible-check-label {
+  pointer-events: none;
+}
+
+.auth-page__invisible-check-label .btn {
+  width: 100%;
 }
 
 /* ── Responsive (Tablet) ────────────────────────────── */
