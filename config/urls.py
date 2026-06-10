@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.urls import include, path, re_path, register_converter, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
+from health_check.views import HealthCheckView
 from rest_framework import routers
 from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
@@ -179,7 +180,21 @@ urlpatterns = (
             TemplateView.as_view(template_name="docs_temp.html"),
             name="docs",
         ),
-        path("health/", include("health_check.urls")),
+        path(
+            "health/",
+            HealthCheckView.as_view(
+                checks=[
+                    "health_check.Cache",
+                    "health_check.Database",
+                    "health_check.Mail",
+                    "health_check.Storage",
+                    # 3rd party checks
+                    "health_check.contrib.psutil.Disk",
+                    "health_check.contrib.psutil.Memory",
+                    "health_check.contrib.celery.Ping",
+                ]
+            ),
+        ),
         path("asciidoctor_sandbox/", include("asciidoctor_sandbox.urls")),
         path("community/", CommunityView.as_view(), name="community"),
         path(

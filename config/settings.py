@@ -73,8 +73,6 @@ INSTALLED_APPS += [
     "corsheaders",
     "django_extensions",
     "health_check",
-    "health_check.db",
-    "health_check.contrib.celery",
     "imagekit",
     "import_export",
     "django_countries",
