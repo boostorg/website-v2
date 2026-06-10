@@ -525,10 +525,8 @@ class LearnPageView(V3Mixin, TemplateView):
                 ],
                 "url": "/doc/user-guide/getting-started.html",
                 "label": "Get started with Boost",
-                "image_src": large_static("/img/v3/learn-page/learn-cheetah.png"),
-                "mobile_image_src": large_static(
-                    "/img/v3/learn-page/cheetah-mobile.png"
-                ),
+                "image_src": large_static("img/v3/learn-page/learn-how-to.webp"),
+                "mobile_image_src": large_static("img/v3/learn-page/learn-how-to.webp"),
             },
             {
                 "title": "I want to contribute:",
@@ -552,9 +550,9 @@ class LearnPageView(V3Mixin, TemplateView):
                 ],
                 "url": "/doc/contributor-guide/requirements/library-requirements.html",
                 "label": "Propose a new library",
-                "image_src": large_static("/img/v3/learn-page/learn-octopus.png"),
+                "image_src": large_static("img/v3/learn-page/learn-contribute.webp"),
                 "mobile_image_src": large_static(
-                    "/img/v3/learn-page/octopus-mobile.png"
+                    "img/v3/learn-page/learn-contribute.webp"
                 ),
             },
         ]
