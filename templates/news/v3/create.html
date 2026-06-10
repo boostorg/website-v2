@@ -457,7 +457,7 @@
           try { localStorage.removeItem(this.contentDraftKey()); } catch (_) {}
         },
 
-        // ── Link description draft: localStorage, keyed per post type ─────────
+        // ── Link/Video description draft: localStorage, keyed per post type ───
         linkDescriptionDraftKey() {
           return 'boost:createPost:linkDescriptionDraft:' + (this.postType || '');
         },
@@ -478,7 +478,7 @@
         },
 
         saveLinkDescriptionDraft() {
-          if (!this.isLink) return;
+          if (!this.isLinkType) return;
           try {
             if (this.linkDescription) localStorage.setItem(this.linkDescriptionDraftKey(), this.linkDescription);
             else localStorage.removeItem(this.linkDescriptionDraftKey());
@@ -486,7 +486,7 @@
         },
 
         restoreLinkDescriptionDraft({ allowEmpty = false } = {}) {
-          if (!this.isLink) {
+          if (!this.isLinkType) {
             if (allowEmpty) this.linkDescriptionSaveStatus = '';
             return;
           }
@@ -581,7 +581,12 @@
             if (!url) {
               this.errors.external_url = 'Link is required.';
             } else {
-              try { new URL(url); } catch (_) {
+              try {
+                const parsed = new URL(url);
+                if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+                  throw new Error('unsupported scheme');
+                }
+              } catch (_) {
                 this.errors.external_url = 'Please enter a valid URL.';
               }
             }
@@ -607,6 +612,13 @@
             // Validation passed; the form will POST — drop the saved drafts.
             // (On a server-side reject, the description re-initializes from
             //  `form.summary.value` so the user's text stays visible.)
+            // Cancel any in-flight debounced saves first, or they could fire
+            // after the clears below and resurrect stale drafts.
+            clearTimeout(this._titleSaveTimer);
+            clearTimeout(this._externalUrlSaveTimer);
+            clearTimeout(this._contentSaveTimer);
+            clearTimeout(this._descriptionSaveTimer);
+            clearTimeout(this._linkDescriptionSaveTimer);
             this.clearTitleDraft();
             this.clearExternalUrlDraft();
             this.clearContentDraft();

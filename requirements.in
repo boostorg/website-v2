@@ -75,7 +75,7 @@ mistletoe
 python-frontmatter
 beautifulsoup4
 # Main-content extraction from arbitrary web pages (Link post Auto-Generate)
-trafilatura
+trafilatura>=2.0.0,<3.0.0  # pin major version: parses untrusted web content
 
 # used in old mailinglist migrations, squash them and this can probably be removed
 django-mptt==0.14

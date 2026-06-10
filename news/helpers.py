@@ -73,8 +73,8 @@ def safe_get(
 
     Residual gap: DNS rebinding (host resolves public at check time, private at
     connect time) is not closed — that needs pinning the validated IP into the
-    connection. Acceptable here given the endpoint is also gated by auth + rate
-    limiting; revisit if the threat model tightens.
+    connection. TODO: the calling endpoint is not yet login-gated or
+    rate-limited; close this gap (or add those controls) before relying on it.
     """
     for _ in range(max_redirects + 1):
         if not _url_host_is_safe(url):
