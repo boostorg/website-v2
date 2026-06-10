@@ -1,4 +1,4 @@
-from django.http import Http404, HttpResponseNotFound
+from django.http import Http404
 from django.urls import URLPattern, URLResolver, get_resolver, reverse_lazy
 from waffle import flag_is_active
 
@@ -76,7 +76,8 @@ class V3AuthContextMixin(V3Mixin):
 
     def dispatch(self, request, *args, **kwargs):
         if not flag_is_active(request, "v3"):
-            return HttpResponseNotFound()
+            if not getattr(self, "template_name", None):
+                raise Http404
         return super().dispatch(request, *args, **kwargs)
 
     def get_v3_context_data(self, **kwargs):
@@ -89,6 +90,6 @@ class V3AuthContextMixin(V3Mixin):
             "img/v3/auth-page/auth-page-background.png"
         )
         context["login_url"] = reverse_lazy("v3-login")
-        context["signup_url"] = reverse_lazy("v3-signup")
+        context["signup_url"] = reverse_lazy("account_signup")
         context["password_reset_url"] = reverse_lazy("v3-password-reset")
         return context

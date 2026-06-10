@@ -27,7 +27,7 @@
   <form class="auth-page__card auth-page__signup-form"
     id="signup_form"
     method="post"
-    action="/accounts/signup/"
+    action=""
     novalidate
     {# djlint:off #}
       x-data="{ hasErrors: false }"
@@ -66,7 +66,7 @@
           <span class="checkbox__box" aria-hidden="true">
             {% include "includes/icon.html" with icon_name="check" icon_class="checkbox__check" %}
           </span>
-          <span class="checkbox__label">I have read and accepted the <a href="{% url 'terms-of-use' %}">Term of Use</a> for this service</span>
+          <span class="checkbox__label">I have read and accepted the <a href="{% url 'terms-of-use' %}">Terms of Use</a> for this service</span>
     </label>
     {% if redirect_field_value %}
       <input type="hidden"
@@ -78,7 +78,13 @@
     <input name="invisible-check-protect" class="checkbox__input" id="checkbox-create" type="checkbox">
     {% include "v3/includes/_button.html" with label="Create Account" type="submit" style="primary" alpine_disabled="hasErrors" %}
     </label>
-    <p class="auth-page__divider">OR</p>
+    <div class="auth-page__signup-divider">
+      <hr />
+      <span>
+      OR
+      </span>
+      <hr />
+    </div>
     {% get_providers as socialaccount_providers %}
     {% if socialaccount_providers %}
     {% for provider in socialaccount_providers %}
@@ -93,6 +99,6 @@
     </label>
     {% endfor %}
     {% endif %}
-    {% include "v3/includes/_button.html" with label="Already have an account? Sign in →" url=login_url style="primary" %}
   </form>
+  <p class="auth-page__sign-in-link">Already have an account? <a href="{{login_url}}">Sign in</a></p>
 {% endblock auth_content %}

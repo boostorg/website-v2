@@ -154,6 +154,24 @@ body:has(.auth-page) .header {
   color: var(--color-text-link-accent);
 }
 
+/* ── Sign In Link ──────────────────────────── */
+.auth-page__sign-in-link {
+  width: 100%;
+  text-align: center;
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spaceing-tight);
+  margin-bottom: var(--space-large) !important;
+}
+
+.auth-page__sign-in-link a{
+  text-decoration: underline;
+  color: var(--color-text-link-accent);
+}
+
 /* ── Divider ───────────────────────────────── */
 .auth-page__divider {
   font-family: var(--font-display);
@@ -164,6 +182,24 @@ body:has(.auth-page) .header {
   color: var(--color-text-primary);
   text-align: center;
   margin: 0;
+}
+
+.auth-page__signup-divider {
+  color: var(--color-text-tertiary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spaceing-tight);
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-page__signup-divider hr {
+  flex: 1 1 0;
 }
 
 /* ── Social Card ───────────────────────────── */
