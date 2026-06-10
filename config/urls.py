@@ -28,6 +28,7 @@ from core.views import (
     CommunityView,
     DocLibsTemplateView,
     ImageView,
+    LearnPageView,
     MarkdownTemplateView,
     TermsOfUseView,
     PrivacyPolicyView,
@@ -181,6 +182,7 @@ urlpatterns = (
         ),
         path("health/", include("health_check.urls")),
         path("asciidoctor_sandbox/", include("asciidoctor_sandbox.urls")),
+        path("learn/", LearnPageView.as_view(), name="learn"),
         path("community/", CommunityView.as_view(), name="community"),
         path(
             "community/<boostversionslug:version_slug>/",

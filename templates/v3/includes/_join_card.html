@@ -10,6 +10,7 @@
       - url             (string, optional)  — link URL
       - description     (string, optional)  — link description
       - icon_name       (string, optional)  — optional icon
+      - cta_label       (string, optional)  — override per-item link label; defaults to "Start here"
     variant             (string, optional)  — "list" or "card", defaults to "list"
     theme               (string, optional)  — only for variant "card": "default", "grey", "yellow", "green", "teal"
     layout              (string, optional)  — "vertical" or "horizontal", defaults to "vertical"
@@ -43,7 +44,7 @@
               {% endif %}
             </div>
             {% if item.url %}
-              <a href="{{ item.url }}" class="join-card__start-here">Start here</a>
+              <a href="{{ item.url }}" class="join-card__start-here">{{ item.cta_label|default:"Start here" }}</a>
             {% endif %}
           </article>
         </li>

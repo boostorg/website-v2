@@ -162,9 +162,10 @@ class CommitAuthorAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ["name"]
+    list_display = ["name", "short_description"]
     ordering = ["name"]
     search_fields = ["name"]
+    fields = ["name", "slug", "short_description"]
 
 
 class LibraryVersionInline(admin.TabularInline):

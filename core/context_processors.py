@@ -181,6 +181,7 @@ _PATH_MAP = {
     "/doc/libs/": NavItem.LIBRARIES,  # special case - handle first
     "/doc/": NavItem.LEARN,
     "/docs/": NavItem.LEARN,
+    "/learn/": NavItem.LEARN,
     "/boost-development/": NavItem.LEARN,
     "/news/": NavItem.NEWS,
     "/community/": NavItem.COMMUNITY,
@@ -217,7 +218,7 @@ def header_context(request):
     """Context processor for header nav links."""
     nav_links = [
         NavLink(label="Libraries", url=reverse("libraries"), nav_id="libraries"),
-        NavLink(label="Learn", url=reverse("docs"), nav_id="learn"),
+        NavLink(label="Learn", url=reverse("learn"), nav_id="learn"),
         NavLink(label="Community", url=reverse("community"), nav_id="community"),
         NavLink(
             label="Posts", url=reverse("news"), nav_id="news", is_unread=True

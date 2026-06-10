@@ -6,8 +6,9 @@
     carousel_id (required) — id for the carousel root and controls.
     heading (required) — section heading.
     track_aria_label (optional) — aria-label for the track. Default: "Detail cards carousel"
-    cards (optional) — list of dicts with: title, description, icon_name, cta_label, cta_href.
+    cards (optional) — list of dicts with: title, description, icon_name, cta_label, cta_href, badge_count.
                        When omitted, no cards are shown (pass from view for content).
+                       If badge_count is omitted on a card, the loop index is used (legacy behavior).
     infinite (optional) — if True, carousel loops infinitely. Default: False
     autoplay (optional) — if True, carousel scrolls automatically. Default: False
     autoplay_delay (optional) — autoplay interval in milliseconds. Only used when autoplay is True. Default: 4000
@@ -39,7 +40,7 @@
         {% if cards %}
           {% for card in cards %}
             <li class="cards-carousel__item" data-carousel-item>
-              {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description badge_count=forloop.counter cta_label="Start here" cta_href=card.cta_href only %}
+              {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description badge_count=card.badge_count|default:forloop.counter cta_label=card.cta_label|default:"Start here" cta_href=card.cta_href only %}
             </li>
           {% endfor %}
         {% endif %}
