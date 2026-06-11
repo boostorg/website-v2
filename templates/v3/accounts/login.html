@@ -16,7 +16,7 @@
     redirect_field_value                  (string, optional, default unset) — URL to redirect to after login; hidden input omitted when unset
     contributor_account_redirect_message  (string, optional, default unset) — message for pre-created author/maintainer accounts; alert omitted when unset
 {% endcomment %}
-{% load static %}
+{% load static socialaccount %}
 
 {% block auth_content %}
   <div class="auth-page__header">
@@ -28,7 +28,7 @@
 
   <form class="auth-page__card"
         method="post"
-        action=""
+        action="{% url 'account_login' %}"
         novalidate
         {# djlint:off #}
         x-data="{ hasErrors: false }"
@@ -70,8 +70,17 @@
   <p class="auth-page__divider">OR</p>
 
   <div class="auth-page__social-card">
-    {% include "v3/includes/_button.html" with label="Continue with GitHub" url="#" icon_name="github" style="secondary" %}
-    {% include "v3/includes/_button.html" with label="Continue with Google" url="#" icon_name="google-colored" style="secondary" %}
+    {% get_providers as socialaccount_providers %}
+    {% if socialaccount_providers %}
+    {% for provider in socialaccount_providers %}
+    {% provider_login_url provider process="login" scope=scope auth_params=auth_params as href %}
+    {% if provider.name == "GitHub" %}
+    {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="github" style="secondary" %}
+    {% elif provider.name == "Google" %}
+    {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="google-colored" style="secondary" %}
+    {% endif %}
+    {% endfor %}
+    {% endif %}
     {% include "v3/includes/_button.html" with label="Don't have an account? Sign up →" url=signup_url style="primary" %}
   </div>
 {% endblock auth_content %}
