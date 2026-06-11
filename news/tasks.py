@@ -177,7 +177,7 @@ def summary_dispatcher(pk: int, model_name: str = "Entry"):
             "link": set_summary_for_link_page,
             "video": set_summary_for_video_page,
             "poll": set_summary_for_poll_page,
-        }[entry.determined_news_type]
+        }[entry.determined_news_type.lower()]
     logger.info(f"Dispatching summary task for {pk=} to {handler.__name__=}")
     handler.delay(pk)
 
@@ -278,7 +278,7 @@ def set_summary_for_event_page(pk: int):
     from pages.models import PostPage
 
     page = PostPage.objects.get(pk=pk)
-    content = page.content[0]
+    content = page.content[0].value
     logger.info(f"dispatching summarize task for {pk=} with {content[:40]=}...")
     if content and len(content) < CONTENT_SUMMARIZATION_THRESHOLD:
         logger.warning(f"Content too short to summarize for {pk=}, skipping.")

@@ -238,11 +238,11 @@ class PostPage(BasePage):
             self.slug = slugify(self.title)
         result = super().save(*args, **kwargs)
 
-        if not self.summary:
+        if not self.summary and self.live:
             logger.info(f"Passing {self.pk=} to dispatcher")
             summary_dispatcher.delay(self.pk, "PostPage")
 
-        if not self.video_thumbnail and self.post_content_type == "Video":
+        if not self.video_thumbnail and self.post_content_type == "Video" and self.live:
             logger.info(f"Setting thumbnail for {self.pk=}")
             set_thumbnail_for_video_page.delay(self.pk)
 
