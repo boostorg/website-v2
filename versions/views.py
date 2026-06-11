@@ -194,7 +194,9 @@ class VersionDetail(
             heading == self.VersionHeadingEnum.DEVELOPMENT_BRANCH.value
         )
 
-        ctx = {
+        ctx = super().get_v3_context_data(**kwargs)
+
+        ctx.update({
             "hero_title": f"{heading} ({obj.display_name})",
             "is_development_branch": is_development_branch,
             "whats_new_heading": f"What's new in {obj.display_name}",
@@ -208,7 +210,7 @@ class VersionDetail(
                 "docs-user-guide",
                 kwargs={"content_path": "user-guide/release-process.html"},
             ),
-        }
+        })
 
         release_notes_html = self.get_release_notes(obj)
         if release_notes_html:

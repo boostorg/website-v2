@@ -127,7 +127,10 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
     v3_template_name = "v3/library_page.html"
 
     def get_v3_context_data(self, queryset=None, **kwargs):
-        context = {}
+        queryset = self.get_queryset()
+        context = super().get_v3_context_data(
+            **kwargs, object_list=queryset, queryset=queryset
+        )
         view_str = self.kwargs.get("library_view_str")
 
         cpp_options = [("all", "All")] + list(
@@ -260,16 +263,6 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         context["library_search_query"] = self.request.GET.get("q", "")
         return context
 
-    def render_v3_response(self):
-        """Render the v3 template through Django's standard TemplateView pipeline."""
-        queryset = self.get_queryset()
-        # Resolve selected_version once so get_v3_context_data can reuse it.
-        self._selected_version = self._resolve_selected_version()
-        context = self.get_context_data(
-            **self.get_v3_context_data(queryset=queryset), object_list=queryset
-        )
-        return self.render_to_response(context)
-
     def _resolve_selected_version(self):
         version_slug = determine_selected_boost_version(
             self.kwargs.get("version_slug"), self.request
@@ -328,8 +321,10 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         )
 
     def dispatch(self, request, *args, **kwargs):
-        """Set the selected version in the cookies."""
+        # Resolve selected_version once so get_v3_context_data can reuse it.
+        self._selected_version = self._resolve_selected_version()
         response = super().dispatch(request, *args, **kwargs)
+        """Set the selected version in the cookies."""
         set_selected_boost_version(self.kwargs.get("version_slug"), response)
         view = get_prioritized_library_view(request)
         if request.resolver_match.view_name == "libraries":

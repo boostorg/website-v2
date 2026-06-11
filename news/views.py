@@ -183,6 +183,7 @@ class EntryListView(V3Mixin, ListView):
             "libraries": self.libary_values,
             "header_text": self.header_text,
             "filter_value": self.filter_value,
+            **kwargs,
         }
 
     def get_queryset(self):
@@ -205,7 +206,10 @@ class EntryListView(V3Mixin, ListView):
         return result
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        object_list = self.get_queryset()
+        context = super().get_context_data(
+            queryset=object_list, object_list=object_list, **kwargs
+        )
         context["is_moderator"] = False
 
         if self.request.user.is_authenticated:

@@ -88,10 +88,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         return dict(sorted_events)
 
     def get_v3_context_data(self, **kwargs):
-        # super() here is TemplateView.get_context_data, not this view's
-        # legacy get_context_data — V3Mixin merges the legacy context in
-        # via render_v3_response.
-        ctx = super().get_context_data(**kwargs)
+        ctx = super().get_v3_context_data(**kwargs)
 
         # Install Card
         ctx["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS

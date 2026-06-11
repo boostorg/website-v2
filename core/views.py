@@ -125,13 +125,12 @@ class CalendarView(V3Mixin, TemplateView):
     v3_template_name = "v3/calendar.html"
 
     def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
+        ctx = {}
         ctx["boost_calendar"] = settings.BOOST_CALENDAR
         return ctx
 
     def get_v3_context_data(self, **kwargs):
         ctx = super().get_v3_context_data(**kwargs)
-        print(self.request.headers)
         ctx["timezone"] = "America/Chicago"
         return ctx
 
@@ -494,7 +493,7 @@ class LearnPageView(MailingListCardMixin, V3Mixin, TemplateView):
     v3_template_name = "v3/learn_page.html"
 
     def get_v3_context_data(self, **kwargs):
-        ctx = self.get_context_data(**kwargs)
+        ctx = super().get_v3_context_data(**kwargs)
         ctx["learn_card_data"] = [
             {
                 "title": "I want to learn:",
