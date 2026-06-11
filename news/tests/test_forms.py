@@ -3,7 +3,16 @@ import datetime
 from django.utils.timezone import now
 from model_bakery import baker
 
-from ..forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
+from ..forms import (
+    BlogPostForm,
+    EntryForm,
+    LinkForm,
+    NewsForm,
+    PollForm,
+    V3BlogPostForm,
+    V3NewsForm,
+    VideoForm,
+)
 from ..models import Entry
 
 
@@ -124,13 +133,7 @@ def test_form_save_approved_news(make_entry, settings):
 def test_blogpost_form():
     form = BlogPostForm()
     assert isinstance(form, EntryForm)
-    assert sorted(form.fields.keys()) == [
-        "content",
-        "image",
-        "publish_at",
-        "summary",
-        "title",
-    ]
+    assert sorted(form.fields.keys()) == ["content", "image", "publish_at", "title"]
 
 
 def test_link_form():
@@ -147,6 +150,26 @@ def test_link_form():
 def test_news_form():
     form = NewsForm()
     assert isinstance(form, EntryForm)
+    assert sorted(form.fields.keys()) == ["content", "image", "publish_at", "title"]
+
+
+def test_v3_blogpost_form_includes_summary():
+    # The v3 create page captures the AI-assisted summary; the v2 BlogPostForm
+    # must not (it renders every visible field), so summary lives only here.
+    form = V3BlogPostForm()
+    assert isinstance(form, BlogPostForm)
+    assert sorted(form.fields.keys()) == [
+        "content",
+        "image",
+        "publish_at",
+        "summary",
+        "title",
+    ]
+
+
+def test_v3_news_form_includes_summary():
+    form = V3NewsForm()
+    assert isinstance(form, NewsForm)
     assert sorted(form.fields.keys()) == [
         "content",
         "image",
