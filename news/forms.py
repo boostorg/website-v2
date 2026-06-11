@@ -22,7 +22,7 @@ class EntryForm(forms.ModelForm):
 class BlogPostForm(EntryForm):
     class Meta:
         model = BlogPost
-        fields = ["title", "publish_at", "content", "summary", "image"]
+        fields = ["title", "publish_at", "content", "image"]
 
 
 class LinkForm(EntryForm):
@@ -43,6 +43,17 @@ class LinkForm(EntryForm):
 class NewsForm(EntryForm):
     class Meta:
         model = News
+        fields = ["title", "publish_at", "content", "image"]
+
+
+# v3-only forms: the v3 create page also captures the AI-assisted `summary`.
+class V3BlogPostForm(BlogPostForm):
+    class Meta(BlogPostForm.Meta):
+        fields = ["title", "publish_at", "content", "summary", "image"]
+
+
+class V3NewsForm(NewsForm):
+    class Meta(NewsForm.Meta):
         fields = ["title", "publish_at", "content", "summary", "image"]
 
 

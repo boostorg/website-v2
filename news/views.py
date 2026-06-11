@@ -44,7 +44,16 @@ from .constants import (
     MAGIC_LINK_EXPIRATION,
     DESCRIPTION_SUMMARY_MAX_LENGTH,
 )
-from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
+from .forms import (
+    BlogPostForm,
+    EntryForm,
+    LinkForm,
+    NewsForm,
+    PollForm,
+    V3BlogPostForm,
+    V3NewsForm,
+    VideoForm,
+)
 from .models import BlogPost, Entry, Link, News, Poll, Video
 from .services import news_type_label
 from .tasks import generate_summary
@@ -510,8 +519,8 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
     http_method_names = ["get", "post"]
 
     _POST_TYPE_MAP = {
-        "blog": (BlogPost, BlogPostForm),
-        "news": (News, NewsForm),
+        "blog": (BlogPost, V3BlogPostForm),
+        "news": (News, V3NewsForm),
         "link": (Link, LinkForm),
         "video": (Video, VideoForm),
     }
