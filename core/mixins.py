@@ -1,12 +1,11 @@
 from django.http import Http404
 from django.urls import URLPattern, URLResolver, get_resolver, reverse_lazy
-from django.views.generic import TemplateView
 from waffle import flag_is_active
 
 from core.templatetags.custom_static import large_static
 
 
-class V3Mixin(TemplateView):
+class V3Mixin:
     """Renders a v3 template when the 'v3' waffle flag is active.
 
     Hooks into dispatch() to short-circuit the normal view flow (e.g.

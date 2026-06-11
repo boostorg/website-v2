@@ -124,26 +124,6 @@ class EntryListView(V3Mixin, ListView):
     def libary_values(self):
         return [(x.slug, x.name) for x in Library.objects.all().order_by("name")]
 
-    def render_v3_response(self):
-        """Render the v3 template through Django's standard TemplateView pipeline."""
-        if post_filter := self.request.GET.get("post-filter"):
-            match post_filter:
-                case "all":
-                    return HttpResponseRedirect(reverse_lazy("news"))
-                case "blogpost":
-                    return HttpResponseRedirect(reverse_lazy("news-blogpost-list"))
-                case "video":
-                    return HttpResponseRedirect(reverse_lazy("news-video-list"))
-                case "news":
-                    return HttpResponseRedirect(reverse_lazy("news-news-list"))
-                case "link":
-                    return HttpResponseRedirect(reverse_lazy("news-link-list"))
-
-        context = self.get_context_data(
-            **self.get_v3_context_data(), object_list=self.get_queryset()
-        )
-        return self.render_to_response(context)
-
     def get_v3_context_data(self, **kwargs):
         return {
             "filter_terms": [
@@ -206,10 +186,7 @@ class EntryListView(V3Mixin, ListView):
         return result
 
     def get_context_data(self, **kwargs):
-        object_list = self.get_queryset()
-        context = super().get_context_data(
-            queryset=object_list, object_list=object_list, **kwargs
-        )
+        context = super().get_context_data(**kwargs)
         context["is_moderator"] = False
 
         if self.request.user.is_authenticated:
