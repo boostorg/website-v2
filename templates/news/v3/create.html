@@ -351,14 +351,17 @@
           try { localStorage.removeItem(this.contentDraftKey()); } catch (_) {}
         },
 
-        // Send the Content to the backend, which runs the summarization model.
+        // Start AI description generation, then poll until the background job
+        // finishes. The model call runs in a Celery worker (off the request
+        // path), so a slow/cold model can't trip the gateway timeout — we just
+        // poll a bit longer instead of holding one long, fragile request open.
         async generateDescription() {
           const content = (this.content || '').trim();
           if (!content || this.generating) return;
           this.generating = true;
           try {
             const title = document.querySelector('input[name="title"]')?.value || '';
-            const res = await fetch('{% url "v3-news-generate-description" %}', {
+            const startRes = await fetch('{% url "v3-news-generate-description" %}', {
               method: 'POST',
               headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
@@ -366,18 +369,45 @@
               },
               body: new URLSearchParams({ content, title }),
             });
-            const data = await res.json();
-            if (res.ok && data.description) {
-              this.description = data.description;
-              this.onDescriptionEdited();   // persist generated text + show Saving/Saved
-            } else {
-              console.error('Description generation failed:', data.error || res.status);
+            const start = await this.safeJson(startRes);
+            if (!startRes.ok || !start || !start.job_id) {
+              console.error('Description generation failed to start:', (start && start.error) || startRes.status);
+              return;
             }
+
+            // Poll for the result. Cap the attempts so an unknown/expired job
+            // id — which Celery reports as PENDING forever — can't poll
+            // indefinitely.
+            const statusUrl = '{% url "v3-news-generate-description" %}' + start.job_id + '/';
+            const intervalMs = 1500;
+            const maxAttempts = 60;   // ~90s ceiling
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+              await new Promise((resolve) => setTimeout(resolve, intervalMs));
+              const pollRes = await fetch(statusUrl);
+              const data = await this.safeJson(pollRes);
+              if (data && data.status === 'done' && data.description) {
+                this.description = data.description;
+                this.onDescriptionEdited();   // persist generated text + show Saving/Saved
+                return;
+              }
+              if ((data && data.status === 'error') || pollRes.status >= 500) {
+                console.error('Description generation failed:', (data && data.error) || pollRes.status);
+                return;
+              }
+              // Anything else (202 "pending") — keep polling.
+            }
+            console.error('Description generation timed out while polling.');
           } catch (err) {
             console.error('Description generation request failed:', err);
           } finally {
             this.generating = false;
           }
+        },
+
+        // Parse a response as JSON defensively: a gateway 504/502 can return
+        // non-JSON (e.g. plain "stream timeout"), which must not throw.
+        async safeJson(res) {
+          try { return await res.json(); } catch (_) { return null; }
         },
 
         prepareSubmit(e) {
