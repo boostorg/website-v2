@@ -54,7 +54,11 @@ from libraries.views import (
     CommitEmailResendView,
 )
 from news.feeds import AtomNewsFeed, RSSNewsFeed
-from news.views import V3AllTypesCreateView, generate_description
+from news.views import (
+    V3AllTypesCreateView,
+    generate_description,
+    generate_description_status,
+)
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
@@ -277,6 +281,11 @@ urlpatterns = (
             "v3/news/generate-description/",
             generate_description,
             name="v3-news-generate-description",
+        ),
+        path(
+            "v3/news/generate-description/<str:job_id>/",
+            generate_description_status,
+            name="v3-news-generate-description-status",
         ),
         path(
             "people/detail/",

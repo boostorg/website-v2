@@ -33,7 +33,7 @@ from django.views.generic import (
     View,
 )
 from django.views.generic.detail import SingleObjectMixin
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 
 from core.mixins import V3Mixin
@@ -56,7 +56,7 @@ from .forms import (
 )
 from .models import BlogPost, Entry, Link, News, Poll, Video
 from .services import news_type_label
-from .tasks import generate_summary
+from .tasks import summarize_content
 from .notifications import (
     send_email_news_approved,
     send_email_news_needs_moderation,
@@ -591,11 +591,15 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
 @require_POST
 def generate_description(request):
-    """Generate an AI description from submitted content (synchronous).
+    """Kick off AI description generation and return a job id immediately.
 
     Backs the "Auto-Generate Description" button on the v3 create-post page.
-    Runs the summarization model inline and returns the result as JSON so the
-    browser can drop it into the Description field.
+    The summarization model is slow (especially on a cold call) and runs behind
+    a gateway with a shorter timeout than the model's worst case, so running it
+    inline produced intermittent 504s. Instead we enqueue the existing
+    ``summarize_content`` Celery task and hand the browser the task id; it polls
+    ``generate_description_status`` until the summary is ready. This keeps the
+    long, variable LLM call off the request path entirely.
 
     NOTE: intentionally not login-gated yet (local testing). This endpoint calls
     a paid LLM, so add @login_required (and rate limiting) before it ships.
@@ -606,29 +610,42 @@ def generate_description(request):
     if not content:
         return JsonResponse({"error": "Add some content first."}, status=400)
 
-    try:
-        # Call the plain helper
-        summary = generate_summary(
-            content,
-            title,
-            settings.SUMMARIZATION_MODEL,
-            DESCRIPTION_SUMMARY_MAX_LENGTH,
-            timeout=30,
-        )
-    except Exception:
-        logger.exception("generate_description: summarization failed")
+    result = summarize_content.delay(
+        content, title, settings.SUMMARIZATION_MODEL, DESCRIPTION_SUMMARY_MAX_LENGTH
+    )
+    return JsonResponse({"job_id": result.id}, status=202)
+
+
+@require_GET
+def generate_description_status(request, job_id):
+    """Report on a description-generation job started by ``generate_description``.
+
+    Returns ``{"status": "pending"}`` while the Celery task is queued/running,
+    ``{"status": "done", "description": ...}`` on success, or
+    ``{"status": "error", ...}`` if the task failed or yielded no usable summary.
+    The browser polls this until it sees a terminal state (or gives up after a
+    cap, since an unknown/expired job id reads as PENDING indefinitely).
+    """
+    result = summarize_content.AsyncResult(job_id)
+
+    if result.failed():
+        logger.error("generate_description_status: task failed", job_id=job_id)
         return JsonResponse(
-            {"error": "Could not generate a description. Please try again."},
+            {"status": "error", "error": "Could not generate a description. Please try again."},
             status=502,
         )
 
+    if not result.ready():
+        return JsonResponse({"status": "pending"}, status=202)
+
+    summary = result.result
     if not summary:
         return JsonResponse(
-            {"error": "Could not generate a description. Please try again."},
+            {"status": "error", "error": "Could not generate a description. Please try again."},
             status=502,
         )
 
-    return JsonResponse({"description": summary.strip()})
+    return JsonResponse({"status": "done", "description": summary.strip()})
 
 
 class EntryApproveView(
