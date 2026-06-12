@@ -168,7 +168,7 @@ def summary_dispatcher(pk: int, model_name: str = "Entry"):
             "link": set_summary_for_link_entry,
             "video": set_summary_for_video_entry,
             "poll": set_summary_for_poll_entry,
-        }[entry.determined_news_type]
+        }[entry.determined_news_type.lower()]
     elif model == PostPage:
         logger.info(f"Dispatching {pk=} with {entry.post_content_type=}")
         handler = {
