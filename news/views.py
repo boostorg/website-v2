@@ -631,7 +631,10 @@ def generate_description_status(request, job_id):
     if result.failed():
         logger.error("generate_description_status: task failed", job_id=job_id)
         return JsonResponse(
-            {"status": "error", "error": "Could not generate a description. Please try again."},
+            {
+                "status": "error",
+                "error": "Could not generate a description. Please try again.",
+            },
             status=502,
         )
 
@@ -641,7 +644,10 @@ def generate_description_status(request, job_id):
     summary = result.result
     if not summary:
         return JsonResponse(
-            {"status": "error", "error": "Could not generate a description. Please try again."},
+            {
+                "status": "error",
+                "error": "Could not generate a description. Please try again.",
+            },
             status=502,
         )
 
