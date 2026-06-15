@@ -105,7 +105,7 @@ class CurrentUserProfileView(
         user = self.request.user
         ctx = {}
 
-        if self.request.GET.get("edit", False):
+        if self.request.GET.get("edit", False).lower() == "true":
             ctx["user_profile_form"] = V3UserProfileForm(
                 user_links={"website": "www.example.com"},
                 commit_emails=[
@@ -416,7 +416,10 @@ class CurrentUserProfileView(
         return ctx
 
     def get_template_names(self):
-        if getattr(self, "_v3_active", False) and self.request.GET.get("edit", None):
+        if (
+            getattr(self, "_v3_active", False)
+            and self.request.GET.get("edit", False).lower() == "true"
+        ):
             return [self.v3_edit_template_name]
         return super().get_template_names()
 
