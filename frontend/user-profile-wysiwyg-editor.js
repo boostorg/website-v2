@@ -9,102 +9,44 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
+import TurndownService from "turndown";
+import { gfm } from "turndown-plugin-gfm";
+import { createToolbarButton, openModal, parseMarkdownSafe, setupMermaidEditMode, highlightPreviewCodeBlocks, renderMermaidPreview, debounce, ICONS, } from "./wysiwyg-editor"
 
 const editorInstances = new Map();
 
-const setupMermaidEditMode = (editor, editorEl) => {
-  const renderMermaid = debounce(async () => {
-    const pres = editorEl.querySelectorAll("pre");
-    const activePreviews = new Set();
+const turndown = new TurndownService({
+  headingStyle: "atx",
+  codeBlockStyle: "fenced",
+  fence: "```",
+  bulletListMarker: "-",
+  emDelimiter: "*",
+  strongDelimiter: "**",
+  hr: "---",
+});
+turndown.use(gfm);
 
-    for (const pre of pres) {
-      const code = pre.querySelector("code");
-      if (!code || !code.classList.contains("language-mermaid")) continue;
+turndown.addRule("underline", {
+  filter: ["u"],
+  replacement: (content) => `<u>${content}</u>`,
+});
 
-      let preview = pre.nextElementSibling;
-      if (!preview || !preview.classList.contains("mermaid-preview")) {
-        preview = document.createElement("div");
-        preview.className = "mermaid-preview";
-        pre.after(preview);
-      }
-      activePreviews.add(preview);
+turndown.addRule("taskListItem", {
+  filter: (node) =>
+    node.nodeName === "LI" && node.getAttribute("data-type") === "taskItem",
+  replacement: (content, node) => {
+    const checked = node.getAttribute("data-checked") === "true";
+    const prefix = checked ? "- [x] " : "- [ ] ";
+    const text = content.replace(/^\s+/, "").replace(/\s+$/, "");
+    return prefix + text + "\n";
+  },
+});
 
-      const diagram = code.textContent.trim();
-      if (!diagram) {
-        preview.innerHTML = "";
-        continue;
-      }
-
-      try {
-        const mermaid = await getMermaid();
-        const id = `mermaid-edit-${++mermaidIdCounter}`;
-        const { svg } = await mermaid.render(id, diagram);
-        preview.innerHTML = sanitizeSvg(svg);
-        preview.classList.remove("mermaid-error");
-      } catch (err) {
-        const errSpan = document.createElement("span");
-        errSpan.className = "mermaid-error";
-        errSpan.textContent = err.message || "Invalid diagram";
-        preview.innerHTML = "";
-        preview.appendChild(errSpan);
-        preview.classList.add("mermaid-error");
-      }
-    }
-
-    editorEl.querySelectorAll(".mermaid-preview").forEach((el) => {
-      if (!activePreviews.has(el)) el.remove();
-    });
-  }, 500);
-
-  editor.on("update", renderMermaid);
-  renderMermaid();
-};
-
-const debounce = (fn, ms) => {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), ms);
-  };
-};
-
-const ICONS = {
-  bulletList:
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
-  orderedList:
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>',
-  checkbox:
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
-  link:
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
-  image:
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
-  markdown:
-    '<svg width="18" height="18" viewBox="0 0 26 18" fill="currentColor" aria-hidden="true"><path d="M2 2h3l3 4 3-4h3v10h-3V6l-3 4-3-4v6H2V2zm17 0h3l3 5h-2v5h-3V7h-2l4-5z" fill-rule="evenodd"/></svg>',
-  preview:
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
-};
-
-const createToolbarButton = (editor, opts) => {
-  const { label, onClick, isActive, title } = opts;
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "wysiwyg-toolbar__btn";
-  btn.setAttribute("aria-label", label);
-  if (title) btn.setAttribute("title", title);
-  btn.innerHTML = opts.html || label;
-  btn.addEventListener("click", (e) => {
-    e.preventDefault();
-    onClick();
-  });
-  const updateActive = () => {
-    btn.classList.toggle("wysiwyg-toolbar__btn--active", isActive ? isActive() : false);
-  };
-  editor.on("selectionUpdate", updateActive);
-  editor.on("transaction", updateActive);
-  updateActive();
-  return btn;
-}
+turndown.addRule("taskList", {
+  filter: (node) =>
+    node.nodeName === "UL" && node.getAttribute("data-type") === "taskList",
+  replacement: (content) => "\n" + content + "\n",
+});
 
 const buildToolbar = (editor, toolbarEl) => {
   const left = document.createElement("div");
@@ -401,18 +343,20 @@ export const initWysiwyg = (textareaId) => {
   return editor;
 };
 
-const autoInit = () => {
+const autoInit = (elId) => {
   if (typeof document === "undefined" || !document.querySelector) return;
-  document.querySelectorAll('[data-wysiwyg="v3"]').forEach((wrapper) => {
-    const ta = wrapper.querySelector("textarea[id]");
+  if (elId && elId !== null) {
+    const ta = document.querySelector(`textarea[id=${elId}]`);
     if (ta && ta.id) initWysiwyg(ta.id);
-  });
+  }
+  else {
+    document.querySelectorAll('[data-wysiwyg="v3"]').forEach((wrapper) => {
+      const ta = wrapper.querySelector("textarea[id]");
+      if (ta && ta.id) initWysiwyg(ta.id);
+    });
+  }
 };
 
 if (typeof document !== "undefined") {
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", autoInit);
-  } else {
-    autoInit();
-  }
+  window.autoInit = autoInit
 }

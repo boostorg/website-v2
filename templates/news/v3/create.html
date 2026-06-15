@@ -30,6 +30,15 @@
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__link-fields { display: none; }
   </style>
   <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
+  <script>
+    if (typeof document !== "undefined") {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", autoInit);
+      } else {
+        autoInit();
+      }
+    }
+  </script>
 {% endblock %}
 
 {% block content %}

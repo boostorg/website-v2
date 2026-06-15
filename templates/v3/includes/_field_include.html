@@ -8,11 +8,11 @@
 
 {% with type=bound_field.widget_type field=bound_field.field widget=bound_field.field.widget %}
   {% if type == 'email' %}
-    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.initial type='email' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder only %}
+    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.value type='email' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder only %}
   {% elif type == 'text' %}
-    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.initial type='text' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder only %}
+    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.value type='text' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder only %}
   {% elif type == 'checkbox' %}
-    {% include 'v3/includes/_field_checkbox.html' with name=bound_field.name value=bound_field.initial label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text only %}
+    {% include 'v3/includes/_field_checkbox.html' with name=bound_field.name value=bound_field.value label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text only %}
   {% elif type == 'checkboxselectmultiple' %}
     <div class="checkbox__multi-checkbox-column">
     {% for option in field.choices %}
