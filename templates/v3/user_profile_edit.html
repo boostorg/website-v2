@@ -35,8 +35,6 @@
                 {% include 'v3/includes/_form_include.html' with form=form only %}
               {% endfor %}
             </div>
-            <button class="user-profile__small-section-heading btn-underline">+ Add Another</button>
-            <div class="field__help">All links will be displayed publicly on your profile for other users to see</div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
@@ -51,8 +49,8 @@
                   <div class="user-profile__avatar-row">
                     {% include 'v3/includes/_avatar_v3.html' with src=user.avatar_url name=user.name size='xxxl' only %}
                     <div class="user-profile__default-space-col">
-                      {% include 'v3/includes/_button.html' with label="Replace Avatar" icon_name="pixel-pencil" icon_position="right" style="secondary" icon_size=16 icon_viewbox='0 0 16 16' only %}
-                      {% include 'v3/includes/_button.html' with label="Delete Avatar" icon_name="pixel-trash" icon_position="right" style="error" icon_size=16 icon_viewbox='0 0 16 16' only %}
+                      {% include 'v3/includes/_button.html' with label='Replace Avatar' icon_name='pixel-pencil' icon_position='right' style='secondary' icon_size=16 icon_viewbox='0 0 16 16' only %}
+                      {% include 'v3/includes/_button.html' with label='Delete Avatar' icon_name='pixel-trash' icon_position='right' style='error' icon_size=16 icon_viewbox='0 0 16 16' only %}
                     </div>
                   </div>
                 {% else %}
@@ -118,12 +116,7 @@
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.country %}
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.indicate_last_login_method %}
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.override_commit_author_name %}
-            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.ovverride_commit_author_email %}
-            <div class="user-profile__default-space-col">
-              <span class="field__label">Delete Account</span>
-              {% include 'v3/includes/_button.html' with style='secondary' type='submit' label='Delete' only %}
-              <span class="field__help">This will remove your information and account from Boost completely and is not reversible.</span>
-            </div>
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.override_commit_author_email %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
@@ -142,7 +135,7 @@
                 {% include 'v3/includes/_button.html' with style='secondary' label='Submit' %}
               </div>
             {% endfor %}
-            <button class="user-profile__small-section-heading btn-underline">+ Add Another</button>
+            <button class="user-profile__small-section-heading btn-underline" type="button">+ Add Another</button>
             <div class="field__help">Primary email will be displayed as the contact email on the public profile.</div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
@@ -177,7 +170,7 @@
           </div>
         </div>
         <div class="user-profile-edit__connections-card">
-        {% include 'v3/includes/_account_connections_card.html' with connections=account_connections_mixed %}
+          {% include 'v3/includes/_account_connections_card.html' with connections=account_connections_mixed %}
         </div>
       </div>
     </div>

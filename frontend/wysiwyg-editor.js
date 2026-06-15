@@ -32,11 +32,11 @@ marked.use({
   }],
 });
 
-function parseMarkdownSafe(md) {
+export function parseMarkdownSafe(md) {
   return DOMPurify.sanitize(marked.parse(md));
 }
 
-function sanitizeSvg(svgString) {
+export function sanitizeSvg(svgString) {
   return DOMPurify.sanitize(svgString, { USE_PROFILES: { svg: true, svgFilters: true }, ADD_TAGS: ["use"] });
 }
 
@@ -93,7 +93,7 @@ const isSafeUrl = (url) => {
   }
 };
 
-const openModal = (title, fields) =>
+export const openModal = (title, fields) =>
   new Promise((resolve) => {
     const overlay = document.createElement("div");
     overlay.className = "wysiwyg-modal__overlay";
@@ -186,7 +186,7 @@ const getMermaid = async () => {
   return mermaidModule;
 };
 
-const debounce = (fn, ms) => {
+export const debounce = (fn, ms) => {
   let timer;
   return (...args) => {
     clearTimeout(timer);
@@ -194,7 +194,7 @@ const debounce = (fn, ms) => {
   };
 };
 
-const createToolbarButton = (editor, opts) => {
+export const createToolbarButton = (editor, opts) => {
   const { label, onClick, isActive, title } = opts;
   const btn = document.createElement("button");
   btn.type = "button";
@@ -261,7 +261,7 @@ const createHeadingDropdown = (editor) => {
   return select;
 };
 
-const ICONS = {
+export const ICONS = {
   bulletList:
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
   orderedList:
@@ -604,7 +604,7 @@ const buildToolbar = (editor, toolbarEl) => {
   return { mdBtn, previewBtn, handleDocClick };
 };
 
-const setupMermaidEditMode = (editor, editorEl) => {
+export const setupMermaidEditMode = (editor, editorEl) => {
   const renderMermaid = debounce(async () => {
     const pres = editorEl.querySelectorAll("pre");
     const activePreviews = new Set();
@@ -652,7 +652,7 @@ const setupMermaidEditMode = (editor, editorEl) => {
   renderMermaid();
 };
 
-const highlightPreviewCodeBlocks = (container) => {
+export const highlightPreviewCodeBlocks = (container) => {
   container.querySelectorAll("pre code[class*='language-']").forEach((codeEl) => {
     const match = codeEl.className.match(/language-\{?(\w+)\}?/);
     if (!match) return;
@@ -666,7 +666,7 @@ const highlightPreviewCodeBlocks = (container) => {
   });
 };
 
-const renderMermaidPreview = async (container) => {
+export const renderMermaidPreview = async (container) => {
   const mermaidCodes = container.querySelectorAll("code.language-mermaid");
   if (mermaidCodes.length === 0) return;
 
@@ -939,18 +939,20 @@ const initWysiwyg = (textareaId) => {
   return editor;
 };
 
-const autoInit = () => {
+const autoInit = (elId) => {
   if (typeof document === "undefined" || !document.querySelector) return;
-  document.querySelectorAll('[data-wysiwyg="v3"]').forEach((wrapper) => {
-    const ta = wrapper.querySelector("textarea[id]");
+  if (elId && elId !== null) {
+    const ta = document.querySelector(`textarea[id=${elId}]`);
     if (ta && ta.id) initWysiwyg(ta.id);
-  });
+  }
+  else {
+    document.querySelectorAll('[data-wysiwyg="v3"]').forEach((wrapper) => {
+      const ta = wrapper.querySelector("textarea[id]");
+      if (ta && ta.id) initWysiwyg(ta.id);
+    });
+  }
 };
 
 if (typeof document !== "undefined") {
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", autoInit);
-  } else {
-    autoInit();
-  }
+  window.autoInit = autoInit
 }
