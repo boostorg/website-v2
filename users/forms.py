@@ -250,14 +250,17 @@ class V3UserProfileForm(forms.Form):
     hide_github = forms.BooleanField(
         label="Hide GitHub activity from your profile",
         help_text="Links your login to an existing commit-author email after verification",
+        required=False,
     )
     hide_ml = forms.BooleanField(
         label="Hide mailing list activity from your profile",
         help_text="Links your login to an existing commit-author email after verification",
+        required=False,
     )
     hide_ach = forms.BooleanField(
         label="Hide achievements & badges from your profile",
         help_text="Links your login to an existing commit-author email after verification",
+        required=False,
     )
 
     # Top Right Column
@@ -269,13 +272,16 @@ class V3UserProfileForm(forms.Form):
     )
     country = forms.ChoiceField(choices=[])
     indicate_last_login_method = forms.BooleanField(
-        help_text="The login page will indicate the last method you used to login"
+        help_text="The login page will indicate the last method you used to login",
+        required=False,
     )
     override_commit_author_name = forms.BooleanField(
-        help_text="Globally replaces your git commit author name with username value set above"
+        help_text="Globally replaces your git commit author name with username value set above",
+        required=False,
     )
     override_commit_author_email = forms.BooleanField(
-        help_text="Links your login to an existing commit-author email after verification"
+        help_text="Links your login to an existing commit-author email after verification",
+        required=False,
     )
 
     # Commit Emails
@@ -301,5 +307,6 @@ class V3UserProfileForm(forms.Form):
         required=False,
     )
     allow_notification_terms_updated = forms.BooleanField(
-        label="The sites terms of use or privacy policy are changed"
+        label="The sites terms of use or privacy policy are changed",
+        required=False,
     )
