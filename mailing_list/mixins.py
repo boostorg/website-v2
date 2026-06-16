@@ -1,8 +1,8 @@
 from typing import NamedTuple, Optional
 
-from django.conf import settings
 from django.urls import reverse
 
+from mailing_list import constants
 from mailing_list.models import SubscriptionStatus
 from mailing_list.models import UserMailingListSubscription
 
@@ -66,7 +66,7 @@ class MailingListCardMixin:
         context["mailing_list_card_list_id"] = _DEFAULT_LIST_ID
 
         if request.user.is_authenticated:
-            managed_lists = set(settings.MAILMAN_LISTS)
+            managed_lists = set(constants.MAILMAN_LISTS)
             state = get_subscription_state_count_and_email(request.user, managed_lists)
 
             context["mailing_list_card_state"] = state.state

@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.utils.timesince import timesince
 from django.views import View
 
+from mailing_list import constants
 from mailing_list.client import MailmanAPIError
 from mailing_list.client import MailmanClient
 from mailing_list.constants import MAILING_LIST_LABELS
@@ -27,6 +28,10 @@ logger = logging.getLogger(__name__)
 
 _CONFIRM_SALT = "mailing-list-confirm-a40b24dc-a26d-49ca-81d1-5b2fccb5fd7b"
 _CONFIRM_MAX_AGE = 7 * 24 * 60 * 60  # 7 days in seconds
+
+
+def _get_list_prefix(list_id: str) -> str:
+    return list_id.split(".")[0]
 
 
 def _is_htmx(request) -> bool:
@@ -91,7 +96,7 @@ def _send_confirmation_email(
     )
     lists = []
     for lid in list_ids:
-        entry = MAILING_LIST_LABELS.get(lid)
+        entry = MAILING_LIST_LABELS.get(_get_list_prefix(lid))
         if entry:
             lists.append(entry)
         else:
@@ -130,7 +135,7 @@ class SubscribeView(LoginRequiredMixin, View):
                 {"error": "Email is required."},
             )
 
-        managed_lists = set(settings.MAILMAN_LISTS)
+        managed_lists = set(constants.MAILMAN_LISTS)
         requested = set(request.POST.getlist("list_id")) & managed_lists
         current = set(
             UserMailingListSubscription.objects.filter(
@@ -229,7 +234,7 @@ class QuickSubscribeView(View):
 
     def post(self, request):
         email = request.POST.get("email", "").strip()
-        managed_lists = set(settings.MAILMAN_LISTS)
+        managed_lists = set(constants.MAILMAN_LISTS)
         list_id = request.POST.get("list_id", "").strip()
 
         if not email:
@@ -471,7 +476,7 @@ class ConfirmSubscriptionView(View):
                 errors.append(list_id)
 
         def _label(list_id):
-            entry = MAILING_LIST_LABELS.get(list_id)
+            entry = MAILING_LIST_LABELS.get(_get_list_prefix(list_id))
             if entry:
                 return {"name": entry["name"], "address": entry["address"]}
             return {"name": list_id, "address": None}

@@ -10,6 +10,7 @@ from corsheaders.defaults import default_headers
 from django.core.exceptions import ImproperlyConfigured
 from pythonjsonlogger import jsonlogger
 
+
 env = environs.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
@@ -384,14 +385,6 @@ MAILMAN_REST_API_URL = env("MAILMAN_REST_API_URL", default="http://localhost:800
 MAILMAN_REST_API_VERSION = env("MAILMAN_REST_API_VERSION", default="3.1")
 MAILMAN_REST_API_USER = env("MAILMAN_REST_API_USER", default="restadmin")
 MAILMAN_REST_API_PASS = env("MAILMAN_REST_API_PASS", default="restpass")
-MAILMAN_LISTS = env.list(
-    "MAILMAN_LISTS",
-    default=[
-        "boost-users.lists.boost.org",
-        "boost-announce.lists.boost.org",
-        "boost.lists.boost.org",
-    ],
-)
 
 # Fastly API credentials
 FASTLY_SERVICE = env("FASTLY_SERVICE", default="empty")

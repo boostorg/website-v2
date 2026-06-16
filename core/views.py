@@ -42,6 +42,7 @@ from libraries.utils import (
     set_selected_boost_version,
     modernize_boost_slug,
 )
+from mailing_list import constants
 from versions.models import Version, docs_path_to_boost_name
 
 from . import context_processors
@@ -1467,7 +1468,6 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         from libraries.utils import (
             patch_commit_authors,
         )
-        from django.conf import settings as _settings
 
         CODE_DEMO_BEAST = """int main()
         {
@@ -2246,7 +2246,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         from mailing_list.models import UserMailingListSubscription
 
         _demo_card_list_id = "boost.lists.boost.org"
-        context["demo_mailman_lists"] = _settings.MAILMAN_LISTS
+        context["demo_mailman_lists"] = constants.MAILMAN_LISTS
         context["demo_subscribe_url"] = self.request.build_absolute_uri(
             reverse("mailing-list-subscribe")
         )
@@ -2258,11 +2258,11 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
 
         if self.request.user.is_authenticated:
             mailing_list_state = get_subscription_state_count_and_email(
-                self.request.user, _settings.MAILMAN_LISTS
+                self.request.user, constants.MAILMAN_LISTS
             )
             context["demo_subscribed_lists"] = set(
                 UserMailingListSubscription.objects.filter(
-                    user=self.request.user, list_id__in=_settings.MAILMAN_LISTS
+                    user=self.request.user, list_id__in=constants.MAILMAN_LISTS
                 ).values_list("list_id", flat=True)
             )
         else:

@@ -1,5 +1,35 @@
+from enum import Enum
+from urllib.parse import urlparse
+
+from config.settings import MAILMAN_REST_API_URL
+
+
+def get_domain_with_subdomains(url: str) -> str:
+    """
+    Extracts the full domain (including subdomains) from a given URL.
+    """
+    # If the URL doesn't start with a scheme, urlparse might not parse it correctly.
+    # We prepend '//' to handle scheme-less URLs properly.
+    if not url.startswith(("http://", "https://", "//")):
+        url = "//" + url
+
+    parsed_url = urlparse(url)
+
+    # .netloc extracts the network location (domain + port if present)
+    # We split by ':' to remove the port number just in case it's included.
+    domain = parsed_url.netloc.split(":")[0]
+
+    return domain
+
+
+class MailingLists(Enum):
+    BOOST = "boost"
+    BOOST_ANNOUNCE = "boost-announce"
+    BOOST_USERS = "boost-users"
+
+
 MAILING_LIST_LABELS = {
-    "boost.lists.boost.org": {
+    [MailingLists.BOOST.value]: {
         "name": "Boost Developers",
         "address": "boost@lists.boost.org",
         "description": (
@@ -10,7 +40,7 @@ MAILING_LIST_LABELS = {
             "https://www.boost.org/doc/user-guide/discussion-policy.html"
         ),
     },
-    "boost-announce.lists.boost.org": {
+    [MailingLists.BOOST_ANNOUNCE.value]: {
         "name": "Boost Announcements",
         "address": "boost-announce@lists.boost.org",
         "description": (
@@ -19,7 +49,7 @@ MAILING_LIST_LABELS = {
             "following the high-volume developer discussion."
         ),
     },
-    "boost-users.lists.boost.org": {
+    [MailingLists.BOOST_USERS.value]: {
         "name": "Boost Users",
         "address": "boost-users@lists.boost.org",
         "description": (
@@ -30,6 +60,10 @@ MAILING_LIST_LABELS = {
         ),
     },
 }
+
+MAILMAN_DOMAIN = get_domain_with_subdomains(MAILMAN_REST_API_URL)
+
+MAILMAN_LISTS = [f"{_l}.{MAILMAN_DOMAIN}" for _l in MAILING_LIST_LABELS.keys()]
 
 # we only want boost devel for now, leaving the others in case that changes.
 ML_STATS_URLS = [
