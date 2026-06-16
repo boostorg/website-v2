@@ -710,11 +710,14 @@ def popular_search_term_admin():
 def _admin_request(method="get", path="/admin/core/popularsearchterm/", **post):
     """RequestFactory request with the messages framework wired up."""
     from django.contrib.messages.storage.fallback import FallbackStorage
+    from django.contrib.sessions.backends.db import SessionStore
     from django.test import RequestFactory
 
     rf = RequestFactory()
     request = getattr(rf, method)(path, post) if method == "post" else rf.get(path)
-    setattr(request, "session", {})
+    # A real session (not a bare dict) so FallbackStorage can spill messages
+    # to session storage when they don't fit in a cookie.
+    setattr(request, "session", SessionStore())
     setattr(request, "_messages", FallbackStorage(request))
     return request
 

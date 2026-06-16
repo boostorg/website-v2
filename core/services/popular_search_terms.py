@@ -176,6 +176,8 @@ def ai_filter_terms(
     # payload, in case the model hallucinates a label we never sent.
     counts_by_original = {lbl: c for lbl, c in candidates}
     out: list[tuple[str, str, int]] = []
+    seen_originals: set[str] = set()
+
     for row in kept:
         original = (row.get("original") or "").strip()
         # Force lowercase Python-side so prompt drift can't leak title-cased
@@ -183,10 +185,13 @@ def ai_filter_terms(
         display = (row.get("label") or original).strip().lower()
         if not original or not display or original not in counts_by_original:
             continue
+        if original in seen_originals:
+            continue
         # Mirror the pre-filter cap on the AI's output: an oversized display
         # label would still crash .create() at the model layer.
         if len(display) > MAX_LABEL_LEN:
             continue
+        seen_originals.add(original)
         out.append((original, display, counts_by_original[original]))
     return out
 

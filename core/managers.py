@@ -71,5 +71,5 @@ class PopularSearchTermManager(models.Manager):
         return (
             self.annotate(label_lower=Lower("label"))
             .exclude(label_lower__in=excluded_lower)
-            .order_by("-is_pinned", "rank")
+            .order_by("-is_pinned", "rank", "label")
         )
