@@ -120,9 +120,6 @@ def _filter_searches(searches: list[dict], excluded: set[str]) -> list[tuple[str
     for row in searches:
         label = (row.get("search") or "").strip()
         count = row.get("count") or 0
-        # Drop dead-end searches: a term Algolia returned no results for would
-        # be a no-results shortcut on the homepage. nbHits is always present
-        # under click_analytics=True; a missing/zero value reads as 0 and drops.
         if (row.get("nbHits") or 0) <= 0:
             continue
         if not (MIN_QUERY_LEN <= len(label) <= MAX_LABEL_LEN):
@@ -245,7 +242,6 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
                 .first()
             )
             if existing:
-                # Refresh the label so historical title-cased rows converge to lowercase.
                 # `is_pinned` is admin-owned and never touched here.
                 existing.label = display_label
                 existing.search_count = count

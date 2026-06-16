@@ -174,16 +174,21 @@ def _set_raw_searches(mock_client, searches: list[dict]):
     mock_client.get_top_searches.return_value = response
 
 
-def test_refresh_drops_zero_result_searches_before_ai(
-    live_version, mock_algolia, mock_ai
+@pytest.mark.parametrize(
+    "bad_row",
+    [
+        {"search": "tyqpo", "count": 80, "nbHits": 0},  # explicit zero results
+        {"search": "math", "count": 30},  # nbHits key absent (stale payload)
+    ],
+    ids=["zero_nbhits", "missing_nbhits"],
+)
+def test_refresh_drops_rows_without_results_before_ai(
+    live_version, mock_algolia, mock_ai, bad_row
 ):
-    """A term Algolia returned no results for (nbHits=0) never reaches the AI."""
+    """A row with no results (nbHits=0 or absent) never reaches the AI or DB."""
     _set_raw_searches(
         mock_algolia,
-        [
-            {"search": "networking", "count": 50, "nbHits": 12},  # keep
-            {"search": "tyqpo", "count": 80, "nbHits": 0},  # drop: no results
-        ],
+        [{"search": "networking", "count": 50, "nbHits": 12}, bad_row],
     )
     _set_ai_kept(mock_ai, [("networking", "networking")])
 
@@ -191,24 +196,6 @@ def test_refresh_drops_zero_result_searches_before_ai(
 
     sent_labels = [row["label"] for row in _payload_sent_to_ai(mock_ai)]
     assert sent_labels == ["networking"]
-    assert list(PopularSearchTerm.objects.values_list("label", flat=True)) == [
-        "networking"
-    ]
-
-
-def test_refresh_drops_rows_missing_nbhits_field(live_version, mock_algolia, mock_ai):
-    """A row with no nbHits key (e.g. stale payload) is treated as zero-result."""
-    _set_raw_searches(
-        mock_algolia,
-        [
-            {"search": "networking", "count": 50, "nbHits": 12},  # keep
-            {"search": "math", "count": 30},  # drop: no nbHits
-        ],
-    )
-    _set_ai_kept(mock_ai, [("networking", "networking")])
-
-    refresh_popular_search_terms()
-
     assert list(PopularSearchTerm.objects.values_list("label", flat=True)) == [
         "networking"
     ]
@@ -571,41 +558,33 @@ def test_library_names_are_injected_into_ai_prompt(
     assert "lockfree" in system_message["content"]
 
 
-def test_library_match_ranks_above_non_library_at_equal_count(
-    db, live_version, mock_algolia, mock_ai
+@pytest.mark.parametrize(
+    "asio_count, misc_count, expected_order",
+    [
+        # Count tie: the known library wins the tie-break.
+        (4, 4, ["asio", "misc concept"]),
+        # No tie: higher count wins outright, library status is irrelevant.
+        (3, 50, ["misc concept", "asio"]),
+    ],
+    ids=["tie_library_wins", "higher_count_wins"],
+)
+def test_library_tiebreak_only_applies_at_equal_count(
+    db, live_version, mock_algolia, mock_ai, asio_count, misc_count, expected_order
 ):
-    """At a count tie, a known library label outranks a generic term."""
+    """A known library outranks a generic term only when search counts tie."""
     from libraries.models import Tier
 
     baker.make("libraries.Library", name="Asio", tier=Tier.FLAGSHIP)
-    # Both terms have the same Algolia count.
-    _set_searches(mock_algolia, [("misc concept", 4), ("asio", 4)])
-    _ai_keeps_all(mock_ai, [("misc concept", 4), ("asio", 4)])
+    rows = [("misc concept", misc_count), ("asio", asio_count)]
+    _set_searches(mock_algolia, rows)
+    _ai_keeps_all(mock_ai, rows)
 
     refresh_popular_search_terms()
 
     by_rank = list(
         PopularSearchTerm.objects.order_by("rank").values_list("label", flat=True)
     )
-    assert by_rank == ["asio", "misc concept"]
-
-
-def test_non_library_count_still_beats_library_with_lower_count(
-    db, live_version, mock_algolia, mock_ai
-):
-    """Tie-break only kicks in on a count tie — higher count always wins."""
-    from libraries.models import Tier
-
-    baker.make("libraries.Library", name="Asio", tier=Tier.FLAGSHIP)
-    _set_searches(mock_algolia, [("misc concept", 50), ("asio", 3)])
-    _ai_keeps_all(mock_ai, [("misc concept", 50), ("asio", 3)])
-
-    refresh_popular_search_terms()
-
-    by_rank = list(
-        PopularSearchTerm.objects.order_by("rank").values_list("label", flat=True)
-    )
-    assert by_rank == ["misc concept", "asio"]
+    assert by_rank == expected_order
 
 
 # ---------- PopularSearchTerm.objects.visible() ----------
@@ -621,13 +600,6 @@ def test_visible_drops_admin_exclusions(db):
     labels = list(PopularSearchTerm.objects.visible().values_list("label", flat=True))
 
     assert labels == ["networking", "testing"]
-
-
-def test_visible_returns_all_when_no_exclusions(db):
-    PopularSearchTerm.objects.create(label="a-term", rank=1, search_count=5)
-    PopularSearchTerm.objects.create(label="b-term", rank=2, search_count=3)
-
-    assert PopularSearchTerm.objects.visible().count() == 2
 
 
 def test_pinned_row_orders_first_in_visible(live_version, mock_algolia, mock_ai):

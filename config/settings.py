@@ -681,9 +681,8 @@ ALGOLIA = {
     "region": env("ALGOLIA_APP_REGION", "us"),
 }
 
-# Minimum Algolia search_count a term must clear to be considered for the
-# V3 homepage popular-terms row. Raise this in prod to keep one-off curiosity
-# searches out of the LLM candidate set; leave at 1 locally so devs see data.
+# Min Algolia search_count to enter the homepage LLM candidate set.
+# Raise in prod to drop one-off curiosity searches; keep at 1 locally for data.
 POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT = env.int(
     "POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT", default=1
 )
