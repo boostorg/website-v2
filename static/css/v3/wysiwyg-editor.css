@@ -1,3 +1,8 @@
+.wysiwyg-v3-container {
+  position: relative;
+  width: 100%;
+}
+
 .wysiwyg-v3 {
   position: relative;
   width: 100%;
@@ -716,6 +721,6 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
   background: var(--color-surface-brand-accent-hovered, #FFA000BF);
 }
 
-.wysiwyg-v3 > .field__help {
+.wysiwyg-v3-container > .field__help {
   margin-top: var(--space-default);
 }

@@ -84,7 +84,7 @@ turndown.addRule("taskList", {
 });
 
 
-const isSafeUrl = (url) => {
+export const isSafeUrl = (url) => {
   try {
     const parsed = new URL(url, window.location.href);
     return ["http:", "https:", "mailto:"].includes(parsed.protocol);

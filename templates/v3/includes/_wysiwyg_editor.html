@@ -16,26 +16,28 @@
 {% endcomment %}
 {% load static %}
 
-<div class="wysiwyg-v3" data-wysiwyg="v3" x-data="{ jsReady: false }" x-init="
-    jsReady = true;
-    $nextTick(() => {
-      autoInit('{{textarea_id}}');
-    })"
-  >
-  <textarea
-    id="{{ textarea_id }}"
-    name="{{ textarea_name }}"
-    class="w-full min-h-[200px]"
-    placeholder=""
-    x-show="!jsReady"
-    :aria-hidden="true"
-    {% if disabled_expr %}:disabled="{{ disabled_expr }}"{% endif %}
-  >{{ value|default_if_none:"" }}</textarea>
-  <div class="wysiwyg-editor__toolbar" x-show="jsReady" x-cloak></div>
-  <div class="wysiwyg-editor__body" x-show="jsReady" x-cloak></div>
+<div class="wysiwyg-v3-container">
+  <div class="wysiwyg-v3" data-wysiwyg="v3" x-data="{ jsReady: false }" x-init="
+      jsReady = true;
+      $nextTick(() => {
+        autoInit('{{textarea_id}}');
+      })"
+    >
+    <textarea
+      id="{{ textarea_id }}"
+      name="{{ textarea_name }}"
+      class="w-full min-h-[200px]"
+      placeholder=""
+      x-show="!jsReady"
+      :aria-hidden="true"
+      {% if disabled_expr %}:disabled="{{ disabled_expr }}"{% endif %}
+    >{{ value|default_if_none:"" }}</textarea>
+    <div class="wysiwyg-editor__toolbar" x-show="jsReady" x-cloak></div>
+    <div class="wysiwyg-editor__body" x-show="jsReady" x-cloak></div>
+  </div>
+  {% if help_text %}
+      <p class="field__help"
+        id="field-{{ textarea_name }}-help"
+        >{{ help_text }}</p>
+    {% endif %}
 </div>
-{% if help_text %}
-    <p class="field__help mt-l"
-       id="field-{{ textarea_name }}-help"
-       >{{ help_text }}</p>
-  {% endif %}
