@@ -102,7 +102,6 @@
   <div class="dropdown{% if disabled %} dropdown--disabled{% endif %}" :class="{ 'dropdown--open': open{% if deselectable %}, 'dropdown--has-value': selected && selected !== defaultValue{% endif %} }" x-cloak>
     <div class="dropdown__trigger"
          role="button"
-         tabindex="0"
          {% if not disabled %}
          x-ref="trigger"
          @click="open = !open"
@@ -112,6 +111,9 @@
          @keydown.arrow-down.prevent="open = true; $nextTick(() => firstEnabledOption()?.focus())"
          :aria-expanded="open"
          aria-haspopup="listbox"
+         tabindex="0"
+         {% else %}
+         aria-disabled="true"
          {% endif %}
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
          {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>

@@ -83,3 +83,12 @@
   padding: 0;
   color: var(--color-text-secondary);
 }
+
+.user-profile__link-section-heading {
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-tight);
+}

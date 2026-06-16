@@ -11,7 +11,7 @@ import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
-import { createToolbarButton, openModal, parseMarkdownSafe, setupMermaidEditMode, highlightPreviewCodeBlocks, renderMermaidPreview, debounce, ICONS, } from "./wysiwyg-editor"
+import { createToolbarButton, openModal, parseMarkdownSafe, setupMermaidEditMode, highlightPreviewCodeBlocks, renderMermaidPreview, debounce, ICONS, isSafeUrl, } from "./wysiwyg-editor"
 
 const editorInstances = new Map();
 
