@@ -21,7 +21,7 @@ environs[django]
 greenlet
 psycogreen
 gevent
-gunicorn
+gunicorn~=25.3.0
 interrogate
 itsdangerous
 psycopg2-binary
