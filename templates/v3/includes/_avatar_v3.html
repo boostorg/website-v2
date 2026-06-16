@@ -28,7 +28,7 @@
 {% with size=size|default:"md" variant=variant|default:"yellow" %}
   {% if src %}
     <span class="avatar avatar--{{ size }}"{% if name %} role="img" aria-label="{{ name }}"{% else %} aria-hidden="true"{% endif %}>
-      <img src="{{ src }}" class="avatar avatar--{{ size }}" alt="" class="avatar__img" loading="lazy" decoding="async">
+      <img src="{{ src }}" class="avatar avatar--{{ size }} avatar__img" alt="" loading="lazy" decoding="async">
     </span>
   {% elif name %}
     {% with inits=name|avatar_initials %}

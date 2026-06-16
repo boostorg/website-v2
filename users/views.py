@@ -419,23 +419,27 @@ class CurrentUserProfileView(
         if (
             getattr(self, "_v3_active", False)
             and self.request.GET.get("edit", "").lower() == "true"
+            and self.request.user.is_authenticated
         ):
             return [self.v3_edit_template_name]
         return super().get_template_names()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["change_password_form"] = ChangePasswordForm(user=self.request.user)
-        context["profile_form"] = UserProfileForm(instance=self.request.user)
-        context["profile_photo_form"] = UserProfilePhotoForm(instance=self.request.user)
-        context["can_update_image"] = self.request.user.can_update_image
-        context["profile_preferences_form"] = PreferencesForm(
-            instance=self.request.user.preferences
-        )
-        context["social_accounts"] = self.get_social_accounts()
-        context["commit_email_addresses"] = CommitAuthorEmail.objects.filter(
-            author__user=self.request.user
-        )
+        if self.request.user.is_authenticated:
+            context["change_password_form"] = ChangePasswordForm(user=self.request.user)
+            context["profile_form"] = UserProfileForm(instance=self.request.user)
+            context["profile_photo_form"] = UserProfilePhotoForm(
+                instance=self.request.user
+            )
+            context["can_update_image"] = self.request.user.can_update_image
+            context["profile_preferences_form"] = PreferencesForm(
+                instance=self.request.user.preferences
+            )
+            context["social_accounts"] = self.get_social_accounts()
+            context["commit_email_addresses"] = CommitAuthorEmail.objects.filter(
+                author__user=self.request.user
+            )
         return context
 
     def get_social_accounts(self):

@@ -18,9 +18,9 @@
 
 <div class="wysiwyg-v3-container">
   <div class="wysiwyg-v3" data-wysiwyg="v3" x-data="{ jsReady: false }" x-init="
-      jsReady = true;
       $nextTick(() => {
         autoInit('{{textarea_id}}');
+        jsReady = true;
       })"
     >
     <textarea

@@ -14,7 +14,7 @@
   {% elif type == 'text' %}
     {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.value type='text' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder only %}
   {% elif type == 'checkbox' %}
-    {% include 'v3/includes/_field_checkbox.html' with name=bound_field.name value=bound_field.value label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text checked=bound_field.value only %}
+    {% include 'v3/includes/_field_checkbox.html' with name=bound_field.name label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text checked=bound_field.value only %}
   {% elif type == 'checkboxselectmultiple' %}
     <div class="checkbox__multi-checkbox-column">
     {% for option in field.choices %}

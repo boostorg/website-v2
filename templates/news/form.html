@@ -7,15 +7,6 @@
   {{ block.super }}
   {% flag 'v3' %}
   <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
-  <script>
-    if (typeof document !== 'undefined') {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', autoInit)
-      } else {
-        autoInit()
-      }
-    }
-  </script>
   {% endflag %}
 {% endblock %}
 
