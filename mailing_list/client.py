@@ -101,7 +101,7 @@ class MailmanClient:
 
         discard_url = f"{self._base}/lists/{list_id}/requests/{token}"
         try:
-            requests.post(
+            discard_response = requests.post(
                 discard_url,
                 data={"action": "discard"},
                 auth=self._credentials,
@@ -109,6 +109,13 @@ class MailmanClient:
             )
         except requests.RequestException as exc:
             raise MailmanAPIError(f"Mailman API unreachable: {exc}") from exc
+
+        if discard_response.status_code == 404:
+            return
+        if not discard_response.ok:
+            raise MailmanAPIError(
+                f"discard pending failed [{discard_response.status_code}]"
+            )
 
     def unsubscribe(self, email: str, list_id: str) -> None:
         """DELETE /<version>/members/<id> — remove a subscription."""
