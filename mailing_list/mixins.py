@@ -6,7 +6,7 @@ from mailing_list import constants
 from mailing_list.models import SubscriptionStatus
 from mailing_list.models import UserMailingListSubscription
 
-_DEFAULT_LIST_ID = constants.MAILMAN_LISTS[0]
+_DEFAULT_LIST_ID = constants.MAILMAN_LISTS[0] if constants.MAILMAN_LISTS else ""
 
 
 class SubscriptionState(NamedTuple):
