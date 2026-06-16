@@ -4,11 +4,13 @@ The V3 homepage search card shows a row of "popular term" keyword badges. Each k
 
 ## Where the data comes from
 
-Algolia powers boost.org's site search. As a side effect, Algolia records every query users type. Once a week the site asks Algolia for the most popular queries over the **previous two weeks** against the current live release's documentation index. The two-week window overlaps the weekly cadence by one week, so a term spiking on Monday doesn't drop off the homepage the moment its peak rolls past.
+Algolia powers boost.org's site search. As a side effect, Algolia records every query users type. Once a week the site asks Algolia for the most popular queries over the **previous two weeks** against the current live release's documentation index. The two-week window overlaps the weekly cadence by one week, so a term spiking on Monday doesn't drop off the homepage the moment its peak rolls past. The fetch asks Algolia for click analytics so each candidate also carries the number of results the query matched.
 
 ## How the list is cleaned up
 
-The raw output from Algolia contains a lot of noise — typos like `tets`, gibberish like `sdsdsd`, personal names, single-letter queries. Before anything is written to the database, an LLM reviews each candidate and decides KEEP or REJECT.
+Searches that returned **no results** are dropped first — a query Algolia matched nothing for would only be a dead-end shortcut on the homepage, so it never becomes a keyword badge no matter how often it was typed.
+
+The remaining raw output from Algolia contains a lot of noise — incomplete words like `asi` or `filesyste`, personal names, single-letter queries. Before anything is written to the database, an LLM reviews each candidate and decides KEEP or REJECT.
 
 The LLM is given a few helpful hints:
 

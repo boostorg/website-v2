@@ -108,6 +108,8 @@ def _fetch_top_searches(client: AnalyticsClientSync, index: str) -> list[dict]:
         limit=ALGOLIA_FETCH_LIMIT,
         start_date=start_date.isoformat(),
         end_date=end_date.isoformat(),
+        # Enrich each row with `nbHits` so we can drop zero-result searches below.
+        click_analytics=True,
     ).to_json()
     return json.loads(raw).get("searches") or []
 
@@ -118,6 +120,11 @@ def _filter_searches(searches: list[dict], excluded: set[str]) -> list[tuple[str
     for row in searches:
         label = (row.get("search") or "").strip()
         count = row.get("count") or 0
+        # Drop dead-end searches: a term Algolia returned no results for would
+        # be a no-results shortcut on the homepage. nbHits is always present
+        # under click_analytics=True; a missing/zero value reads as 0 and drops.
+        if (row.get("nbHits") or 0) <= 0:
+            continue
         if not (MIN_QUERY_LEN <= len(label) <= MAX_LABEL_LEN):
             continue
         if count < min_count:

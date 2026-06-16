@@ -27,8 +27,10 @@ from core.services.popular_search_terms import (
 # ---------- fixtures + mock helpers ----------
 
 
-def _searches_payload(rows: list[tuple[str, int]]) -> str:
-    return json.dumps({"searches": [{"search": s, "count": c} for s, c in rows]})
+def _searches_payload(rows: list[tuple[str, int]], *, hits: int = 10) -> str:
+    return json.dumps(
+        {"searches": [{"search": s, "count": c, "nbHits": hits} for s, c in rows]}
+    )
 
 
 @pytest.fixture
@@ -163,6 +165,66 @@ def test_refresh_drops_short_queries_and_low_counts_before_ai(
 
     labels = list(PopularSearchTerm.objects.values_list("label", flat=True))
     assert labels == ["networking", "math"]
+
+
+def _set_raw_searches(mock_client, searches: list[dict]):
+    """Set the Algolia response to an exact list of row dicts (per-row nbHits)."""
+    response = MagicMock()
+    response.to_json.return_value = json.dumps({"searches": searches})
+    mock_client.get_top_searches.return_value = response
+
+
+def test_refresh_drops_zero_result_searches_before_ai(
+    live_version, mock_algolia, mock_ai
+):
+    """A term Algolia returned no results for (nbHits=0) never reaches the AI."""
+    _set_raw_searches(
+        mock_algolia,
+        [
+            {"search": "networking", "count": 50, "nbHits": 12},  # keep
+            {"search": "tyqpo", "count": 80, "nbHits": 0},  # drop: no results
+        ],
+    )
+    _set_ai_kept(mock_ai, [("networking", "networking")])
+
+    refresh_popular_search_terms()
+
+    sent_labels = [row["label"] for row in _payload_sent_to_ai(mock_ai)]
+    assert sent_labels == ["networking"]
+    assert list(PopularSearchTerm.objects.values_list("label", flat=True)) == [
+        "networking"
+    ]
+
+
+def test_refresh_drops_rows_missing_nbhits_field(live_version, mock_algolia, mock_ai):
+    """A row with no nbHits key (e.g. stale payload) is treated as zero-result."""
+    _set_raw_searches(
+        mock_algolia,
+        [
+            {"search": "networking", "count": 50, "nbHits": 12},  # keep
+            {"search": "math", "count": 30},  # drop: no nbHits
+        ],
+    )
+    _set_ai_kept(mock_ai, [("networking", "networking")])
+
+    refresh_popular_search_terms()
+
+    assert list(PopularSearchTerm.objects.values_list("label", flat=True)) == [
+        "networking"
+    ]
+
+
+def test_refresh_requests_click_analytics_for_nbhits(
+    live_version, mock_algolia, mock_ai
+):
+    """nbHits only arrives when get_top_searches is asked for click analytics."""
+    payload = [("networking", 10)]
+    _set_searches(mock_algolia, payload)
+    _ai_keeps_all(mock_ai, payload)
+
+    refresh_popular_search_terms()
+
+    assert mock_algolia.get_top_searches.call_args.kwargs["click_analytics"] is True
 
 
 def test_refresh_drops_excluded_terms_before_ai(live_version, mock_algolia, mock_ai):
