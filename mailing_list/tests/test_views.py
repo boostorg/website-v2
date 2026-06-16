@@ -34,6 +34,10 @@ def locmem_cache(settings):
     settings.CACHES = {
         "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
     }
+    yield
+    from django.core.cache import cache
+
+    cache.clear()
 
 
 def _make_token(email, list_ids, user_id=None):
