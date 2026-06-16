@@ -350,7 +350,9 @@ class QuickSubscribeView(View):
         try:
             _send_confirmation_email(request, email, request.user.pk, [list_id])
         except Exception as exc:
-            logger.error("Failed to send confirmation email to %s: %s", email, exc)
+            logger.error(
+                "Failed to send confirmation email to %s...: %s", email[:3], exc
+            )
             UserMailingListSubscription.objects.filter(
                 user=request.user, list_id=list_id
             ).delete()
