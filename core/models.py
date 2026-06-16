@@ -193,7 +193,7 @@ class PopularSearchTerm(models.Model):
     `is_pinned` alone.
     """
 
-    label = models.CharField(max_length=128, unique=True)
+    label = models.CharField(max_length=128)
     # `rank` is a compound sort key whose meaning depends on row state:
     #   - fresh rows (this week's refresh): rank 1..N in popularity order
     #   - stale rows: `rank += STORED_TOP_N` each missed run, so they sort below fresh
@@ -215,6 +215,11 @@ class PopularSearchTerm(models.Model):
 
     class Meta:
         ordering = ["-is_pinned", "rank", "label"]
+        constraints = [
+            models.UniqueConstraint(
+                Lower("label"), name="core_popularsearchterm_label_ci_unique"
+            )
+        ]
 
     def __str__(self):
         pin = "[PIN] " if self.is_pinned else ""
@@ -224,8 +229,16 @@ class PopularSearchTerm(models.Model):
 class PopularSearchTermExclusion(models.Model):
     """Search terms that should never appear on the homepage (case-insensitive)."""
 
-    term = models.CharField(max_length=128, unique=True)
+    term = models.CharField(max_length=128)
     note = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        # Exclusions are matched case-insensitively; enforce that at the DB layer.
+        constraints = [
+            models.UniqueConstraint(
+                Lower("term"), name="core_popularsearchtermexclusion_term_ci_unique"
+            )
+        ]
 
     def __str__(self):
         return self.term
