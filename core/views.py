@@ -2245,7 +2245,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         # Mailing list subscribe demo
         from mailing_list.models import UserMailingListSubscription
 
-        _demo_card_list_id = "boost.lists.boost.org"
+        _demo_card_list_id = constants.MAILMAN_LISTS[0]
         context["demo_mailman_lists"] = constants.MAILMAN_LISTS
         context["demo_subscribe_url"] = self.request.build_absolute_uri(
             reverse("mailing-list-subscribe")

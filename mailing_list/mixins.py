@@ -6,7 +6,7 @@ from mailing_list import constants
 from mailing_list.models import SubscriptionStatus
 from mailing_list.models import UserMailingListSubscription
 
-_DEFAULT_LIST_ID = "boost.lists.boost.org"
+_DEFAULT_LIST_ID = constants.MAILMAN_LISTS[0]
 
 
 class SubscriptionState(NamedTuple):

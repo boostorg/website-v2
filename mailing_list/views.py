@@ -229,7 +229,12 @@ class QuickSubscribeView(View):
         return render(
             request,
             "v3/includes/_mailing_list_card.html",
-            {"subscribe_url": subscribe_url, "login_url": login_url, **ctx},
+            {
+                "subscribe_url": subscribe_url,
+                "login_url": login_url,
+                "list_id": constants.MAILMAN_LISTS[0],
+                **ctx,
+            },
         )
 
     def post(self, request):
@@ -237,13 +242,15 @@ class QuickSubscribeView(View):
         managed_lists = set(constants.MAILMAN_LISTS)
         list_id = request.POST.get("list_id", "").strip()
 
+        logger.info(f"Quick subscribe request: email={email}, list_id={list_id}")
+
         if not email:
             if _is_htmx(request):
                 return self._card(
                     request,
                     state="error",
                     error_message="Email is required.",
-                    list_id=list_id or "boost.lists.boost.org",
+                    list_id=list_id,
                 )
             return _prg_redirect(
                 request, ml_state="error", ml_error="Email is required."
@@ -256,7 +263,7 @@ class QuickSubscribeView(View):
                     state="error",
                     error_message="Invalid mailing list.",
                     user_email=email,
-                    list_id=list_id or "boost.lists.boost.org",
+                    list_id=list_id,
                 )
             return _prg_redirect(
                 request,

@@ -87,15 +87,42 @@ action_create_lists() {
   IFS=',' read -ra list_ids <<< "$MAILMAN_LISTS"
   for list_id in "${list_ids[@]}"; do
     fqdn=$(_list_id_to_fqdn "$list_id")
-    echo "Creating $fqdn ..."
-    http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+    domain="${list_id#*.}" # Extracts the domain (everything after the first dot)
+
+    echo "Ensuring domain $domain exists..."
+    domain_http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+      -u "$API_USER:$API_PASS" \
+      -X POST "$URL/domains" \
+      -d "mail_host=$domain")
+
+    if [[ "$domain_http_code" == "201" ]]; then
+      echo "  [created] domain $domain"
+    elif [[ "$domain_http_code" == "400" ]]; then
+      # Mailman returns 400 if the domain already exists, which is safe to ignore here
+      echo "  [exists]  domain $domain"
+    else
+      echo "  [failed]  domain $domain (HTTP $domain_http_code)" >&2
+    fi
+
+    echo "Creating list $fqdn ..."
+    response_file=$(mktemp)
+    http_code=$(curl -s -o "$response_file" -w "%{http_code}" \
       -u "$API_USER:$API_PASS" \
       -X POST "$URL/lists" \
       -d "fqdn_listname=$fqdn")
+    response_body=$(cat "$response_file")
+    rm -f "$response_file"
+
     case "$http_code" in
       201) echo "  [ok]      $fqdn" ;;
       409) echo "  [exists]  $fqdn" ;;
-      *)   echo "  [failed]  $fqdn (HTTP $http_code)" ;;
+      *)
+        echo "  [failed]  $fqdn (HTTP $http_code)" >&2
+        if [[ -n "$response_body" ]]; then
+          echo "  Response body:" >&2
+          echo "$response_body" >&2
+        fi
+        ;;
     esac
   done
 }

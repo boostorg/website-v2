@@ -48,12 +48,20 @@ class MailmanClient:
                 url, data=payload, auth=self._credentials, timeout=10
             )
         except requests.RequestException as exc:
+            logger.info("Mailman API unreachable", exc_info=exc)
             raise MailmanAPIError(f"Mailman API unreachable: {exc}") from exc
 
         if response.status_code == 409:
             # Already a member — treat as a no-op.
             return
         if not response.ok:
+            logger.info(
+                "subscribe failed",
+                extra={
+                    "status_code": response.status_code,
+                    "response_text": response.text,
+                },
+            )
             raise MailmanAPIError(
                 f"subscribe failed [{response.status_code}]: {response.text}"
             )

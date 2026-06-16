@@ -22,6 +22,13 @@ def get_domain_with_subdomains(url: str) -> str:
     return domain
 
 
+MAILMAN_DOMAIN = get_domain_with_subdomains(MAILMAN_REST_API_URL)
+
+
+def build_mailing_list_address(list_name: str) -> str:
+    return f"{list_name}@{MAILMAN_DOMAIN}"
+
+
 class MailingLists(Enum):
     BOOST = "boost"
     BOOST_ANNOUNCE = "boost-announce"
@@ -29,9 +36,9 @@ class MailingLists(Enum):
 
 
 MAILING_LIST_LABELS = {
-    [MailingLists.BOOST.value]: {
+    MailingLists.BOOST.value: {
         "name": "Boost Developers",
-        "address": "boost@lists.boost.org",
+        "address": build_mailing_list_address(MailingLists.BOOST.value),
         "description": (
             "The primary discussion list for Boost library developers. Topics cover "
             "library submission, development, review, and project-wide decisions. "
@@ -40,18 +47,18 @@ MAILING_LIST_LABELS = {
             "https://www.boost.org/doc/user-guide/discussion-policy.html"
         ),
     },
-    [MailingLists.BOOST_ANNOUNCE.value]: {
+    MailingLists.BOOST_ANNOUNCE.value: {
         "name": "Boost Announcements",
-        "address": "boost-announce@lists.boost.org",
+        "address": build_mailing_list_address(MailingLists.BOOST_ANNOUNCE.value),
         "description": (
             "A low-volume, announce-only list for upcoming Boost formal reviews and "
             "new software releases. A good fit if you want to stay informed without "
             "following the high-volume developer discussion."
         ),
     },
-    [MailingLists.BOOST_USERS.value]: {
+    MailingLists.BOOST_USERS.value: {
         "name": "Boost Users",
-        "address": "boost-users@lists.boost.org",
+        "address": build_mailing_list_address(MailingLists.BOOST_USERS.value),
         "description": (
             "Discussion list for developers using the Boost C++ libraries. The right "
             "place to ask questions, share solutions, and get help integrating Boost "
@@ -60,8 +67,6 @@ MAILING_LIST_LABELS = {
         ),
     },
 }
-
-MAILMAN_DOMAIN = get_domain_with_subdomains(MAILMAN_REST_API_URL)
 
 MAILMAN_LISTS = [f"{_l}.{MAILMAN_DOMAIN}" for _l in MAILING_LIST_LABELS.keys()]
 
