@@ -4,11 +4,12 @@ from django.urls import reverse
 from model_bakery import baker
 from unittest.mock import patch
 
+from mailing_list.constants import MAILMAN_LISTS
 from mailing_list.models import SubscriptionStatus, UserMailingListSubscription
 from mailing_list.views import _CONFIRM_SALT
 
 
-LIST_ID = "boost.lists.boost.org"
+LIST_ID = MAILMAN_LISTS[0]
 EMAIL = "subscriber@example.com"
 
 
@@ -49,6 +50,7 @@ def _make_token(email, list_ids, user_id=None):
 
 @pytest.mark.django_db
 def test_anon_quick_subscribe_sends_email_and_returns_pending(client):
+    """POST /mailing-list/quick-subscribe/ — anon: sends confirmation email, returns pending card."""
     url = reverse("mailing-list-quick-subscribe")
     with patch("mailing_list.views._send_confirmation_email") as mock_send, patch(
         "mailing_list.views.MailmanClient"
@@ -66,6 +68,7 @@ def test_anon_quick_subscribe_sends_email_and_returns_pending(client):
 
 @pytest.mark.django_db
 def test_anon_quick_subscribe_already_subscribed_returns_error(client):
+    """POST /mailing-list/quick-subscribe/ — anon: email already confirmed in Mailman returns error."""
     url = reverse("mailing-list-quick-subscribe")
     with patch("mailing_list.views.MailmanClient") as MockClient:
         MockClient.return_value.is_confirmed.return_value = True
@@ -80,6 +83,7 @@ def test_anon_quick_subscribe_already_subscribed_returns_error(client):
 
 @pytest.mark.django_db
 def test_anon_quick_subscribe_rate_limited(client):
+    """POST /mailing-list/quick-subscribe/ — anon: 6th request within the window is rate-limited."""
     url = reverse("mailing-list-quick-subscribe")
     with patch("mailing_list.views._send_confirmation_email"), patch(
         "mailing_list.views.MailmanClient"
@@ -100,6 +104,7 @@ def test_anon_quick_subscribe_rate_limited(client):
 
 @pytest.mark.django_db
 def test_auth_quick_subscribe_rate_limited(client, user):
+    """POST /mailing-list/quick-subscribe/ — auth: 6th request within the window is rate-limited."""
     client.force_login(user)
     url = reverse("mailing-list-quick-subscribe")
     with patch("mailing_list.views._send_confirmation_email"), patch(
@@ -121,6 +126,7 @@ def test_auth_quick_subscribe_rate_limited(client, user):
 
 @pytest.mark.django_db
 def test_staff_quick_subscribe_bypasses_rate_limit(client, db):
+    """POST /mailing-list/quick-subscribe/ — staff: never rate-limited regardless of request count."""
     staff = baker.make("users.User", is_staff=True)
     client.force_login(staff)
     url = reverse("mailing-list-quick-subscribe")
@@ -142,6 +148,7 @@ def test_staff_quick_subscribe_bypasses_rate_limit(client, db):
 
 @pytest.mark.django_db
 def test_auth_quick_subscribe_creates_pending_record(client, user):
+    """POST /mailing-list/quick-subscribe/ — auth: creates a PENDING subscription record."""
     client.force_login(user)
     url = reverse("mailing-list-quick-subscribe")
     with patch("mailing_list.views._send_confirmation_email"):
@@ -158,6 +165,7 @@ def test_auth_quick_subscribe_creates_pending_record(client, user):
 
 @pytest.mark.django_db
 def test_auth_quick_subscribe_already_pending_returns_pending_card(client, user):
+    """POST /mailing-list/quick-subscribe/ — auth: existing PENDING record returns pending card without re-sending email."""
     baker.make(
         UserMailingListSubscription,
         user=user,
@@ -180,6 +188,7 @@ def test_auth_quick_subscribe_already_pending_returns_pending_card(client, user)
 
 @pytest.mark.django_db
 def test_auth_quick_subscribe_already_active_returns_success_card(client, user):
+    """POST /mailing-list/quick-subscribe/ — auth: existing ACTIVE record returns success card without re-sending email."""
     baker.make(
         UserMailingListSubscription,
         user=user,
@@ -201,6 +210,7 @@ def test_auth_quick_subscribe_already_active_returns_success_card(client, user):
 
 @pytest.mark.django_db
 def test_auth_quick_subscribe_duplicate_email_returns_error(client, user, other_user):
+    """POST /mailing-list/quick-subscribe/ — auth: email already registered by another account returns error."""
     baker.make(
         UserMailingListSubscription,
         user=other_user,
@@ -228,6 +238,7 @@ def test_auth_quick_subscribe_duplicate_email_returns_error(client, user, other_
 
 @pytest.mark.django_db
 def test_confirm_valid_token_subscribes_and_shows_success(client, user):
+    """GET /mailing-list/confirm/<token>/ — valid token: calls Mailman, marks subscription ACTIVE."""
     baker.make(
         UserMailingListSubscription,
         user=user,
@@ -248,6 +259,7 @@ def test_confirm_valid_token_subscribes_and_shows_success(client, user):
 
 @pytest.mark.django_db
 def test_confirm_bad_token_shows_invalid_page(client):
+    """GET /mailing-list/confirm/<token>/ — bad signature: returns 400 with invalid/expired message."""
     url = reverse("mailing-list-confirm", args=["not-a-real-token"])
     response = client.get(url)
     assert response.status_code == 400
@@ -258,6 +270,7 @@ def test_confirm_bad_token_shows_invalid_page(client):
 
 @pytest.mark.django_db
 def test_confirm_unknown_user_shows_invalid_page_with_expiry_label(client):
+    """GET /mailing-list/confirm/<token>/ — user_id not found: returns 400 with expiry duration in body."""
     token = _make_token(EMAIL, [LIST_ID], user_id=99999999)
     url = reverse("mailing-list-confirm", args=[token])
     response = client.get(url)
@@ -270,6 +283,7 @@ def test_confirm_unknown_user_shows_invalid_page_with_expiry_label(client):
 
 @pytest.mark.django_db
 def test_confirm_anonymous_token_subscribes_without_db_record(client):
+    """GET /mailing-list/confirm/<token>/ — anonymous token: calls Mailman subscribe without touching DB."""
     token = _make_token(EMAIL, [LIST_ID])
     url = reverse("mailing-list-confirm", args=[token])
     with patch("mailing_list.views.MailmanClient") as MockClient:

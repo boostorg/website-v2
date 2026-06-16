@@ -15,6 +15,7 @@ def user(db):
 
 @pytest.mark.django_db
 def test_purge_deletes_expired_pending(user):
+    """purge_expired_pending_subscriptions: removes PENDING subscriptions older than 7 days."""
     old_sub = baker.make(
         UserMailingListSubscription,
         user=user,
@@ -32,6 +33,7 @@ def test_purge_deletes_expired_pending(user):
 
 @pytest.mark.django_db
 def test_purge_keeps_recent_pending(user):
+    """purge_expired_pending_subscriptions: retains PENDING subscriptions created within the last 7 days."""
     recent_sub = baker.make(
         UserMailingListSubscription,
         user=user,
@@ -46,6 +48,7 @@ def test_purge_keeps_recent_pending(user):
 
 @pytest.mark.django_db
 def test_purge_keeps_active_records(user):
+    """purge_expired_pending_subscriptions: does not touch ACTIVE subscriptions regardless of age."""
     active_sub = baker.make(
         UserMailingListSubscription,
         user=user,
