@@ -45,7 +45,7 @@ See `docs/django-waffle-v3-flag.md` for additional flag context.
 """
 
 from django.contrib.admin.views.decorators import staff_member_required
-from django.urls import path
+from django.urls import path, re_path
 
 from core.views import LearnPageView, V3ComponentDemoView
 from news.views import V3AllTypesCreateView
@@ -94,8 +94,11 @@ v3_urlpatterns = [
         V3PasswordResetDoneView.as_view(),
         name="v3-password-reset-done",
     ),
-    path(
-        "v3/accounts/password/reset/key/",
+    # Same uidb36/key shape as allauth's account_reset_password_from_key
+    # route; the view redirects to the ".../key/<uidb36>-set-password/"
+    # placeholder URL after stashing the real key in the session.
+    re_path(
+        r"^v3/accounts/password/reset/key/(?P<uidb36>[0-9A-Za-z]+)-(?P<key>.+)/$",
         V3PasswordResetFromKeyView.as_view(),
         name="v3-password-reset-from-key",
     ),

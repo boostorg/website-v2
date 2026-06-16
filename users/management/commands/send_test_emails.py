@@ -71,6 +71,12 @@ TEMPLATES = {
         "html": "emails/password_reset.html",
         "action_url": "https://www.boost.org/auth/reset?token=test-reset-token-xyz789",
     },
+    "unknown_account": {
+        "subject": "emails/unknown_account_subject.txt",
+        "text": "emails/unknown_account.txt",
+        "html": "emails/unknown_account.html",
+        "action_url": "https://www.boost.org/accounts/signup/",
+    },
 }
 
 # Matches the URL of any email image, e.g. src="/static/static-large/img/emails/x.png"
@@ -160,7 +166,7 @@ def _send_inline(connection, subject, text_body, html_body, from_email, recipien
 @click.option(
     "--template",
     "which",
-    type=click.Choice(["confirm", "password_reset", "all"]),
+    type=click.Choice([*TEMPLATES, "all"]),
     default="all",
     show_default=True,
     help="Which template(s) to send.",
@@ -229,7 +235,7 @@ def command(
         else settings.EMAIL_BACKEND
     )
 
-    keys = ["confirm", "password_reset"] if which == "all" else [which]
+    keys = list(TEMPLATES) if which == "all" else [which]
     click.secho(f"Sending via {target} -> {recipient}", fg="green")
 
     for index, key in enumerate(keys):
@@ -241,6 +247,7 @@ def command(
             "host": host,
             "first_name": first_name,
             "user_email": user_email or recipient,
+            "email": user_email or recipient,
             "action_url": spec["action_url"],
             "preferences_url": f"{base_url}/account/preferences",
             "unsubscribe_url": f"{base_url}/account/unsubscribe",

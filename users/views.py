@@ -15,7 +15,13 @@ from django.conf import settings
 from django import forms
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
-from allauth.account.views import LoginView, SignupView, EmailVerificationSentView
+from allauth.account.views import (
+    LoginView,
+    SignupView,
+    EmailVerificationSentView,
+    PasswordResetView,
+    PasswordResetFromKeyView,
+)
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.views import SignupView as SocialSignupView
 
@@ -627,12 +633,25 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
 
 
 class V3AuthContextMixin(V3Mixin):
-    """Shared context for all V3 auth pages (signup, login, password reset, etc.)."""
+    """Shared context for all V3 auth pages (signup, login, password reset, etc.).
+
+    These pages are V3-only, and some of them are FormViews, so unlike
+    V3Mixin the request must flow through the underlying view's dispatch
+    (form handling included) while still rendering the V3 template.
+    """
 
     def dispatch(self, request, *args, **kwargs):
         if not flag_is_active(request, "v3"):
             return HttpResponseNotFound()
-        return super().dispatch(request, *args, **kwargs)
+        self._v3_active = True
+        # Bypass V3Mixin.dispatch: it renders the template directly, which
+        # would discard POST handling on form views.
+        return super(V3Mixin, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self.get_v3_context_data())
+        return context
 
     def get_v3_context_data(self, **kwargs):
         context = super().get_v3_context_data(**kwargs)
@@ -664,9 +683,10 @@ class V3LoginView(V3AuthContextMixin, TemplateView):
     page_title = "Login"
 
 
-class V3PasswordResetView(V3AuthContextMixin, TemplateView):
+class V3PasswordResetView(V3AuthContextMixin, PasswordResetView):
     v3_template_name = "v3/accounts/password_reset.html"
     page_title = "Reset Password"
+    success_url = reverse_lazy("v3-password-reset-done")
 
 
 class V3PasswordResetDoneView(V3AuthContextMixin, TemplateView):
@@ -674,9 +694,10 @@ class V3PasswordResetDoneView(V3AuthContextMixin, TemplateView):
     page_title = "Check Your Email"
 
 
-class V3PasswordResetFromKeyView(V3AuthContextMixin, TemplateView):
+class V3PasswordResetFromKeyView(V3AuthContextMixin, PasswordResetFromKeyView):
     v3_template_name = "v3/accounts/password_reset_from_key.html"
     page_title = "Change Password"
+    success_url = reverse_lazy("v3-password-reset-from-key-done")
 
     def get_v3_context_data(self, **kwargs):
         context = super().get_v3_context_data(**kwargs)
