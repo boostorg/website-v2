@@ -16,22 +16,24 @@
       </svg>
     </div>
 
-    <div class="mailing-list-confirm__header">
-      <h1 class="mailing-list-confirm__title">Subscription confirmed</h1>
-      <p class="mailing-list-confirm__body">
-        <span class="mailing-list-confirm__email">{{ email }}</span>
-        has been subscribed to the following list{{ confirmed|length|pluralize }}.
-      </p>
-    </div>
+    {% if confirmed %}
+      <div class="mailing-list-confirm__header">
+        <h1 class="mailing-list-confirm__title">Subscription confirmed</h1>
+        <p class="mailing-list-confirm__body">
+          <span class="mailing-list-confirm__email">{{ email }}</span>
+          has been subscribed to the following list{{ confirmed|length|pluralize }}.
+        </p>
+      </div>
 
-    <ul class="mailing-list-confirm__list" role="list">
-      {% for item in confirmed %}
-        <li class="mailing-list-confirm__list-item">
-          <span class="mailing-list-confirm__list-name">{{ item.name }}</span>
-          {% if item.address %}<span class="mailing-list-confirm__list-address">{{ item.address }}</span>{% endif %}
-        </li>
-      {% endfor %}
-    </ul>
+      <ul class="mailing-list-confirm__list" role="list">
+        {% for item in confirmed %}
+          <li class="mailing-list-confirm__list-item">
+            <span class="mailing-list-confirm__list-name">{{ item.name }}</span>
+            {% if item.address %}<span class="mailing-list-confirm__list-address">{{ item.address }}</span>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
 
     {% if errors %}
       <p class="mailing-list-confirm__section-label mailing-list-confirm__section-label--error">
