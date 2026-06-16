@@ -242,8 +242,6 @@ class QuickSubscribeView(View):
         managed_lists = set(constants.MAILMAN_LISTS)
         list_id = request.POST.get("list_id", "").strip()
 
-        logger.info(f"Quick subscribe request: email={email}, list_id={list_id}")
-
         if not email:
             if _is_htmx(request):
                 return self._card(
