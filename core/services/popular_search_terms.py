@@ -132,7 +132,7 @@ def _filter_searches(searches: list[dict], excluded: set[str]) -> list[tuple[str
         if label.lower() in excluded:
             continue
         cleaned.append((label, count))
-    return cleaned[:STORED_TOP_N]
+    return cleaned
 
 
 def ai_filter_terms(
@@ -225,6 +225,7 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
         return (-count, not is_library, display_label)
 
     ai_kept.sort(key=_sort_key)
+    ai_kept = ai_kept[:STORED_TOP_N]
 
     updated = new = 0
     touched_pks: list[int] = []
