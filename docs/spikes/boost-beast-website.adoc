@@ -1,0 +1,155 @@
+////
+Worked example of meta/website.adoc for a HEADER-ONLY library.
+
+Almost all Boost libraries are header-only: they author NO install steps — they
+omit the :separately-compiled-library: attribute and the [#install] section, and the website
+shows a generic "get Boost" install card automatically. (Separately-compiled
+libraries set :separately-compiled-library: true and add an [#install] section — see
+boost-filesystem-website.adoc.)
+
+See website-template.adoc for the full contract (section IDs + attributes).
+////
+= Boost.Beast — Website Content
+:library-key: beast
+// header-only (the default) — :separately-compiled-library: omitted
+
+
+[#about]
+== About
+
+// A short, marketing-friendly blurb (one or two sentences) + exactly one
+// [source] block. Both render in the "About" card via _code_block_card.html.
+
+Beast is a header-only C++ library that provides the low-level HTTP/1 and
+WebSocket protocol vocabulary types and algorithms you need to build your own
+interoperable networking code on top of Boost.Asio.
+
+[source,cpp]
+----
+#include <boost/beast/core.hpp>
+#include <boost/beast/http.hpp>
+#include <boost/beast/version.hpp>
+#include <boost/asio/connect.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <iostream>
+
+namespace beast = boost::beast;
+namespace http  = beast::http;
+namespace net   = boost::asio;
+using tcp       = net::ip::tcp;
+
+int main() {
+    net::io_context ioc;
+    tcp::resolver resolver(ioc);
+    beast::tcp_stream stream(ioc);
+
+    stream.connect(resolver.resolve("example.com", "80"));
+
+    http::request<http::string_body> req{http::verb::get, "/", 11};
+    req.set(http::field::host, "example.com");
+    req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+    http::write(stream, req);
+
+    beast::flat_buffer buffer;
+    http::response<http::dynamic_body> res;
+    http::read(stream, buffer, res);
+    std::cout << res << std::endl;
+
+    beast::error_code ec;
+    stream.socket().shutdown(tcp::socket::shutdown_both, ec);
+}
+----
+
+
+[#playground]
+== Playground
+
+// Exactly one [source] code block. Its code is URL-encoded into the
+// "Edit in Compiler Explorer" (https://godbolt.org/) link.
+
+[source,cpp]
+----
+net::io_context ioc;
+tcp::resolver resolver(ioc);
+beast::tcp_stream stream(ioc);
+
+stream.connect(resolver.resolve("example.com", "80"));
+
+http::request<http::string_body> req{http::verb::get, "/", 11};
+req.set(http::field::host, "example.com");
+req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+http::write(stream, req);
+
+beast::flat_buffer buffer;
+http::response<http::dynamic_body> res;
+http::read(stream, buffer, res);
+std::cout << res << std::endl;
+----
+
+
+[#designed-for]
+== Designed for
+
+// A set of headed subsections, each a heading + a short description.
+
+=== Symmetry
+Algorithms are role-agnostic; build clients, servers, or both.
+
+=== Ease of use
+Boost.Asio users will immediately understand Beast.
+
+=== Flexibility
+Users make the important decisions such as buffer or thread management
+
+=== Performance
+Build applications handling thousands of connections or more.
+
+=== A base for further abstraction
+Components are well-suited for building upon.
+
+////
+[#install] is OMITTED here on purpose. Boost.Beast is header-only (the default —
+no :separately-compiled-library: attribute), so there is nothing to author: the website renders
+a generic "get Boost" install card for every library —
+  vcpkg install boost / conan install boost/<ver> / apt install libboost-all-dev
+  + #include <boost/beast.hpp>
+
+Only separately-compiled libraries (:separately-compiled-library: true) add an [#install] section with the
+extra build/link steps the generic card can't cover, e.g. Boost.Filesystem
+(a separately-compiled library):
+////
+
+
+[#benchmarks]
+== Benchmarks
+
+// One headed subsection per bar chart. Per-chart attributes describe the axis;
+// each table row is one bar.
+//   :unit:     value-axis label (e.g. req/s, µs)
+//   :caption:  optional sub-label
+//   :source:   optional citation URL
+// Table columns:  Label | Value (plain number)
+
+[#benchmarks-throughput]
+=== HTTP throughput
+:unit: req/s
+
+[cols="2,1",options="header"]
+|===
+| Label       | Value
+| Boost.Beast | 250000
+| libevent    | 210000
+| raw sockets | 270000
+|===
+
+[#benchmarks-latency]
+=== p99 latency
+:unit: µs
+
+[cols="2,1",options="header"]
+|===
+| Label       | Value
+| Boost.Beast | 180
+| libevent    | 210
+| raw sockets | 165
+|===

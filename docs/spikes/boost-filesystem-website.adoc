@@ -1,0 +1,94 @@
+////
+Worked example of meta/website.adoc for a SEPARATELY-COMPILED LIBRARY.
+
+The point of this example is the [#install] section: because Boost.Filesystem is
+one of the 10 separately-compiled libraries, it sets  :separately-compiled-library: true
+and authors its own build/link steps. (Header-only libraries omit all of that — see
+boost-beast-website.adoc for the Boost.Beast header-only example.)
+
+See website-template.adoc for the full contract (section IDs + attributes).
+////
+= Boost.Filesystem — Website Content
+:library-key: filesystem
+:separately-compiled-library: true
+
+
+[#about]
+== About
+
+Boost.Filesystem provides portable facilities to query and manipulate paths, files,
+and directories — the library that C++17's std::filesystem was modeled on.
+
+[source,cpp]
+----
+#include <boost/filesystem.hpp>
+#include <iostream>
+
+namespace fs = boost::filesystem;
+
+int main() {
+    fs::path p{"/usr/include"};
+    if (fs::exists(p) && fs::is_directory(p))
+        std::cout << p << " — "
+                  << std::distance(fs::directory_iterator(p),
+                                   fs::directory_iterator())
+                  << " entries\n";
+}
+----
+
+
+[#playground]
+== Playground
+
+// Self-contained so it runs on godbolt: lists the current directory.
+
+[source,cpp]
+----
+#include <boost/filesystem.hpp>
+#include <iostream>
+
+namespace fs = boost::filesystem;
+
+int main() {
+    for (const auto& entry : fs::directory_iterator("."))
+        std::cout << entry.path().filename().string() << '\n';
+}
+----
+
+
+[#designed-for]
+== Designed for
+
+=== Portable paths
+Manipulate paths, filenames, and extensions the same way across Windows, macOS,
+and Linux.
+
+=== Filesystem operations
+Query, create, copy, and remove files and directories through a single portable API.
+
+=== Directory iteration
+Walk directory trees with directory_iterator and recursive_directory_iterator.
+
+=== Basis for std::filesystem
+The reference implementation that the C++17 std::filesystem library was based on.
+
+
+[#install]
+== Install
+
+// Separately-compiled library: these are the extra build + link steps the website appends because :separately-compiled-library: true is set above.
+
+[source,bash]
+----
+# Boost.Filesystem is separately compiled — build it with b2:
+./b2 --with-filesystem install
+
+# then link against it:
+g++ app.cpp -lboost_filesystem
+----
+
+
+////
+[#benchmarks] omitted — Boost.Filesystem has no meaningful comparative benchmarks.
+The section is optional, so it is simply left out.
+////

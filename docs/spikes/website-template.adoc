@@ -1,0 +1,115 @@
+////
+Boost library website content — TEMPLATE
+
+Copy this file to meta/website.adoc in your library repo and fill it in. It powers
+the extra cards on your library's page on boost.org.
+
+Everything here is OPTIONAL: delete any section you don't use. An omitted section
+just renders nothing on the page — it is never an error.
+
+THE CONTRACT — the website keys off the section IDs (e.g. [#about]) and attribute
+names (e.g. :separately-compiled-library:) below, NOT the prose. You may freely change the
+headings and body copy; do NOT rename the IDs or attributes.
+
+  Document attributes
+    :library-key:      your key in meta/libraries.json (sanity check)
+    :separately-compiled-library:   true | false  (DEFAULT false). Leave this OUT if your library
+                       is header-only — almost all are. Set it to true ONLY if your
+                       library is one of the 10 separately-compiled libraries
+                       (Filesystem, IOStreams, ProgramOptions, Python, Regex,
+                       Serialization, Signals, System, Thread, Wave); then fill in
+                       the [#install] section with its build/link steps.
+
+  Sections (shown on the page in this order)
+    [#about]         a blurb + one code sample
+    [#playground]    one runnable code sample (feeds the "Edit in Compiler Explorer" button)
+    [#designed-for]  a few headings, each with a short description
+    [#install]       separately-compiled libraries ONLY — build/link steps
+    [#benchmarks]    one bar chart per subsection
+////
+= Boost.<LibraryName> — Website Content
+:library-key: <your-libraries.json-key>
+// Uncomment the next line ONLY if this is an separately-compiled library (see list above):
+// :separately-compiled-library: true
+
+
+[#about]
+== About
+
+// One or two sentences for the "About" card, followed by exactly one code sample.
+
+<One or two sentences describing what your library does and why someone would use it.>
+
+[source,cpp]
+----
+// A short, representative snippet.
+----
+
+
+[#playground]
+== Playground
+
+// Exactly one code sample. Its code is URL-encoded into the
+// "Edit in Compiler Explorer" (https://godbolt.org/) button — keep it
+// self-contained so it compiles and runs on its own.
+
+[source,cpp]
+----
+// A self-contained, runnable example.
+----
+
+
+[#designed-for]
+== Designed for
+
+// A set of subsections — each is a heading + a short description (no intro paragraph).
+// Add or remove subsections as needed.
+
+=== <Strength or use case>
+<One or two sentences.>
+
+=== <Strength or use case>
+<One or two sentences.>
+
+
+////
+[#install] — SEPARATELY-COMPILED LIBRARIES ONLY.
+
+DELETE this whole block if your library is header-only (almost all are) — the
+website shows a generic "get Boost" install card automatically.
+
+If your library is separately compiled, set  :separately-compiled-library: true  at the top,
+then uncomment and fill in the section below:
+
+  [#install]
+  == Install
+  [source,bash]
+  ----
+  # build it with b2:
+  ./b2 --with-<library> install
+  # then link against it:
+  g++ app.cpp -lboost_<library>
+  ----
+////
+
+
+[#benchmarks]
+== Benchmarks
+
+// Optional. One subsection per bar chart.
+//   :unit:     value-axis label (e.g. req/s, µs)
+//   :caption:  optional sub-label
+//   :source:   optional citation URL
+// Table columns:  Label | Value (plain number)
+
+[#benchmarks-<id>]
+=== <Chart title>
+:unit: <unit>
+:caption: <optional sub-label>
+
+[cols="2,1",options="header"]
+|===
+| Label             | Value
+| Boost.<LibraryName> | <number>
+| <comparison>      | <number>
+|===
