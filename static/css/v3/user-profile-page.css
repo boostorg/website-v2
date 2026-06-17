@@ -94,6 +94,15 @@
     letter-spacing: var(--letter-spacing-tight);
 }
 
+.user-profile__add-another-button {
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-relaxed);
+    letter-spacing: var(--letter-spacing-tight);
+}
+
 .user-profile__default-space-col {
     display: flex;
     flex-direction: column;
@@ -104,7 +113,7 @@
 .user-profile__xl-space-col {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xl);
+    gap: var(--space-xlarge);
     width: 100%;
 }
 
@@ -128,6 +137,10 @@
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-tight);
     letter-spacing: var(--letter-spacing-tight);
+}
+
+.user-profile__badge-select.disabled {
+    opacity: 0.45;
 }
 
 .user-profile__commit-email-form {
