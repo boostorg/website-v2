@@ -96,7 +96,7 @@ from .tasks import (
 
 from libraries.models import Category, Library, LibraryVersion, Tier
 from news.models import Entry
-from news.services import get_latest_post_cards, news_type_label
+from news.services import get_latest_post_cards
 from libraries.utils import (
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
