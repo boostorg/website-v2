@@ -42,7 +42,7 @@
                   {% if item.date or item.category or item.tag %}
                     <div class="post-card__meta">
                       {% if item.date %}<time datetime="{{ item.date|date:'c' }}">{{ item.date|date:"M jS, Y" }}</time>{% endif %}
-                      {% if item.category %}<span>{{ item.category }}</span>{% endif %}
+                      {% if item.category %}<span>{{ item.category|capfirst }}</span>{% endif %}
                       {% if item.tag %}<span>#{{ item.tag }}</span>{% endif %}
                     </div>
                   {% endif %}

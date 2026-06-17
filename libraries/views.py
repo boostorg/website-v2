@@ -17,7 +17,7 @@ from core.constants import SLACK_URL
 from core.githubhelper import GithubAPIClient
 from core.mixins import V3Mixin
 from core.mock_data import SharedResources
-from news.models import Entry
+from news.services import get_latest_post_cards
 from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
@@ -563,30 +563,7 @@ class LibraryDetail(
             version_str,
         )
 
-        context["library_posts"] = [
-            {
-                "title": entry.title,
-                "url": entry.get_absolute_url(),
-                "date": entry.publish_at,
-                "category": entry.determined_news_type or "news",
-                "tag": "",
-                "author": {
-                    "name": getattr(entry.author, "display_name", None)
-                    or str(entry.author),
-                    "profile_url": None,
-                    "role": "Author",
-                    "avatar_url": (
-                        entry.author.get_avatar_url()
-                        if hasattr(entry.author, "get_avatar_url")
-                        else ""
-                    ),
-                    "badge_url": None,
-                },
-            }
-            for entry in Entry.objects.published()
-            .select_related("author")
-            .order_by("-publish_at")[:3]
-        ]
+        context["library_posts"] = get_latest_post_cards(limit=3)
 
         this_release = (
             [u.to_v3_profile_dict("Author") for u in base_context.get("authors", [])]

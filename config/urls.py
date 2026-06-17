@@ -28,6 +28,7 @@ from core.views import (
     CommunityView,
     DocLibsTemplateView,
     ImageView,
+    LearnPageView,
     MarkdownTemplateView,
     TermsOfUseView,
     PrivacyPolicyView,
@@ -56,6 +57,7 @@ from news.feeds import AtomNewsFeed, RSSNewsFeed
 from news.views import (
     V3AllTypesCreateView,
     generate_description,
+    generate_description_status,
     generate_link_description,
 )
 from users.views import (
@@ -185,6 +187,7 @@ urlpatterns = (
         ),
         path("health/", include("health_check.urls")),
         path("asciidoctor_sandbox/", include("asciidoctor_sandbox.urls")),
+        path("learn/", LearnPageView.as_view(), name="learn"),
         path("community/", CommunityView.as_view(), name="community"),
         path(
             "community/<boostversionslug:version_slug>/",
@@ -279,6 +282,11 @@ urlpatterns = (
             "v3/news/generate-description/",
             generate_description,
             name="v3-news-generate-description",
+        ),
+        path(
+            "v3/news/generate-description/<str:job_id>/",
+            generate_description_status,
+            name="v3-news-generate-description-status",
         ),
         path(
             "v3/news/generate-link-description/",

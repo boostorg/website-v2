@@ -1,8 +1,6 @@
 from datetime import timedelta
 from functools import partial
 
-import requests
-
 import structlog
 
 from django.conf import settings
@@ -35,7 +33,7 @@ from django.views.generic import (
     View,
 )
 from django.views.generic.detail import SingleObjectMixin
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 
 from core.mixins import V3Mixin
@@ -46,10 +44,21 @@ from .constants import (
     MAGIC_LINK_EXPIRATION,
     DESCRIPTION_SUMMARY_MAX_LENGTH,
 )
-from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
+
+from .forms import (
+    BlogPostForm,
+    EntryForm,
+    LinkForm,
+    NewsForm,
+    PollForm,
+    V3BlogPostForm,
+    V3NewsForm,
+    VideoForm,
+)
 from .models import BlogPost, Entry, Link, News, Poll, Video
+from .services import news_type_label
+from .tasks import summarize_content, generate_summary
 from .helpers import UnsafeURLError, extract_article, safe_get
-from .tasks import generate_summary
 from .notifications import (
     send_email_news_approved,
     send_email_news_needs_moderation,
@@ -253,7 +262,6 @@ class EntryDetailView(V3Mixin, DetailView):
     template_name = "news/detail.html"
     v3_template_name = "news/v3/detail.html"
 
-    CATEGORY_LABELS = {"blogpost": "blog"}
     AUTHOR_PREFETCH = ("author__maintainers",)
 
     def get_queryset(self):
@@ -297,7 +305,7 @@ class EntryDetailView(V3Mixin, DetailView):
             related_qs = related_qs.exclude(pk=next_entry.pk)
         return {
             "post_author": user_profile_card(entry.author),
-            "post_tag": self.CATEGORY_LABELS.get(entry.tag, entry.tag),
+            "post_tag": news_type_label(entry.tag),
             "next_post_items": (
                 [self._post_card_item(next_entry)] if next_entry else []
             ),
@@ -314,7 +322,7 @@ class EntryDetailView(V3Mixin, DetailView):
             "description": entry.summary or "",
             "url": reverse("news-detail", args=[entry.slug]),
             "date": entry.publish_at,
-            "category": cls.CATEGORY_LABELS.get(entry.tag, entry.tag).capitalize(),
+            "category": news_type_label(entry.tag),
             "author": user_profile_card(entry.author),
         }
 
@@ -513,8 +521,8 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
     http_method_names = ["get", "post"]
 
     _POST_TYPE_MAP = {
-        "blog": (BlogPost, BlogPostForm),
-        "news": (News, NewsForm),
+        "blog": (BlogPost, V3BlogPostForm),
+        "news": (News, V3NewsForm),
         "link": (Link, LinkForm),
         "video": (Video, VideoForm),
     }
@@ -546,10 +554,8 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         model_class, form_class = type_config
 
         # The v3 create page posts the Description textarea as `description`
-        # for Blog/News and Link alike. Persist it to the model's `summary`
-        # field on submit (BlogPost/News/Link forms all include `summary`
-        # in their Meta.fields), so the description is available immediately
-        # without waiting for `summary_dispatcher` to backfill it.
+        # (kept named so for the existing frontend wiring). Bind it to the
+        # model's `summary` field on submit for the forms that include it.
         post_data = request.POST.copy()
         if post_data.get("description") and not post_data.get("summary"):
             post_data["summary"] = post_data["description"]
@@ -587,11 +593,15 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
 @require_POST
 def generate_description(request):
-    """Generate an AI description from submitted content (synchronous).
+    """Kick off AI description generation and return a job id immediately.
 
     Backs the "Auto-Generate Description" button on the v3 create-post page.
-    Runs the summarization model inline and returns the result as JSON so the
-    browser can drop it into the Description field.
+    The summarization model is slow (especially on a cold call) and runs behind
+    a gateway with a shorter timeout than the model's worst case, so running it
+    inline produced intermittent 504s. Instead we enqueue the existing
+    ``summarize_content`` Celery task and hand the browser the task id; it polls
+    ``generate_description_status`` until the summary is ready. This keeps the
+    long, variable LLM call off the request path entirely.
 
     NOTE: intentionally not login-gated yet (local testing). This endpoint calls
     a paid LLM, so add @login_required (and rate limiting) before it ships.
@@ -602,29 +612,48 @@ def generate_description(request):
     if not content:
         return JsonResponse({"error": "Add some content first."}, status=400)
 
-    try:
-        # Call the plain helper
-        summary = generate_summary(
-            content,
-            title,
-            settings.SUMMARIZATION_MODEL,
-            DESCRIPTION_SUMMARY_MAX_LENGTH,
-            timeout=30,
-        )
-    except Exception:
-        logger.exception("generate_description: summarization failed")
+    result = summarize_content.delay(
+        content, title, settings.SUMMARIZATION_MODEL, DESCRIPTION_SUMMARY_MAX_LENGTH
+    )
+    return JsonResponse({"job_id": result.id}, status=202)
+
+
+@require_GET
+def generate_description_status(request, job_id):
+    """Report on a description-generation job started by ``generate_description``.
+
+    Returns ``{"status": "pending"}`` while the Celery task is queued/running,
+    ``{"status": "done", "description": ...}`` on success, or
+    ``{"status": "error", ...}`` if the task failed or yielded no usable summary.
+    The browser polls this until it sees a terminal state (or gives up after a
+    cap, since an unknown/expired job id reads as PENDING indefinitely).
+    """
+    result = summarize_content.AsyncResult(job_id)
+
+    if result.failed():
+        logger.error("generate_description_status: task failed", job_id=job_id)
         return JsonResponse(
-            {"error": "Could not generate a description. Please try again."},
+            {
+                "status": "error",
+                "error": "Could not generate a description. Please try again.",
+            },
             status=502,
         )
 
+    if not result.ready():
+        return JsonResponse({"status": "pending"}, status=202)
+
+    summary = result.result
     if not summary:
         return JsonResponse(
-            {"error": "Could not generate a description. Please try again."},
+            {
+                "status": "error",
+                "error": "Could not generate a description. Please try again.",
+            },
             status=502,
         )
 
-    return JsonResponse({"description": summary.strip()})
+    return JsonResponse({"status": "done", "description": summary.strip()})
 
 
 _LINK_FETCH_ERROR = "We couldn't read that link. Please check the URL and try again."

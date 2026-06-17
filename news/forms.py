@@ -46,6 +46,17 @@ class NewsForm(EntryForm):
         fields = ["title", "publish_at", "content", "summary", "image"]
 
 
+# v3-only forms: the v3 create page also captures the AI-assisted `summary`.
+class V3BlogPostForm(BlogPostForm):
+    class Meta(BlogPostForm.Meta):
+        fields = ["title", "publish_at", "content", "summary", "image"]
+
+
+class V3NewsForm(NewsForm):
+    class Meta(NewsForm.Meta):
+        fields = ["title", "publish_at", "content", "summary", "image"]
+
+
 class PollForm(EntryForm):
     class Meta:
         model = Poll

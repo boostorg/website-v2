@@ -1,7 +1,9 @@
 import os
+import random
 import re
 
 import requests
+from django.db.models import Count
 from django.utils import timezone
 
 from textwrap import dedent
@@ -86,8 +88,10 @@ from .tasks import (
     save_rendered_content,
 )
 
-from libraries.models import Library, LibraryVersion, Tier
+
+from libraries.models import Category, Library, LibraryVersion, Tier
 from news.models import Entry
+from news.services import get_latest_post_cards, news_type_label
 from libraries.utils import (
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
@@ -297,17 +301,12 @@ class CommunityView(V3Mixin, TemplateView):
             .select_related("author")
             .order_by("-publish_at")[:4]
         )
-        tag_display = {"blogpost": "Blog"}
         ctx["posts"] = [
             {
                 "title": entry.title,
                 "url": self.request.build_absolute_uri(entry.get_absolute_url()),
                 "date": entry.publish_at,
-                "category": (
-                    tag_display.get(str(entry.tag).lower(), entry.tag.capitalize())
-                    if entry.tag
-                    else ""
-                ),
+                "category": news_type_label(entry.tag) if entry.tag else "",
                 # TODO: populate from DB once entry tags are persisted
                 "tag": "",
                 "author": {
@@ -506,154 +505,150 @@ class LearnPageView(V3Mixin, TemplateView):
         ctx["learn_card_data"] = [
             {
                 "title": "I want to learn:",
-                "text": "How to install Boost, use its libraries, build projects, and get help when you need it.",
+                "text": (
+                    "How to install Boost, use its libraries, build projects, "
+                    "and get help when you need it."
+                ),
                 "links": [
                     {
                         "label": "Explore common use cases",
-                        "url": "https://www.example.com",
+                        "url": "/doc/user-guide/common-introduction.html",
                     },
-                    {"label": "Build with CMake", "url": "https://www.example.com"},
-                    {"label": "Visit the FAQ", "url": "https://www.example.com"},
+                    {
+                        "label": "Build with CMake",
+                        "url": "/doc/user-guide/building-with-cmake.html",
+                    },
+                    {
+                        "label": "Visit the FAQ",
+                        "url": "/doc/user-guide/faq.html",
+                    },
                 ],
-                "url": "https://www.example.com",
-                "label": "Learn more about Boost",
-                "image_src": large_static("/img/v3/learn-page/learn-cheetah.png"),
-                "mobile_image_src": large_static(
-                    "/img/v3/learn-page/cheetah-mobile.png"
-                ),
+                "url": "/doc/user-guide/getting-started.html",
+                "label": "Get started with Boost",
+                "image_src": large_static("img/v3/learn-page/learn-how-to.webp"),
+                "mobile_image_src": large_static("img/v3/learn-page/learn-how-to.webp"),
             },
             {
-                "title": "I want to learn:",
-                "text": "How to install Boost, use its libraries, build projects, and get help when you need it.",
+                "title": "I want to contribute:",
+                "text": (
+                    "How to contribute to Boost, propose new libraries, "
+                    "and engage in formal reviews."
+                ),
                 "links": [
                     {
-                        "label": "Explore common use cases",
-                        "url": "https://www.example.com",
+                        "label": "Contribute to an existing library",
+                        "url": "/doc/contributor-guide/contributors-faq.html",
                     },
-                    {"label": "Build with CMake", "url": "https://www.example.com"},
-                    {"label": "Visit the FAQ", "url": "https://www.example.com"},
+                    {
+                        "label": "Learn about formal reviews",
+                        "url": "/doc/formal-reviews/submissions.html",
+                    },
+                    {
+                        "label": "Visit the Contributors FAQ",
+                        "url": "/doc/contributor-guide/contributors-faq.html",
+                    },
                 ],
-                "url": "https://www.example.com",
-                "label": "Learn more about Boost",
-                "image_src": large_static("img/v3/learn-page/learn-octopus.png"),
+                "url": "/doc/contributor-guide/requirements/library-requirements.html",
+                "label": "Propose a new library",
+                "image_src": large_static("img/v3/learn-page/learn-contribute.webp"),
                 "mobile_image_src": large_static(
-                    "/img/v3/learn-page/octopus-mobile.png"
+                    "img/v3/learn-page/learn-contribute.webp"
                 ),
             },
         ]
 
-        demo_cards = [
+        ctx["library_cards"] = self._build_category_cards()
+
+        ctx["why_boost_cards"] = [
             {
-                "title": "Get help",
-                "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
-                "cta_label": "Start here",
-                "cta_href": reverse("community"),
+                "title": "Write code faster",
+                "description": "Production-ready solutions that save months of development.",
             },
             {
-                "title": "Documentation",
-                "description": "Browse library docs, examples, and release notes in one place.",
-                "cta_label": "View docs",
-                "cta_href": reverse("docs"),
+                "title": "World-class engineering",
+                "description": "Built and maintained by C++ standards committee members and industry experts.",
             },
             {
-                "title": "Community",
-                "description": "Mailing lists, GitHub, and community guidelines for contributors.",
-                "cta_label": "Join",
-                "cta_href": reverse("community"),
+                "title": "Proven reliability",
+                "description": "Trusted in millions of applications, from startups to Fortune 500 infrastructure.",
             },
             {
-                "title": "Releases",
-                "description": "Latest releases, download links, and release notes.",
-                "cta_label": "Download",
-                "cta_href": reverse("releases-most-recent"),
+                "title": "Security you can trust",
+                "description": "Rigorous peer review catches what solo development misses.",
             },
             {
-                "title": "Libraries",
-                "description": "Explore the full catalog of Boost C++ libraries with docs and metadata.",
-                "cta_label": "Browse libraries",
-                "cta_href": reverse("libraries"),
+                "title": "Modern approach to C++",
+                "description": "Balancing current standards with what delivers the best performance.",
             },
             {
-                "title": "News",
-                "description": "Blog posts, announcements, and community news from the Boost project.",
-                "cta_label": "Read news",
-                "cta_href": reverse("news"),
-            },
-            {
-                "title": "Getting started",
-                "description": "Step-by-step guides to build and use Boost in your projects.",
-                "cta_label": "Get started",
-                "cta_href": reverse("getting-started"),
-            },
-            {
-                "title": "Resources",
-                "description": "Learning resources, books, and other materials for Boost users.",
-                "cta_label": "View resources",
-                "cta_href": reverse("resources"),
-            },
-            {
-                "title": "Calendar",
-                "description": "Community events, meetings, and review schedule.",
-                "cta_label": "View calendar",
-                "cta_href": reverse("calendar"),
-            },
-            {
-                "title": "Donate",
-                "description": "Support the Boost Software Foundation and open-source C++.",
-                "cta_label": "Donate",
-                "cta_href": reverse("donate"),
+                "title": "Shaping the future",
+                "description": "Over two dozen Boost libraries have been adopted into the ISO C++ standard.",
             },
         ]
 
-        ctx["library_cards"] = demo_cards
-        ctx["why_boost_cards"] = demo_cards[:6]
-        ctx["calendar_card"] = {
-            "title": "Boost is released three times a year",
-            "text": "Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process.",
-            "primary_button_url": "www.example.com",
-            "primary_button_label": "View the Release Calendar",
-            "secondary_button_url": "www.example.com",
-            "secondary_button_label": "Secondary Button",
-            "image": large_static("/img/v3/demo-page/calendar.png"),
-        }
-        ctx["info_card"] = {
-            "title": "How we got here",
-            "text": "Since 1998, Boost has been where C++ innovation happens. What started with three developers has grown into the foundation of modern C++ development.",
-            "primary_button_url": "www.example.com",
-            "primary_button_label": "Explore Our History",
-        }
         ctx["post_cards_data"] = {
-            "heading": "Posts from the Boost Community",
-            "view_all_url": "#",
-            "view_all_label": "View All Posts",
-            "variant": "Content Card",
-            "posts": SharedResources.demo_posts[0:4],
+            "heading": "Posts from the Boost community",
+            "view_all_url": reverse("news"),
+            "view_all_label": "View all posts",
+            "posts": get_latest_post_cards(limit=4),
         }
         ctx["boost_community_data"] = {
             "heading": "The Boost community",
-            "view_all_url": "#",
-            "view_all_label": "Explore the community",
-            "posts": 3
-            * [
+            "primary_cta_label": "Explore the community",
+            "primary_cta_url": reverse("community"),
+            "items": [
                 {
-                    "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                    "description": "Lorem Ispum Sum Delores",
-                    "url": "#",
-                    "date": "03/03/2025",
-                    "category": "Issues",
-                    "tag": "beast",
-                    "author": {
-                        "name": "Richard Thomson",
-                        "role": "Contributor",
-                        "show_badge": True,
-                        "avatar_url": large_static("img/v3/demo-page/avatar.png"),
-                    },
-                    "cta_url": "#",
-                    "cta_label": "Learn More",
-                }
+                    "title": "Stay up to date",
+                    "description": "Watch the Boost GitHub org for the latest releases and activity.",
+                    "cta_url": "https://github.com/boostorg/boost",
+                    "cta_label": "Watch now",
+                },
+                {
+                    "title": "Get help",
+                    "description": "Chat with thousands of C++ developers on the CPPLang Slack.",
+                    "cta_url": "https://cppalliance.org/slack/",
+                    "cta_label": "Join now",
+                },
+                {
+                    "title": "Fix an issue",
+                    "description": "Browse open issues and contribute fixes on GitHub.",
+                    "cta_url": "https://github.com/boostorg/boost/issues",
+                    "cta_label": "Get involved",
+                },
             ],
         }
         return ctx
+
+    @staticmethod
+    def _build_category_cards():
+        """Return library categories shuffled per request, with live counts."""
+        categories = list(
+            Category.objects.annotate(library_count=Count("libraries", distinct=True))
+            .filter(library_count__gt=0)
+            .exclude(name__isnull=True)
+            .exclude(name="")
+            .only("name", "slug", "short_description")
+        )
+        random.shuffle(categories)
+        cards = []
+        for category in categories:
+            cards.append(
+                {
+                    "title": category.name,
+                    "description": category.short_description,
+                    "badge_count": category.library_count,
+                    "cta_label": "Start here",
+                    "cta_href": reverse(
+                        "libraries-list",
+                        kwargs={
+                            "version_slug": LATEST_RELEASE_URL_PATH_STR,
+                            "library_view_str": "list",
+                            "category_slug": category.slug,
+                        },
+                    ),
+                }
+            )
+        return cards
 
 
 class ContentNotFoundException(Exception):
