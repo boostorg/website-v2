@@ -7,6 +7,7 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.humanize.templatetags import humanize
 from django.contrib.messages.views import SuccessMessageMixin
@@ -590,6 +591,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         return self.render_to_response(context)
 
 
+@login_required
 @require_POST
 def generate_description(request):
     """Generate an AI description from submitted content (synchronous).
@@ -598,8 +600,8 @@ def generate_description(request):
     Runs the summarization model inline and returns the result as JSON so the
     browser can drop it into the Description field.
 
-    NOTE: intentionally not login-gated yet (local testing). This endpoint calls
-    a paid LLM, so add @login_required (and rate limiting) before it ships.
+    Login-gated since it calls a paid LLM. NOTE: still no rate limiting — add
+    per-user throttling before relying on auth alone to bound spend.
     """
     title = request.POST.get("title", "").strip()
     content = request.POST.get("content", "").strip()
