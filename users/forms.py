@@ -180,7 +180,7 @@ class DeleteAccountForm(forms.Form):
 
 
 class V3ProfileLinkChoices(models.TextChoices):
-    GITHUB = "github"
+    GITHUB = ("github", "GitHub")
     WEBSITE = "website"
     EMAIL = "email"
     SLACK = "slack"
@@ -225,6 +225,19 @@ class V3UserProfileForm(forms.Form):
                 ],
             )
 
+        for form in self.link_formset:
+            placeholder = ""
+            field_value = form["type"].value()
+            if field_value == V3ProfileLinkChoices.GITHUB:
+                placeholder = "https://"
+            elif field_value == V3ProfileLinkChoices.WEBSITE:
+                placeholder = "https://"
+            elif field_value == V3ProfileLinkChoices.EMAIL:
+                placeholder = "example@example.com"
+            elif field_value == V3ProfileLinkChoices.SLACK:
+                placeholder = "@"
+            form.fields["value"].widget.attrs["placeholder"] = placeholder
+
     # Left Column Fields
     tagline = forms.CharField(
         max_length=70,
@@ -239,6 +252,8 @@ class V3UserProfileForm(forms.Form):
     link_formset = V3ProfileLinkFormset(
         initial=[{"type": x, "value": ""} for x in V3ProfileLinkChoices.values],
     )
+    avatar = forms.ImageField(required=False)
+
     role = forms.ChoiceField(
         choices=[(0, "C++ Alliance Board Member")], label="Your Role"
     )
@@ -246,6 +261,7 @@ class V3UserProfileForm(forms.Form):
         choices=[],
         disabled=True,
         widget=forms.Select(attrs={"placeholder": "Unlock a badge to pick a title"}),
+        label="Select Title",
     )
     hide_github = forms.BooleanField(
         label="Hide GitHub activity from your profile",

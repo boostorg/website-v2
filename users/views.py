@@ -112,6 +112,7 @@ class CurrentUserProfileView(
                     "example1@example.com",
                     "example2@example.com",
                 ],
+                initial={"avatar": self.request.user.avatar_url},
             )
             ctx["badge_tiers"] = [
                 {"tier": "1", "name": "Bronze"},
