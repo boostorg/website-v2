@@ -8,7 +8,7 @@
 {% block extra_head %}
   {{ block.super }}
   <link href="{% static 'css/v3/user-profile-page.css' %}" rel="stylesheet" />
-  <script type="module" src="{% static 'js/v3/user-profile-wysiwyg-editor.js' %}"></script>
+  <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -26,7 +26,7 @@
             </div>
             <div class="user-profile__default-space-col">
               <span class="field__label">Biography</span>
-              {% include 'v3/includes/_wysiwyg_editor.html' with textarea_id='id_content' textarea_name='content' label='Biography' help_text='This text field supports Markdown and this content is what will appear on your public profile' only %}
+              {% include 'v3/includes/_wysiwyg_editor.html' with textarea_id='id_content' textarea_name='content' label='Biography' preset='minimal' help_text='This text field supports Markdown and this content is what will appear on your public profile' only %}
             </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
