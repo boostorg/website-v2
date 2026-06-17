@@ -382,71 +382,81 @@ const setupTableContextBar = (editor, toolbarEl) => {
   return bar;
 };
 
-const buildToolbar = (editor, toolbarEl) => {
+/*
+Toolbar layouts keyed by preset name. Each entry lists the registry keys to
+render, in order, into the left and right groups. Pass a preset to buildToolbar
+(driven by the `data-wysiwyg-preset` attribute, see initWysiwyg). Unknown preset
+names fall back to "full".
+*/
+const TOOLBAR_PRESETS = {
+  full: {
+    left: [
+      "heading", "bold", "italic", "underline", "strike", "separator",
+      "bulletList", "orderedList", "taskList", "separator",
+      "link", "image", "blockquote", "horizontalRule", "table", "separator",
+      "code", "codeBlock", "langSelect", "separator", "markdown",
+    ],
+    right: ["preview", "undo", "redo"],
+  },
+  minimal: {
+    left: [
+      "bold", "italic", "underline", "separator",
+      "bulletList", "orderedList", "separator",
+      "link", "markdown",
+    ],
+    right: ["preview", "undo", "redo"],
+  },
+};
+
+const buildToolbar = (editor, toolbarEl, preset = "full") => {
   const left = document.createElement("div");
   left.className = "wysiwyg-toolbar__left";
   const right = document.createElement("div");
   right.className = "wysiwyg-toolbar__right";
 
-  left.appendChild(createHeadingDropdown(editor));
+  // mdBtn/previewBtn are wired up by initWysiwyg; handleDocClick is only set
+  // when the `table` tool is present and is removed in initWysiwyg's cleanup.
+  const ctx = { mdBtn: null, previewBtn: null, handleDocClick: null };
 
-  left.appendChild(
-    createToolbarButton(editor, {
+  const builders = {
+    separator: () => createSeparator(),
+    heading: () => createHeadingDropdown(editor),
+    bold: () => createToolbarButton(editor, {
       label: "Bold", title: "Bold", html: "<strong>B</strong>",
       onClick: () => editor.chain().focus().toggleBold().run(),
       isActive: () => editor.isActive("bold"),
-    })
-  );
-  left.appendChild(
-    createToolbarButton(editor, {
+    }),
+    italic: () => createToolbarButton(editor, {
       label: "Italic", title: "Italic", html: "<em>I</em>",
       onClick: () => editor.chain().focus().toggleItalic().run(),
       isActive: () => editor.isActive("italic"),
-    })
-  );
-  left.appendChild(
-    createToolbarButton(editor, {
+    }),
+    underline: () => createToolbarButton(editor, {
       label: "Underline", title: "Underline", html: "<u>U</u>",
       onClick: () => editor.chain().focus().toggleUnderline().run(),
       isActive: () => editor.isActive("underline"),
-    })
-  );
-  left.appendChild(
-    createToolbarButton(editor, {
+    }),
+    strike: () => createToolbarButton(editor, {
       label: "Strikethrough", title: "Strikethrough", html: "<s>S</s>",
       onClick: () => editor.chain().focus().toggleStrike().run(),
       isActive: () => editor.isActive("strike"),
-    })
-  );
-
-  left.appendChild(createSeparator());
-
-  left.appendChild(
-    createToolbarButton(editor, {
+    }),
+    bulletList: () => createToolbarButton(editor, {
       label: "Bullet list", title: "Bullet list", html: ICONS.bulletList,
       onClick: () => editor.chain().focus().toggleBulletList().run(),
       isActive: () => editor.isActive("bulletList"),
-    })
-  );
-  left.appendChild(
-    createToolbarButton(editor, {
+    }),
+    orderedList: () => createToolbarButton(editor, {
       label: "Ordered list", title: "Ordered list", html: ICONS.orderedList,
       onClick: () => editor.chain().focus().toggleOrderedList().run(),
       isActive: () => editor.isActive("orderedList"),
-    })
-  );
-  left.appendChild(
-    createToolbarButton(editor, {
+    }),
+    taskList: () => createToolbarButton(editor, {
       label: "Checkbox", title: "Checkbox list", html: ICONS.checkbox,
       onClick: () => editor.chain().focus().toggleTaskList().run(),
       isActive: () => editor.isActive("taskList"),
-    })
-  );
-
-  left.appendChild(createSeparator());
-
-  left.appendChild(
-    createToolbarButton(editor, {
+    }),
+    link: () => createToolbarButton(editor, {
       label: "Link", title: "Insert link", html: ICONS.link,
       onClick: async () => {
         const result = await openModal("Insert Link", [
@@ -460,11 +470,8 @@ const buildToolbar = (editor, toolbarEl) => {
         editor.chain().focus().setLink({ href: result.url }).run();
       },
       isActive: () => editor.isActive("link"),
-    })
-  );
-
-  left.appendChild(
-    createToolbarButton(editor, {
+    }),
+    image: () => createToolbarButton(editor, {
       label: "Image", title: "Insert image", html: ICONS.image,
       onClick: async () => {
         const result = await openModal("Insert Image", [
@@ -479,129 +486,125 @@ const buildToolbar = (editor, toolbarEl) => {
         editor.chain().focus().setImage({ src: result.url, alt: result.alt || "" }).run();
       },
       isActive: () => false,
-    })
-  );
-
-  left.appendChild(
-    createToolbarButton(editor, {
+    }),
+    blockquote: () => createToolbarButton(editor, {
       label: "Blockquote", title: "Blockquote", html: "&#8220;",
       onClick: () => editor.chain().focus().toggleBlockquote().run(),
       isActive: () => editor.isActive("blockquote"),
-    })
-  );
-
-  left.appendChild(
-    createToolbarButton(editor, {
+    }),
+    horizontalRule: () => createToolbarButton(editor, {
       label: "Horizontal rule", title: "Horizontal rule", html: "&#8213;",
       onClick: () => editor.chain().focus().setHorizontalRule().run(),
       isActive: () => false,
-    })
-  );
+    }),
+    table: () => {
+      const tableWrapper = document.createElement("span");
+      tableWrapper.className = "wysiwyg-toolbar__table-wrap";
+      const tableBtn = createToolbarButton(editor, {
+        label: "Table", title: "Insert table", html: "&#9638;",
+        onClick: () => {
+          gridPopup.style.display = gridPopup.style.display === "none" ? "" : "none";
+        },
+        isActive: () => editor.isActive("table"),
+      });
+      const gridPopup = buildTableGridPicker((rows, cols) => {
+        editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+        gridPopup.style.display = "none";
+      });
+      tableWrapper.appendChild(tableBtn);
+      tableWrapper.appendChild(gridPopup);
 
-  const tableWrapper = document.createElement("span");
-  tableWrapper.className = "wysiwyg-toolbar__table-wrap";
-  const tableBtn = createToolbarButton(editor, {
-    label: "Table", title: "Insert table", html: "&#9638;",
-    onClick: () => {
-      gridPopup.style.display = gridPopup.style.display === "none" ? "" : "none";
+      ctx.handleDocClick = (e) => {
+        if (!tableWrapper.contains(e.target)) gridPopup.style.display = "none";
+      };
+      document.addEventListener("click", ctx.handleDocClick);
+      return tableWrapper;
     },
-    isActive: () => editor.isActive("table"),
-  });
-  const gridPopup = buildTableGridPicker((rows, cols) => {
-    editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
-    gridPopup.style.display = "none";
-  });
-  tableWrapper.appendChild(tableBtn);
-  tableWrapper.appendChild(gridPopup);
-  left.appendChild(tableWrapper);
-
-  const handleDocClick = (e) => {
-    if (!tableWrapper.contains(e.target)) gridPopup.style.display = "none";
-  };
-  document.addEventListener("click", handleDocClick);
-
-  left.appendChild(createSeparator());
-
-  left.appendChild(
-    createToolbarButton(editor, {
+    code: () => createToolbarButton(editor, {
       label: "Inline code", title: "Inline code", html: "&lt;/&gt;",
       onClick: () => editor.chain().focus().toggleCode().run(),
       isActive: () => editor.isActive("code"),
-    })
-  );
-  left.appendChild(
-    createToolbarButton(editor, {
+    }),
+    codeBlock: () => createToolbarButton(editor, {
       label: "Code block", title: "Code block", html: "&#123;&#123;&#123;",
       onClick: () => editor.chain().focus().toggleCodeBlock({ language: DEFAULT_CODE_LANGUAGE }).run(),
       isActive: () => editor.isActive("codeBlock"),
-    })
-  );
-
-  const langSelect = document.createElement("select");
-  langSelect.className = "wysiwyg-toolbar__lang-select";
-  langSelect.setAttribute("aria-label", "Code block language");
-  langSelect.setAttribute("title", "Code block language");
-  CODE_LANGUAGES.forEach(({ value, label }) => {
-    const opt = document.createElement("option");
-    opt.value = value;
-    opt.textContent = label;
-    langSelect.appendChild(opt);
-  });
-  const updateLangSelect = () => {
-    const inCodeBlock = editor.isActive("codeBlock");
-    langSelect.disabled = !inCodeBlock;
-    if (inCodeBlock) {
-      const attrs = editor.getAttributes("codeBlock");
-      const lang = attrs.language || DEFAULT_CODE_LANGUAGE;
-      langSelect.value = CODE_LANGUAGES.some((l) => l.value === lang) ? lang : DEFAULT_CODE_LANGUAGE;
-    }
-  };
-  langSelect.addEventListener("change", () => {
-    editor.chain().focus().updateAttributes("codeBlock", { language: langSelect.value }).run();
-  });
-  editor.on("selectionUpdate", updateLangSelect);
-  editor.on("transaction", updateLangSelect);
-  updateLangSelect();
-  left.appendChild(langSelect);
-
-  left.appendChild(createSeparator());
-
-  const mdBtn = document.createElement("button");
-  mdBtn.type = "button";
-  mdBtn.className = "wysiwyg-toolbar__btn wysiwyg-toolbar__btn--md";
-  mdBtn.setAttribute("aria-label", "Markdown");
-  mdBtn.setAttribute("title", "Toggle Markdown mode");
-  mdBtn.innerHTML = ICONS.markdown;
-  left.appendChild(mdBtn);
-
-  const previewBtn = document.createElement("button");
-  previewBtn.type = "button";
-  previewBtn.className = "wysiwyg-toolbar__btn wysiwyg-toolbar__btn--preview-toggle";
-  previewBtn.setAttribute("aria-label", "Preview");
-  previewBtn.setAttribute("title", "Toggle preview");
-  previewBtn.innerHTML = ICONS.preview;
-  previewBtn.style.display = "none";
-
-  right.appendChild(previewBtn);
-  right.appendChild(
-    createToolbarButton(editor, {
+    }),
+    langSelect: () => {
+      const langSelect = document.createElement("select");
+      langSelect.className = "wysiwyg-toolbar__lang-select";
+      langSelect.setAttribute("aria-label", "Code block language");
+      langSelect.setAttribute("title", "Code block language");
+      CODE_LANGUAGES.forEach(({ value, label }) => {
+        const opt = document.createElement("option");
+        opt.value = value;
+        opt.textContent = label;
+        langSelect.appendChild(opt);
+      });
+      const updateLangSelect = () => {
+        const inCodeBlock = editor.isActive("codeBlock");
+        langSelect.disabled = !inCodeBlock;
+        if (inCodeBlock) {
+          const attrs = editor.getAttributes("codeBlock");
+          const lang = attrs.language || DEFAULT_CODE_LANGUAGE;
+          langSelect.value = CODE_LANGUAGES.some((l) => l.value === lang) ? lang : DEFAULT_CODE_LANGUAGE;
+        }
+      };
+      langSelect.addEventListener("change", () => {
+        editor.chain().focus().updateAttributes("codeBlock", { language: langSelect.value }).run();
+      });
+      editor.on("selectionUpdate", updateLangSelect);
+      editor.on("transaction", updateLangSelect);
+      updateLangSelect();
+      return langSelect;
+    },
+    markdown: () => {
+      const mdBtn = document.createElement("button");
+      mdBtn.type = "button";
+      mdBtn.className = "wysiwyg-toolbar__btn wysiwyg-toolbar__btn--md";
+      mdBtn.setAttribute("aria-label", "Markdown");
+      mdBtn.setAttribute("title", "Toggle Markdown mode");
+      mdBtn.innerHTML = ICONS.markdown;
+      ctx.mdBtn = mdBtn;
+      return mdBtn;
+    },
+    preview: () => {
+      const previewBtn = document.createElement("button");
+      previewBtn.type = "button";
+      previewBtn.className = "wysiwyg-toolbar__btn wysiwyg-toolbar__btn--preview-toggle";
+      previewBtn.setAttribute("aria-label", "Preview");
+      previewBtn.setAttribute("title", "Toggle preview");
+      previewBtn.innerHTML = ICONS.preview;
+      previewBtn.style.display = "none";
+      ctx.previewBtn = previewBtn;
+      return previewBtn;
+    },
+    undo: () => createToolbarButton(editor, {
       label: "Undo", title: "Undo", html: "&#8630;",
       onClick: () => editor.chain().focus().undo().run(),
       isActive: () => false,
-    })
-  );
-  right.appendChild(
-    createToolbarButton(editor, {
+    }),
+    redo: () => createToolbarButton(editor, {
       label: "Redo", title: "Redo", html: "&#8631;",
       onClick: () => editor.chain().focus().redo().run(),
       isActive: () => false,
-    })
-  );
+    }),
+  };
+
+  const layout = TOOLBAR_PRESETS[preset] || TOOLBAR_PRESETS.full;
+  layout.left.forEach((name) => {
+    const el = builders[name]?.();
+    if (el) left.appendChild(el);
+  });
+  layout.right.forEach((name) => {
+    const el = builders[name]?.();
+    if (el) right.appendChild(el);
+  });
 
   toolbarEl.appendChild(left);
   toolbarEl.appendChild(right);
 
-  return { mdBtn, previewBtn, handleDocClick };
+  return { mdBtn: ctx.mdBtn, previewBtn: ctx.previewBtn, handleDocClick: ctx.handleDocClick };
 };
 
 export const setupMermaidEditMode = (editor, editorEl) => {
@@ -696,7 +699,7 @@ export const renderMermaidPreview = async (container) => {
 
 const editorInstances = new Map();
 
-const initWysiwyg = (textareaId) => {
+export const initWysiwyg = (textareaId) => {
   const prev = editorInstances.get(textareaId);
   if (prev) {
     prev.editor.destroy();
@@ -712,6 +715,8 @@ const initWysiwyg = (textareaId) => {
   const toolbarEl = wrapper.querySelector(".wysiwyg-editor__toolbar");
   const editorEl = wrapper.querySelector(".wysiwyg-editor__body");
   if (!toolbarEl || !editorEl) return null;
+
+  const preset = wrapper.dataset.wysiwygPreset || "full";
 
   /* Ensure toolbar is empty and remove any previous table-context bar after re-init (e.g. Fill demo content) to avoid duplicate bars */
   toolbarEl.innerHTML = "";
@@ -789,7 +794,7 @@ const initWysiwyg = (textareaId) => {
 
   const state = { mode: "wysiwyg", markdownText: "", previewOn: false };
 
-  const { mdBtn, previewBtn, handleDocClick } = buildToolbar(editor, toolbarEl);
+  const { mdBtn, previewBtn, handleDocClick } = buildToolbar(editor, toolbarEl, preset);
   setupTableContextBar(editor, toolbarEl);
   setupMermaidEditMode(editor, editorEl);
 
@@ -894,7 +899,7 @@ const initWysiwyg = (textareaId) => {
   editorInstances.set(textareaId, {
     editor,
     cleanup: () => {
-      document.removeEventListener("click", handleDocClick);
+      if (handleDocClick) document.removeEventListener("click", handleDocClick);
       if (form) form.removeEventListener("submit", syncTextarea, true);
     },
   });

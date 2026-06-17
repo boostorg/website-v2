@@ -12,7 +12,6 @@
     "builddocs": "NODE_ENV=production tailwindcss -c ./docstailwind.config.js -i frontend/docsstyles.css -o static/css/docsstyles.css --minify",
     "builduserguide": "NODE_ENV=production tailwindcss -c ./userguidetailwind.config.js -i frontend/userguidestyles.css -o static/css/userguidestyles.css --minify",
     "build:wysiwyg": "esbuild frontend/wysiwyg-editor.js --bundle --minify --format=esm --outfile=static/js/v3/wysiwyg-editor.js --external:mermaid",
-    "build:up-wysiwyg": "esbuild frontend/user-profile-wysiwyg-editor.js --bundle --minify --format=esm --outfile=static/js/v3/user-profile-wysiwyg-editor.js --external:mermaid",
     "build:fuse": "esbuild frontend/fuse-entry.js --bundle --minify --format=iife --outfile=static/js/v3/fuse.min.js"
   },
   "dependencies": {
