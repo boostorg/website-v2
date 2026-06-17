@@ -10,6 +10,7 @@ from ..forms import (
     NewsForm,
     PollForm,
     V3BlogPostForm,
+    V3LinkForm,
     V3NewsForm,
     VideoForm,
 )
@@ -133,13 +134,7 @@ def test_form_save_approved_news(make_entry, settings):
 def test_blogpost_form():
     form = BlogPostForm()
     assert isinstance(form, EntryForm)
-    assert sorted(form.fields.keys()) == [
-        "content",
-        "image",
-        "publish_at",
-        "summary",
-        "title",
-    ]
+    assert sorted(form.fields.keys()) == ["content", "image", "publish_at", "title"]
 
 
 def test_link_form():
@@ -149,7 +144,6 @@ def test_link_form():
         "external_url",
         "image",
         "publish_at",
-        "summary",
         "title",
     ]
 
@@ -179,6 +173,20 @@ def test_v3_news_form_includes_summary():
     assert isinstance(form, NewsForm)
     assert sorted(form.fields.keys()) == [
         "content",
+        "image",
+        "publish_at",
+        "summary",
+        "title",
+    ]
+
+
+def test_v3_link_form_includes_summary():
+    # The v3 create page persists the AI-assisted link description into the
+    # model's `summary` field; the v2 LinkForm must not expose it.
+    form = V3LinkForm()
+    assert isinstance(form, LinkForm)
+    assert sorted(form.fields.keys()) == [
+        "external_url",
         "image",
         "publish_at",
         "summary",

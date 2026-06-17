@@ -22,13 +22,13 @@ class EntryForm(forms.ModelForm):
 class BlogPostForm(EntryForm):
     class Meta:
         model = BlogPost
-        fields = ["title", "publish_at", "content", "summary", "image"]
+        fields = ["title", "publish_at", "content", "image"]
 
 
 class LinkForm(EntryForm):
     class Meta:
         model = Link
-        fields = ["title", "publish_at", "external_url", "summary", "image"]
+        fields = ["title", "publish_at", "external_url", "image"]
 
     # Holding on this as it's a new feature Issue #437
     # def save(self, *args, commit=True, **kwargs):
@@ -43,7 +43,7 @@ class LinkForm(EntryForm):
 class NewsForm(EntryForm):
     class Meta:
         model = News
-        fields = ["title", "publish_at", "content", "summary", "image"]
+        fields = ["title", "publish_at", "content", "image"]
 
 
 # v3-only forms: the v3 create page also captures the AI-assisted `summary`.
@@ -55,6 +55,11 @@ class V3BlogPostForm(BlogPostForm):
 class V3NewsForm(NewsForm):
     class Meta(NewsForm.Meta):
         fields = ["title", "publish_at", "content", "summary", "image"]
+
+
+class V3LinkForm(LinkForm):
+    class Meta(LinkForm.Meta):
+        fields = ["title", "publish_at", "external_url", "summary", "image"]
 
 
 class PollForm(EntryForm):

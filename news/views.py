@@ -52,6 +52,7 @@ from .forms import (
     NewsForm,
     PollForm,
     V3BlogPostForm,
+    V3LinkForm,
     V3NewsForm,
     VideoForm,
 )
@@ -523,7 +524,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
     _POST_TYPE_MAP = {
         "blog": (BlogPost, V3BlogPostForm),
         "news": (News, V3NewsForm),
-        "link": (Link, LinkForm),
+        "link": (Link, V3LinkForm),
         "video": (Video, VideoForm),
     }
 
