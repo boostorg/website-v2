@@ -56,7 +56,7 @@ def get_commit_data_by_release_for_library(library, limit=20):
         .order_by("-version__name")
     )[:limit]
     return [
-        {"release": x.version_name.strip("boost-"), "commit_count": x.count}
+        {"release": x.version_name.removeprefix("boost-"), "commit_count": x.count}
         for x in reversed(list(qs))
     ]
 
@@ -73,7 +73,7 @@ def get_commit_data_by_release(limit=10):
         .order_by("-name")
     )[:limit]
     return [
-        {"release": v.name.strip("boost-"), "commit_count": v.count}
+        {"release": v.name.removeprefix("boost-"), "commit_count": v.count}
         for v in reversed(list(qs))
     ]
 

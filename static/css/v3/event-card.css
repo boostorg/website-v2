@@ -49,7 +49,7 @@
 
 .event-card__empty {
   padding: var(--space-card);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-small);
   color: var(--color-text-secondary);
 }
 
