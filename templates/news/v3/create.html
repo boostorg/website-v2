@@ -132,6 +132,8 @@
                 </span>
               </span>
             </div>
+            {% comment %} Auto-Generate failure (e.g. a gateway 504 on a slow/cold model). Cleared on the next attempt. {% endcomment %}
+            <p class="field__error" id="field-post_description-error" role="alert" x-show="descriptionError" x-text="descriptionError" x-cloak aria-live="polite"></p>
           </div>
 
           <div class="field create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
@@ -162,6 +164,7 @@
         contentLength: 0,
         description: '{{ form.summary.value|default_if_none:""|escapejs }}',
         generating: false,
+        descriptionError: '',
         descriptionSaveStatus: '',   // '' (hidden) / 'saving' / 'saved'
         contentSaveStatus: '',       // same states, for the Content field
         _descriptionSaveTimer: null,
@@ -351,17 +354,15 @@
           try { localStorage.removeItem(this.contentDraftKey()); } catch (_) {}
         },
 
-        // Start AI description generation, then poll until the background job
-        // finishes. The model call runs in a Celery worker (off the request
-        // path), so a slow/cold model can't trip the gateway timeout — we just
-        // poll a bit longer instead of holding one long, fragile request open.
+        // Send the Content to the backend, which runs the summarization model.
         async generateDescription() {
           const content = (this.content || '').trim();
           if (!content || this.generating) return;
           this.generating = true;
+          this.descriptionError = '';
           try {
             const title = document.querySelector('input[name="title"]')?.value || '';
-            const startRes = await fetch('{% url "v3-news-generate-description" %}', {
+            const res = await fetch('{% url "v3-news-generate-description" %}', {
               method: 'POST',
               headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
@@ -369,45 +370,25 @@
               },
               body: new URLSearchParams({ content, title }),
             });
-            const start = await this.safeJson(startRes);
-            if (!startRes.ok || !start || !start.job_id) {
-              console.error('Description generation failed to start:', (start && start.error) || startRes.status);
-              return;
+            // A gateway timeout (504) returns a non-JSON body ("stream timeout"),
+            // so parse defensively — res.json() would otherwise throw and swallow
+            // the failure silently.
+            const data = await res.json().catch(() => null);
+            if (res.ok && data && data.description) {
+              this.description = data.description;
+              this.descriptionError = '';
+              this.onDescriptionEdited();   // persist generated text + show Saving/Saved
+            } else {
+              console.error('Description generation failed:', (data && data.error) || res.status);
+              this.descriptionError = (data && data.error)
+                || "The description is taking longer than expected to generate. Please try again in a moment.";
             }
-
-            // Poll for the result. Cap the attempts so an unknown/expired job
-            // id — which Celery reports as PENDING forever — can't poll
-            // indefinitely.
-            const statusUrl = '{% url "v3-news-generate-description" %}' + start.job_id + '/';
-            const intervalMs = 1500;
-            const maxAttempts = 60;   // ~90s ceiling
-            for (let attempt = 0; attempt < maxAttempts; attempt++) {
-              await new Promise((resolve) => setTimeout(resolve, intervalMs));
-              const pollRes = await fetch(statusUrl);
-              const data = await this.safeJson(pollRes);
-              if (data && data.status === 'done' && data.description) {
-                this.description = data.description;
-                this.onDescriptionEdited();   // persist generated text + show Saving/Saved
-                return;
-              }
-              if ((data && data.status === 'error') || pollRes.status >= 500) {
-                console.error('Description generation failed:', (data && data.error) || pollRes.status);
-                return;
-              }
-              // Anything else (202 "pending") — keep polling.
-            }
-            console.error('Description generation timed out while polling.');
           } catch (err) {
             console.error('Description generation request failed:', err);
+            this.descriptionError = "The description is taking longer than expected to generate. Please try again in a moment.";
           } finally {
             this.generating = false;
           }
-        },
-
-        // Parse a response as JSON defensively: a gateway 504/502 can return
-        // non-JSON (e.g. plain "stream timeout"), which must not throw.
-        async safeJson(res) {
-          try { return await res.json(); } catch (_) { return null; }
         },
 
         prepareSubmit(e) {
