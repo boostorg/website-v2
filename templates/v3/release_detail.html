@@ -41,7 +41,7 @@ and community/resource cards. Context is supplied by versions.views.VersionDetai
     {% endif %}
 
     <section class="release-detail__bottom-cards" aria-label="Community and resources">
-      {% include "v3/includes/_mailing_list_card.html" with subscribe_url=mailing_list_card_subscribe_url list_id=mailing_list_card_list_id state=mailing_list_card_state user_email=mailing_list_card_user_email manage_url=mailing_list_card_manage_url subscription_count=mailing_list_card_subscription_count error_message=mailing_list_card_error_message %}
+      {% include "v3/includes/_mailing_list_card.html" with subscribe_url=mailing_list_card_subscribe_url modal_subscribe_url=mailing_list_card_modal_subscribe_url list_id=mailing_list_card_list_id state=mailing_list_card_state user_email=mailing_list_card_user_email manage_url=mailing_list_card_manage_url subscription_count=mailing_list_card_subscription_count error_message=mailing_list_card_error_message mailing_lists=mailing_list_card_lists subscribed_ids=mailing_list_card_subscribed_ids %}
 
       {% include "v3/includes/_basic_card.html" with title="Want to fix bugs, review code, maintain libraries, and propose new features?" text="Read our contributors guide and join the Boost community." primary_button_url=contributors_guide_url primary_button_label="Start here" primary_button_style="green" theme="green" only %}
 

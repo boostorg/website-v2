@@ -49,6 +49,7 @@ from versions.models import Version, docs_path_to_boost_name
 
 from . import context_processors
 from .mixins import V3Mixin, iter_v3_views
+from mailing_list.constants import MAILING_LIST_LABELS as _ML_LABELS
 from mailing_list.mixins import (
     MailingListCardMixin,
     get_subscription_state_count_and_email,
@@ -2242,6 +2243,8 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         context["demo_mailman_lists"] = constants.MAILMAN_LISTS
         context["demo_subscribe_url"] = reverse("mailing-list-subscribe")
         context["demo_quick_subscribe_url"] = reverse("mailing-list-quick-subscribe")
+        context["demo_modal_subscribe_url"] = reverse("mailing-list-modal-subscribe")
+        context["demo_mailing_lists"] = _ML_LABELS.values()
 
         mailing_list_state = None
 

@@ -1,68 +1,159 @@
 {% comment %}
-Card with a subscribe form for a single mailing list.
+Card with a subscribe form and mailing list selection modal.
+
 Variables:
-  subscribe_url      — (required) POST endpoint; build via request.build_absolute_uri(reverse("mailing-list-quick-subscribe"))
-  list_id            — (optional) mailing list ID; defaults to "boost.lists.boost.org"
-  state              — "active" | "pending" | "error" | None
-                       "active"  — user is subscribed; shows success card
-                       "pending" — confirmation email sent; shows pending card
-                       "error"   — form submission failed; shows form with error_message
-                       None      — default; shows subscribe form
-  user_email         — (optional) email used in the subscription
-  manage_url         — (optional) URL for managing subscriptions; shown in success/pending card
-  subscription_count — (optional) number of lists subscribed to; shown in success card
-  error_message      — error text shown when state="error"
+  subscribe_url        - (required) POST endpoint for the no-JS single-list fallback
+  modal_subscribe_url  - (required) POST endpoint for the multi-list modal form
+  mailing_lists        - (required) list of dicts: {id, name, address, description}
+  list_id              - (optional) list ID for the no-JS hidden input; defaults to "boost.lists.boost.org"
+  state                - "active" | "pending" | "error" | None
+  user_email           - (optional) email used in the subscription
+  manage_url           - (optional) URL for managing subscriptions (no-JS fallback for the manage button)
+  subscription_count   - (optional) number of lists subscribed to (shown in active state)
+  subscribed_ids       - (optional) set of list IDs the user is currently subscribed to; controls checkbox state
+  error_message        - error text shown when state="error"
+
+Modal open/close: CSS-only via :target (id="mailing-list-modal"), matching the _dialog.html pattern.
+dialog.js provides focus trap, ESC close, and initial focus automatically.
+Alpine is used only to capture the email value and bind it to the modal's hidden input.
+After HTMX swaps [data-ml-block], x-init clears the URL hash so the modal closes.
 {% endcomment %}
-{% if state == "active" %}
-  {% include "v3/mailing_list/_subscribe_success_card.html" with email=user_email manage_url=manage_url subscription_count=subscription_count only %}
-{% elif state == "pending" %}
-  <div class="basic-card card">
-    <div class="card__header mailing-list-card__header--subscribed">
-      <span class="card__title">Manage your Mailing list</span>
-      <span class="mailing-list-card__badge mailing-list-card__badge--pending">Pending</span>
-    </div>
-    <hr class="card__hr" />
-    <div class="card__column px-large">
-      <span>We've sent you an email — please confirm to verify ownership of this address and activate your subscription.</span>
-    </div>
-    {% if manage_url %}
+<div data-ml-block
+     x-data="{ mlEmail: '{{ user_email|default:''|escapejs }}' }"
+     x-init="if (window.location.hash === '#mailing-list-modal') history.replaceState(null, '', window.location.pathname + window.location.search)">
+
+  {% if state == "active" %}
+    <div class="basic-card card">
+      <div class="card__header mailing-list-card__header--subscribed">
+        <span class="card__title">Manage your Mailing list</span>
+        <span class="mailing-list-card__badge">Subscribed</span>
+      </div>
+      <hr class="card__hr" />
+      <div class="card__column px-large">
+        <span>
+          You're subscribed with {{ user_email }} to {{ subscription_count }} list{{ subscription_count|pluralize }}.
+        </span>
+      </div>
       <div class="card__cta_section">
-        {% include "v3/includes/_button.html" with url=manage_url label="Manage your lists →" only %}
+        <button type="button"
+                class="btn btn-primary"
+                x-cloak
+                @click="window.location.hash = 'mailing-list-modal'">Manage your lists &rarr;</button>
+        <noscript>
+          <a href="{{ manage_url|default:'' }}" class="btn btn-primary">Manage your lists &rarr;</a>
+        </noscript>
       </div>
-    {% endif %}
-  </div>
-{% else %}
-  <div class="basic-card card">
-    <div class="card__header">
-      <span class="card__title">Join the Boost Developers Mailing List</span>
     </div>
-    <hr class="card__hr" />
-    <form
-      action="{{ subscribe_url }}"
-      method="post"
-      class="mailing-list-card__form"
-      novalidate
-      hx-post="{{ subscribe_url }}"
-      hx-target="closest .basic-card"
-      hx-swap="outerHTML"
-    >
-      {% csrf_token %}
-      <input type="hidden" name="list_id" value="{{ list_id|default:'boost.lists.boost.org' }}">
-      <div class="card__column px-large mailing-list-card__loading">
-        <span>Get the latest on releases, features, security patches, fixes and all major announcements.</span>
-        <div class="mailing-list-card__spinner" role="status" aria-label="Subscribing…"></div>
+
+  {% elif state == "pending" %}
+    <div class="basic-card card">
+      <div class="card__header mailing-list-card__header--subscribed">
+        <span class="card__title">Manage your Mailing list</span>
+        <span class="mailing-list-card__badge mailing-list-card__badge--pending">Pending</span>
       </div>
-      <div class="card__column px-large mailing-list-card__form-content">
-        <span>Get the latest on releases, features, security patches, fixes and all major announcements.</span>
-        {% if state == "error" %}
-          {% include 'v3/includes/_field_text.html' with name='email' placeholder='Email Address' value=user_email required='True' type='email' submit_icon='arrow-right' validate_type='email' validate_error='Please enter a valid email address.' error=error_message only %}
-        {% else %}
-          {% include 'v3/includes/_field_text.html' with name='email' placeholder='Email Address' value=user_email required='True' type='email' submit_icon='arrow-right' validate_type='email' validate_error='Please enter a valid email address.' only %}
-        {% endif %}
+      <hr class="card__hr" />
+      <div class="card__column px-large">
+        <span>We've sent you an email — please confirm to verify ownership of this address and activate your subscription.</span>
       </div>
-      <div class="card__cta_section mailing-list-card__form-content">
-        {% include "v3/includes/_button.html" with type="submit" label="Subscribe" only %}
+      {% if manage_url %}
+        <div class="card__cta_section">
+          <button type="button"
+                  class="btn btn-primary"
+                  x-cloak
+                  @click="window.location.hash = 'mailing-list-modal'">Manage your lists &rarr;</button>
+          <noscript>
+            <a href="{{ manage_url }}" class="btn btn-primary">Manage your lists &rarr;</a>
+          </noscript>
+        </div>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <div class="basic-card card">
+      <div class="card__header">
+        <span class="card__title">Join the Boost Developers Mailing List</span>
       </div>
-    </form>
-  </div>
-{% endif %}
+      <hr class="card__hr" />
+      <form
+        action="{{ subscribe_url }}"
+        method="post"
+        class="mailing-list-card__form"
+        @submit.prevent="mlEmail = $event.target.elements.email.value.trim(); if (mlEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mlEmail)) window.location.hash = 'mailing-list-modal'"
+      >
+        {% csrf_token %}
+        <input type="hidden" name="list_id" value="{{ list_id|default:'boost.lists.boost.org' }}">
+        <div class="card__column px-large">
+          <span>Get the latest on releases, features, security patches, fixes and all major announcements.</span>
+          {% if state == "error" %}
+            {% include 'v3/includes/_field_text.html' with name='email' placeholder='Email Address' value=user_email required='True' type='email' submit_icon='arrow-right' validate_type='email' validate_error='Please enter a valid email address.' error=error_message only %}
+          {% else %}
+            {% include 'v3/includes/_field_text.html' with name='email' placeholder='Email Address' value=user_email required='True' type='email' submit_icon='arrow-right' validate_type='email' validate_error='Please enter a valid email address.' only %}
+          {% endif %}
+        </div>
+        <div class="card__cta_section">
+          {% include "v3/includes/_button.html" with type="submit" label="Subscribe" only %}
+        </div>
+      </form>
+    </div>
+  {% endif %}
+
+  {% if modal_subscribe_url and mailing_lists %}
+    <div class="dialog-modal" id="mailing-list-modal">
+      <a class="dialog-modal__backdrop" href="#_" tabindex="-1" aria-hidden="true"></a>
+      <div class="dialog-modal__container"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="ml-modal-title"
+           aria-describedby="ml-modal-desc">
+        <div class="dialog-modal__header">
+          <h2 class="dialog-modal__title" id="ml-modal-title">Join the Boost Developer Mailing List</h2>
+          <a class="dialog-modal__close"
+             href="#_"
+             role="button"
+             aria-label="Close dialog">
+            {% include "includes/icon.html" with icon_name="close" icon_class="dialog-modal__close-icon" icon_size=24 %}
+          </a>
+        </div>
+        <div class="mailing-list-modal__description-row" id="ml-modal-desc">
+          <p>Pick the lists you want to subscribe to. You can change these any time.</p>
+          <button type="button"
+                  class="mailing-list-modal__select-all"
+                  @click="$el.closest('.dialog-modal__container').querySelector('form').querySelectorAll('[name=list_id]').forEach(cb => cb.checked = true)">Select All</button>
+        </div>
+        <form hx-post="{{ modal_subscribe_url }}"
+              hx-target="closest [data-ml-block]"
+              hx-swap="outerHTML">
+          {% csrf_token %}
+          <input type="hidden" name="email" :value="mlEmail">
+          <div class="mailing-list-modal__list-card">
+          <ul class="mailing-list-modal__list" role="list">
+            {% for ml in mailing_lists %}
+              <li class="mailing-list-modal__item">
+                <label class="mailing-list-modal__label">
+                  <input class="mailing-list-modal__checkbox"
+                         type="checkbox"
+                         name="list_id"
+                         value="{{ ml.id }}"
+                         {% if subscribed_ids %}{% if ml.id in subscribed_ids %}checked{% endif %}{% else %}checked{% endif %}>
+                  <span class="mailing-list-modal__checkbox-box" aria-hidden="true">
+                    {% include "includes/icon.html" with icon_name="check" icon_class="mailing-list-modal__checkbox-check" icon_size=16 %}
+                  </span>
+                  <div class="mailing-list-modal__item-content">
+                    <span class="mailing-list-modal__item-name">{{ ml.name }}</span>
+                    <span class="mailing-list-modal__item-description">{{ ml.description }}</span>
+                  </div>
+                </label>
+              </li>
+            {% endfor %}
+          </ul>
+          </div>
+          <div class="dialog-modal__buttons">
+            <a href="#_" class="btn btn-secondary btn-flex">Cancel</a>
+            {% include "v3/includes/_button.html" with type="submit" label="Confirm" style="primary" extra_classes="btn-flex" only %}
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
