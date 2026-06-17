@@ -22,7 +22,7 @@
   </div>
   <hr class="card__hr" />
   <div class="horizontal-card__content-row">
-    <div class="horizontal-card__text">{{ text }}</div>
+    <div class="horizontal-card__text">{{ text|safe }}</div>
     <div class="horizontal-card__image">
       <img src="{{ image_url }}" alt="{{ image_alt|default:'' }}" />
     </div>
