@@ -4,7 +4,8 @@
 {% comment %}
   Sign-up confirmation email.
   Subject: "Confirm your email" (see confirm_email_subject.txt).
-  Context: first_name, action_url (confirmation URL), scheme, host.
+  Context: first_name, action_url (confirmation URL), scheme, host,
+  confirmation_link_lifetime (e.g. "3 days").
 {% endcomment %}
 
 {% block title %}Confirm your email{% endblock %}
@@ -26,7 +27,7 @@
 {% block card_body %}
   <p style="margin:0;">Hi {{ first_name|default:"there" }},</p>
   <p style="margin:14px 0 0 0;">Thanks for signing up for Boost. To activate your account, please confirm your email address by clicking the button below.</p>
-  <p style="margin:14px 0 0 0;">This link expires in 24 hours.</p>
+  <p style="margin:14px 0 0 0;">This link expires in {{ confirmation_link_lifetime }}.</p>
 {% endblock %}
 
 {% block cta_label %}Confirm my email{% endblock %}

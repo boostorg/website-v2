@@ -5,7 +5,7 @@ Hi {{ first_name|default:"there" }},
 Thanks for signing up for Boost. To activate your account, please confirm
 your email address by visiting the link below.
 
-This link expires in 24 hours.
+This link expires in {{ confirmation_link_lifetime }}.
 
 Confirm my email:
 {{ action_url }}
