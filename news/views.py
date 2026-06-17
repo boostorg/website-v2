@@ -1,6 +1,7 @@
 from datetime import timedelta
 from functools import partial
 
+import requests
 import structlog
 
 from django.conf import settings
