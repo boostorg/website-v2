@@ -23,7 +23,11 @@ class MailmanClient:
     def __init__(self, base_url=None, api_version=None, user=None, password=None):
         url = (base_url or settings.MAILMAN_REST_API_URL).rstrip("/")
         version = api_version or settings.MAILMAN_REST_API_VERSION
-        self._base = f"{url}/{version}"
+        self._base = (
+            f"{url}/api-proxy/{version}"
+            if not settings.LOCAL_DEVELOPMENT
+            else f"{url}/{version}"
+        )
         self._credentials = (
             user or settings.MAILMAN_REST_API_USER,
             password or settings.MAILMAN_REST_API_PASS,
