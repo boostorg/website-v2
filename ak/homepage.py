@@ -5,7 +5,7 @@ from django.urls import reverse
 from core.constants import SLACK_MEMBER_COUNT
 from core.models import HomepageSettings
 from core.templatetags.custom_static import large_static
-from libraries.models import Library, LibraryVersion, Tier
+from libraries.models import LibraryVersion, Tier
 from libraries.utils import build_library_intro_context
 from news.models import Entry
 from versions.models import Version
@@ -29,27 +29,28 @@ def get_v3_featured_library():
     """LibraryVersion to feature on the V3 homepage.
 
     Prefers the library an editor chose in HomepageSettings, otherwise a
-    random flagship- or core-tier library. Resolves to that library's
-    latest-release LibraryVersion, or None if it has none.
+    random flagship- or core-tier library. Falls back to a random library
+    when the configured one has no LibraryVersion for the latest release
+    Returns None only when no candidate library has a latest-release row.
     """
     library = HomepageSettings.load().featured_library
     latest_version = Version.objects.most_recent()
 
-    if not library:
-        library = (
-            Library.objects.filter(
-                tier__in=[Tier.FLAGSHIP, Tier.CORE],
-                library_version__version=latest_version,
-            )
-            .order_by("?")
-            .first()
-        )
-    if not library:
-        return None
+    if library:
+        library_version = LibraryVersion.objects.filter(
+            library=library, version=latest_version
+        ).first()
+        if library_version:
+            return library_version
 
-    return LibraryVersion.objects.filter(
-        library=library, version=latest_version
-    ).first()
+    return (
+        LibraryVersion.objects.filter(
+            version=latest_version,
+            library__tier__in=[Tier.FLAGSHIP, Tier.CORE],
+        )
+        .order_by("?")
+        .first()
+    )
 
 
 # Static "Why Boost" card grid; pure presentation data so it lives at module

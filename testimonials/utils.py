@@ -67,7 +67,7 @@ def get_testimonial_cards(qs=None, limit=None):
             .filter(pull_quote__gt="")
             .order_by("-first_published_at")
         )
-    testimonials = list(qs[:limit] if limit else qs)
+    testimonials = list(qs[:limit] if limit is not None else qs)
     count = len(testimonials)
     return [
         _to_card(
