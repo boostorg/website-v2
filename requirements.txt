@@ -259,7 +259,7 @@ greenlet==3.3.2
     #   -r ./requirements.in
     #   gevent
     #   playwright
-gunicorn==26.0.0
+gunicorn==25.0.1
     # via -r ./requirements.in
 h11==0.16.0
     # via httpcore
