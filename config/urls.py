@@ -57,7 +57,6 @@ from news.feeds import AtomNewsFeed, RSSNewsFeed
 from news.views import (
     V3AllTypesCreateView,
     generate_description,
-    generate_description_status,
     generate_link_description,
 )
 from users.views import (
@@ -282,11 +281,6 @@ urlpatterns = (
             "v3/news/generate-description/",
             generate_description,
             name="v3-news-generate-description",
-        ),
-        path(
-            "v3/news/generate-description/<str:job_id>/",
-            generate_description_status,
-            name="v3-news-generate-description-status",
         ),
         path(
             "v3/news/generate-link-description/",
