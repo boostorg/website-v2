@@ -46,17 +46,29 @@
           <div class="user-profile__xl-space-col px-large">
             <div class="user-profile__default-space-col">
               <span class="field__label">Avatar</span>
-                {% if user_profile_form.avatar.value %}
-                  <div class="user-profile__avatar-row">
-                    {% include 'v3/includes/_avatar_v3.html' with src=user_profile_form.avatar.value size='xxxl' only %}
-                    <div class="user-profile__default-space-col">
-                      {% include 'v3/includes/_button.html' with label='Replace Avatar' icon_name='pixel-pencil' icon_position='right' style='secondary' icon_size=16 icon_viewbox='0 0 16 16' only %}
-                      {% include 'v3/includes/_button.html' with label='Delete Avatar' icon_name='pixel-trash' icon_position='right' style='error' icon_size=16 icon_viewbox='0 0 16 16' only %}
+              {% if user_profile_form.avatar.value %}
+                <div class="user-profile__avatar-row">
+                  {% include 'v3/includes/_avatar_v3.html' with src=user_profile_form.avatar.value size='xxxl' id='user-profile-editable-avatar' only %}
+                  <input type="checkbox" id="user-profile__avatar-row-checkbox" name="avatar-row-checkbox" class="badge-button__radio" />
+                  <div class="user-profile__default-space-col user-profile__default-avatar-buttons">
+                    <label for="user-profile__avatar-row-checkbox" class="btn btn-primary">Replace Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                    {% include 'v3/includes/_button.html' with label='Delete Avatar' icon_name='pixel-trash' icon_position='right' style='error' icon_size=16 icon_viewbox='0 0 16 16' only %}
+                  </div>
+                  <div class="user-profile__default-space-col user-profile__activated-avatar-buttons">
+                    <div class="user-profile__avatar-edit-button-row">
+                      {% include 'v3/includes/_button.html' with aria_label='Change Avatar' label='' icon_name='pixel-pencil' icon_position='right' style='primary' icon_size=16 icon_viewbox='0 0 16 16' only %}
+                      <label id="avatar-row__close-button" for="user-profile__avatar-row-checkbox" class="btn btn-primary"><span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                    </div>
+                    <div>
+                      <div class="card px-large user-profile__default-space-col user-profile__edit-avatar-box">
+                        {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name label='Replace Image' help_text='This should be a PNG or JPEG format and no larger than 5MB' only %}
+                      </div>
                     </div>
                   </div>
-                {% else %}
-                  {% include 'v3/includes/_button.html' with style='secondary' type='button' label='Choose File' only %}
-                {% endif %}
+                </div>
+              {% else %}
+                {% include 'v3/includes/_button.html' with style='secondary' type='button' label='Choose File' only %}
+              {% endif %}
               <span class="field__help">This should be a PNG or JPEG format and no larger than 5MB</span>
             </div>
             <div class="user-profile__default-space-col">
@@ -174,4 +186,41 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block footer_js %}
+  <script>
+    const originalSrc = '{{user_profile_form.avatar.initial}}'
+
+    const fileDataURL = (file) =>
+      new Promise((resolve, reject) => {
+        let fr = new FileReader()
+        fr.onload = () => resolve(fr.result)
+        fr.onerror = reject
+        fr.readAsDataURL(file)
+      })
+
+    const init = () => {
+      const fileInput = document.querySelector("input[name='{{user_profile_form.avatar.name}}']")
+      const avatarComponent = document.querySelector('#user-profile-editable-avatar')
+      const avatarRowClose = document.querySelector('#avatar-row__close-button')
+      const avatarImg = avatarComponent.querySelector('img')
+
+      fileInput.addEventListener('change', (e) => {
+        const imageFile = fileDataURL(e.target.files[0]).then((data) => {
+          if (avatarImg !== null) avatarImg.src = data
+        })
+      })
+
+      avatarRowClose.addEventListener('click', () => {
+        fileInput.value = originalSrc
+        if (avatarImg !== null) avatarImg.src = originalSrc
+      })
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init)
+    } else {
+      init()
+    }
+  </script>
 {% endblock %}
