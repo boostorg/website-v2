@@ -681,6 +681,8 @@
 .field__control--file {
   cursor: pointer;
   position: relative;
+  height: fit-content;
+  min-height: 40px;
 }
 
 .field__file-display {

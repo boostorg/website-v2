@@ -52,16 +52,17 @@
                   <input type="checkbox" id="user-profile__avatar-row-checkbox" name="avatar-row-checkbox" class="badge-button__radio" />
                   <div class="user-profile__default-space-col user-profile__default-avatar-buttons">
                     <label for="user-profile__avatar-row-checkbox" class="btn btn-primary">Replace Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
-                    {% include 'v3/includes/_button.html' with label='Delete Avatar' icon_name='pixel-trash' icon_position='right' style='error' icon_size=16 icon_viewbox='0 0 16 16' only %}
+                    <input type="checkbox" id="user-profile__avatar-row-checkbox" name="{{user_profile_form.delete_avatar.name}}" class="badge-button__radio" />
+                    <label aria-label="Delete Avatar" id="avatar-row__delete-avatar" for="{{user_profile_form.delete_avatar.name}}" class="btn btn-error">Delete Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
                   </div>
                   <div class="user-profile__default-space-col user-profile__activated-avatar-buttons">
                     <div class="user-profile__avatar-edit-button-row">
-                      {% include 'v3/includes/_button.html' with aria_label='Change Avatar' label='' icon_name='pixel-pencil' icon_position='right' style='primary' icon_size=16 icon_viewbox='0 0 16 16' only %}
-                      <label id="avatar-row__close-button" for="user-profile__avatar-row-checkbox" class="btn btn-primary"><span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                      <label aria-label="Save Avatar Change" id="avatar-row__save-button" for="user-profile__avatar-row-checkbox" class="btn btn-primary"><span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                      <label aria-label="Reset Avatar Change" id="avatar-row__close-button" for="user-profile__avatar-row-checkbox" class="btn btn-primary"><span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
                     </div>
                     <div>
                       <div class="card px-large user-profile__default-space-col user-profile__edit-avatar-box">
-                        {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name label='Replace Image' help_text='This should be a PNG or JPEG format and no larger than 5MB' only %}
+                        {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name label='Replace Image' help_text='This should be a PNG or JPEG format and no larger than 5MB' accept="image/png,image/jpeg" only %}
                       </div>
                     </div>
                   </div>
@@ -205,6 +206,7 @@
       const avatarComponent = document.querySelector('#user-profile-editable-avatar')
       const avatarRowClose = document.querySelector('#avatar-row__close-button')
       const avatarImg = avatarComponent.querySelector('img')
+      const avatarDelete = document.querySelector('#avatar-row__delete-avatar')
 
       fileInput.addEventListener('change', (e) => {
         const imageFile = fileDataURL(e.target.files[0]).then((data) => {

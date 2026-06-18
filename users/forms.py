@@ -253,6 +253,7 @@ class V3UserProfileForm(forms.Form):
         initial=[{"type": x, "value": ""} for x in V3ProfileLinkChoices.values],
     )
     avatar = forms.ImageField(required=False)
+    delete_avatar = forms.BooleanField(required=False)
 
     role = forms.ChoiceField(
         choices=[(0, "C++ Alliance Board Member")], label="Your Role"
@@ -265,17 +266,14 @@ class V3UserProfileForm(forms.Form):
     )
     hide_github = forms.BooleanField(
         label="Hide GitHub activity from your profile",
-        help_text="Links your login to an existing commit-author email after verification",
         required=False,
     )
     hide_ml = forms.BooleanField(
         label="Hide mailing list activity from your profile",
-        help_text="Links your login to an existing commit-author email after verification",
         required=False,
     )
     hide_ach = forms.BooleanField(
         label="Hide achievements & badges from your profile",
-        help_text="Links your login to an existing commit-author email after verification",
         required=False,
     )
 
