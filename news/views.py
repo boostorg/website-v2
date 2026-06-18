@@ -647,6 +647,7 @@ _LINK_FETCH_ERROR = "We couldn't read that link. Please check the URL and try ag
 _LINK_INVALID_ERROR = "Please enter a valid, public http(s) link."
 
 
+@login_required
 @require_POST
 def generate_link_description(request):
     """Fetch the linked page, extract its main text, and summarize it.
@@ -662,8 +663,8 @@ def generate_link_description(request):
         read that link").
       - Summarization failed or returned empty (502, "couldn't generate").
 
-    NOTE: intentionally not login-gated yet (matches `generate_description`).
-    Add @login_required + rate-limiting before this ships.
+    NOTE: still no rate limiting — add per-user throttling before relying on
+    auth alone to bound spend.
     """
     url = request.POST.get("url", "").strip()
     if not url:

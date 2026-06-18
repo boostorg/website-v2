@@ -557,12 +557,12 @@
               },
               body: new URLSearchParams({ url: this.externalUrl }),
             });
-            const data = await res.json();
-            if (res.ok && data.description) {
+            const data = await res.json().catch(() => null);
+            if (res.ok && data && data.description) {
               this.linkDescription = data.description;
               this.onLinkDescriptionEdited();   // persist + show Saving/Saved
             } else {
-              this.linkError = data.error || "We couldn't read that link. Please check the URL and try again.";
+              this.linkError = (data && data.error) || "We couldn't read that link. Please check the URL and try again.";
             }
           } catch (err) {
             console.error('Link description generation request failed:', err);
