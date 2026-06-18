@@ -18,10 +18,10 @@ django-waffle
 django-widget-tweaks
 djangorestframework
 environs[django]
-greenlet
+greenlet~=3.3.1
 psycogreen
-gevent
-gunicorn~=25.3.0
+gevent~=25.9.1
+gunicorn
 interrogate
 itsdangerous
 psycopg2-binary
