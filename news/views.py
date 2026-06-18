@@ -556,12 +556,16 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
         model_class, form_class = type_config
 
-        # The v3 create page posts the Description textarea as `description`
-        # (kept named so for the existing frontend wiring). Bind it to the
-        # model's `summary` field on submit for the forms that include it.
+        # The v3 create page has two Description textareas — `description` for
+        # Blog/News and `link_description` for Link/Video — so the two don't
+        # collide in the submitted form. Bind whichever applies to the model's
+        # `summary` field on submit for the forms that include it.
         post_data = request.POST.copy()
-        if post_data.get("description") and not post_data.get("summary"):
-            post_data["summary"] = post_data["description"]
+        description_field = (
+            "link_description" if post_type in ("link", "video") else "description"
+        )
+        if post_data.get(description_field) and not post_data.get("summary"):
+            post_data["summary"] = post_data[description_field]
 
         form = form_class(post_data, request.FILES)
 
