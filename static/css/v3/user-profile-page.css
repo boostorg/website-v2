@@ -163,12 +163,29 @@
     gap: var(--space-default);
 }
 
+.user-profile__avatar-row .field--file {
+    width: fit-content;
+    max-width: 100%;
+}
+
 .user-profile__avatar-row .user-profile__default-space-col {
     width: fit-content;
 }
 
 .user-profile__avatar-row .user-profile__default-space-col .btn {
     width: 100%;
+}
+
+.user-profile__avatar-row .avatar:has(img[src='']) {
+    display: none;
+}
+
+.user-profile__avatar-row:has(img[src='']) .user-profile__default-avatar-buttons {
+    display: none;
+}
+
+.user-profile__avatar-row:not(:has(img[src=''])) .user-profile__empty-avatar-input {
+    display: none;
 }
 
 .user-profile__avatar-row:has(input[name='avatar-row-checkbox']:checked) .user-profile__default-avatar-buttons {
@@ -184,7 +201,7 @@
     gap: var(--space-default);
 }
 
-.user-profile__avatar-edit-button-row  .btn {
+.user-profile__avatar-edit-button-row .btn {
     max-width: fit-content;
     min-width: fit-content;
     width: fit-content !important;
@@ -261,7 +278,7 @@
     }
 
     .user-profile__update-details {
-        order:3;
+        order: 3;
     }
 
     .user-profile__commit-email-card {
