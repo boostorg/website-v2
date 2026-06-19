@@ -466,13 +466,6 @@ class LibraryDetail(
     redirect_to_docs = False
     slug_url_kwarg = "library_slug"
 
-    def render_v3_response(self):
-        self.set_extra_context(self.request)
-        self.object = self.get_object()
-        context = self.get_context_data()
-        context.update(self.get_v3_context_data(base_context=context))
-        return self.render_to_response(context)
-
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
         context = super().get_context_data(**kwargs)
@@ -520,9 +513,9 @@ class LibraryDetail(
 
         return context
 
-    def get_v3_context_data(self, base_context=None, **kwargs):
-        context = super().get_v3_context_data(**kwargs)
-        base_context = base_context or {}
+    def get_v3_context_data(self, **kwargs):
+        context = {**kwargs}
+        base_context = context
 
         version_str = base_context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
 
@@ -652,6 +645,7 @@ class LibraryDetail(
 
     def dispatch(self, request, *args, **kwargs):
         """Redirect to the documentation page, if configured to."""
+        self.set_extra_context(request)
         if self.redirect_to_docs:
             try:
                 library_version = LibraryVersion.objects.get(

@@ -143,7 +143,7 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
     template_name = "community.html"
     v3_template_name = "v3/community.html"
 
-    def render_v3_response(self):
+    def dispatch(self, request, *args, **kwargs):
         version_slug = self.kwargs.get("version_slug")
         if not version_slug:
             version_data = context_processors.selected_version(self.request)
@@ -153,7 +153,7 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
                 else LATEST_RELEASE_URL_PATH_STR
             )
             return redirect("community-version", version_slug=target)
-        response = super().render_v3_response()
+        response = super().dispatch(request, *args, **kwargs)
         if version_slug != LATEST_RELEASE_URL_PATH_STR:
             set_selected_boost_version(version_slug, response)
         return response

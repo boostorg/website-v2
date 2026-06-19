@@ -32,8 +32,12 @@ class V3Mixin:
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        if getattr(self, "_v3_active", False):
-            context = super().get_context_data(**self.get_v3_context_data(**kwargs))
+        if getattr(self, "_v3_active", False) and getattr(
+            self, "_get_v3_initial", True
+        ):
+            self._get_v3_initial = False
+            base_context = self.get_context_data(**kwargs)
+            context = self.get_v3_context_data(**base_context)
         else:
             context = super().get_context_data(**kwargs)
         return context
