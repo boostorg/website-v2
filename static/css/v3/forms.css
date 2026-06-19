@@ -704,6 +704,10 @@
 
 .field__file-name {
   color: var(--color-text-primary, #050816);
+  max-width: 100%;
+  display: inline-block;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .field__image-preview-wrapper {
