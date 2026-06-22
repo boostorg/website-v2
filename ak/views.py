@@ -13,6 +13,7 @@ from core.calendar import (
     get_calendar,
     upcoming_events,
 )
+from core.constants import HOMEPAGE_POPULAR_TERMS_DISPLAY
 from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
 from core.models import PopularSearchTerm
@@ -30,9 +31,6 @@ from ak.homepage import (
 )
 from testimonials.utils import get_testimonial_cards
 from libraries.utils import commit_data_to_stats_bars, get_commit_data_by_release
-
-HOMEPAGE_POPULAR_TERMS_DISPLAY = 10
-
 
 logger = structlog.get_logger()
 

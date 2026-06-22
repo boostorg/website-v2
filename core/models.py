@@ -193,7 +193,7 @@ class PopularSearchTerm(models.Model):
     `is_pinned` alone.
     """
 
-    label = models.CharField(max_length=128)
+    label = models.CharField(max_length=64)
     # `rank` is a compound sort key whose meaning depends on row state:
     #   - fresh rows (this week's refresh): rank 1..N in popularity order
     #   - stale rows: `rank += STORED_TOP_N` each missed run, so they sort below fresh
@@ -229,7 +229,7 @@ class PopularSearchTerm(models.Model):
 class PopularSearchTermExclusion(models.Model):
     """Search terms that should never appear on the homepage (case-insensitive)."""
 
-    term = models.CharField(max_length=128)
+    term = models.CharField(max_length=64)
     note = models.CharField(max_length=255, blank=True)
 
     class Meta:

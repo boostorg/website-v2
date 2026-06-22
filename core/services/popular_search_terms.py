@@ -28,7 +28,7 @@ STORED_TOP_N = 20
 MIN_QUERY_LEN = 3
 # Mirrors PopularSearchTerm.label max_length so an oversized string can't
 # reach .create() and roll back the whole refresh transaction.
-MAX_LABEL_LEN = 128
+MAX_LABEL_LEN = 64
 # 14-day window overlaps the weekly cadence by one week, so a term doesn't
 # drop off the moment its peak rolls past.
 LOOKBACK_DAYS = 14
@@ -203,7 +203,7 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
     version = Version.objects.most_recent()
     if not version:
         logger.warning("popular_search_terms.no_recent_version")
-        return {"updated": 0, "new": 0, "ai_kept": 0, "demoted": 0, "skipped": False}
+        return {"updated": 0, "new": 0, "ai_kept": 0, "demoted": 0}
 
     searches = _fetch_top_searches(_build_client(), version.stripped_boost_url_slug)
     excluded = {
@@ -270,5 +270,4 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
         "new": new,
         "ai_kept": len(ai_kept),
         "demoted": demoted,
-        "skipped": False,
     }

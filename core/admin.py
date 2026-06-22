@@ -8,6 +8,7 @@ from django.db import transaction
 from django.db.models import BooleanField, Case, Value, When
 from django.utils import timezone
 
+from .constants import HOMEPAGE_POPULAR_TERMS_DISPLAY
 from .models import (
     PopularSearchTerm,
     PopularSearchTermExclusion,
@@ -135,10 +136,6 @@ class PopularSearchTermAdmin(admin.ModelAdmin):
         return super().changelist_view(request, extra_context=extra_context)
 
     def get_queryset(self, request):
-        # Imported here to avoid a circular import at module load time
-        # (ak.views imports from core.models).
-        from ak.views import HOMEPAGE_POPULAR_TERMS_DISPLAY
-
         visible_ids = list(
             PopularSearchTerm.objects.visible().values_list("id", flat=True)[
                 :HOMEPAGE_POPULAR_TERMS_DISPLAY
@@ -168,10 +165,12 @@ class PopularSearchTermAdmin(admin.ModelAdmin):
         today = date.today().isoformat()
         with transaction.atomic():
             for label in labels:
-                PopularSearchTermExclusion.objects.get_or_create(
-                    term=label,
-                    defaults={"note": f"Excluded via admin on {today}"},
-                )
+                if not PopularSearchTermExclusion.objects.filter(
+                    term__iexact=label
+                ).exists():
+                    PopularSearchTermExclusion.objects.create(
+                        term=label, note=f"Excluded via admin on {today}"
+                    )
             queryset.delete()
         self.message_user(
             request,

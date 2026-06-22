@@ -110,7 +110,6 @@ def test_refresh_writes_ai_kept_terms_in_rank_order(
         "new": 3,
         "ai_kept": 3,
         "demoted": 0,
-        "skipped": False,
     }
     rows = list(PopularSearchTerm.objects.order_by("rank"))
     assert [(r.label, r.rank, r.search_count) for r in rows] == [
@@ -429,7 +428,6 @@ def test_second_refresh_upserts_counts_without_duplicating(
         "new": 1,
         "ai_kept": 2,
         "demoted": 1,
-        "skipped": False,
     }
     assert PopularSearchTerm.objects.get(label="asio").search_count == 80
     assert PopularSearchTerm.objects.filter(label="regex").exists()
@@ -518,7 +516,6 @@ def test_refresh_returns_zero_counts_when_no_recent_version(db, mock_algolia, mo
         "new": 0,
         "ai_kept": 0,
         "demoted": 0,
-        "skipped": False,
     }
     mock_algolia.get_top_searches.assert_not_called()
     mock_ai.chat.completions.create.assert_not_called()

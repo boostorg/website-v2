@@ -57,16 +57,10 @@ def command(queue: bool, dry_run: bool):
 
 
 def _print_result(result: dict, *, dry_run: bool) -> None:
-    if result.get("skipped"):
-        click.secho(
-            "Refresh skipped — no DB writes (likely no recent Version or "
-            "empty Algolia response). See result below.",
-            fg="yellow",
-        )
     prefix = "[dry-run] " if dry_run else ""
     click.secho(
         f"{prefix}ai_kept={result['ai_kept']} "
         f"new={result['new']} updated={result['updated']} "
-        f"demoted={result['demoted']} skipped={result['skipped']}",
+        f"demoted={result['demoted']}",
         fg="green",
     )
