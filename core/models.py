@@ -196,7 +196,9 @@ class PopularSearchTerm(models.Model):
     label = models.CharField(max_length=64)
     # `rank` is a compound sort key whose meaning depends on row state:
     #   - fresh rows (this week's refresh): rank 1..N in popularity order
-    #   - stale rows: `rank += STORED_TOP_N` each missed run, so they sort below fresh
+    #   - stale rows: re-packed into a contiguous band right below the fresh
+    #     block each run (ordered by prior rank), so they sort below fresh
+    #     without their rank growing unbounded over time
     #   - pinned rows: curator-set rank for explicit ordering above all others
     # Always interpret `rank` together with `is_pinned`. Full rationale in
     # docs/popular_search_terms.md.

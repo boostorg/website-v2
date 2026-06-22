@@ -434,15 +434,16 @@ def test_second_refresh_upserts_counts_without_duplicating(
     assert PopularSearchTerm.objects.filter(label="filesystem").exists()
 
 
-def test_refresh_demotes_untouched_rows_past_stored_top_n(
+def test_refresh_repacks_untouched_rows_below_fresh_block(
     live_version, mock_algolia, mock_ai
 ):
-    """Untouched rows must end up at rank > STORED_TOP_N so they sort below
-    fresh rows in visible(). Regression test for the "stale rows outrank
+    """Untouched rows must end up directly below the fresh block (ranks
+    N+1, N+2, ...) so they sort below fresh rows in visible(), with their
+    relative order preserved. Regression test for the "stale rows outrank
     fresh data" bug.
     """
     # Existing rows from a previous run; none of them will be surfaced this
-    # time, so all must be demoted.
+    # time, so both get re-packed below the two fresh rows.
     PopularSearchTerm.objects.create(label="oldterm-a", rank=3, search_count=100)
     PopularSearchTerm.objects.create(label="oldterm-b", rank=7, search_count=80)
     # A fresh, non-overlapping run.
@@ -454,12 +455,11 @@ def test_refresh_demotes_untouched_rows_past_stored_top_n(
     # Fresh rows at top.
     assert PopularSearchTerm.objects.get(label="networking").rank == 1
     assert PopularSearchTerm.objects.get(label="math").rank == 2
-    # Stale rows pushed past STORED_TOP_N, with their relative order preserved.
+    # Stale rows packed contiguously below the fresh block, prior order kept.
     a = PopularSearchTerm.objects.get(label="oldterm-a")
     b = PopularSearchTerm.objects.get(label="oldterm-b")
-    assert a.rank > STORED_TOP_N
-    assert b.rank > STORED_TOP_N
-    assert a.rank < b.rank  # original 3 < 7, after demote 23 < 27
+    assert a.rank == 3
+    assert b.rank == 4
     # And in visible() the fresh ones come first.
     visible_labels = list(
         PopularSearchTerm.objects.visible().values_list("label", flat=True)
@@ -485,27 +485,30 @@ def test_refresh_does_not_demote_pinned_rows(live_version, mock_algolia, mock_ai
     assert pinned.is_pinned is True
 
 
-def test_refresh_demotion_is_additive_across_consecutive_runs(
+def test_refresh_repacks_stale_ranks_without_unbounded_growth(
     live_version, mock_algolia, mock_ai
 ):
-    """Two consecutive runs that both miss the same row should each add
-    STORED_TOP_N to its rank — so "long-stale" rows sort below "recently
-    stale" rows, not collapse to the same bucket.
+    """Across consecutive runs that miss a row, re-packing keeps its rank in a
+    small contiguous band (no unbounded `+= STORED_TOP_N` growth) while still
+    sorting it below rows that fell off more recently.
     """
     PopularSearchTerm.objects.create(label="ghost", rank=5, search_count=10)
 
     _set_searches(mock_algolia, [("networking", 50)])
     _ai_keeps_all(mock_ai, [("networking", 50)])
     refresh_popular_search_terms()
-    rank_after_run_1 = PopularSearchTerm.objects.get(label="ghost").rank
+    # One fresh row (networking=1); ghost re-packs directly below it.
+    assert PopularSearchTerm.objects.get(label="ghost").rank == 2
 
     _set_searches(mock_algolia, [("math", 40)])
     _ai_keeps_all(mock_ai, [("math", 40)])
     refresh_popular_search_terms()
-    rank_after_run_2 = PopularSearchTerm.objects.get(label="ghost").rank
 
-    assert rank_after_run_1 == 5 + STORED_TOP_N
-    assert rank_after_run_2 == rank_after_run_1 + STORED_TOP_N
+    # math fresh at 1; networking just fell off (prior rank 1) so it sorts
+    # above ghost (prior rank 2) — recency order preserved, ranks stay small.
+    assert PopularSearchTerm.objects.get(label="math").rank == 1
+    assert PopularSearchTerm.objects.get(label="networking").rank == 2
+    assert PopularSearchTerm.objects.get(label="ghost").rank == 3
 
 
 def test_refresh_returns_zero_counts_when_no_recent_version(db, mock_algolia, mock_ai):

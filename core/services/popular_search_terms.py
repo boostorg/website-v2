@@ -13,7 +13,6 @@ from textwrap import dedent
 from algoliasearch.analytics.client import AnalyticsClientSync
 from django.conf import settings
 from django.db import transaction
-from django.db.models import F
 from django.db.models.functions import Lower
 from openai import OpenAI
 
@@ -257,14 +256,18 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
                 )
                 touched_pks.append(row.pk)
                 new += 1
-        # Demote rows not surfaced this run so fresh data outranks them in visible().
-        # Additive (`rank += STORED_TOP_N`) preserves recency among stale rows.
-        # Pinned rows are admin-owned and exempt.
-        demoted = (
+        # Re-pack rows not surfaced this run into a contiguous band directly
+        # below the fresh block, ordered by their current rank so recently
+        # stale rows stay above long-stale ones.
+        stale_rows = list(
             PopularSearchTerm.objects.exclude(pk__in=touched_pks)
             .filter(is_pinned=False)
-            .update(rank=F("rank") + STORED_TOP_N)
+            .order_by("rank", "label")
         )
+        for new_rank, row in enumerate(stale_rows, start=len(ai_kept) + 1):
+            row.rank = new_rank
+        PopularSearchTerm.objects.bulk_update(stale_rows, ["rank"])
+        demoted = len(stale_rows)
     return {
         "updated": updated,
         "new": new,

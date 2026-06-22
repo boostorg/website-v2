@@ -45,7 +45,7 @@ The homepage keyword badge row is designed to fail closed, not open:
 
 Once a term has been written to the database, it stays there until an admin removes it — even if Algolia stops returning it. That's intentional: a term that was popular and admin-approved last month is probably still relevant this month. Admins can spot stale rows by sorting by the "updated at" timestamp.
 
-Each weekly refresh **demotes** rows it didn't surface this run — their `rank` gets bumped past the live top-N so they sort below the fresh rows on the homepage. Demotion is additive: a row stale for one week sits just below the live block, a row stale for many weeks sinks further. Pinned rows (rows with **Pinned?** ticked) are exempt and keep their curator-set rank.
+Each weekly refresh **demotes** rows it didn't surface this run — they get re-packed into a contiguous band directly below the fresh top-N so they sort below the fresh rows on the homepage. The re-pack preserves recency order (a row that just fell off sits above one that's been stale for weeks) without letting ranks grow unbounded run over run. Pinned rows (rows with **Pinned?** ticked) are exempt and keep their curator-set rank.
 
 ## Schedule
 
