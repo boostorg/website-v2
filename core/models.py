@@ -219,9 +219,18 @@ class PopularSearchTerm(models.Model):
         ordering = ["-is_pinned", "rank", "label"]
         constraints = [
             models.UniqueConstraint(
-                Lower("label"), name="core_popularsearchterm_label_ci_unique"
+                Lower("label"),
+                name="core_popularsearchterm_label_ci_unique",
+                violation_error_message=(
+                    "A popular search term with this label already exists "
+                    "(matching is case-insensitive)."
+                ),
             )
         ]
+
+    def save(self, *args, **kwargs):
+        self.label = self.label.lower()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         pin = "[PIN] " if self.is_pinned else ""
@@ -238,9 +247,18 @@ class PopularSearchTermExclusion(models.Model):
         # Exclusions are matched case-insensitively; enforce that at the DB layer.
         constraints = [
             models.UniqueConstraint(
-                Lower("term"), name="core_popularsearchtermexclusion_term_ci_unique"
+                Lower("term"),
+                name="core_popularsearchtermexclusion_term_ci_unique",
+                violation_error_message=(
+                    "This term is already in the exclusion list "
+                    "(matching is case-insensitive)."
+                ),
             )
         ]
+
+    def save(self, *args, **kwargs):
+        self.term = self.term.lower()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.term

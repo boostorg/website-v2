@@ -616,8 +616,9 @@ def test_pinned_row_orders_first_in_visible(live_version, mock_algolia, mock_ai)
     visible_labels = list(
         PopularSearchTerm.objects.visible().values_list("label", flat=True)
     )
-    assert visible_labels[0] == "Sponsored Term"
-    assert set(visible_labels) == {"Sponsored Term", "networking", "math"}
+    # Manual entries are lowercased on save, so "Sponsored Term" stores lowercase.
+    assert visible_labels[0] == "sponsored term"
+    assert set(visible_labels) == {"sponsored term", "networking", "math"}
 
 
 def test_refresh_never_touches_is_pinned(live_version, mock_algolia, mock_ai):
