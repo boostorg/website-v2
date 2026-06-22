@@ -10,7 +10,6 @@ from corsheaders.defaults import default_headers
 from django.core.exceptions import ImproperlyConfigured
 from pythonjsonlogger import jsonlogger
 
-
 env = environs.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
