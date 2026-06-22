@@ -1,0 +1,158 @@
+.mailing-list-confirm {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-large);
+  background: var(--color-surface-page);
+}
+
+.mailing-list-confirm__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-xlarge);
+  max-width: 560px;
+  width: 100%;
+}
+
+.mailing-list-confirm__icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mailing-list-confirm__icon-wrap--success {
+  background: var(--color-surface-weak-accent-teal);
+}
+
+.mailing-list-confirm__icon-wrap--error {
+  background: var(--color-surface-error-weak);
+}
+
+.mailing-list-confirm__icon {
+  width: 28px;
+  height: 28px;
+}
+
+.mailing-list-confirm__icon--success {
+  color: var(--color-stroke-brand-accent);
+}
+
+.mailing-list-confirm__icon--error {
+  color: var(--color-text-error);
+}
+
+.mailing-list-confirm__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium);
+}
+
+.mailing-list-confirm__title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  letter-spacing: var(--letter-spacing-display-regular);
+  line-height: var(--line-height-default);
+  margin: 0;
+}
+
+.mailing-list-confirm__body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-loose);
+  margin: 0;
+}
+
+.mailing-list-confirm__email {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.mailing-list-confirm__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  width: 100%;
+  text-align: left;
+}
+
+.mailing-list-confirm__list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  padding: var(--space-medium) var(--space-large);
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-l);
+  background: var(--color-surface-weak);
+}
+
+.mailing-list-confirm__list-name {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-default);
+}
+
+.mailing-list-confirm__list-address {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-tertiary);
+  line-height: var(--line-height-default);
+}
+
+.mailing-list-confirm__list-item--error .mailing-list-confirm__list-name {
+  color: var(--color-text-error);
+}
+
+.mailing-list-confirm__list-item--error .mailing-list-confirm__list-address {
+  color: var(--color-text-error);
+  opacity: 0.75;
+}
+
+.mailing-list-confirm__list-item--error {
+  border-color: var(--color-stroke-error);
+  background: var(--color-surface-error-weak);
+  color: var(--color-text-error);
+}
+
+.mailing-list-confirm__section-label {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-tight);
+  margin: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.mailing-list-confirm__section-label--error {
+  color: var(--color-text-error);
+}
+
+@media (max-width: 767px) {
+  .mailing-list-confirm__title {
+    font-size: var(--font-size-large);
+  }
+
+  .mailing-list-confirm__inner {
+    gap: var(--space-xl);
+  }
+}

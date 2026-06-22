@@ -53,7 +53,7 @@
         {% include "v3/includes/_post_card.html" with heading="Latest "|add:object.display_name|add:" posts" items=library_posts variant="card" theme="teal" layout="horizontal" primary_cta_label="View all posts" primary_cta_url="/news/" %}
       </div>
       <div class="item-b">
-        {% include "v3/includes/_mailing_list_card.html" %}
+        {% include "v3/includes/_mailing_list_card.html" with subscribe_url=mailing_list_card_subscribe_url list_id=mailing_list_card_list_id state=mailing_list_card_state user_email=mailing_list_card_user_email manage_url=mailing_list_card_manage_url subscription_count=mailing_list_card_subscription_count error_message=mailing_list_card_error_message %}
       </div>
     </div>
 

@@ -21,6 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 from waffle import flag_is_active
 
 from core.mixins import V3Mixin
+from mailing_list.mixins import MailingListCardMixin
 from core.models import RenderedContent
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import VersionAlertMixin, BoostVersionMixin
@@ -61,7 +62,9 @@ def set_version(request):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
+class VersionDetail(
+    MailingListCardMixin, V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView
+):
     """Web display of list of Versions"""
 
     model = Version

@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+# dev-mailman-helpers — local development helpers for the Mailman Core REST API.
+#
+# Run the script and pick an action from the fzf menu:
+#
+#   list lists    — print all mailing lists on the server
+#   list members  — pick a mailing list and print its member roster (JSON)
+#   create lists  — create the lists defined in MAILMAN_LISTS (from .env)
+#   delete lists  — pick one or more lists to delete (fzf multi-select)
+#
+# Environment variables (loaded from ../.env if present):
+#   MAILMAN_DEV_API_URL    Host-side URL of the Mailman Core REST API
+#                          (default: http://localhost:8001 — the mapped container port)
+#   MAILMAN_REST_API_USER  REST API username  (default: restadmin)
+#   MAILMAN_REST_API_PASS  REST API password  (default: restpass)
+#   MAILMAN_LISTS          Comma-separated list IDs to create
+#                          e.g. boost-users.lists.boost.org,boost.lists.boost.org
+
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Load .env from the project root (one level up from this script)
+# ---------------------------------------------------------------------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="$SCRIPT_DIR/../.env"
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  # shellcheck source=/dev/null
+  source "$ENV_FILE"
+  set +a
+fi
+
+# MAILMAN_REST_API_URL is used by Django inside Docker (mailman-core hostname).
+# MAILMAN_DEV_API_URL overrides the URL for this host-side script; defaults to
+# localhost:8001 which is the port mapped from the mailman-core container.
+URL="${MAILMAN_DEV_API_URL:-http://localhost:8001}/3.1"
+API_USER="${MAILMAN_REST_API_USER:-restadmin}"
+API_PASS="${MAILMAN_REST_API_PASS:-restpass}"
+
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+_fetch_list_ids() {
+  curl -s -u "$API_USER:$API_PASS" "$URL/lists" \
+    | python3 -c "import sys,json; [print(e['list_id']) for e in json.loads(sys.stdin.read() or '{}').get('entries', [])]"
+}
+
+# Convert a list_id (foo.lists.example.org) to an FQDN address (foo@lists.example.org)
+_list_id_to_fqdn() {
+  echo "$1" | sed 's/\./@/'
+}
+
+# ---------------------------------------------------------------------------
+# Actions
+# ---------------------------------------------------------------------------
+
+action_list_lists() {
+  lists=$(_fetch_list_ids) || true
+  if [[ -z "$lists" ]]; then
+    echo "No lists found at $URL" >&2
+    exit 1
+  fi
+  echo "$lists"
+}
+
+action_list_members() {
+  lists=$(_fetch_list_ids) || true
+  if [[ -z "$lists" ]]; then
+    echo "No lists found at $URL" >&2
+    exit 1
+  fi
+
+  list=$(echo "$lists" | fzf --prompt="Select a list: " --height=10 --border) || true
+  [[ -z "$list" ]] && return
+
+  curl -s -u "$API_USER:$API_PASS" "$URL/lists/$list/roster/member" \
+    | python3 -m json.tool
+}
+
+action_create_lists() {
+  if [[ -z "${MAILMAN_LISTS:-}" ]]; then
+    echo "MAILMAN_LISTS is not set in .env — nothing to create." >&2
+    exit 1
+  fi
+
+  IFS=',' read -ra list_ids <<< "$MAILMAN_LISTS"
+  for list_id in "${list_ids[@]}"; do
+    fqdn=$(_list_id_to_fqdn "$list_id")
+    domain="${list_id#*.}" # Extracts the domain (everything after the first dot)
+
+    echo "Ensuring domain $domain exists..."
+    domain_http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+      -u "$API_USER:$API_PASS" \
+      -X POST "$URL/domains" \
+      -d "mail_host=$domain")
+
+    if [[ "$domain_http_code" == "201" ]]; then
+      echo "  [created] domain $domain"
+    elif [[ "$domain_http_code" == "400" ]]; then
+      # Mailman returns 400 if the domain already exists, which is safe to ignore here
+      echo "  [exists]  domain $domain"
+    else
+      echo "  [failed]  domain $domain (HTTP $domain_http_code)" >&2
+    fi
+
+    echo "Creating list $fqdn ..."
+    response_file=$(mktemp)
+    http_code=$(curl -s -o "$response_file" -w "%{http_code}" \
+      -u "$API_USER:$API_PASS" \
+      -X POST "$URL/lists" \
+      -d "fqdn_listname=$fqdn")
+    response_body=$(cat "$response_file")
+    rm -f "$response_file"
+
+    case "$http_code" in
+      201) echo "  [ok]      $fqdn" ;;
+      409) echo "  [exists]  $fqdn" ;;
+      *)
+        echo "  [failed]  $fqdn (HTTP $http_code)" >&2
+        if [[ -n "$response_body" ]]; then
+          echo "  Response body:" >&2
+          echo "$response_body" >&2
+        fi
+        ;;
+    esac
+  done
+}
+
+action_confirm_pending() {
+  all_pending=""
+  for list_id in $(_fetch_list_ids); do
+    pending=$(curl -s -u "$API_USER:$API_PASS" "$URL/lists/$list_id/requests" \
+      | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for e in data.get('entries', []):
+    if e.get('type') == 'subscription':
+        print(e['token'] + '  ' + e['email'] + '  (' + e['list_id'] + ')')
+" 2>/dev/null) || true
+    [[ -n "$pending" ]] && all_pending+="$pending"$'\n'
+  done
+
+  if [[ -z "$all_pending" ]]; then
+    echo "No pending subscription requests found." >&2
+    return
+  fi
+
+  selected=$(echo "$all_pending" \
+    | fzf --prompt="Select requests to confirm (TAB for multi-select): " \
+      --height=15 --border --multi) || true
+  [[ -z "$selected" ]] && return
+
+  while IFS= read -r line; do
+    token=$(echo "$line" | awk '{print $1}')
+    list_id=$(echo "$line" | grep -oP '\(\K[^)]+')
+    echo "Confirming $token on $list_id ..."
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+      -X POST -u "$API_USER:$API_PASS" \
+      -d "action=accept" \
+      "$URL/lists/$list_id/requests/$token")
+    case "$http_code" in
+      204) echo "  [confirmed] $token" ;;
+      404) echo "  [not found] $token" ;;
+      *)   echo "  [failed]    $token (HTTP $http_code)" ;;
+    esac
+  done <<< "$selected"
+}
+
+action_delete_lists() {
+  lists=$(_fetch_list_ids) || true
+  if [[ -z "$lists" ]]; then
+    echo "No lists found at $URL" >&2
+    exit 1
+  fi
+
+  selected=$(echo "$lists" \
+    | fzf --prompt="Select lists to delete (TAB for multi-select): " \
+      --height=15 --border --multi) || true
+  [[ -z "$selected" ]] && return
+
+  while IFS= read -r list_id; do
+    echo "Deleting $list_id ..."
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+      -u "$API_USER:$API_PASS" \
+      -X DELETE "$URL/lists/$list_id")
+    case "$http_code" in
+      204) echo "  [deleted]   $list_id" ;;
+      404) echo "  [not found] $list_id" ;;
+      *)   echo "  [failed]    $list_id (HTTP $http_code)" ;;
+    esac
+  done <<< "$selected"
+}
+
+# ---------------------------------------------------------------------------
+# Main menu
+# ---------------------------------------------------------------------------
+
+action=$(printf "list lists\nlist members\ncreate lists\ndelete lists\nconfirm pending" \
+  | fzf --prompt="Action: " --height=10 --border --no-sort) || true
+
+case "$action" in
+  "list lists")      action_list_lists ;;
+  "list members")    action_list_members ;;
+  "create lists")    action_create_lists ;;
+  "delete lists")    action_delete_lists ;;
+  "confirm pending") action_confirm_pending ;;
+  *)                 exit 0 ;;
+esac

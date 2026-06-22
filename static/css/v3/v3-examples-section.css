@@ -384,3 +384,20 @@ html.dark .v3-examples-section__theme-toggle-moon {
 .code-block-story-overflow-example {
   height: 300px;
 }
+
+/* Subscribe result fragment */
+.subscribe-result__message {
+  font-size: var(--font-size-base);
+  padding: var(--space-default);
+  border-radius: 4px;
+}
+
+.subscribe-result__message--success {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-weak);
+}
+
+.subscribe-result__message--error {
+  color: var(--color-text-error);
+  background-color: var(--color-surface-error-weak);
+}

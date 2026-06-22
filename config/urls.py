@@ -275,6 +275,7 @@ urlpatterns = (
             LibraryDetail.as_view(redirect_to_docs=True),
             name="library-docs-redirect",
         ),
+        path("mailing-list/", include("mailing_list.urls")),
         path("news/", include("news.urls")),
         path("v3/news/add/", V3AllTypesCreateView.as_view(), name="v3-news-create"),
         path(
