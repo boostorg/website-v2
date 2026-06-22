@@ -10,6 +10,7 @@ from corsheaders.defaults import default_headers
 from django.core.exceptions import ImproperlyConfigured
 from pythonjsonlogger import jsonlogger
 
+
 env = environs.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
@@ -381,6 +382,7 @@ MAILMAN_CORE_DATABASE = env("MAILMAN_CORE_DATABASE", default="unknown")
 
 # Mailman API credentials
 MAILMAN_REST_API_URL = env("MAILMAN_REST_API_URL", default="http://localhost:8001")
+MAILMAN_REST_API_VERSION = env("MAILMAN_REST_API_VERSION", default="3.1")
 MAILMAN_REST_API_USER = env("MAILMAN_REST_API_USER", default="restadmin")
 MAILMAN_REST_API_PASS = env("MAILMAN_REST_API_PASS", default="restpass")
 

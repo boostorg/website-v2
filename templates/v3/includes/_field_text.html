@@ -87,7 +87,7 @@
       <button type="submit"
               class="field__submit"
               aria-label="{{ submit_label|default:'Submit' }}"
-              :disabled="!q.trim()">
+              :disabled="{% if validate_type == "email" %}!value.trim(){% else %}!q.trim(){% endif %}">
         {% include "includes/icon.html" with icon_name=submit_icon icon_class="field__submit-icon" %}
       </button>
     {% elif icon_right %}

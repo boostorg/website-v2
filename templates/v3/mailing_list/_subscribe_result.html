@@ -1,0 +1,29 @@
+{% comment %}HTMX response fragment for SubscribeView{% endcomment %}
+<div class="subscribe-result" role="status" aria-live="polite">
+  {% if error %}
+    <p class="subscribe-result__message subscribe-result__message--error">{{ error }}</p>
+  {% endif %}
+  {% if not subscribed and not unsubscribed and not pending and not errors %}
+    <p class="subscribe-result__message subscribe-result__message--success">No changes.</p>
+  {% endif %}
+  {% if pending %}
+    <p class="subscribe-result__message subscribe-result__message--success">
+      Pending confirmation for: {% for list_id in pending %}{{ list_id }}{% if not forloop.last %}, {% endif %}{% endfor %}.
+    </p>
+  {% endif %}
+  {% if subscribed %}
+    <p class="subscribe-result__message subscribe-result__message--success">
+      Subscribed to: {% for list_id in subscribed %}{{ list_id }}{% if not forloop.last %}, {% endif %}{% endfor %}.
+    </p>
+  {% endif %}
+  {% if unsubscribed %}
+    <p class="subscribe-result__message subscribe-result__message--success">
+      Unsubscribed from: {% for list_id in unsubscribed %}{{ list_id }}{% if not forloop.last %}, {% endif %}{% endfor %}.
+    </p>
+  {% endif %}
+  {% if errors %}
+    <p class="subscribe-result__message subscribe-result__message--error">
+      Failed: {% for list_id in errors %}{{ list_id }}{% if not forloop.last %}, {% endif %}{% endfor %}.
+    </p>
+  {% endif %}
+</div>

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -57,6 +58,33 @@ class SubscriptionData(models.Model):
 
     class Meta:
         unique_together = ["subscription_dt", "email", "list"]
+
+
+class SubscriptionStatus(models.TextChoices):
+    PENDING = "pending", "Pending"
+    ACTIVE = "active", "Active"
+
+
+class UserMailingListSubscription(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="mailing_list_subscriptions",
+    )
+    list_id = models.CharField(max_length=64)
+    email = models.EmailField(max_length=254)
+    status = models.CharField(
+        max_length=16,
+        choices=SubscriptionStatus,
+        default=SubscriptionStatus.PENDING,
+    )
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("user", "list_id"), ("list_id", "email")]
+
+    def __str__(self):
+        return f"{self.user} → {self.list_id}"
 
 
 class ListPostingManager(models.Manager):
