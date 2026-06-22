@@ -8,7 +8,6 @@ from mailing_list.constants import MAILMAN_LISTS
 from mailing_list.models import SubscriptionStatus, UserMailingListSubscription
 from mailing_list.views import _CONFIRM_SALT
 
-
 LIST_ID = MAILMAN_LISTS[0]
 EMAIL = "subscriber@example.com"
 

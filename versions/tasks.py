@@ -688,13 +688,11 @@ def _dependency_stats_block(version: Version) -> str | None:
     if stats["added"] == 0 and stats["removed"] == 0:
         return None
 
-    return dedent(
-        f"""
+    return dedent(f"""
         Dependency stats (precomputed from imported data):
         - Added: {stats["added"]} dependency additions across {stats["increased_dep_lib_count"]} libraries
         - Removed: {stats["removed"]} dependency removals across {stats["decreased_dep_lib_count"]} libraries
-        """
-    ).strip()
+        """).strip()
 
 
 def _release_note_text(rendered_content) -> str:
