@@ -73,10 +73,45 @@ _AI_SYSTEM_PROMPT_TEMPLATE = dedent(
     - Preserve spaces inside multi-word phrases ("data processing" stays "data processing")
     Be deterministic: the same input must always produce the same output.
 
-    Respond with JSON only in this shape:
-    {{"kept": [{{"original": "<as-typed>", "label": "<display>"}}, ...]}}
+    Return one object per KEEP query with its original text and display label;
+    omit everything you REJECT.
     """
 )
+
+# OpenRouter Structured Outputs schema: the provider constrains the model to
+# emit exactly this shape, replacing the looser json_object mode.
+_AI_RESPONSE_FORMAT = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "kept_search_terms",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "kept": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "original": {
+                                "type": "string",
+                                "description": "the query exactly as it was typed",
+                            },
+                            "label": {
+                                "type": "string",
+                                "description": "the all-lowercase display label",
+                            },
+                        },
+                        "required": ["original", "label"],
+                        "additionalProperties": False,
+                    },
+                }
+            },
+            "required": ["kept"],
+            "additionalProperties": False,
+        },
+    },
+}
 
 
 def get_known_library_names() -> list[str]:
@@ -159,7 +194,8 @@ def ai_filter_terms(
     user_content = f"<queries>\n{json.dumps(payload)}\n</queries>"
     response = client.chat.completions.create(
         model=POPULAR_TERMS_AI_MODEL,
-        response_format={"type": "json_object"},
+        response_format=_AI_RESPONSE_FORMAT,
+        extra_body={"provider": {"require_parameters": True}},
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_content},
