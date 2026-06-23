@@ -21,6 +21,7 @@
                                           dropdown/combo pattern so parent filter components can react live.
     required                (optional) —  if truthy, adds required attribute
     disabled                (optional) —  if truthy, adds disabled attribute
+    maxlength               (optional) —  caps input length via the native maxlength attribute
     extra_class             (optional) —  additional classes on the wrapper
     display_max_chars       (optional) —  controls whether the max_char limit should be displayed. Requires the following argument as well.
     max_chars               (optional) —  if provided, will present a maximum length counter on this field. If JS is enabled, this
@@ -98,6 +99,7 @@
            name="{{ name }}"
            {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
            {% if value %}value="{{ value }}"{% endif %}
+           {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
            {% if required %}required{% endif %}
            {% if disabled %}disabled{% endif %}
            {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ name }}-error' : {% if help_text %}'field-{{ name }}-help'{% else %}null{% endif %}
@@ -108,7 +110,7 @@
            {% elif help_text %}
            aria-describedby="field-{{ name }}-help"
            {% endif %}
-           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q" {% if dispatch_field_change %}@input.debounce.150ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% else %}x-model="value"{% endif %}>
+           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q" {% if dispatch_field_change %}@input.debounce.150ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% elif max_chars %}x-model="value"{% endif %}>
     {% if submit_icon %}
       <button type="submit"
               class="field__submit"

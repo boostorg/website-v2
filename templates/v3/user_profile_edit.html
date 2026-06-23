@@ -20,13 +20,16 @@
             <span class="card__title">Profile</span>
           </div>
           <hr class="card__hr" aria-hidden="true" />
-          <div class="card__column user-profile__xl-space-col px-large">
+          <div class="card__column user-profile__xl-space-col px-large"
+               x-data="profileEditCounters()"
+               @input="onTaglineInput($event)"
+               @wysiwyg-update="onWysiwygUpdate($event)">
             <div class="user-profile__default-space-col user-profile__field-counter-wrap">
-              <span class="field__counter" aria-hidden="true">70 left</span>
-              {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.tagline %}
+              <span class="field__counter" aria-hidden="true" x-text="(70 - taglineLength) + ' left'">70 left</span>
+              {% include 'v3/includes/_field_text.html' with name=user_profile_form.tagline.name value=user_profile_form.tagline.value|default_if_none:'' label=user_profile_form.tagline.label type='text' maxlength=70 help_text=user_profile_form.tagline.help_text placeholder='Placeholder' only %}
             </div>
             <div class="user-profile__default-space-col user-profile__field-counter-wrap">
-              <span class="field__counter" aria-hidden="true">20,000 left</span>
+              <span class="field__counter" aria-hidden="true" x-text="(20000 - contentLength).toLocaleString() + ' left'">20,000 left</span>
               <span class="field__label">Biography</span>
               {% include 'v3/includes/_wysiwyg_editor.html' with textarea_id='id_content' textarea_name='content' label='Biography' preset='bio' help_text='This text field supports Markdown and this content is what will appear on your public profile' only %}
             </div>
@@ -224,5 +227,29 @@
     } else {
       init()
     }
+  </script>
+
+  <script>
+    // Live "N left" counters for the Tagline (plain input, native maxlength cap)
+    // and Biography (WYSIWYG). The biography count is driven by the editor's
+    // `wysiwyg-update` event (detail.characters = plain-text length); the tagline
+    // count reads the input value directly.
+    document.addEventListener('alpine:init', () => {
+      window.profileEditCounters = function () {
+        return {
+          taglineLength: {{ user_profile_form.tagline.value|default_if_none:''|length }},
+          contentLength: 0,
+          onTaglineInput(e) {
+            if (e.target && e.target.name === 'tagline') {
+              this.taglineLength = e.target.value.length
+            }
+          },
+          onWysiwygUpdate(e) {
+            if (!e.detail || e.detail.id !== 'id_content') return
+            this.contentLength = e.detail.characters
+          },
+        }
+      }
+    })
   </script>
 {% endblock %}

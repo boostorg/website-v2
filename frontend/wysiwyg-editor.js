@@ -946,7 +946,7 @@ export const initWysiwyg = (textareaId) => {
     form.addEventListener("submit", syncTextarea, true);
   }
 
-  // ── Bridge to the host page (e.g. the create-post Alpine form) ──────────
+  // ── Bridge to the host page (e.g. the create-post / profile-edit Alpine form) ──
   // Emit content + plain-text char count on every change so the page can drive
   // a char counter, a Saving/Saved indicator, and localStorage persistence.
   // `programmatic: true` flags updates the user didn't make (initial load /

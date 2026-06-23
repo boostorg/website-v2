@@ -139,6 +139,14 @@
     color: var(--color-text-primary);
 }
 
+/* The two-column edit layout height-constrains field rows, which squeezes the
+   flex-item .field__control below its 40px `height` down to content height.
+   Floor it so inputs keep their intended height regardless of the layout. */
+.user-profile__container .field__control {
+    min-height: 40px;
+    flex-shrink: 0;
+}
+
 .user-profile__profile-edit-card .card__hr:not(:first-of-type):not(:last-of-type) {
     margin: var(--space-default) 0
 }
