@@ -149,6 +149,18 @@ class Version(models.Model):
             raise BoostImportedDataException(msg)
         return diffs
 
+    def get_dependency_stats(self):
+        """Return aggregate added/removed dependency counts for this version."""
+        diffs = self.get_dependency_diffs()
+        added = [len(x["added"]) for x in diffs.values() if x["added"]]
+        removed = [len(x["removed"]) for x in diffs.values() if x["removed"]]
+        return {
+            "added": sum(added),
+            "removed": sum(removed),
+            "increased_dep_lib_count": len(added),
+            "decreased_dep_lib_count": len(removed),
+        }
+
     @cached_property
     def display_name(self):
         return self.name.replace("boost-", "")

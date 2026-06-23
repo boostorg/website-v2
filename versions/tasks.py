@@ -30,6 +30,7 @@ from libraries.github import LibraryUpdater
 from libraries.models import Library, LibraryVersion
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
 from libraries.utils import version_within_range
+from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 from versions.releases import (
     store_release_notes_for_in_progress,
@@ -645,7 +646,14 @@ WHATS_NEW_SYSTEM_PROMPT = dedent(
     Return a maximum of 5 bullets, each with a bold category label,
     and a single sentence of no more than 20 words
     Do not use emoji anywhere in the output
-    Do not name or highlight specific libraries — speak to the ecosystem as a whole
+    Wrap every code identifier (variable, function, type, macro, or template
+    name) you mention from the release note in Markdown inline code with
+    single backticks — apply it to each identifier on each occurrence, in
+    any bullet, with no per-section or per-bullet cap; do not backtick
+    library names or general phrases
+    Do not name or highlight specific libraries — speak to the ecosystem as a
+    whole. The Dependencies bullet may name up to two libraries when one or
+    two libraries clearly drive the story; otherwise stay ecosystem-level.
     Only include a bullet if there is relevant content in the release note to
     support it
     Omit any category that has no relevant content — do not pad or fabricate
@@ -653,16 +661,43 @@ WHATS_NEW_SYSTEM_PROMPT = dedent(
 
     New libraries — how many new libraries were added and what they broadly cover
     Performance improvements — notable speed, memory, or compile time gains across the release
-    Dependencies — notable changes to library dependencies, removals, or newly introduced requirements
+    Dependencies — notable changes to library dependencies, removals, or newly introduced requirements. Leverage precomputed dependency stats when available.
     Security & reliability — bug fixes, security updates, and stability improvements
     Developer experience — constexpr support, tooling improvements, or better error handling
 
-    Input: release note
+    Inputs:
+    - "release note" — plain-text release note (always provided)
+    - "Dependency stats" — optional precomputed counts of added/removed
+      dependencies and the number of libraries affected; when present, use
+      these numbers verbatim in the Dependencies bullet
 
     Output: Return only the Markdown unordered list. No preamble, no
     explanation, no additional commentary.
     """
 ).strip()
+
+
+def _dependency_stats_block(version: Version) -> str | None:
+    """Return a short text block describing dep-add/remove counts, or None.
+
+    Skipped when imported library data is missing or every diff is empty so
+    the prompt does not surface a "0 added, 0 removed" bullet.
+    """
+    try:
+        stats = version.get_dependency_stats()
+    except BoostImportedDataException:
+        return None
+
+    if stats["added"] == 0 and stats["removed"] == 0:
+        return None
+
+    return dedent(
+        f"""
+        Dependency stats (precomputed from imported data):
+        - Added: {stats["added"]} dependency additions across {stats["increased_dep_lib_count"]} libraries
+        - Removed: {stats["removed"]} dependency removals across {stats["decreased_dep_lib_count"]} libraries
+        """
+    ).strip()
 
 
 def _release_note_text(rendered_content) -> str:
@@ -715,16 +750,23 @@ def generate_whats_new(self, version_pk: int) -> str | None:
         )
         release_note_text = release_note_text[:WHATS_NEW_MAX_INPUT_CHARS]
 
+    dep_stats_block = _dependency_stats_block(version)
+    if dep_stats_block:
+        user_content = f"release note:\n\n{release_note_text}" f"\n\n{dep_stats_block}"
+    else:
+        user_content = release_note_text
+
     logger.info(
         "generate_whats_new_dispatching",
         version_pk=version_pk,
         version_name=version.name,
         input_chars=len(release_note_text),
+        dep_stats_included=bool(dep_stats_block),
     )
 
     messages = [
         {"role": "system", "content": WHATS_NEW_SYSTEM_PROMPT},
-        {"role": "user", "content": release_note_text},
+        {"role": "user", "content": user_content},
     ]
     client = OpenAI(base_url=OPENROUTER_URL, api_key=OPENROUTER_API_KEY)
     try:

@@ -1,8 +1,7 @@
-from textwrap import dedent
-
 import structlog
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models.query import QuerySet
+from enum import Enum
 from itertools import groupby
 from operator import attrgetter
 
@@ -12,6 +11,7 @@ from django.views import View
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, TemplateView, ListView
 from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib import messages
 from django.conf import settings
 from django.utils.decorators import method_decorator
@@ -134,15 +134,7 @@ class VersionDetail(
             return {}
 
     def get_library_version_dependencies(self, version: Version):
-        diffs = version.get_dependency_diffs()
-        added = [len(x["added"]) for x in diffs.values() if x["added"]]
-        removed = [len(x["removed"]) for x in diffs.values() if x["removed"]]
-        return {
-            "added": sum(added),
-            "removed": sum(removed),
-            "increased_dep_lib_count": len(added),
-            "decreased_dep_lib_count": len(removed),
-        }
+        return version.get_dependency_stats()
 
     def get_top_contributors_release(self, version: Version):
         version_commits = Commit.objects.filter(library_version__version=version)
@@ -164,87 +156,70 @@ class VersionDetail(
         except RenderedContent.DoesNotExist:
             return
 
-    def get_version_heading(self, obj, is_current_release):
+    class VersionHeadingEnum(Enum):
+        NEWEST_RELEASE = "Newest Release"
+        LATEST_RELEASE = "Latest Release"
+        BETA_RELEASE = "Beta Release"
+        PRIOR_RELEASE = "Prior Release"
+        DEVELOPMENT_BRANCH = "Development Branch"
+
+    def get_version_heading(self, obj, is_current_release, v3=False):
         """Returns the heading of the versions template"""
         if is_current_release:
-            return "Newest Release"
+            heading = (
+                self.VersionHeadingEnum.LATEST_RELEASE
+                if v3
+                else self.VersionHeadingEnum.NEWEST_RELEASE
+            )
         elif all([not is_current_release, obj.beta]):
-            return "Beta Release"
+            heading = self.VersionHeadingEnum.BETA_RELEASE
         elif all([obj.full_release, not is_current_release]):
-            return "Prior Release"
+            heading = self.VersionHeadingEnum.PRIOR_RELEASE
         else:
-            return "Development Branch"
+            heading = self.VersionHeadingEnum.DEVELOPMENT_BRANCH
+        return heading.value
+
+    def get_v3_contributors(self, version):
+        """Shape the release's top contributors for the v3 contributors card."""
+        return [
+            author.to_v3_profile_dict("Contributor")
+            for author in self.get_top_contributors_release(version)
+        ]
 
     def get_v3_context_data(self, **kwargs):
         obj = self.object
-        ctx = {}
-        ctx["hero_title"] = f"Latest release ({obj.display_name})"
-        ctx["whats_new_heading"] = f"What's new in {obj.display_name}"
-        ctx["whats_new_items"] = [
-            {
-                "title": "Asio: Major Executor & Reactor Overhaul",
-                "description": "New inline executor model, improved cancellation, expanded epoll configuration, and numerous correctness + performance fixes.",
-            },
-            {
-                "title": "Container: Complete deque Rebuild",
-                "description": "A modern, faster, drastically smaller deque implementation that simplifies future optimizations and resolves multiple long-standing issues.",
-            },
-            {
-                "title": "Redis: Major Redesign of Cancellation & Connection Behavior",
-                "description": "True per-operation cancellation, deprecated old mechanisms, smarter health checking, and guaranteed Valkey compatibility.",
-            },
-            {
-                "title": "Math: Brand-New Reverse-Mode Automatic Differentiation Library",
-                "description": "Adds full AD capabilities to Boost.Math, enabling modern ML/scientific workflows directly within Boost.",
-            },
-            {
-                "title": "Geometry: New is_valid for Polyhedral Surfaces + Performance Fixes",
-                "description": "A major algorithm addition, improved conversion support, and fixes to reduce compile times and avoid stack overflows.",
-            },
-        ]
-        ctx["release_notes"] = {
-            "title": f"Release notes version {obj.display_name}",
-            "html": dedent(
-                """\
-                <h2>Dependencies</h2>
-                <p>There was 1 dependency added (in 1 library) and 16 dependencies removed (in 10 libraries) this release.</p>
-                <ul>
-                <li><a href="https://www.boost.org">Official Site</a></li>
-                <li><a href="https://www.boost.org/doc/libs/master/">Documentation (master branch)</a></li>
-                <li><a href="https://www.boost.org">Autobahn|Testsuite WebSocket Results</a></li>
-                </ul>
-                <h2>New Libraries</h2>
-                <p><strong>OpenMethod:</strong></p>
-                <ul>
-                <li>Open-(multi-)methods in C++17 and above, from Jean-Louis Leroy.</li>
-                </ul>
-                <h2>Updated Libraries</h2>
-                <p><strong>Asio</strong></p>
-                <ul>
-                <li>Added the execution::inline_exception_handling property to describe what exception handling guarantees are made when execution occurs inline.</li>
-                <li>Added inline_executor, which always executes the submitted function inline.</li>
-                <li>Changed the default candidate executor for associated_executor from system_executor to inline_executor.</li>
-                <li>Added the inline_or_executor&lt;&gt; adapter and inline_or() helper, which will execute inline if possible and otherwise delegate to another executor.</li>
-                <li>Added overloads of dispatch, post and defer that take a function object to be run on the target executor, and deliver the result to the completion handler.</li>
-                <li>Added the redirect_disposition completion token adapter, as a generic counterpart for redirect_error.</li>
-                <li>Annotated deprecated items with the [[deprecated]] attribute.</li>
-                <li>Added a new configuration parameter "reactor" / "reset_edge_on_partial_read", which determines whether a partial read consumes the edge when using epoll.</li>
-                <li>Added the missing preprocessor check for BOOST_ASIO_DISABLE_TIMERFD.</li>
-                <li>Implemented a compile-time feature detection mechanism for io_uring.</li>
-                </ul>"""
+        is_current_release = self.extra_context["current_version"] == obj
+        heading = self.get_version_heading(obj, is_current_release, v3=True)
+        is_development_branch = (
+            heading == self.VersionHeadingEnum.DEVELOPMENT_BRANCH.value
+        )
+
+        ctx = {
+            "hero_title": f"{heading} ({obj.display_name})",
+            "is_development_branch": is_development_branch,
+            "whats_new_heading": f"What's new in {obj.display_name}",
+            "whats_new_approved": obj.whats_new_approved,
+            "whats_new_items": obj.whats_new_items if obj.whats_new_approved else [],
+            "contributors_guide_url": reverse(
+                "docs-user-guide",
+                kwargs={"content_path": "contributor-guide/contributors-faq.html"},
+            ),
+            "release_process_url": reverse(
+                "docs-user-guide",
+                kwargs={"content_path": "user-guide/release-process.html"},
             ),
         }
-        top_contributors = self.get_top_contributors_release(obj)
-        if top_contributors:
-            ctx["v3_contributors"] = [
-                {
-                    "name": author.display_name,
-                    "avatar_url": author.avatar_url or "",
-                    "profile_url": author.github_profile_url or "",
-                    "role": "Contributor",
-                }
-                for author in top_contributors
-            ]
+
+        release_notes_html = self.get_release_notes(obj)
+        if release_notes_html:
+            ctx["release_notes"] = {
+                "title": f"Release notes version {obj.display_name}",
+                "html": release_notes_html,
+            }
+
+        contributors = self.get_v3_contributors(obj)
+        if contributors:
+            ctx["v3_contributors"] = contributors
         return ctx
 
     def dispatch(self, request, *args, **kwargs):

@@ -19,11 +19,15 @@
   Usage:
     Extend this template and override {% block card_list %} to render items.
     See _event_card.html and _post_card.html for examples.
+    {% block card_header %} wraps the heading and can be overridden to add
+    elements alongside it (see _release_highlights_card.html).
 {% endcomment %}
 {% if heading or items %}
   <section class="card-group card-group--{{ variant|default:'list' }}{% if variant == 'card' %} card-group--{{ theme|default:'default' }}{% endif %} card-group--{{ layout|default:'vertical' }}"{% if heading %} aria-labelledby="card-group-{{ heading|slugify }}"{% endif %}>
     {% if heading %}
+      {% block card_header %}
       <h2 class="card-group__heading" id="card-group-{{ heading|slugify }}">{% if heading_url %}<a href="{{ heading_url }}">{{ heading }}</a>{% else %}{{ heading }}{% endif %}</h2>
+      {% endblock %}
     {% endif %}
     {% block card_list %}
       {# Consumers will fill this block with their item loop #}

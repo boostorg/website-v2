@@ -1,16 +1,32 @@
 {% comment %}
-    Banner component for displaying alerts and other information on the screen.
-    Inputs:
-        Required:
-            banner_message, HTML content: Message to be displayed in the banner.
-        Optional:
-            icon_name, string: name of an icon to be displayed. See includes/icon.html for options
-            fate_time, number: time in ms after which the banner should fade. See animation.css for more info
+  V3 Banner — amber alert with optional icon, optional auto-fade, and a built-in close (X) button.
+
+  Dismissal persists in sessionStorage under `banner-{{ dismiss_key }}` (via
+  @alpinejs/persist) when dismiss_key is set; otherwise it is in-memory only.
+  When JS is disabled, the banner is always visible and the close button does not render.
+
+  Variables:
+    banner_message  (required) — HTML message body; passed through |safe.
+    icon_name       (optional) — leading icon name. See includes/icon.html.
+    fade_time       (optional) — milliseconds after which the banner auto-fades. See animations.css.
+    dismiss_key     (optional) — unique key scoping the dismissed-state in sessionStorage.
+
+  Usage:
+    {% include "v3/includes/_banner.html" with banner_message="Heads up!" icon_name="alert" dismiss_key="my-banner" %}
 {% endcomment %}
 
-<div class="banner{% if fade_time %} banner--fade{% endif %}" role="alert" {% if fade_time %}style="--fade-delay: {{fade_time}}ms"{% endif %}>
-    {% if icon_name %}
-    {% include 'includes/icon.html' with icon_name=icon_name icon_class="banner__icon" icon_size=16 %}
-    {% endif %}
-    <span class="banner__message">{{banner_message|safe}}</span>
+<div class="banner{% if fade_time %} banner--fade{% endif %}"
+     role="alert"
+     x-data="{ visible: {% if dismiss_key %}$persist(true).using(sessionStorage).as('banner-{{ dismiss_key }}'){% else %}true{% endif %} }"
+     x-show="visible"
+     {% if fade_time %}style="--fade-delay: {{fade_time}}ms"{% endif %}>
+    <div class="banner__body">
+        {% if icon_name %}
+        {% include 'includes/icon.html' with icon_name=icon_name icon_class="banner__icon" icon_size=16 %}
+        {% endif %}
+        <span class="banner__message">{{banner_message|safe}}</span>
+    </div>
+    <button type="button" class="banner__close" @click="visible = false" aria-label="Dismiss notice" x-cloak>
+        {% include 'includes/icon.html' with icon_name="close" icon_class="banner__close-icon" icon_size=16 %}
+    </button>
 </div>

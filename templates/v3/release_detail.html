@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% comment %}
+V3 release detail page for a single Boost version (/releases/<version>/).
+Renders the hero, "what's new" highlights, downloads, release notes, contributors,
+and community/resource cards. Context is supplied by versions.views.VersionDetail.
+{% endcomment %}
 {% load static custom_static %}
 
 {% block title %}Boost {{ version.display_name }}{% endblock %}
@@ -14,12 +19,14 @@
 {% block content %}
   {% if selected_version %}
 
-  {% include "v3/includes/_hero_library.html" with title=hero_title doc_url=documentation_url slack_url="#" source_url=version.github_url github_url="https://github.com/boostorg/boost/issues" only %}
+  {% url 'downloads_feed_rss' as downloads_feed_rss_url %}
+  {% include "v3/includes/_hero_library.html" with title=hero_title doc_url=documentation_url slack_url="https://cppalliance.org/slack/" source_url=version.github_url github_url="https://github.com/boostorg/boost/issues" rss_url=downloads_feed_rss_url version_alert=version_alert version_alert_message=version_alert_message selected_version=selected_version only %}
 
   <div class="release-detail">
-
     <div class="release-detail__cards-row">
-      {% include "v3/includes/_release_highlights_card.html" with heading=whats_new_heading items=whats_new_items only %}
+      {% if not is_development_branch %}
+        {% include "v3/includes/_release_highlights_card.html" with heading=whats_new_heading items=whats_new_items header_action_label="Release Report" header_action_url=release_report_url header_action_icon="file-multiple" only %}
+      {% endif %}
       {% include "v3/includes/_downloads_table_card.html" with downloads=downloads %}
     </div>
 
@@ -36,9 +43,10 @@
     <section class="release-detail__bottom-cards" aria-label="Community and resources">
       {% include "v3/includes/_mailing_list_card.html" with subscribe_url=mailing_list_card_subscribe_url list_id=mailing_list_card_list_id state=mailing_list_card_state user_email=mailing_list_card_user_email manage_url=mailing_list_card_manage_url subscription_count=mailing_list_card_subscription_count error_message=mailing_list_card_error_message %}
 
-      {% include "v3/includes/_basic_card.html" with title="Want to fix bugs, review code, maintain libraries, and propose new features?" text="Read our contributors guide and join the Boost community." primary_button_url="/contribute" primary_button_label="Start here" primary_button_style="green" theme="green" only %}
+      {% include "v3/includes/_basic_card.html" with title="Want to fix bugs, review code, maintain libraries, and propose new features?" text="Read our contributors guide and join the Boost community." primary_button_url=contributors_guide_url primary_button_label="Start here" primary_button_style="green" theme="green" only %}
+
       {% large_static 'img/v3/home-page/heros.png' as image_url %}
-      {% include "v3/includes/_media_text_card.html" with text="Boost is publicly released three times a year in April, August, and December. Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." image_url=image_url button_url="/releases" button_label="Read release process" %}
+      {% include "v3/includes/_media_text_card.html" with text="Boost is publicly released three times a year in April, August, and December. Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." image_url=image_url button_url=release_process_url button_label="Read release process" %}
     </section>
 
   </div>

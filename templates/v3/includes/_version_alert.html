@@ -1,0 +1,19 @@
+{% comment %}
+  V3 Version Alert — warns when the user is viewing a non-current Boost version
+  (sticky-latest / beta / older release / dev branch). Wraps v3/includes/_banner.html.
+
+  The message itself is built in VersionAlertMixin.get_version_alert_message so
+  the branching and link markup live in Python rather than in template string
+  concatenation.
+
+  Variables (read from context, populated by VersionAlertMixin + BoostVersionMixin):
+    version_alert          (required) — boolean; renders nothing when falsy.
+    version_alert_message  (required) — pre-built, safe HTML message string.
+    selected_version       (required) — the Version the user is viewing (scopes dismiss key).
+
+  Usage:
+    {% include "v3/includes/_version_alert.html" %}
+{% endcomment %}
+{% if version_alert and version_alert_message %}
+  {% include "v3/includes/_banner.html" with banner_message=version_alert_message icon_name="alert" dismiss_key="version-alert-"|add:selected_version.slug %}
+{% endif %}
