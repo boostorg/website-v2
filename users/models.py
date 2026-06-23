@@ -261,6 +261,17 @@ class User(BaseUser):
         default=False,
         help_text="Indicate on the login page the last login method used.",
     )
+    tagline = models.CharField(
+        max_length=70,
+        blank=True,
+        default="",
+        help_text="Short plain-text tagline shown beside the avatar across the site.",
+    )
+    biography = models.TextField(
+        blank=True,
+        default="",
+        help_text="Rich-text biography (sanitized HTML) shown on the public profile.",
+    )
     # If non-null, the user has requested deletion but the grace period has not
     # elapsed.
     delete_permanently_at = models.DateTimeField(null=True, editable=False)

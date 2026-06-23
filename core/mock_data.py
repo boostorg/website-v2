@@ -234,7 +234,7 @@ int main()
             "author": {
                 "name": "Prof. Sven G. Bilén, Ph.D.",
                 "profile_url": "#",
-                "avatar_url": large_static("img/v3/demo_page/avatar.png"),
+                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                 "role": "The Pennsylvania State University",
                 "badge": BadgeToken.TIER_3,
             },
