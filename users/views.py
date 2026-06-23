@@ -663,6 +663,8 @@ class V3AuthContextMixin(V3Mixin):
             "img/v3/auth-page/auth-page-background.png"
         )
         context["login_url"] = reverse_lazy("v3-login")
+        # TODO: Switch to "v3-login" when it's ready.
+        context["login_url"] = reverse_lazy("account_login")
         context["signup_url"] = reverse_lazy("v3-signup")
         context["password_reset_url"] = reverse_lazy("v3-password-reset")
         return context
