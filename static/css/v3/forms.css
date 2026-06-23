@@ -20,6 +20,25 @@
   color: var(--color-text-primary);
 }
 
+.field__label-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+}
+
+.field__max-chars {
+  color: var(--color-text-primary);
+  padding-right: 10px;
+
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
 .field__control {
   display: flex;
   align-items: center;
@@ -311,7 +330,7 @@
   border-bottom-right-radius: 0;
 }
 
-.dropdown--disabled .dropdown__trigger{
+.dropdown--disabled .dropdown__trigger {
   color: var(--color-text-tertiary);
   background: var(--color-surface-mid);
   cursor: not-allowed;

@@ -108,10 +108,6 @@ class CurrentUserProfileView(
         if self.request.GET.get("edit", "").lower() == "true":
             ctx["user_profile_form"] = V3UserProfileForm(
                 user_links={"website": "www.example.com"},
-                commit_emails=[
-                    "example1@example.com",
-                    "example2@example.com",
-                ],
                 initial={"avatar": self.request.user.avatar_url},
             )
             ctx["badge_tiers"] = [

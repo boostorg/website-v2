@@ -37,6 +37,7 @@
                 {% include 'v3/includes/_form_include.html' with form=form only %}
               {% endfor %}
             </div>
+            <div class="field__help">All links will be displayed publicly on your profile for other users to see.</div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
@@ -47,9 +48,9 @@
             <div class="user-profile__default-space-col">
               <span class="field__label">Avatar</span>
               <div class="user-profile__avatar-row">
-                <span id="user-profile-editable-avatar" class="avatar avatar--xxxl" aria-hidden="true"><img src="{{user_profile_form.avatar.value}}" class="avatar avatar--xxl avatar__img" alt="" loading="lazy" decoding="async" /></span>
+                <span id="user-profile-editable-avatar" class="avatar avatar--xxxl" aria-hidden="true"><img src="{{ user_profile_form.avatar.value }}" class="avatar avatar--xxl avatar__img" alt="" loading="lazy" decoding="async" /></span>
                 <input type="checkbox" id="user-profile__avatar-row-checkbox" name="avatar-row-checkbox" class="badge-button__radio" />
-                {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name extra_class="user-profile__empty-avatar-input" accept='image/png,image/jpeg' only %}
+                {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name extra_class='user-profile__empty-avatar-input' accept='image/png,image/jpeg' only %}
                 <div class="user-profile__default-space-col user-profile__default-avatar-buttons">
                   <label for="user-profile__avatar-row-checkbox" class="btn btn-primary">Replace Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
                   <input type="checkbox" id="user-profile__avatar-row-checkbox" name="{{ user_profile_form.delete_avatar.name }}" class="badge-button__radio" />
@@ -170,10 +171,6 @@
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.allow_notification_others_news_posted only %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
-          <div class="card__column px-large">
-            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.allow_notification_terms_updated only %}
-          </div>
-          <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
             {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save Changes' only %}
           </div>
@@ -199,19 +196,24 @@
       })
 
     const init = () => {
-      const fileInput = document.querySelector("input[name='{{user_profile_form.avatar.name}}']")
+      const fileInput = document.querySelectorAll("input[name='{{user_profile_form.avatar.name}}']")
       const avatarComponent = document.querySelector('#user-profile-editable-avatar')
       const avatarRowClose = document.querySelector('#avatar-row__close-button')
       const avatarImg = avatarComponent.querySelector('img')
       const avatarDelete = document.querySelector('#avatar-row__delete-avatar')
 
-      fileInput.addEventListener('change', (e) => {
-        const imageFile = fileDataURL(e.target.files[0]).then((data) => {
-          if (avatarImg !== null) avatarImg.src = data
+      fileInput.forEach((el) => {
+        el.addEventListener('change', (e) => {
+          const imageFile = fileDataURL(e.target.files[0]).then((data) => {
+            if (avatarImg !== null) avatarImg.src = data
+          })
         })
       })
       avatarRowClose.addEventListener('click', () => {
-        fileInput.value = ''
+        fileInput.forEach((el)=> {
+          el.value = '';
+          Alpine.$data(el)['fileName'] = '';
+        })
         if (avatarImg !== null) avatarImg.src = originalSrc
       })
     }

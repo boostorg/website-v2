@@ -197,7 +197,9 @@ V3ProfileLinkFormset = forms.formset_factory(V3ProfileLinkForm, extra=0)
 
 
 class V3CommitEmailForm(forms.Form):
-    email = forms.EmailField(max_length=80)
+    email = forms.EmailField(
+        max_length=80, widget=forms.EmailInput(attrs={"placeholder": "abc@example.com"})
+    )
 
 
 V3CommitEmailFormSet = forms.formset_factory(V3CommitEmailForm, extra=0)
@@ -242,7 +244,9 @@ class V3UserProfileForm(forms.Form):
     tagline = forms.CharField(
         max_length=70,
         help_text="This tagline is displayed next to your avatar on your profile & across the site",
-        widget=forms.TextInput(attrs={"placeholder": "Placeholder"}),
+        widget=forms.TextInput(
+            attrs={"placeholder": "Placeholder", "display_max_chars": True}
+        ),
     )
     bio = forms.CharField(
         max_length=4000,
@@ -282,7 +286,9 @@ class V3UserProfileForm(forms.Form):
         max_length=80, widget=forms.TextInput(attrs={"placeholder": "Placeholder"})
     )
     email = forms.EmailField(
-        max_length=80, widget=forms.TextInput(attrs={"placeholder": "Placeholder"})
+        max_length=80,
+        widget=forms.TextInput(attrs={"placeholder": "Placeholder"}),
+        disabled=True,
     )
     country = forms.ChoiceField(choices=[])
     indicate_last_login_method = forms.BooleanField(
@@ -318,9 +324,5 @@ class V3UserProfileForm(forms.Form):
         choices=NEWS_ENTRY_CHOICES,
         widget=forms.widgets.CheckboxSelectMultiple,
         label="Other users publish their news",
-        required=False,
-    )
-    allow_notification_terms_updated = forms.BooleanField(
-        label="The sites terms of use or privacy policy are changed",
         required=False,
     )

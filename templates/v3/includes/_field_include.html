@@ -10,9 +10,9 @@
 
 {% with type=bound_field.widget_type field=bound_field.field widget=bound_field.field.widget %}
   {% if type == 'email' %}
-    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.value type='email' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder only %}
+    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.value type='email' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder validate_type="email" only %}
   {% elif type == 'text' %}
-    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.value type='text' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder only %}
+    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.value type='text' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder max_chars=field.max_length display_max_chars=widget.attrs.display_max_chars only %}
   {% elif type == 'checkbox' %}
     {% include 'v3/includes/_field_checkbox.html' with name=bound_field.name label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text checked=bound_field.value only %}
   {% elif type == 'checkboxselectmultiple' %}

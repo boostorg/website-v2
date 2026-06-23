@@ -1,27 +1,30 @@
 {% comment %}
   V3 text input field.
   Variables:
-    name             (required) — input name attribute
-    label            (optional) — label text
-    placeholder      (optional) — placeholder text
-    value            (optional) — pre-filled value; with submit_icon, also seeds the Alpine x-model state so it survives init
-    type             (optional) — input type, default "text"
-    help_text        (optional) — help text below the field
-    error            (optional) — static server-side error message, rendered on page load
-    alpine_error     (optional) — Alpine expression that resolves to an error string for dynamic
-                       server-driven errors without a page reload (e.g. "errors.title")
-    validate_type    (optional) — client-side validation before submit, currently supports "email"
-    validate_error   (optional) — error message shown when validate_type check fails
-    icon_left        (optional) — icon name for left slot (e.g. "search")
-    icon_right       (optional) — icon name for a decorative right-slot icon (non-interactive); mutually exclusive with submit_icon
-    submit_icon      (optional) — icon name for a submit button in the right slot (e.g. "arrow-right")
-    submit_label     (optional) — aria-label for the submit button, default "Submit"
-    dispatch_field_change (optional) — when truthy (requires submit_icon), dispatches a debounced
-                       `field-change` event (`{ name, value }`) on each keystroke, matching the
-                       dropdown/combo pattern so parent filter components can react live.
-    required         (optional) — if truthy, adds required attribute
-    disabled         (optional) — if truthy, adds disabled attribute
-    extra_class      (optional) — additional classes on the wrapper
+    name                    (required) —  input name attribute
+    label                   (optional) —  label text
+    placeholder             (optional) —  placeholder text
+    value                   (optional) —  pre-filled value; with submit_icon, also seeds the Alpine x-model state so it survives init
+    type                    (optional) —  input type, default "text"
+    help_text               (optional) —  help text below the field
+    error                   (optional) —  static server-side error message, rendered on page load
+    alpine_error            (optional) —  Alpine expression that resolves to an error string for dynamic
+                                          server-driven errors without a page reload (e.g. "errors.title")
+    validate_type           (optional) —  client-side validation before submit, currently supports "email"
+    validate_error          (optional) —  error message shown when validate_type check fails
+    icon_left               (optional) —  icon name for left slot (e.g. "search")
+    icon_right              (optional) —  icon name for a decorative right-slot icon (non-interactive); mutually exclusive with submit_icon
+    submit_icon             (optional) —  icon name for a submit button in the right slot (e.g. "arrow-right")
+    submit_label            (optional) —  aria-label for the submit button, default "Submit"
+    dispatch_field_change   (optional) —  when truthy (requires submit_icon), dispatches a debounced
+                                          `field-change` event (`{ name, value }`) on each keystroke, matching the
+                                          dropdown/combo pattern so parent filter components can react live.
+    required                (optional) —  if truthy, adds required attribute
+    disabled                (optional) —  if truthy, adds disabled attribute
+    extra_class             (optional) —  additional classes on the wrapper
+    display_max_chars       (optional) —  controls whether the max_char limit should be displayed. Requires the following argument as well.
+    max_chars               (optional) —  if provided, will present a maximum length counter on this field. If JS is enabled, this
+                                          field will dynamically show characters left
 
   Error handling:
     error is the base layer for server-side validation and can be combined with either
@@ -56,9 +59,32 @@
     }"
     :class="{ 'field--error': isInvalid || isEmpty }"
     @validate="touched = true"
-    {% elif alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}>
+    {% elif alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"
+    {% elif max_chars %}
+    x-data="{
+      value: '',
+      maxChars: {{max_chars}},
+      get charLeft() {
+        return Number(this.maxChars) - this.value?.length || 0;
+      },
+      get isTooLong() {
+        return this.charLeft < 0;
+      }
+    }"
+    :class="{ 'field--error': isTooLong }"
+    {% endif %}>
   {# djlint:on #}
+  {% if label or display_max_chars %}
+  <div class="field__label-row">
   {% if label %}<label class="field__label" for="field-{{ name }}">{{ label }}</label>{% endif %}
+  {% if max_chars and display_max_chars %}
+    <span
+      class="field__max-chars" x-text="`${charLeft} left`">
+        {{max_chars}} left
+    </span>
+  {% endif %}
+  </div>
+  {% endif %}
   <div class="field__control {% if disabled %}field__control--disabled{% endif %}"
        {% if submit_icon %}x-data="{ q: '{{ value|default:''|escapejs }}' }"{% endif %}>
     {% if icon_left %}
@@ -82,7 +108,7 @@
            {% elif help_text %}
            aria-describedby="field-{{ name }}-help"
            {% endif %}
-           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q" {% if dispatch_field_change %}@input.debounce.150ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% endif %}>
+           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q" {% if dispatch_field_change %}@input.debounce.150ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% else %}x-model="value"{% endif %}>
     {% if submit_icon %}
       <button type="submit"
               class="field__submit"
@@ -99,6 +125,9 @@
   {% if validate_error %}
     <p class="field__error" x-cloak x-show="isInvalid" role="alert">{{ validate_error }}</p>
     <p class="field__error" x-cloak x-show="isEmpty" role="alert">This field is required.</p>
+  {% endif %}
+  {% if max_chars and display_max_chars %}
+    <p class="field__error" x-cloak x-show="isTooLong" role="alert">This field is too long.</p>
   {% endif %}
   {% if alpine_error %}
     <p class="field__error"
