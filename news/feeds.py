@@ -15,7 +15,9 @@ class RSSNewsFeed(Feed):
     description = "Recent news for Boost C++ Libraries."
 
     def items(self):
-        return Entry.objects.filter(published=True).order_by("publish_at")[:100]
+        return Entry.objects.filter(published=True, deleted_at__isnull=True).order_by(
+            "-publish_at"
+        )[:100]
 
     def item_pubdate(self, item):
         """Returns the publish date as a timezone-aware datetime object"""
