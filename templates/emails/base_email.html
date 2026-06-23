@@ -11,6 +11,10 @@
     preferences_url   manage-email-preferences URL (optional, defaults to #)
     unsubscribe_url   unsubscribe URL (optional, defaults to #)
 
+  Body copy uses the platform UI font stack (Segoe UI on Windows, San Francisco
+  on Apple, Roboto on Android) at a light 300 weight; the title, button and
+  footer use Arial.
+
   Child templates override the blocks: preheader, hero, card_title,
   card_body, cta_label and after_card.
 {% endcomment %}<!DOCTYPE html>
@@ -77,7 +81,7 @@
                       <!-- Divider -->
                       <div style="height:1px;line-height:1px;font-size:0;margin:20px 0;background-color:#e2e2e4;">&nbsp;</div>
                       <!-- Body -->
-                      <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#050816;">
+                      <div style="font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:14px;line-height:1.45;color:#050816;">
                         {% block card_body %}{% endblock %}
                       </div>
                       <!-- CTA button -->
@@ -89,7 +93,7 @@
                         </tr>
                       </table>
                       <!-- Fallback URL -->
-                      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.45;color:#71737b;margin:16px 0 0 0;">
+                      <div style="font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:12px;line-height:1.45;color:#71737b;margin:16px 0 0 0;">
                         Or copy and paste this URL into your browser:<br>
                         <a href="{{ action_url|default:'#' }}" style="color:#71737b;text-decoration:underline;word-break:break-all;">{{ action_url|default:'#' }}</a>
                       </div>
