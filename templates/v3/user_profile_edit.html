@@ -22,11 +22,9 @@
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column user-profile__xl-space-col px-large"
                x-data="profileEditCounters()"
-               @input="onTaglineInput($event)"
                @wysiwyg-update="onWysiwygUpdate($event)">
-            <div class="user-profile__default-space-col user-profile__field-counter-wrap">
-              <span class="field__counter" aria-hidden="true" x-text="(70 - taglineLength) + ' left'">70 left</span>
-              {% include 'v3/includes/_field_text.html' with name=user_profile_form.tagline.name value=user_profile_form.tagline.value|default_if_none:'' label=user_profile_form.tagline.label type='text' maxlength=70 help_text=user_profile_form.tagline.help_text placeholder='Placeholder' only %}
+            <div class="user-profile__default-space-col">
+              {% include 'v3/includes/_field_text.html' with name=user_profile_form.tagline.name value=user_profile_form.tagline.value|default_if_none:'' label=user_profile_form.tagline.label type='text' max_chars=70 display_max_chars=True help_text=user_profile_form.tagline.help_text placeholder='Placeholder' only %}
             </div>
             <div class="user-profile__default-space-col user-profile__field-counter-wrap">
               <span class="field__counter" aria-hidden="true" x-text="(20000 - contentLength).toLocaleString() + ' left'">20,000 left</span>
@@ -230,20 +228,13 @@
   </script>
 
   <script>
-    // Live "N left" counters for the Tagline (plain input, native maxlength cap)
-    // and Biography (WYSIWYG). The biography count is driven by the editor's
-    // `wysiwyg-update` event (detail.characters = plain-text length); the tagline
-    // count reads the input value directly.
+    // Live "N left" counter for the Biography (WYSIWYG), driven by the editor's
+    // `wysiwyg-update` event (detail.characters = plain-text length). The Tagline
+    // counter + hard cap are handled natively by _field_text (max_chars).
     document.addEventListener('alpine:init', () => {
       window.profileEditCounters = function () {
         return {
-          taglineLength: {{ user_profile_form.tagline.value|default_if_none:''|length }},
           contentLength: 0,
-          onTaglineInput(e) {
-            if (e.target && e.target.name === 'tagline') {
-              this.taglineLength = e.target.value.length
-            }
-          },
           onWysiwygUpdate(e) {
             if (!e.detail || e.detail.id !== 'id_content') return
             this.contentLength = e.detail.characters
