@@ -10,6 +10,7 @@
     disabled_expr — Alpine expression to conditionally disable the textarea for form submission
     help_text     — Optional help text to explain context
     preset        — toolbar preset: "full" (default) or "minimal" (fewer tools)
+    maxlength     — optional character limit; when set, input is blocked past it (TipTap CharacterCount)
 
   Usage:
     {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_content" textarea_name="content" %}
@@ -18,7 +19,7 @@
 {% load static %}
 
 <div class="wysiwyg-v3-container">
-  <div class="wysiwyg-v3" data-wysiwyg="v3" data-wysiwyg-preset="{{ preset|default:'full' }}" x-data="{ jsReady: false }" x-init="
+  <div class="wysiwyg-v3" data-wysiwyg="v3" data-wysiwyg-preset="{{ preset|default:'full' }}" {% if maxlength %}data-wysiwyg-maxlength="{{ maxlength }}"{% endif %} x-data="{ jsReady: false }" x-init="
       $nextTick(() => {
         autoInit('{{textarea_id}}');
         jsReady = true;

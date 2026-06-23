@@ -1,5 +1,6 @@
 
-import { Editor } from "@tiptap/core";
+import { Editor, Extension } from "@tiptap/core";
+import { Plugin } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Underline from "@tiptap/extension-underline";
@@ -195,7 +196,7 @@ export const debounce = (fn, ms) => {
 };
 
 export const createToolbarButton = (editor, opts) => {
-  const { label, onClick, isActive, title } = opts;
+  const { label, onClick, isActive, isDisabled, title } = opts;
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "wysiwyg-toolbar__btn";
@@ -208,6 +209,12 @@ export const createToolbarButton = (editor, opts) => {
   });
   const updateActive = () => {
     btn.classList.toggle("wysiwyg-toolbar__btn--active", isActive ? isActive() : false);
+    // Optional disabled state (e.g. undo/redo greyed out when no history).
+    if (isDisabled) {
+      const disabled = isDisabled();
+      btn.disabled = disabled;
+      btn.classList.toggle("wysiwyg-toolbar__btn--disabled", disabled);
+    }
   };
   editor.on("selectionUpdate", updateActive);
   editor.on("transaction", updateActive);
@@ -276,6 +283,28 @@ export const ICONS = {
     '<svg width="18" height="18" viewBox="0 0 26 18" fill="currentColor" aria-hidden="true"><path d="M2 2h3l3 4 3-4h3v10h-3V6l-3 4-3-4v6H2V2zm17 0h3l3 5h-2v5h-3V7h-2l4-5z" fill-rule="evenodd"/></svg>',
   preview:
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+};
+
+/*
+Biography toolbar icons, normalized to `currentColor` so they inherit the
+toolbar button colour and active/hover states. Used only by the "bio" toolbar
+preset so the icons on other editors (news, examples) are unchanged.
+*/
+export const BIO_ICONS = {
+  bold:
+    '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M12.7096 9.83464C13.1177 9.58617 13.462 9.24582 13.7152 8.84071C13.9684 8.4356 14.1234 7.97694 14.168 7.5013C14.1757 7.07121 14.0986 6.6438 13.9411 6.2435C13.7837 5.84319 13.5489 5.47783 13.2501 5.16829C12.9514 4.85875 12.5947 4.61109 12.2002 4.43945C11.8058 4.26781 11.3814 4.17556 10.9513 4.16797H5.54297V15.8346H11.3763C11.7856 15.8303 12.19 15.7453 12.5665 15.5847C12.943 15.424 13.2841 15.1908 13.5704 14.8983C13.8567 14.6058 14.0826 14.2597 14.2352 13.8799C14.3878 13.5001 14.464 13.0939 14.4596 12.6846V12.5846C14.4599 12.0072 14.2954 11.4417 13.9854 10.9546C13.6754 10.4675 13.2328 10.0789 12.7096 9.83464ZM7.20964 5.83464H10.7096C11.0648 5.82364 11.4148 5.92154 11.7127 6.11518C12.0106 6.30882 12.2422 6.58895 12.3763 6.91797C12.512 7.35779 12.4681 7.83346 12.2542 8.24101C12.0403 8.64857 11.6737 8.95487 11.2346 9.09297C11.0641 9.14294 10.8873 9.1682 10.7096 9.16797H7.20964V5.83464ZM11.043 14.168H7.20964V10.8346H11.043C11.3981 10.8236 11.7481 10.9215 12.046 11.1152C12.3439 11.3088 12.5755 11.5889 12.7096 11.918C12.8454 12.3578 12.8015 12.8335 12.5875 13.241C12.3736 13.6486 12.0071 13.9549 11.568 14.093C11.3975 14.1429 11.2207 14.1682 11.043 14.168Z"/></svg>',
+  italic:
+    '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.79818 7.5013H11.4648L9.63151 15.8346H7.96484L9.79818 7.5013ZM11.1982 4.16797C11.0334 4.16797 10.8722 4.21684 10.7352 4.30841C10.5982 4.39998 10.4914 4.53013 10.4283 4.6824C10.3652 4.83467 10.3487 5.00223 10.3809 5.16388C10.413 5.32553 10.4924 5.47401 10.6089 5.59056C10.7255 5.7071 10.874 5.78647 11.0356 5.81862C11.1973 5.85078 11.3648 5.83427 11.5171 5.7712C11.6694 5.70813 11.7995 5.60132 11.8911 5.46428C11.9826 5.32724 12.0315 5.16612 12.0315 5.0013C12.0315 4.78029 11.9437 4.56833 11.7874 4.41205C11.6312 4.25577 11.4192 4.16797 11.1982 4.16797Z"/></svg>',
+  underline:
+    '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M15.8346 16.668V18.3346H4.16797V16.668H15.8346ZM13.3346 11.0138C13.3072 11.5638 13.1439 12.0984 12.8594 12.5699C12.5749 13.0414 12.178 13.435 11.7042 13.7157C11.2304 13.9963 10.6945 14.1552 10.1443 14.1781C9.59412 14.2011 9.04681 14.0874 8.5513 13.8471C7.98017 13.6001 7.49581 13.1881 7.16028 12.664C6.82474 12.1399 6.65332 11.5276 6.66797 10.9055V4.17214H5.0013V11.0138C5.0295 11.7983 5.24201 12.5652 5.62165 13.2523C6.00129 13.9394 6.53738 14.5274 7.18653 14.9689C7.83568 15.4103 8.57964 15.6927 9.3582 15.7931C10.1368 15.8936 10.928 15.8093 11.668 15.5471C12.6522 15.2191 13.5062 14.5856 14.1057 13.7388C14.7051 12.8921 15.0189 11.8761 15.0013 10.8388V4.17214H13.3346V11.0138Z"/></svg>',
+  orderedList:
+    '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M2.08203 13.3346H3.7487V13.7513H2.91536V14.5846H3.7487V15.0013H2.08203V15.8346H4.58203V12.5013H2.08203V13.3346ZM2.91536 7.5013H3.7487V4.16797H2.08203V5.0013H2.91536V7.5013ZM2.08203 9.16797H3.58203L2.08203 10.918V11.668H4.58203V10.8346H3.08203L4.58203 9.08464V8.33464H2.08203V9.16797ZM6.2487 5.0013V6.66797H17.9154V5.0013H6.2487ZM6.2487 15.0013H17.9154V13.3346H6.2487V15.0013ZM6.2487 10.8346H17.9154V9.16797H6.2487V10.8346Z"/></svg>',
+  markdown:
+    '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M18.125 3.75H1.875C1.54348 3.75 1.22554 3.8817 0.991117 4.11612C0.756696 4.35054 0.625 4.66848 0.625 5V15C0.625 15.3315 0.756696 15.6495 0.991117 15.8839C1.22554 16.1183 1.54348 16.25 1.875 16.25H18.125C18.4565 16.25 18.7745 16.1183 19.0089 15.8839C19.2433 15.6495 19.375 15.3315 19.375 15V5C19.375 4.66848 19.2433 4.35054 19.0089 4.11612C18.7745 3.8817 18.4565 3.75 18.125 3.75ZM18.125 15H1.875V5H18.125V15ZM10 8.125V11.875C10 12.0408 9.93415 12.1997 9.81694 12.3169C9.69973 12.4342 9.54076 12.5 9.375 12.5C9.20924 12.5 9.05027 12.4342 8.93306 12.3169C8.81585 12.1997 8.75 12.0408 8.75 11.875V9.63359L7.31719 11.0672C7.25914 11.1253 7.19021 11.1714 7.11434 11.2029C7.03846 11.2343 6.95713 11.2505 6.875 11.2505C6.79287 11.2505 6.71154 11.2343 6.63566 11.2029C6.55979 11.1714 6.49086 11.1253 6.43281 11.0672L5 9.63359V11.875C5 12.0408 4.93415 12.1997 4.81694 12.3169C4.69973 12.4342 4.54076 12.5 4.375 12.5C4.20924 12.5 4.05027 12.4342 3.93306 12.3169C3.81585 12.1997 3.75 12.0408 3.75 11.875V8.125C3.7499 8.00132 3.78651 7.88038 3.85517 7.77751C3.92384 7.67464 4.02149 7.59446 4.13576 7.54711C4.25002 7.49977 4.37576 7.48739 4.49707 7.51154C4.61837 7.5357 4.72978 7.59531 4.81719 7.68281L6.875 9.74141L8.93281 7.68281C9.02022 7.59531 9.13163 7.5357 9.25293 7.51154C9.37424 7.48739 9.49998 7.49977 9.61424 7.54711C9.72851 7.59446 9.82616 7.67464 9.89483 7.77751C9.96349 7.88038 10.0001 8.00132 10 8.125ZM16.0672 9.55781C16.1253 9.61586 16.1714 9.68479 16.2029 9.76066C16.2343 9.83654 16.2505 9.91787 16.2505 10C16.2505 10.0821 16.2343 10.1635 16.2029 10.2393C16.1714 10.3152 16.1253 10.3841 16.0672 10.4422L14.1922 12.3172C14.1341 12.3753 14.0652 12.4214 13.9893 12.4529C13.9135 12.4843 13.8321 12.5005 13.75 12.5005C13.6679 12.5005 13.5865 12.4843 13.5107 12.4529C13.4348 12.4214 13.3659 12.3753 13.3078 12.3172L11.4328 10.4422C11.3155 10.3249 11.2497 10.1659 11.2497 10C11.2497 9.83415 11.3155 9.67509 11.4328 9.55781C11.5501 9.44054 11.7091 9.37465 11.875 9.37465C12.0409 9.37465 12.1999 9.44054 12.3172 9.55781L13.125 10.3664V8.125C13.125 7.95924 13.1908 7.80027 13.3081 7.68306C13.4253 7.56585 13.5842 7.5 13.75 7.5C13.9158 7.5 14.0747 7.56585 14.1919 7.68306C14.3092 7.80027 14.375 7.95924 14.375 8.125V10.3664L15.1828 9.55781C15.2409 9.4997 15.3098 9.4536 15.3857 9.42215C15.4615 9.3907 15.5429 9.37451 15.625 9.37451C15.7071 9.37451 15.7885 9.3907 15.8643 9.42215C15.9402 9.4536 16.0091 9.4997 16.0672 9.55781Z"/></svg>',
+  undo:
+    '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M8.66667 7.83203C7.25 8.08203 6 8.58203 4.83333 9.4987L2.5 7.08203V12.9154H8.33333L6.08333 10.6654C9.16667 8.4987 13.4167 9.16536 15.6667 12.2487C15.8333 12.4987 16 12.6654 16.0833 12.9154L17.5833 12.1654C15.75 8.9987 12.25 7.2487 8.66667 7.83203Z"/></svg>',
+  redo:
+    '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M11.3333 7.83203C12.75 8.08203 14 8.58203 15.1667 9.4987L17.5 7.08203V12.9154H11.6667L13.9167 10.6654C10.8333 8.41536 6.58333 9.16536 4.41667 12.2487C4.25 12.4987 4.08333 12.6654 4 12.9154L2.5 12.1654C4.25 8.9987 7.75 7.2487 11.3333 7.83203Z"/></svg>',
 };
 
 
@@ -406,6 +435,16 @@ const TOOLBAR_PRESETS = {
     ],
     right: ["preview", "undo", "redo"],
   },
+  /*
+  Biography editor preset: bold, italic, underline, ordered list, link, markdown
+  on the left; undo / redo on the right. No separators or bullet list. Preview is
+  retained for Markdown-mode preview functionality. The "bio" preset renders
+  BIO_ICONS.
+  */
+  bio: {
+    left: ["bold", "italic", "underline", "orderedList", "markdown"],
+    right: ["preview", "undo", "redo"],
+  },
 };
 
 const buildToolbar = (editor, toolbarEl, preset = "full") => {
@@ -418,21 +457,26 @@ const buildToolbar = (editor, toolbarEl, preset = "full") => {
   // when the `table` tool is present and is removed in initWysiwyg's cleanup.
   const ctx = { mdBtn: null, previewBtn: null, handleDocClick: null };
 
+  // The "bio" preset renders the dedicated bio icon set; other presets keep
+  // their existing glyphs. `bioIcon` returns the bio SVG for bio, else `fallback`.
+  const isBio = preset === "bio";
+  const bioIcon = (key, fallback) => (isBio ? BIO_ICONS[key] : fallback);
+
   const builders = {
     separator: () => createSeparator(),
     heading: () => createHeadingDropdown(editor),
     bold: () => createToolbarButton(editor, {
-      label: "Bold", title: "Bold", html: "<strong>B</strong>",
+      label: "Bold", title: "Bold", html: bioIcon("bold", "<strong>B</strong>"),
       onClick: () => editor.chain().focus().toggleBold().run(),
       isActive: () => editor.isActive("bold"),
     }),
     italic: () => createToolbarButton(editor, {
-      label: "Italic", title: "Italic", html: "<em>I</em>",
+      label: "Italic", title: "Italic", html: bioIcon("italic", "<em>I</em>"),
       onClick: () => editor.chain().focus().toggleItalic().run(),
       isActive: () => editor.isActive("italic"),
     }),
     underline: () => createToolbarButton(editor, {
-      label: "Underline", title: "Underline", html: "<u>U</u>",
+      label: "Underline", title: "Underline", html: bioIcon("underline", "<u>U</u>"),
       onClick: () => editor.chain().focus().toggleUnderline().run(),
       isActive: () => editor.isActive("underline"),
     }),
@@ -447,7 +491,7 @@ const buildToolbar = (editor, toolbarEl, preset = "full") => {
       isActive: () => editor.isActive("bulletList"),
     }),
     orderedList: () => createToolbarButton(editor, {
-      label: "Ordered list", title: "Ordered list", html: ICONS.orderedList,
+      label: "Ordered list", title: "Ordered list", html: bioIcon("orderedList", ICONS.orderedList),
       onClick: () => editor.chain().focus().toggleOrderedList().run(),
       isActive: () => editor.isActive("orderedList"),
     }),
@@ -457,7 +501,7 @@ const buildToolbar = (editor, toolbarEl, preset = "full") => {
       isActive: () => editor.isActive("taskList"),
     }),
     link: () => createToolbarButton(editor, {
-      label: "Link", title: "Insert link", html: ICONS.link,
+      label: "Link", title: "Insert link", html: bioIcon("link", ICONS.link),
       onClick: async () => {
         const result = await openModal("Insert Link", [
           { name: "url", label: "URL", type: "url", placeholder: "https://example.com" },
@@ -564,7 +608,7 @@ const buildToolbar = (editor, toolbarEl, preset = "full") => {
       mdBtn.className = "wysiwyg-toolbar__btn wysiwyg-toolbar__btn--md";
       mdBtn.setAttribute("aria-label", "Markdown");
       mdBtn.setAttribute("title", "Toggle Markdown mode");
-      mdBtn.innerHTML = ICONS.markdown;
+      mdBtn.innerHTML = bioIcon("markdown", ICONS.markdown);
       ctx.mdBtn = mdBtn;
       return mdBtn;
     },
@@ -580,14 +624,17 @@ const buildToolbar = (editor, toolbarEl, preset = "full") => {
       return previewBtn;
     },
     undo: () => createToolbarButton(editor, {
-      label: "Undo", title: "Undo", html: "&#8630;",
+      label: "Undo", title: "Undo", html: bioIcon("undo", "&#8630;"),
       onClick: () => editor.chain().focus().undo().run(),
       isActive: () => false,
+      // Grey out when there is no history to undo.
+      isDisabled: isBio ? () => !editor.can().undo() : undefined,
     }),
     redo: () => createToolbarButton(editor, {
-      label: "Redo", title: "Redo", html: "&#8631;",
+      label: "Redo", title: "Redo", html: bioIcon("redo", "&#8631;"),
       onClick: () => editor.chain().focus().redo().run(),
       isActive: () => false,
+      isDisabled: isBio ? () => !editor.can().redo() : undefined,
     }),
   };
 
@@ -717,6 +764,25 @@ export const initWysiwyg = (textareaId) => {
   if (!toolbarEl || !editorEl) return null;
 
   const preset = wrapper.dataset.wysiwygPreset || "full";
+  const maxlength = Number(wrapper.dataset.wysiwygMaxlength) || 0;
+
+  // Live length of the serialized markdown; kept current by dispatchState.
+  let markdownLength = 0;
+  // Block edits that grow the doc once the markdown is at/over the limit.
+  const MarkdownLengthLimit = Extension.create({
+    name: "markdownLengthLimit",
+    addProseMirrorPlugins() {
+      return [
+        new Plugin({
+          filterTransaction(tr) {
+            if (!tr.docChanged) return true;
+            const grew = tr.doc.content.size > tr.before.content.size;
+            return !(grew && markdownLength >= maxlength);
+          },
+        }),
+      ];
+    },
+  });
 
   /* Ensure toolbar is empty and remove any previous table-context bar after re-init (e.g. Fill demo content) to avoid duplicate bars */
   toolbarEl.innerHTML = "";
@@ -751,6 +817,7 @@ export const initWysiwyg = (textareaId) => {
       Image,
       TaskList,
       TaskItem.configure({ nested: true }),
+      ...(maxlength ? [MarkdownLengthLimit] : []),
     ],
     content: initialContent,
     editorProps: {
@@ -771,20 +838,40 @@ export const initWysiwyg = (textareaId) => {
       handlePaste(_view, event) {
         const pastedText = event.clipboardData?.getData("text/plain") || "";
         if (!pastedText.trim() || !editorRef.current) return false;
-        const trimmed = pastedText.trim();
+
+        // Clamp pasted text to the remaining character budget, mirroring the
+        // native <input maxlength> truncation used elsewhere (e.g. Tagline).
+        let textToInsert = pastedText;
+        if (maxlength) {
+          const remaining = maxlength - markdownLength;
+          if (remaining <= 0) {
+            event.preventDefault();
+            return true;
+          }
+          if (pastedText.length > remaining) {
+            textToInsert = pastedText.slice(0, remaining);
+          }
+        }
+
+        const trimmed = textToInsert.trim();
         const looksLikeMarkdown =
           (!trimmed.startsWith("<") &&
             (/^#|^\*\*|^\- |^\d+\. |^`|^\[|^>|^\||^\- \[ \]|^\- \[x\]/i.test(trimmed) ||
-              /\n```|\n#{1,6}\s|\n\*\*|\n\- |\n\d+\. |\n\|---|\n\- \[ \]/.test(pastedText)));
+              /\n```|\n#{1,6}\s|\n\*\*|\n\- |\n\d+\. |\n\|---|\n\- \[ \]/.test(textToInsert)));
         if (looksLikeMarkdown) {
           try {
             event.preventDefault();
-            const html = parseMarkdownSafe(pastedText);
+            const html = parseMarkdownSafe(textToInsert);
             editorRef.current.chain().focus().insertContent(html).run();
             return true;
           } catch (_) {
             return false;
           }
+        }
+        if (textToInsert !== pastedText) {
+          event.preventDefault();
+          editorRef.current.chain().focus().insertContent(textToInsert).run();
+          return true;
         }
         return false;
       },
@@ -896,7 +983,7 @@ export const initWysiwyg = (textareaId) => {
     form.addEventListener("submit", syncTextarea, true);
   }
 
-  // ── Bridge to the host page (e.g. the create-post Alpine form) ──────────
+  // ── Bridge to the host page (e.g. the create-post / profile-edit Alpine form) ──
   // Emit content + plain-text char count on every change so the page can drive
   // a char counter, a Saving/Saved indicator, and localStorage persistence.
   // `programmatic: true` flags updates the user didn't make (initial load /
@@ -906,12 +993,16 @@ export const initWysiwyg = (textareaId) => {
       ? state.markdownText
       : turndown.turndown(editor.getHTML());
   const dispatchState = (programmatic) => {
+    // `characters` = visible text; `markdownCharacters` = the stored/validated markdown.
+    const value = currentValue();
+    markdownLength = value.length;
     editorEl.dispatchEvent(
       new CustomEvent("wysiwyg-update", {
         detail: {
           id: textareaId,
           characters: editor.state.doc.textContent.length,
-          value: currentValue(),
+          markdownCharacters: value.length,
+          value,
           programmatic: !!programmatic,
         },
         bubbles: true,
