@@ -121,6 +121,24 @@
     width: fit-content;
 }
 
+/* Tagline / Biography "N left" character counter — absolutely positioned at the
+   top-right of the field block, aligned with the label row (per Figma 1644:125663). */
+.user-profile__field-counter-wrap {
+    position: relative;
+}
+
+.user-profile__field-counter-wrap .field__counter {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-family: var(--font-sans);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+}
+
 .user-profile__profile-edit-card .card__hr:not(:first-of-type):not(:last-of-type) {
     margin: var(--space-default) 0
 }

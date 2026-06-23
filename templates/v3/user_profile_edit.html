@@ -21,12 +21,14 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column user-profile__xl-space-col px-large">
-            <div class="user-profile__default-space-col">
+            <div class="user-profile__default-space-col user-profile__field-counter-wrap">
+              <span class="field__counter" aria-hidden="true">70 left</span>
               {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.tagline %}
             </div>
-            <div class="user-profile__default-space-col">
+            <div class="user-profile__default-space-col user-profile__field-counter-wrap">
+              <span class="field__counter" aria-hidden="true">20,000 left</span>
               <span class="field__label">Biography</span>
-              {% include 'v3/includes/_wysiwyg_editor.html' with textarea_id='id_content' textarea_name='content' label='Biography' preset='minimal' help_text='This text field supports Markdown and this content is what will appear on your public profile' only %}
+              {% include 'v3/includes/_wysiwyg_editor.html' with textarea_id='id_content' textarea_name='content' label='Biography' preset='bio' help_text='This text field supports Markdown and this content is what will appear on your public profile' only %}
             </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />

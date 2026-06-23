@@ -135,6 +135,21 @@
   height: 18px;
 }
 
+/* Disabled state (e.g. undo/redo with no available history) — greyed per the
+   Figma bio design (#71737B at ~25% opacity). */
+.wysiwyg-toolbar__btn--disabled,
+.wysiwyg-toolbar__btn:disabled {
+  color: var(--color-text-tertiary, #71737b);
+  opacity: 0.25;
+  cursor: default;
+  pointer-events: none;
+}
+
+.wysiwyg-toolbar__btn--disabled:hover,
+.wysiwyg-toolbar__btn:disabled:hover {
+  background: transparent;
+}
+
 .wysiwyg-toolbar__btn--active {
   background: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard));
   color: var(--color-icon-on-accent, #050816);
