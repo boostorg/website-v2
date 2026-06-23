@@ -1,4 +1,5 @@
 {% extends "v3/includes/_card_group.html" %}
+{% load custom_static whats_new_extras %}
 {% comment %}
   Release Highlights Card — extends _card_group.html to render release highlight items.
   Follows the same pattern as _event_card.html and _post_card.html but for release
@@ -14,10 +15,23 @@
     layout              (string, optional)  — "vertical" or "horizontal", defaults to "vertical"
     primary_cta_label   (string, optional)  — primary CTA button label
     primary_cta_url     (string, optional)  — primary CTA button URL
+    header_action_label (string, optional)  — header action button label (e.g. "Release Report")
+    header_action_url   (string, optional)  — header action button URL; required to show the button
+    header_action_icon  (string, optional)  — icon name for the header action button
 
   Usage:
     {% include "v3/includes/_release_highlights_card.html" with heading="What's new in 1.90.0" items=highlights %}
 {% endcomment %}
+{% block card_header %}
+{% if header_action_url %}
+  <div class="release-highlights__header">
+    {{ block.super }}
+    {% include "v3/includes/_button.html" with icon_position="right" label=header_action_label url=header_action_url style="icon-library" icon_name=header_action_icon icon_size=16 icon_viewbox="0 0 16 16" only %}
+  </div>
+{% else %}
+  {{ block.super }}
+{% endif %}
+{% endblock %}
 {% block card_list %}
 {% if items %}
   <ul class="card-group__list">
@@ -26,11 +40,20 @@
         <article class="release-highlight">
           <h3 class="release-highlight__title">{{ item.title }}</h3>
           {% if item.description %}
-            <p class="release-highlight__description">{{ item.description }}</p>
+            <p class="release-highlight__description">{{ item.description|inline_markdown }}</p>
           {% endif %}
         </article>
       </li>
     {% endfor %}
   </ul>
+{% else %}
+  <p class="release-highlight__placeholder">The summary is being generated, please check back later.</p>
+  <img
+    class="release-highlight__illustration"
+    src="{% large_static 'img/v3/solo-images/capy-hot-tub.png' %}"
+    alt=""
+    loading="lazy"
+    decoding="async"
+  />
 {% endif %}
 {% endblock %}

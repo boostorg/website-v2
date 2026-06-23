@@ -5,6 +5,7 @@ from model_bakery import baker
 from openai import APIError
 
 from core.models import RenderedContent
+from versions.exceptions import BoostImportedDataException
 from versions.tasks import (
     WHATS_NEW_MAX_INPUT_CHARS,
     generate_whats_new,
@@ -17,6 +18,8 @@ SAMPLE_OUTPUT = (
     "scientific computing and modern C++ patterns.\n"
     "- **Performance improvements** — Compile-time and runtime gains "
     "are reported across multiple core components.\n"
+    "- **Dependencies** — 4 additions across 3 libraries, 15 removals "
+    "across 7 libraries, lightening overall compile load.\n"
     "- **Security & reliability** — Several stability and correctness "
     "fixes land in this release.\n"
 )
@@ -51,7 +54,7 @@ def test_generate_whats_new_populates_field(version):
 
     version.refresh_from_db()
     assert version.whats_new == SAMPLE_OUTPUT
-    assert len(version.whats_new_items) == 3
+    assert len(version.whats_new_items) == 4
     assert version.whats_new_generated_at is not None
     # Drafts must not auto-publish.
     assert version.whats_new_approved is False
@@ -93,6 +96,90 @@ def test_save_whats_new_resets_approval(version):
 
     version.refresh_from_db()
     assert version.whats_new_approved is False
+
+
+@pytest.mark.django_db
+def test_generate_whats_new_includes_dependency_stats(version):
+    baker.make(
+        RenderedContent,
+        cache_key=version.release_notes_cache_key,
+        content_type="text/asciidoc",
+        content_original="release notes",
+    )
+
+    stats = {
+        "added": 4,
+        "removed": 15,
+        "increased_dep_lib_count": 3,
+        "decreased_dep_lib_count": 7,
+    }
+    with patch("versions.tasks.Version.get_dependency_stats", return_value=stats):
+        with patch("versions.tasks.OpenAI") as mock_openai:
+            client = mock_openai.return_value
+            client.chat.completions.create.return_value = _mock_openai_response(
+                SAMPLE_OUTPUT
+            )
+            generate_whats_new.run(version.pk)
+
+    sent_messages = client.chat.completions.create.call_args.kwargs["messages"]
+    user_content = next(m["content"] for m in sent_messages if m["role"] == "user")
+    assert "Dependency stats (precomputed from imported data):" in user_content
+    assert "4 dependency additions across 3 libraries" in user_content
+    assert "15 dependency removals across 7 libraries" in user_content
+
+
+@pytest.mark.django_db
+def test_generate_whats_new_omits_dep_stats_when_unavailable(version):
+    baker.make(
+        RenderedContent,
+        cache_key=version.release_notes_cache_key,
+        content_type="text/asciidoc",
+        content_original="release notes",
+    )
+
+    with patch(
+        "versions.tasks.Version.get_dependency_stats",
+        side_effect=BoostImportedDataException("no data"),
+    ):
+        with patch("versions.tasks.OpenAI") as mock_openai:
+            client = mock_openai.return_value
+            client.chat.completions.create.return_value = _mock_openai_response(
+                SAMPLE_OUTPUT
+            )
+            result = generate_whats_new.run(version.pk)
+
+    assert result == SAMPLE_OUTPUT
+    sent_messages = client.chat.completions.create.call_args.kwargs["messages"]
+    user_content = next(m["content"] for m in sent_messages if m["role"] == "user")
+    assert "Dependency stats" not in user_content
+
+
+@pytest.mark.django_db
+def test_generate_whats_new_omits_dep_stats_when_zero(version):
+    baker.make(
+        RenderedContent,
+        cache_key=version.release_notes_cache_key,
+        content_type="text/asciidoc",
+        content_original="release notes",
+    )
+
+    zero_stats = {
+        "added": 0,
+        "removed": 0,
+        "increased_dep_lib_count": 0,
+        "decreased_dep_lib_count": 0,
+    }
+    with patch("versions.tasks.Version.get_dependency_stats", return_value=zero_stats):
+        with patch("versions.tasks.OpenAI") as mock_openai:
+            client = mock_openai.return_value
+            client.chat.completions.create.return_value = _mock_openai_response(
+                SAMPLE_OUTPUT
+            )
+            generate_whats_new.run(version.pk)
+
+    sent_messages = client.chat.completions.create.call_args.kwargs["messages"]
+    user_content = next(m["content"] for m in sent_messages if m["role"] == "user")
+    assert "Dependency stats" not in user_content
 
 
 @pytest.mark.django_db
@@ -142,11 +229,12 @@ def test_whats_new_items_parses_bullets(version):
     version.refresh_from_db()
 
     items = version.whats_new_items
-    assert len(items) == 3
+    assert len(items) == 4
     assert items[0]["title"] == "New libraries"
     assert items[0]["description"].startswith("Three new libraries")
     assert items[1]["title"] == "Performance improvements"
-    assert items[2]["title"] == "Security & reliability"
+    assert items[2]["title"] == "Dependencies"
+    assert items[3]["title"] == "Security & reliability"
 
 
 @pytest.mark.django_db

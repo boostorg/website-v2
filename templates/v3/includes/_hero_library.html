@@ -13,13 +13,19 @@
     source_url         (optional) — Source code link URL. Omit to hide.
     slack_url          (optional) — Discuss in Slack URL. Omit to hide.
     github_url         (optional) — GitHub Issues URL. Omit to hide.
+    rss_url            (optional) — RSS feed URL. Omit to hide.
     hero_image_url     (optional) — Image URL. If omitted, image block is not shown.
     hero_background_image_url (optional) — Background image URL for the hero container.
     is_flagship_lib    (optional) — Boolean value stating whether or not this is the hero for a flagship library. If it isn't, styles are a bit different.
 
   If none of category_tags/version_tag/added_text are passed, the tags row is
-  hidden. If none of doc_url/source_url/slack_url/github_url are passed, the
-  links row is hidden.
+  hidden. If none of doc_url/source_url/slack_url/github_url/rss_url are
+  passed, the links row is hidden.
+
+  When `version_alert` is in context (along with version_alert_message and
+  selected_version), a v3/includes/_version_alert.html banner is rendered as
+  the last child of the hero section. Note: callers using `only` must forward
+  these three vars explicitly.
 
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
@@ -28,6 +34,7 @@
          {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
          aria-label="Library hero">
   <div class="hero-library__block">
+    <div class="hero-library__main">
     <div class="hero-library__content">
       <div class="hero-library__meta">
         {% if category_tags or version_tag or added_text %}
@@ -55,7 +62,7 @@
           {% endif %}
         </div>
       </div>
-      {% if doc_url or source_url or slack_url or github_url %}
+      {% if doc_url or source_url or slack_url or github_url or rss_url %}
       <div class="hero-library__links">
         {% if doc_url %}
         {% include "v3/includes/_button.html" with icon_position="right" label="Documentation" url=doc_url style="icon-library" icon_name="documentation" icon_size=16 icon_viewbox="0 0 16 16" %}
@@ -69,9 +76,13 @@
         {% if github_url %}
         {% include "v3/includes/_button.html" with icon_position="right" label="GitHub Issues" url=github_url style="icon-library" icon_name="github-issues" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
+        {% if rss_url %}
+        {% include "v3/includes/_button.html" with icon_position="right" label="RSS" url=rss_url style="icon-library" icon_name="rss" icon_size=16 icon_viewbox="0 0 16 16" %}
+        {% endif %}
       </div>
       {% endif %}
     </div>
+
     {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
     <div class="hero-library__image{% if hero_image_url_dark %} hero-library__image--theme-aware{% endif %}">
       {% with hero_light=hero_image_url_light|default:hero_image_url hero_dark=hero_image_url_dark %}
@@ -82,5 +93,7 @@
       {% endwith %}
     </div>
     {% endif %}
+    </div>
+    {% include "v3/includes/_version_alert.html" %}
   </div>
 </section>
