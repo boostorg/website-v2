@@ -67,6 +67,111 @@
   gap: var(--space-xlarge);
 }
 
+/* Description section (Blog, News): plain-text field + Auto-Generate button + auto-save indicator. */
+.create-post-page__description-section {
+  flex-direction: column;
+  gap: var(--space-default);
+}
+
+.create-post-page__field-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-default);
+}
+
+.create-post-page__char-counter {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.create-post-page__description-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-default);
+  flex-wrap: wrap;
+}
+
+/* Content has no Auto-Generate button, so its save indicator sits alone on the right. */
+.create-post-page__content-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.create-post-page__generate-btn {
+  flex: 0 0 auto;
+}
+
+.create-post-page__save-indicator {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-tertiary);
+}
+
+.create-post-page__save-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-default);
+}
+
+.create-post-page__save-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-tertiary);
+}
+
+.create-post-page__save-icon--spin {
+  animation: create-post-spin 0.8s linear infinite;
+}
+
+@keyframes create-post-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* "Generating" placeholder shown in place of the Description textarea while the
+   Auto-Generate fetch is in flight. The outer box reuses .field__control--textarea,
+   so it matches the textarea's border/padding/radius and min-height exactly. */
+.create-post-page__generating-message {
+  display: flex;
+  gap: var(--space-s);
+  align-items: flex-start;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-secondary);
+}
+
+.create-post-page__generating-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+  animation: create-post-spin 0.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .create-post-page__save-icon--spin,
+  .create-post-page__generating-icon {
+    animation: none;
+  }
+}
+
 .create-post-page__actions {
   display: flex;
   flex-direction: row;
@@ -81,17 +186,28 @@
   text-decoration: none;
 }
 
+/* Align the WYSIWYG's resize grip with the Description textarea's grip.
+   Base CSS puts `resize: vertical` on `.wysiwyg-editor__body` (the visible box),
+   so the grip sits at the body's outer corner. Moving resize onto the inner
+   `.wysiwyg-editor__prose` instead places the grip inside the body's padding,
+   matching `.field__control--textarea`, whose inner <textarea> is similarly
+   inset by its wrapper's padding. Scoped to .create-post-page so other pages
+   that use the WYSIWYG keep their existing resize behavior. */
+.create-post-page .wysiwyg-editor__body {
+  resize: none;
+  max-height: none;
+}
+
+.create-post-page .wysiwyg-editor__prose {
+  resize: vertical;
+  overflow-y: auto;
+}
+
 @media (max-width: 767px) {
   .create-post-section {
     margin-top: 32px;
     margin-bottom: 64px;
     padding-right: 12px;
     padding-left: 12px;
-  }
-  .create-post-page__actions {
-    flex-direction: column;
-  }
-  .create-post-page__actions .btn {
-    min-width: 100%;
   }
 }

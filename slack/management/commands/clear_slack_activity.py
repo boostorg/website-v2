@@ -5,7 +5,6 @@ from django.db import transaction
 
 from slack.models import SlackActivityBucket, Channel
 
-
 logger = logging.getLogger(__name__)
 
 

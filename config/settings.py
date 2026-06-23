@@ -10,7 +10,6 @@ from corsheaders.defaults import default_headers
 from django.core.exceptions import ImproperlyConfigured
 from pythonjsonlogger import jsonlogger
 
-
 env = environs.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
@@ -657,6 +656,8 @@ if DEBUG_TOOLBAR:
 BOOST_BRANCHES = ["master", "develop"]
 OPENROUTER_URL = "https://openrouter.ai/api/v1"
 OPENROUTER_API_KEY = env("OPENROUTER_API_KEY")
+SUMMARIZATION_MODEL = env("SUMMARIZATION_MODEL", default="gpt-oss-120b")
+WHATS_NEW_MODEL = env("WHATS_NEW_MODEL", default="gpt-oss-120b")
 
 ALGOLIA = {
     "app_id": env("ALGOLIA_APP_ID", None),

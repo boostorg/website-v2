@@ -13,7 +13,6 @@ from versions.tasks import (
 )
 from versions.models import Version
 
-
 SAMPLE_OUTPUT = (
     "- **New libraries** — Three new libraries broaden coverage of "
     "scientific computing and modern C++ patterns.\n"

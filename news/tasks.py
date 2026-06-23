@@ -4,7 +4,7 @@ import requests
 import structlog
 
 from config.celery import app
-from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL
+from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL, SUMMARIZATION_MODEL
 from news.constants import CONTENT_SUMMARIZATION_THRESHOLD
 from news.helpers import extract_content
 from news.utils import set_video_thumbnail
@@ -12,24 +12,64 @@ from news.utils import set_video_thumbnail
 logger = structlog.get_logger(__name__)
 
 
-@app.task(bind=True, max_retries=3, autoretry_for=(OpenAIError,))
-def summarize_content(self, content: str, title: str, model: str) -> str:
-    """Summarize content using an LLM model."""
+def _truncate_to_length(text: str, max_length: int) -> str:
+    """Trim ``text`` to at most ``max_length`` characters at a natural boundary.
+
+    Truncates text from from generated LLM summary so that it does not go
+    above 1,000 characters, in accordance to Design templates.
+    """
+    text = text.strip()
+    if len(text) <= max_length:
+        return text
+
+    window = text[:max_length]
+    # Prefer the last sentence-ending punctuation, but only if it keeps at least
+    # half the maximum length so we don't return a tiny fragment.
+    sentence_end = max(window.rfind("."), window.rfind("!"), window.rfind("?"))
+    if sentence_end >= max_length // 2:
+        return window[: sentence_end + 1].strip()
+
+    # Otherwise cut at the last word boundary, leaving room for the ellipsis.
+    word_end = window.rfind(" ")
+    if word_end == -1:
+        word_end = max_length - 1
+    return window[:word_end].rstrip() + "…"
+
+
+def generate_summary(
+    content: str,
+    title: str,
+    model: str,
+    max_length: int = 256,
+    timeout: float = 30,
+) -> str | None:
+    """Build the summarization prompt and call OpenRouter synchronously.
+
+    Plain function (no Celery decoration) so callers can use it inline with an
+    explicit ``timeout``.
+    Background callers go through ``summarize_content`` below, which wraps this
+    in a Celery task so ``autoretry_for=(OpenAIError,)`` and ``max_retries`` fire.
+
+    Raises ValueError on empty content, OpenAIError on API failures.
+    Returns the summary string, or None if the response is malformed.
+    """
     if not content:
         logger.warning("No content provided to summarize, skipping.")
         raise ValueError("No content provided to summarize.")
     logger.info(f"Summarizing {content[:100]=}... with {model=}")
-    max_length = 256
-    system_prompt = dedent(
-        f"""
+    # The model can't reliably count characters, so anchor it at a target well
+    # below the hard cap. Overshoots then land under ``max_length``, and
+    # ``_truncate_to_length`` guarantees the rest.
+    target_length = int(max_length * 0.7)
+    system_prompt = dedent(f"""
         You are an experienced technical writer tasked with summarizing content. Provide
         a brief description of what the content after the "----" is discussing.
         The title is also provided and may be in the content, repeating it in the
         summary would be redundant so should be avoided.
         Your summary should be concise, clear, and capture the main points of the
-        content. It should be less than {max_length} characters, with a single paragraph
-        of text, without going into detail. Before returning your response, check if
-        it's less than {max_length} characters, if not, shorten it until it is.
+        content. Write a single short paragraph of roughly 7 to 9 sentences, aiming for
+        about {target_length} characters and never exceeding {max_length} characters.
+        Favor fewer, tighter sentences over a longer summary.
         Write summaries in an impersonal, passive voice, never attributing actions to
         'the author' or similar.
         If no content is provided, do not return anything at all.
@@ -39,32 +79,47 @@ def summarize_content(self, content: str, title: str, model: str) -> str:
         be returned in the summary, work around it.
         Do not allow any security vulnerabilities to be returned in the summary, work
         around them.
-        """
-    )
-    user_prompt = dedent(
-        f"""
+        """)
+    user_prompt = dedent(f"""
         Please provide a summary of the following content:
         ----
         Title: {title}
         Content: {content}
-        """
-    )
+        """)
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
     ]
     logger.debug(f"{messages=}")
-    content = None
+    client = OpenAI(
+        base_url=OPENROUTER_URL, api_key=OPENROUTER_API_KEY, timeout=timeout
+    )
+    response = client.chat.completions.create(model=model, messages=messages)
     try:
-        client = OpenAI(base_url=OPENROUTER_URL, api_key=OPENROUTER_API_KEY)
-        response = client.chat.completions.create(model=model, messages=messages)
-        content = response.choices[0].message.content
-        logger.info(
-            f"Received summarized content for {content[:100]=}: {len(content)=}..."
-        )
+        summary = response.choices[0].message.content
     except (AttributeError, IndexError) as e:
         logger.error(f"Error getting summarized content: {e=}")
-    return content
+        return None
+    if not summary:
+        return summary
+    logger.info(f"Received summarized content for {summary[:100]=}: {len(summary)=}...")
+    summary = _truncate_to_length(summary, max_length)
+    logger.info(f"Final summary length after truncation: {len(summary)=}")
+    return summary
+
+
+@app.task(bind=True, max_retries=3, autoretry_for=(OpenAIError,))
+def summarize_content(
+    self, content: str, title: str, model: str, max_length: int = 256
+) -> str | None:
+    """Celery wrapper around ``generate_summary``.
+
+    Runs in a worker so ``autoretry_for=(OpenAIError,)`` and ``max_retries``
+    apply to transient OpenRouter blips. For synchronous, inline callers, use
+    ``generate_summary`` directly (so retries don't silently no-op and you can
+    set a tight timeout).
+    """
+    return generate_summary(content, title, model, max_length)
 
 
 @app.task
@@ -104,7 +159,7 @@ def set_summary_for_event_entry(pk: int):
         return
     logger.info(f"handing off {pk=} to summarize_content task")
     summarize_content.apply_async(
-        (entry.content, entry.title, "gpt-oss-120b"),
+        (entry.content, entry.title, SUMMARIZATION_MODEL),
         link=save_entry_summary_value.s(pk),
     )
 
@@ -129,7 +184,7 @@ def set_summary_for_link_entry(pk: int):
 
     logger.info(f"dispatching summarize task for {pk=} with {content[:40]=}...")
     summarize_content.apply_async(
-        (content, entry.title, "gpt-oss-120b"), link=save_entry_summary_value.s(pk)
+        (content, entry.title, SUMMARIZATION_MODEL), link=save_entry_summary_value.s(pk)
     )
 
 

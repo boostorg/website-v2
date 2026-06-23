@@ -8,7 +8,6 @@ from PIL import Image
 
 from ..forms import PreferencesForm, UserProfilePhotoForm
 
-
 pytest.skip(allow_module_level=True)
 
 

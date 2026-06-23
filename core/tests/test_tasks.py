@@ -9,7 +9,6 @@ from core.tasks import (
     clear_rendered_content_cache_by_content_type,
 )
 
-
 TEST_CACHES = {
     "static_content": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

@@ -1,14 +1,22 @@
 from datetime import timedelta
 from functools import partial
 
+import structlog
+
 from django.conf import settings
 from django.db import IntegrityError
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.humanize.templatetags import humanize
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
+from django.http import (
+    Http404,
+    HttpResponseRedirect,
+    HttpResponseForbidden,
+    JsonResponse,
+)
 from django.shortcuts import redirect, get_object_or_404
 from django.template.defaultfilters import date as datefilter
 from django.urls import reverse, reverse_lazy
@@ -26,15 +34,31 @@ from django.views.generic import (
     View,
 )
 from django.views.generic.detail import SingleObjectMixin
+from django.views.decorators.http import require_POST
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 
 from core.mixins import V3Mixin
 from users.profile_cards import user_profile_card
 from .acl import can_approve
-from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
-from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
+from .constants import (
+    NEWS_APPROVAL_SALT,
+    MAGIC_LINK_EXPIRATION,
+    DESCRIPTION_SUMMARY_MAX_LENGTH,
+)
+from .forms import (
+    BlogPostForm,
+    EntryForm,
+    LinkForm,
+    NewsForm,
+    PollForm,
+    V3BlogPostForm,
+    V3NewsForm,
+    VideoForm,
+)
+from .helpers import extract_content
 from .models import BlogPost, Entry, Link, News, Poll, Video
 from .services import news_type_label
+from .tasks import generate_summary
 from .notifications import (
     send_email_news_approved,
     send_email_news_needs_moderation,
@@ -44,6 +68,7 @@ from .notifications import (
 from libraries.models import Library
 
 User = get_user_model()
+logger = structlog.get_logger(__name__)
 
 
 def get_published_or_none(sibling_getter):
@@ -496,8 +521,8 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
     http_method_names = ["get", "post"]
 
     _POST_TYPE_MAP = {
-        "blog": (BlogPost, BlogPostForm),
-        "news": (News, NewsForm),
+        "blog": (BlogPost, V3BlogPostForm),
+        "news": (News, V3NewsForm),
         "link": (Link, LinkForm),
         "video": (Video, VideoForm),
     }
@@ -527,7 +552,15 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
             return self.render_to_response(context)
 
         model_class, form_class = type_config
-        form = form_class(request.POST, request.FILES)
+
+        # The v3 create page posts the Description textarea as `description`
+        # (kept named so for the existing frontend wiring). Bind it to the
+        # model's `summary` field on submit for the forms that include it.
+        post_data = request.POST.copy()
+        if post_data.get("description") and not post_data.get("summary"):
+            post_data["summary"] = post_data["description"]
+
+        form = form_class(post_data, request.FILES)
 
         if form.is_valid():
             form.instance.author = request.user
@@ -556,6 +589,55 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
         context = self.get_context_data(form=form, post_type_selected=post_type)
         return self.render_to_response(context)
+
+
+@login_required
+@require_POST
+def generate_description(request):
+    """Generate an AI description from submitted content (synchronous).
+
+    Backs the "Auto-Generate Description" button on the v3 create-post page.
+    Runs the summarization model inline and returns the result as JSON so the
+    browser can drop it into the Description field.
+
+    Login-gated since it calls a paid LLM. NOTE: still no rate limiting — add
+    per-user throttling before relying on auth alone to bound spend.
+    """
+    title = request.POST.get("title", "").strip()
+    content = request.POST.get("content", "").strip()
+
+    if not content:
+        return JsonResponse({"error": "Add some content first."}, status=400)
+
+    # The Blog/News body comes from the WYSIWYG editor as rich-text HTML. Strip
+    # it to plain text before summarizing: the markup inflates the payload (a
+    # cold model call on the full HTML can exceed the gateway timeout and 504)
+    # and only muddies the summary. No-op on content that's already plain text.
+    content = extract_content(content)
+
+    try:
+        # Call the plain helper
+        summary = generate_summary(
+            content,
+            title,
+            settings.SUMMARIZATION_MODEL,
+            DESCRIPTION_SUMMARY_MAX_LENGTH,
+            timeout=30,
+        )
+    except Exception:
+        logger.exception("generate_description: summarization failed")
+        return JsonResponse(
+            {"error": "Could not generate a description. Please try again."},
+            status=502,
+        )
+
+    if not summary:
+        return JsonResponse(
+            {"error": "Could not generate a description. Please try again."},
+            status=502,
+        )
+
+    return JsonResponse({"description": summary.strip()})
 
 
 class EntryApproveView(

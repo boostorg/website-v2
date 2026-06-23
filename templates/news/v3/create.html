@@ -14,14 +14,19 @@
   <style>
     html.js .create-post-page__link-fields,
     html.js .create-post-page__content-field,
+    html.js .create-post-page__description-section,
     html.js .create-post-page__description-field { display: none; }
 
     html:not(.js) .create-post-page__content-field,
+    html:not(.js) .create-post-page__description-section,
     html:not(.js) .create-post-page__description-field { display: none; }
     html:not(.js) .field--file .field__control { cursor: pointer; }
 
     html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: block; }
+
+    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__description-section,
+    html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__description-section { display: flex; }
 
     html:not(.js) form:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__description-field,
     html:not(.js) form:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__description-field { display: block; }
@@ -34,7 +39,7 @@
 
 {% block content %}
   <div class="create-post-section">
-      <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)">
+      <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)" @wysiwyg-update="handleWysiwygUpdate($event)">
       <form
         class="create-post-page"
         enctype="multipart/form-data"
@@ -64,12 +69,71 @@
             {% include "v3/includes/_field_text.html" with name="external_url" label="Link *" type="url" placeholder="https://..." value=form.external_url.value|default_if_none:"" alpine_error="errors.external_url" error=form.external_url.errors.0 help_text="Required for Video and Link post types." %}
           </div>
 
-          {% comment %} Content (Blog, News): WYSIWYG editor. Description (Link, Video): plain textarea. Both use name="content". {% endcomment %}
+          {% comment %} Content (Blog, News): WYSIWYG editor. Char counter, Saving/Saved indicator, and draft persistence are driven by the wysiwyg-update event (see handleWysiwygUpdate). No placeholder by design. {% endcomment %}
           <div class="field create-post-page__content-field" :style="isWriteUp ? 'display: flex' : 'display: none'" :class="{ 'field--error': errors.content }">
-            <label class="field__label" for="field-content">Content *</label>
+            <div class="create-post-page__field-header">
+              <label class="field__label" for="field-content">Content *</label>
+              <span class="create-post-page__char-counter" aria-hidden="true" x-text="(20000 - contentLength).toLocaleString() + ' left'">20,000 left</span>
+            </div>
             {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value disabled_expr="isLinkType" %}
             <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
-            <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
+            {% comment %} Content auto-save indicator (no Auto-Generate button — that's Description-only). Hidden when nothing is written; driven by contentSaveStatus. {% endcomment %}
+            <div class="create-post-page__content-actions" x-show="contentSaveStatus" x-cloak>
+              <span class="create-post-page__save-indicator" role="status" aria-live="polite">
+                <span class="create-post-page__save-state" x-show="contentSaveStatus === 'saving'" x-cloak>
+                  <span class="create-post-page__save-text">Saving</span>
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
+                </span>
+                <span class="create-post-page__save-state" x-show="contentSaveStatus === 'saved'" x-cloak>
+                  <span class="create-post-page__save-text">Saved</span>
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
+                </span>
+              </span>
+            </div>
+          </div>
+
+          {% comment %} Description (Blog, News): plain-text field with char counter, Auto-Generate button, and auto-save indicator. {% endcomment %}
+          <div class="field field--textarea create-post-page__description-section" :style="isWriteUp ? 'display: flex' : 'display: none'">
+            <div class="create-post-page__field-header">
+              <label class="field__label" for="field-post_description">Description</label>
+              <span class="create-post-page__char-counter" aria-hidden="true" x-text="(1000 - (description ? description.length : 0)).toLocaleString() + ' left'">1,000 left</span>
+            </div>
+            <div class="field__control field__control--textarea" x-show="!generating">
+              <textarea
+                class="field__input field__input--textarea"
+                id="field-post_description"
+                name="description"
+                rows="4"
+                maxlength="1000"
+                placeholder="What would you like to write?"
+                x-model="description"
+                @input="onDescriptionEdited($event)"
+              ></textarea>
+            </div>
+            {% comment %} Shown while Auto-Generate is in flight (visually replaces the textarea). {% endcomment %}
+            <div class="field__control field__control--textarea create-post-page__generating-placeholder" role="status" aria-live="polite" x-show="generating" x-cloak>
+              <span class="create-post-page__generating-message">
+                {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__generating-icon" icon_size=16 %}
+                <span>Hold on! We are generating a description for your content, it may take a few seconds</span>
+              </span>
+            </div>
+            <div class="create-post-page__description-actions">
+              {% comment %} Calls the generate-description endpoint; disabled while in flight. Full idle/generating/generated states are a follow-up. {% endcomment %}
+              <button type="button" class="btn btn-secondary create-post-page__generate-btn" @click="generateDescription()" :disabled="generating">Auto-Generate Description</button>
+              {% comment %} Hidden when nothing is written; "Saving" while editing, "Saved" once the draft is written to localStorage (descriptionSaveStatus driven by onDescriptionEdited / restoreDescriptionDraft). {% endcomment %}
+              <span class="create-post-page__save-indicator" role="status" aria-live="polite">
+                <span class="create-post-page__save-state" x-show="descriptionSaveStatus === 'saving'" x-cloak>
+                  <span class="create-post-page__save-text">Saving</span>
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
+                </span>
+                <span class="create-post-page__save-state" x-show="descriptionSaveStatus === 'saved'" x-cloak>
+                  <span class="create-post-page__save-text">Saved</span>
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
+                </span>
+              </span>
+            </div>
+            {% comment %} Auto-Generate failure (e.g. a gateway 504 on a slow/cold model). Cleared on the next attempt. {% endcomment %}
+            <p class="field__error" id="field-post_description-error" role="alert" x-show="descriptionError" x-text="descriptionError" x-cloak aria-live="polite"></p>
           </div>
 
           <div class="field create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
@@ -96,6 +160,17 @@
     window.createPostForm = function () {
       return {
         postType: '{{ post_type_selected|default:""|escapejs }}',
+        content: '{{ form.content.value|default_if_none:""|escapejs }}',
+        contentLength: 0,
+        description: '{{ form.summary.value|default_if_none:""|escapejs }}',
+        generating: false,
+        descriptionError: '',
+        descriptionSaveStatus: '',   // '' (hidden) / 'saving' / 'saved'
+        contentSaveStatus: '',       // same states, for the Content field
+        _descriptionSaveTimer: null,
+        _contentSaveTimer: null,
+        _titleSaveTimer: null,
+        titleEl: null,               // cached reference to the (non-Alpine) title input
         errors: {
           post_type:    '',
           title:        '{{ form.title.errors.0|default:""|escapejs }}',
@@ -107,11 +182,213 @@
         get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
         get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
 
+        init() {
+          // The title input is rendered by the shared field include (not
+          // Alpine-bound), so cache it and drive its draft via the DOM.
+          this.titleEl = this.$root.querySelector('input[name="title"]');
+          if (this.titleEl) this.titleEl.addEventListener('input', () => this.onTitleEdited());
+          // Restore saved Title, Content, and Description drafts for the current
+          // post type. On a fresh load with no draft this leaves fields untouched.
+          this.restoreTitleDraft();
+          this.restoreContentDraft();
+          this.restoreDescriptionDraft();
+        },
+
         handleFieldChange(e) {
           const { name, value } = e.detail;
           if (name !== 'post_type') return;
+          // Persist the current type's draft before switching, then load the
+          // draft belonging to the newly selected type.
+          clearTimeout(this._descriptionSaveTimer);
+          clearTimeout(this._contentSaveTimer);
+          clearTimeout(this._titleSaveTimer);
+          this.saveTitleDraft();
+          this.saveContentDraft();
+          this.saveDescriptionDraft();
           this.postType = value;
           this.errors.post_type = '';
+          this.restoreTitleDraft({ allowEmpty: true });
+          this.restoreContentDraft({ allowEmpty: true });
+          this.restoreDescriptionDraft({ allowEmpty: true });
+        },
+
+        // Bridge from the WYSIWYG editor: keep the counter, indicator, and draft
+        // in sync. Programmatic updates (initial load / restore) skip the
+        // "Saving" animation and persistence.
+        handleWysiwygUpdate(e) {
+          if (e.detail.id !== 'field-content') return;
+          this.contentLength = e.detail.characters;
+          this.content = e.detail.value;
+          if (e.detail.programmatic) {
+            this.contentSaveStatus = this.content ? 'saved' : '';
+          } else {
+            this.onContentEdited();
+          }
+        },
+
+        // Push a value into the WYSIWYG editor (used by restoreContentDraft).
+        setWysiwygContent(markdown) {
+          window.dispatchEvent(new CustomEvent('wysiwyg-set-content', {
+            detail: { id: 'field-content', value: markdown },
+          }));
+        },
+
+        titleDraftKey() {
+          return 'boost:createPost:titleDraft:' + (this.postType || '');
+        },
+
+        onTitleEdited() {
+          clearTimeout(this._titleSaveTimer);
+          this._titleSaveTimer = setTimeout(() => this.saveTitleDraft(), 800);
+        },
+
+        saveTitleDraft() {
+          if (!this.titleEl) return;
+          try {
+            const value = this.titleEl.value;
+            if (value) localStorage.setItem(this.titleDraftKey(), value);
+            else localStorage.removeItem(this.titleDraftKey());
+          } catch (_) {}
+        },
+
+        restoreTitleDraft({ allowEmpty = false } = {}) {
+          if (!this.titleEl) return;
+          let saved = null;
+          try { saved = localStorage.getItem(this.titleDraftKey()); } catch (_) {}
+          if (saved !== null) this.titleEl.value = saved;
+          else if (allowEmpty) this.titleEl.value = '';
+        },
+
+        clearTitleDraft() {
+          try { localStorage.removeItem(this.titleDraftKey()); } catch (_) {}
+        },
+
+        // ── Description draft: localStorage, keyed per post type ─────────────
+        descriptionDraftKey() {
+          return 'boost:createPost:descriptionDraft:' + (this.postType || '');
+        },
+
+        // Runs on each keystroke (and after auto-generate): show "Saving", then
+        // write the draft and show "Saved" once edits settle. Empty clears it.
+        onDescriptionEdited(e) {
+          const value = e ? e.target.value : this.description;
+          clearTimeout(this._descriptionSaveTimer);
+          if (!value) {
+            this.descriptionSaveStatus = '';
+            this.clearDescriptionDraft();
+            return;
+          }
+          this.descriptionSaveStatus = 'saving';
+          this._descriptionSaveTimer = setTimeout(() => {
+            this.saveDescriptionDraft();
+            this.descriptionSaveStatus = 'saved';
+          }, 800);
+        },
+
+        saveDescriptionDraft() {
+          if (!this.isWriteUp) return;
+          try {
+            if (this.description) localStorage.setItem(this.descriptionDraftKey(), this.description);
+            else localStorage.removeItem(this.descriptionDraftKey());
+          } catch (_) {}
+        },
+
+        restoreDescriptionDraft({ allowEmpty = false } = {}) {
+          if (!this.isWriteUp) {
+            if (allowEmpty) this.descriptionSaveStatus = '';
+            return;
+          }
+          let saved = null;
+          try { saved = localStorage.getItem(this.descriptionDraftKey()); } catch (_) {}
+          if (saved !== null) this.description = saved;
+          else if (allowEmpty) this.description = '';
+          this.descriptionSaveStatus = this.description ? 'saved' : '';
+        },
+
+        clearDescriptionDraft() {
+          try { localStorage.removeItem(this.descriptionDraftKey()); } catch (_) {}
+        },
+
+        // ── Content draft: localStorage, keyed per post type (mirrors Description) ──
+        contentDraftKey() {
+          return 'boost:createPost:contentDraft:' + (this.postType || '');
+        },
+
+        onContentEdited(e) {
+          const value = e ? e.target.value : this.content;
+          clearTimeout(this._contentSaveTimer);
+          if (!value) {
+            this.contentSaveStatus = '';
+            this.clearContentDraft();
+            return;
+          }
+          this.contentSaveStatus = 'saving';
+          this._contentSaveTimer = setTimeout(() => {
+            this.saveContentDraft();
+            this.contentSaveStatus = 'saved';
+          }, 800);
+        },
+
+        saveContentDraft() {
+          if (!this.isWriteUp) return;
+          try {
+            if (this.content) localStorage.setItem(this.contentDraftKey(), this.content);
+            else localStorage.removeItem(this.contentDraftKey());
+          } catch (_) {}
+        },
+
+        restoreContentDraft({ allowEmpty = false } = {}) {
+          if (!this.isWriteUp) {
+            if (allowEmpty) this.contentSaveStatus = '';
+            return;
+          }
+          let saved = null;
+          try { saved = localStorage.getItem(this.contentDraftKey()); } catch (_) {}
+          // Push the draft into the editor; content/contentLength/contentSaveStatus
+          // are then updated by the resulting (programmatic) wysiwyg-update.
+          if (saved !== null) this.setWysiwygContent(saved);
+          else if (allowEmpty) this.setWysiwygContent('');
+        },
+
+        clearContentDraft() {
+          try { localStorage.removeItem(this.contentDraftKey()); } catch (_) {}
+        },
+
+        // Send the Content to the backend, which runs the summarization model.
+        async generateDescription() {
+          const content = (this.content || '').trim();
+          if (!content || this.generating) return;
+          this.generating = true;
+          this.descriptionError = '';
+          try {
+            const title = document.querySelector('input[name="title"]')?.value || '';
+            const res = await fetch('{% url "v3-news-generate-description" %}', {
+              method: 'POST',
+              headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams({ content, title }),
+            });
+            // A gateway timeout (504) returns a non-JSON body ("stream timeout"),
+            // so parse defensively — res.json() would otherwise throw and swallow
+            // the failure silently.
+            const data = await res.json().catch(() => null);
+            if (res.ok && data && data.description) {
+              this.description = data.description;
+              this.descriptionError = '';
+              this.onDescriptionEdited();   // persist generated text + show Saving/Saved
+            } else {
+              console.error('Description generation failed:', (data && data.error) || res.status);
+              this.descriptionError = (data && data.error)
+                || "The description is taking longer than expected to generate. Please try again in a moment.";
+            }
+          } catch (err) {
+            console.error('Description generation request failed:', err);
+            this.descriptionError = "The description is taking longer than expected to generate. Please try again in a moment.";
+          } finally {
+            this.generating = false;
+          }
         },
 
         prepareSubmit(e) {
@@ -156,6 +433,13 @@
               const el = this.$el.querySelector(`#${id}`) || form.querySelector(`[name="${firstKey}"]`);
               el?.focus();
             }
+          } else {
+            // Validation passed; the form will POST — drop the saved drafts.
+            // (On a server-side reject, the description re-initializes from
+            //  `form.summary.value` so the user's text stays visible.)
+            this.clearTitleDraft();
+            this.clearContentDraft();
+            this.clearDescriptionDraft();
           }
         },
       };
