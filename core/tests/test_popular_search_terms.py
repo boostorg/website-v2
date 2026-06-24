@@ -23,7 +23,6 @@ from core.services.popular_search_terms import (
     refresh_popular_search_terms,
 )
 
-
 # ---------- fixtures + mock helpers ----------
 
 
