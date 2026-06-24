@@ -3,26 +3,35 @@
   Variables:
     name        (required) — input name attribute
     label       (required) — label text
+    id          (optional) — optional id, checkbox-{{name}} used otherwise
     checked     (optional) — if truthy, checkbox is checked
     value       (optional) — input value, default "on"
     required    (optional) — if truthy, adds required attribute
     disabled    (optional) — if truthy, adds disabled attribute
     extra_class (optional) — additional classes on the wrapper
+    help_text   (optional) — help text that appears in small font below the checkbox for context
   Usage:
     {% include "v3/includes/_field_checkbox.html" with name="agree" label="I agree to the terms" %}
 {% endcomment %}
-<label class="checkbox{% if disabled %} checkbox--disabled{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
-       for="checkbox-{{ name }}">
-  <input class="checkbox__input"
-         type="checkbox"
-         id="checkbox-{{ name }}"
-         name="{{ name }}"
-         value="{{ value|default:'on' }}"
-         {% if checked %}checked{% endif %}
-         {% if required %}required{% endif %}
-         {% if disabled %}disabled{% endif %}>
-  <span class="checkbox__box" aria-hidden="true">
-    {% include "includes/icon.html" with icon_name="check" icon_class="checkbox__check" %}
-  </span>
-  <span class="checkbox__label">{{ label }}</span>
-</label>
+<div>
+  {% with "checkbox-"|add:name as default_id %}
+  <label class="checkbox{% if disabled %} checkbox--disabled{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+        for="{{id|default:default_id}}">
+    <input class="checkbox__input"
+          type="checkbox"
+          id="{{id|default:default_id}}"
+          name="{{ name }}"
+          value="{{ value|default:'on' }}"
+          {% if checked %}checked{% endif %}
+          {% if required %}required{% endif %}
+          {% if disabled %}disabled{% endif %}>
+    <span class="checkbox__box" aria-hidden="true">
+      {% include "includes/icon.html" with icon_name="check" icon_class="checkbox__check" %}
+    </span>
+    <span class="checkbox__label">{{ label }}</span>
+  </label>
+  {% if help_text %}
+    <p class="field__help field__checkbox__help" id="field-{{ name }}-help">{{ help_text }}</p>
+  {% endif %}
+  {% endwith %}
+</div>

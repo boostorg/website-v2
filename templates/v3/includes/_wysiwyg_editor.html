@@ -6,23 +6,39 @@
     textarea_name — name attribute for form submission (e.g. "content")
 
   Optional variables:
-    label        — label text (default: "Content")
+    label         — label text (default: "Content")
     disabled_expr — Alpine expression to conditionally disable the textarea for form submission
+    help_text     — Optional help text to explain context
+    preset        — toolbar preset: "full" (default) or "minimal" (fewer tools)
 
   Usage:
     {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_content" textarea_name="content" %}
     {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_body" textarea_name="body" label="Body" %}
 {% endcomment %}
-<div class="wysiwyg-v3" data-wysiwyg="v3" x-data="{ jsReady: false }" x-init="jsReady = true">
-  <textarea
-    id="{{ textarea_id }}"
-    name="{{ textarea_name }}"
-    class="w-full min-h-[200px]"
-    placeholder=""
-    x-show="!jsReady"
-    :aria-hidden="true"
-    {% if disabled_expr %}:disabled="{{ disabled_expr }}"{% endif %}
-  >{{ value|default_if_none:"" }}</textarea>
-  <div class="wysiwyg-editor__toolbar" x-show="jsReady" x-cloak></div>
-  <div class="wysiwyg-editor__body" x-show="jsReady" x-cloak></div>
+{% load static %}
+
+<div class="wysiwyg-v3-container">
+  <div class="wysiwyg-v3" data-wysiwyg="v3" data-wysiwyg-preset="{{ preset|default:'full' }}" x-data="{ jsReady: false }" x-init="
+      $nextTick(() => {
+        autoInit('{{textarea_id}}');
+        jsReady = true;
+      })"
+    >
+    <textarea
+      id="{{ textarea_id }}"
+      name="{{ textarea_name }}"
+      class="w-full min-h-[200px]"
+      placeholder=""
+      x-show="!jsReady"
+      :aria-hidden="true"
+      {% if disabled_expr %}:disabled="{{ disabled_expr }}"{% endif %}
+    >{{ value|default_if_none:"" }}</textarea>
+    <div class="wysiwyg-editor__toolbar" x-show="jsReady" x-cloak></div>
+    <div class="wysiwyg-editor__body" x-show="jsReady" x-cloak></div>
+  </div>
+  {% if help_text %}
+      <p class="field__help"
+        id="field-{{ textarea_name }}-help"
+        >{{ help_text }}</p>
+    {% endif %}
 </div>

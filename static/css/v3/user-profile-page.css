@@ -4,11 +4,6 @@
     padding: 0 var(--space-medium);
 }
 
-.user-profile__container .btn {
-    width: fit-content;
-    min-width: unset;
-    padding: var(--space-default) var(--space-large);
-}
 
 /* ──────── Header row, including profile card and buttons ──────── */
 
@@ -29,6 +24,12 @@
     max-width: 100%;
     flex-wrap: wrap;
     justify-content: flex-end;
+}
+
+.user-profile__button-group .btn {
+    width: fit-content;
+    min-width: unset;
+    padding: var(--space-default) var(--space-large);
 }
 
 .user-profile__btn-no-label {
@@ -65,7 +66,189 @@
     line-height: var(--line-height-relaxed);
 }
 
+/* ──────── Edit Page Styling ──────── */
+
+.user-profile__two-column-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    gap: var(--space-default);
+    row-gap: var(--space-large);
+}
+
+.user-profile__small-section-heading {
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-relaxed);
+    letter-spacing: var(--letter-spacing-tight);
+}
+
+.user-profile__small-section-subheading {
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-relaxed);
+    letter-spacing: var(--letter-spacing-tight);
+}
+
+.user-profile__add-another-button {
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-relaxed);
+    letter-spacing: var(--letter-spacing-tight);
+}
+
+.user-profile__default-space-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+    width: 100%;
+}
+
+.user-profile__xl-space-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xlarge);
+    width: 100%;
+}
+
+.user-profile__default-space-col .btn {
+    width: fit-content;
+}
+
+.user-profile__profile-edit-card .card__hr:not(:first-of-type):not(:last-of-type) {
+    margin: var(--space-default) 0
+}
+
+.user-profile__badge-select {
+    padding: 6px;
+    display: flex;
+    gap: var(--space-s);
+    align-items: center;
+    height: fit-content;
+    color: var(--color-text-tertiary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-tight);
+}
+
+.user-profile__badge-select.disabled {
+    opacity: 0.45;
+}
+
+.user-profile__commit-email-form {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: var(--space-default);
+}
+
+.user-profile__commit-email-form .btn {
+    height: 40px;
+    min-width: unset;
+    padding-left: var(--space-large);
+    padding-right: var(--space-large);
+}
+
+.user-profile__avatar-row {
+    display: flex;
+    gap: var(--space-default);
+}
+
+.user-profile__avatar-row .field--file {
+    width: fit-content;
+    max-width: 100%;
+}
+
+.user-profile__avatar-row .user-profile__default-space-col {
+    width: fit-content;
+}
+
+.user-profile__avatar-row .user-profile__default-space-col .btn {
+    width: 100%;
+}
+
+.user-profile__avatar-row .avatar:has(img[src='']) {
+    display: none;
+}
+
+.user-profile__avatar-row:has(img[src='']) .user-profile__default-avatar-buttons {
+    display: none;
+}
+
+.user-profile__avatar-row:not(:has(img[src=''])) .user-profile__empty-avatar-input {
+    display: none;
+}
+
+.user-profile__avatar-row:has(input[name='avatar-row-checkbox']:checked) .user-profile__default-avatar-buttons {
+    display: none;
+}
+
+.user-profile__avatar-row:has(input[name='avatar-row-checkbox']:not(:checked)) .user-profile__activated-avatar-buttons {
+    display: none;
+}
+
+.user-profile__avatar-edit-button-row {
+    display: flex;
+    gap: var(--space-default);
+}
+
+.user-profile__avatar-edit-button-row .btn {
+    max-width: fit-content;
+    min-width: fit-content;
+    width: fit-content !important;
+    padding: var(--space-large)
+}
+
+.user-profile__edit-avatar-box {
+    padding: var(--space-large);
+    width: 209px !important;
+    position: absolute;
+    z-index: 10;
+}
+
+.user-profile__save-indicator {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-tertiary);
+}
+
+.user-profile__save-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-default);
+}
+
+.user-profile__save-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-tertiary);
+}
+
+.user-profile__save-icon--spin {
+  animation: create-post-spin 0.8s linear infinite;
+}
+
+@keyframes create-post-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 768px) {
+
     /* ──────── Stack header row on mobile ──────── */
     .user-profile__profile-card-row {
         flex-direction: column;
@@ -90,16 +273,60 @@
         display: contents;
     }
 
-    .user-profile__bio          { order: 1; }
-    .user-profile__achievements { order: 2; }
-    .user-profile__badges       { order: 3; }
-    .user-profile__github       { order: 4; }
-    .user-profile__posts        { order: 5; }
-    .user-profile__mailing-list { order: 6; }
-    .user-profile__connections  { order: 7; }
+    .user-profile__bio {
+        order: 1;
+    }
+
+    .user-profile__achievements {
+        order: 2;
+    }
+
+    .user-profile__badges {
+        order: 3;
+    }
+
+    .user-profile__github {
+        order: 4;
+    }
+
+    .user-profile__posts {
+        order: 5;
+    }
+
+    .user-profile__mailing-list {
+        order: 6;
+    }
+
+    .user-profile__connections {
+        order: 7;
+    }
+
+    .user-profile__profile-edit-card {
+        order: 1;
+    }
+
+    .user-profile-edit__connections-card {
+        order: 2;
+    }
+
+    .user-profile__update-details {
+        order: 3;
+    }
+
+    .user-profile__commit-email-card {
+        order: 4;
+    }
+
+    .user-profile__email-preferences-card {
+        order: 5;
+    }
+
+    .user-profile__delete-account {
+        order: 6;
+    }
 }
 
-@media (769px <= width < 1280px) {
+@media (769px <=width < 1280px) {
     .user-profile__button-group {
         align-self: end;
         width: 528px;

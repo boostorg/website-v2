@@ -33,6 +33,7 @@ from .forms import (
     UserProfileForm,
     UserProfilePhotoForm,
     DeleteAccountForm,
+    V3UserProfileForm,
 )
 from .models import User
 from .password_rules import build_password_rules
@@ -98,10 +99,44 @@ class CurrentUserProfileView(
     success_message = "Your profile was successfully updated."
     success_url = reverse_lazy("profile-account")
     v3_template_name = "v3/user_profile_page.html"
+    v3_edit_template_name = "v3/user_profile_edit.html"
 
     def get_v3_context_data(self, **kwargs):
         user = self.request.user
         ctx = {}
+
+        if self.request.GET.get("edit", "").lower() == "true":
+            ctx["user_profile_form"] = V3UserProfileForm(
+                user_links={"website": "www.example.com"},
+                initial={"avatar": self.request.user.avatar_url},
+            )
+            ctx["badge_tiers"] = [
+                {"tier": "1", "name": "Bronze"},
+                {"tier": "2", "name": "Silver"},
+                {"tier": "3", "name": "Gold"},
+                {"tier": "4", "name": "Platinum"},
+                {"tier": "5", "name": "Diamond"},
+            ]
+            ctx["account_connections_mixed"] = [
+                {
+                    "platform": "github",
+                    "label": "GitHub",
+                    "connected": True,
+                    "status_text": "Connected",
+                    "action_label": "Manage",
+                    "action_url": "#",
+                },
+                {
+                    "platform": "google",
+                    "label": "Google",
+                    "connected": False,
+                    "status_text": "Not connected",
+                    "action_label": "Connect",
+                    "action_url": "#",
+                },
+            ]
+            return ctx
+
         ctx["user_info"] = {
             "user_name": user.display_name,
             "avatar_url": user.get_avatar_url(),
@@ -373,19 +408,31 @@ class CurrentUserProfileView(
 
         return ctx
 
+    def get_template_names(self):
+        if (
+            getattr(self, "_v3_active", False)
+            and self.request.GET.get("edit", "").lower() == "true"
+            and self.request.user.is_authenticated
+        ):
+            return [self.v3_edit_template_name]
+        return super().get_template_names()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["change_password_form"] = ChangePasswordForm(user=self.request.user)
-        context["profile_form"] = UserProfileForm(instance=self.request.user)
-        context["profile_photo_form"] = UserProfilePhotoForm(instance=self.request.user)
-        context["can_update_image"] = self.request.user.can_update_image
-        context["profile_preferences_form"] = PreferencesForm(
-            instance=self.request.user.preferences
-        )
-        context["social_accounts"] = self.get_social_accounts()
-        context["commit_email_addresses"] = CommitAuthorEmail.objects.filter(
-            author__user=self.request.user
-        )
+        if self.request.user.is_authenticated:
+            context["change_password_form"] = ChangePasswordForm(user=self.request.user)
+            context["profile_form"] = UserProfileForm(instance=self.request.user)
+            context["profile_photo_form"] = UserProfilePhotoForm(
+                instance=self.request.user
+            )
+            context["can_update_image"] = self.request.user.can_update_image
+            context["profile_preferences_form"] = PreferencesForm(
+                instance=self.request.user.preferences
+            )
+            context["social_accounts"] = self.get_social_accounts()
+            context["commit_email_addresses"] = CommitAuthorEmail.objects.filter(
+                author__user=self.request.user
+            )
         return context
 
     def get_social_accounts(self):

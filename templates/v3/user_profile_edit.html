@@ -1,0 +1,406 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  User Profile - Edit
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/user-profile-page.css' %}" rel="stylesheet" />
+  <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="user-profile__container">
+    <div class="user-profile__profile-content-area">
+      <div class="user-profile__col">
+        <div class="basic-card card user-profile__profile-edit-card">
+          <div class="card__header">
+            <span class="card__title">Profile</span>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column user-profile__xl-space-col px-large">
+            <div class="user-profile__default-space-col">
+              <div x-data="createTagline">
+              {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.tagline %}
+              <div class="field__label-row">
+                <span class="field__help">This tagline is displayed next to your avatar on your profile & across the site</span>
+              <div class="user-profile__content-actions" x-show="taglineSaveStatus" x-cloak>
+              <span class="user-profile__save-indicator" role="status" aria-live="polite">
+                <span class="user-profile__save-state" x-show="taglineSaveStatus === 'saving'" x-cloak>
+                  <span class="user-profile__save-text">Saving</span>
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
+                </span>
+                <span class="user-profile__save-state" x-show="taglineSaveStatus === 'saved'" x-cloak>
+                  <span class="user-profile__save-text">Saved</span>
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
+                </span>
+              </span>
+              </div>
+            </div>
+              </div>
+            </div>
+            <div class="user-profile__default-space-col">
+              {% comment %} Content (Blog, News): WYSIWYG editor. Char counter, Saving/Saved indicator, and draft persistence are driven by the wysiwyg-update event (see handleWysiwygUpdate). No placeholder by design. {% endcomment %}
+            <div x-data="createWysiwyg" @wysiwyg-update="handleWysiwygUpdate($event)" class="field create-post-page__content-field" :class="{ 'field--error': errors.content }">
+            <div class="field__label-row">
+              <label class="field__label" for="field-content">Biography</label>
+              <span
+              class="field__max-chars"
+              aria-hidden="true"
+              x-text="(20000 - contentLength).toLocaleString() + ' left'">
+              20,000 left
+            </span>
+            </div>
+            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value preset="minimal" only %}
+            <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
+            {% comment %} Content auto-save indicator (no Auto-Generate button — that's Description-only). Hidden when nothing is written; driven by contentSaveStatus. {% endcomment %}
+            <div class="field__label-row">
+              <div class="field__help">This text field supports Markdown and this content is what will appear on your public profile</div>
+            <div class="user-profile__content-actions" x-show="contentSaveStatus" x-cloak>
+              <span class="user-profile__save-indicator" role="status" aria-live="polite">
+                <span class="user-profile__save-state" x-show="contentSaveStatus === 'saving'" x-cloak>
+                  <span class="user-profile__save-text">Saving</span>
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
+                </span>
+                <span class="user-profile__save-state" x-show="contentSaveStatus === 'saved'" x-cloak>
+                  <span class="user-profile__save-text">Saved</span>
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
+                </span>
+              </span>
+            </div>
+            </div>
+          </div>
+            </div>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            <span class="user-profile__link-section-heading">Profile Links</span>
+            <div class="user-profile__two-column-inputs">
+              {% for form in user_profile_form.link_formset %}
+                {% include 'v3/includes/_form_include.html' with form=form only %}
+              {% endfor %}
+            </div>
+            <div class="field__help">All links will be displayed publicly on your profile for other users to see.</div>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.role %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="user-profile__xl-space-col px-large">
+            <div class="user-profile__default-space-col">
+              <span class="field__label">Avatar</span>
+              <div class="user-profile__avatar-row">
+                <span id="user-profile-editable-avatar" class="avatar avatar--xxxl" aria-hidden="true"><img src="{{ user_profile_form.avatar.value }}" class="avatar avatar--xxl avatar__img" alt="" loading="lazy" decoding="async" /></span>
+                <input type="checkbox" id="user-profile__avatar-row-checkbox" name="avatar-row-checkbox" class="badge-button__radio" />
+                {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name extra_class='user-profile__empty-avatar-input' accept='image/png,image/jpeg' only %}
+                <div class="user-profile__default-space-col user-profile__default-avatar-buttons">
+                  <label for="user-profile__avatar-row-checkbox" class="btn btn-primary">Replace Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                  <input type="checkbox" id="user-profile__avatar-row-checkbox" name="{{ user_profile_form.delete_avatar.name }}" class="badge-button__radio" />
+                  <label aria-label="Delete Avatar" id="avatar-row__delete-avatar" for="{{ user_profile_form.delete_avatar.name }}" class="btn btn-error">Delete Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                </div>
+                <div class="user-profile__default-space-col user-profile__activated-avatar-buttons">
+                  <div class="user-profile__avatar-edit-button-row">
+                    <label aria-label="Save Avatar Change" id="avatar-row__save-button" for="user-profile__avatar-row-checkbox" class="btn btn-primary"><span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                    <label aria-label="Reset Avatar Change" id="avatar-row__close-button" for="user-profile__avatar-row-checkbox" class="btn btn-primary"><span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                  </div>
+                  <div>
+                    <div class="card px-large user-profile__default-space-col user-profile__edit-avatar-box">
+                      {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name label='Replace Image' help_text='This should be a PNG or JPEG format and no larger than 5MB' accept='image/png,image/jpeg' only %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <span class="field__help">This should be a PNG or JPEG format and no larger than 5MB</span>
+            </div>
+            <div class="user-profile__default-space-col">
+              <div class="field__label">Pick Badge</div>
+              <div>
+                {% for tier in badge_tiers %}
+                  <div class="user-profile__badge-select disabled">
+                    {% include 'v3/includes/_badge_v3.html' with token='badge-tier-'|add:tier.tier label=tier.name|add:' Badge' size='large' %}
+                    <span>{{ tier.name }} Badge</span>
+                    {% include 'includes/icon.html' with icon_name='lock' icon_size=16 icon_viewbox='0 0 16 16' %}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.select_title only %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            <div class="checkbox__multi-checkbox-column">
+              {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.hide_github %}
+              {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.hide_ml %}
+              {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.hide_ach %}
+            </div>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__cta_section">
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save Changes' only %}
+          </div>
+        </div>
+        <div class="basic-card card user-profile__delete-account">
+          <div class="card__header">
+            <span class="card__title">Delete account</span>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            <div>
+              <div class="user-profile__small-section-heading">Remove your account from our system</div>
+              <div class="user-profile__small-section-subheading">This will remove your information and account from Boost completely and is not reversible.</div>
+            </div>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__cta_section">
+            {% include 'v3/includes/_button.html' with style='error' type='submit' label='Delete Account' only %}
+          </div>
+        </div>
+      </div>
+      <div class="user-profile__col">
+        <div class="basic-card card user-profile__update-details">
+          <div class="card__header">
+            <span class="card__title">Update Details</span>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="user-profile__xl-space-col px-large">
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.username %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.email %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.country %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.indicate_last_login_method %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.override_commit_author_name %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.override_commit_author_email %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__cta_section">
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save changes' only %}
+          </div>
+        </div>
+        <div class="basic-card card user-profile__commit-email-card">
+          <div class="card__header">
+            <span class="card__title">Commit email address</span>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large user-profile__default-space-col">
+            {% for form in user_profile_form.commit_email_formset %}
+              <div class="user-profile__commit-email-form">
+                {% include 'v3/includes/_form_include.html' with form=form %}
+                {% include 'v3/includes/_button.html' with style='secondary' label='Submit' %}
+              </div>
+            {% endfor %}
+            <button class="user-profile__add-another-button btn-underline" type="button">+ Add Another</button>
+            <div class="field__help">Primary email will be displayed as the contact email on the public profile.</div>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__cta_section">
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save changes' only %}
+          </div>
+        </div>
+        <div class="basic-card card user-profile__email-preferences-card">
+          <div class="card__header">
+            <span class="card__title">Email Preferences</span>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            <div>
+              <span class="user-profile__small-section-heading">Notify me via email when:</span><br />
+              <span class="user-profile__small-section-subheading">My news is approved after moderation:</span>
+            </div>
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.allow_notification_own_news_approved only %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            <span class="user-profile__small-section-subheading">Other users publish their news:</span>
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.allow_notification_others_news_posted only %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__cta_section">
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save Changes' only %}
+          </div>
+        </div>
+        <div class="user-profile-edit__connections-card">
+          {% include 'v3/includes/_account_connections_card.html' with connections=account_connections_mixed %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footer_js %}
+  <script>
+    const originalSrc = '{{user_profile_form.avatar.initial}}'
+
+    const fileDataURL = (file) =>
+      new Promise((resolve, reject) => {
+        let fr = new FileReader()
+        fr.onload = () => resolve(fr.result)
+        fr.onerror = reject
+        fr.readAsDataURL(file)
+      })
+
+    const init = () => {
+      const fileInput = document.querySelectorAll("input[name='{{user_profile_form.avatar.name}}']")
+      const avatarComponent = document.querySelector('#user-profile-editable-avatar')
+      const avatarRowClose = document.querySelector('#avatar-row__close-button')
+      const avatarImg = avatarComponent.querySelector('img')
+      const avatarDelete = document.querySelector('#avatar-row__delete-avatar')
+
+      fileInput.forEach((el) => {
+        el.addEventListener('change', (e) => {
+          const imageFile = fileDataURL(e.target.files[0]).then((data) => {
+            if (avatarImg !== null) avatarImg.src = data
+          })
+        })
+      })
+      avatarRowClose.addEventListener('click', () => {
+        fileInput.forEach((el)=> {
+          el.value = '';
+          Alpine.$data(el)['fileName'] = '';
+        })
+        if (avatarImg !== null) avatarImg.src = originalSrc
+      })
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init)
+    } else {
+      init()
+    }
+
+
+  document.addEventListener('alpine:init', () => {
+    window.createTagline = function () {
+      const taglineInput = document.querySelector("input[name='{{user_profile_form.tagline.name}}']")
+
+      return {
+        taglineSaveStatus: '',
+
+        async init() {
+          await Alpine.nextTick();
+          if (taglineInput) {
+            taglineInput.addEventListener('input', () => this.onTaglineEdited());
+            this.restoreTaglineDraft();
+          }
+        },
+
+        taglineDraftKey() {
+          return 'boost:editUser:taglineDraft';
+        },
+
+        onTaglineEdited() {
+          clearTimeout(this._taglineSaveTimer);
+          this.taglineSaveStatus = 'saving';
+          this._taglineSaveTimer = setTimeout(() => this.saveTaglineDraft(), 800);
+        },
+
+        saveTaglineDraft() {
+          if (!taglineInput) return;
+          try {
+            const value = taglineInput.value;
+            if (value) localStorage.setItem(this.taglineDraftKey(), value);
+            else localStorage.removeItem(this.taglineDraftKey());
+            this.taglineSaveStatus = 'saved';
+          } catch (_) {}
+        },
+
+        restoreTaglineDraft({ allowEmpty = false } = {}) {
+          if (!taglineInput) return;
+          let saved = null;
+          try { saved = localStorage.getItem(this.taglineDraftKey()); } catch (_) {}
+          if (saved !== null) {
+            taglineInput.value = saved;
+            Alpine.$data(taglineInput.parentElement.parentElement)['value'] = saved;
+          }
+          else if (allowEmpty) taglineInput.value = '';
+        },
+
+        clearTaglineDraft() {
+          try { localStorage.removeItem(this.taglineDraftKey()); } catch (_) {}
+        },
+      }
+    }
+
+
+    window.createWysiwyg = function () {
+      return {
+        content: '{{ user_profile_form.bio|default_if_none:""|escapejs }}',
+        contentLength: 0,
+        contentSaveStatus: '',       // same states, for the Content field
+        _contentSaveTimer: null,
+        errors: {
+          content:      '{{ user_profile_form.bio.errors.0|default:""|escapejs }}',
+        },
+
+
+        async init() {
+          await Alpine.nextTick()
+          this.restoreContentDraft();
+        },
+
+        // Bridge from the WYSIWYG editor: keep the counter, indicator, and draft
+        // in sync. Programmatic updates (initial load / restore) skip the
+        // "Saving" animation and persistence.
+        handleWysiwygUpdate(e) {
+          if (e.detail.id !== 'field-content') return;
+          this.contentLength = e.detail.characters;
+          this.content = e.detail.value;
+          if (e.detail.programmatic) {
+            this.contentSaveStatus = this.content ? 'saved' : '';
+          } else {
+            this.onContentEdited();
+          }
+        },
+
+        // Push a value into the WYSIWYG editor (used by restoreContentDraft).
+        setWysiwygContent(markdown) {
+          window.dispatchEvent(new CustomEvent('wysiwyg-set-content', {
+            detail: { id: 'field-content', value: markdown },
+          }));
+        },
+
+        // ── Content draft: localStorage, keyed per post type (mirrors Description) ──
+        contentDraftKey() {
+          return 'boost:userEdit:bioDraft:' + (this.postType || '');
+        },
+
+        onContentEdited(e) {
+          const value = e ? e.target.value : this.content;
+          clearTimeout(this._contentSaveTimer);
+          if (!value) {
+            this.contentSaveStatus = '';
+            this.clearContentDraft();
+            return;
+          }
+          this.contentSaveStatus = 'saving';
+          this._contentSaveTimer = setTimeout(() => {
+            this.saveContentDraft();
+            this.contentSaveStatus = 'saved';
+          }, 800);
+        },
+
+        saveContentDraft() {
+          try {
+            if (this.content) localStorage.setItem(this.contentDraftKey(), this.content);
+            else localStorage.removeItem(this.contentDraftKey());
+          } catch (_) {}
+        },
+
+        restoreContentDraft({ allowEmpty = false } = {}) {
+          let saved = null;
+          try { saved = localStorage.getItem(this.contentDraftKey()); } catch (_) {}
+          // Push the draft into the editor; content/contentLength/contentSaveStatus
+          // are then updated by the resulting (programmatic) wysiwyg-update.
+          if (saved !== null) this.setWysiwygContent(saved);
+          else if (allowEmpty) this.setWysiwygContent('');
+        },
+
+        clearContentDraft() {
+          try { localStorage.removeItem(this.contentDraftKey()); } catch (_) {}
+        },
+      };
+    };
+  });
+
+  </script>
+{% endblock %}
