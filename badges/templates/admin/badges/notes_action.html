@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin/controls.css' %}">
+{% endblock %}
+
+{% block content %}
+  <p>{% blocktranslate %}A note is required for this action. It will be recorded for audit purposes.{% endblocktranslate %}</p>
+
+  <ul>
+    {% for obj in objects %}
+      <li>{{ obj }}</li>
+    {% endfor %}
+  </ul>
+
+  <form action="" method="post">
+    {% csrf_token %}
+    {% for obj in objects %}
+      <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}">
+    {% endfor %}
+    <input type="hidden" name="action" value="{{ action }}">
+
+    {{ form.as_p }}
+
+    <div class="submit-row">
+      <input type="submit" name="apply" value="{{ submit_label }}" class="default">
+      <a href="{{ cancel_url }}" class="button cancel-link">{% translate "Cancel" %}</a>
+    </div>
+  </form>
+{% endblock %}

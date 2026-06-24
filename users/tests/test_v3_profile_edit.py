@@ -66,6 +66,22 @@ def test_v3_edit_page_shows_current_values(user, tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
+def test_v3_edit_page_badge_mock_uses_component_rank_names(user, tp):
+    """The disabled picker labels the tiers in ladder order, diamond at the top."""
+    with tp.login(user):
+        response = tp.get(f"{tp.reverse('profile-account')}?edit=true")
+
+    tp.response_200(response)
+    assert response.context["badge_tiers"] == [
+        {"tier": "1", "name": "Bronze"},
+        {"tier": "2", "name": "Silver"},
+        {"tier": "3", "name": "Gold"},
+        {"tier": "4", "name": "Platinum"},
+        {"tier": "5", "name": "Diamond"},
+    ]
+
+
+@waffle.testutils.override_flag("v3", active=True)
 def test_v3_update_profile_saves_visibility_toggles(user, tp):
     with tp.login(user):
         response = tp.post(

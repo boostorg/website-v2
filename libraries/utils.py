@@ -15,7 +15,7 @@ from dateutil.relativedelta import relativedelta
 
 from dateutil.parser import ParserError, parse
 from django.conf import settings
-from django.db.models import Count, F, QuerySet
+from django.db.models import Count, F, QuerySet, prefetch_related_objects
 from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils.text import slugify
@@ -511,6 +511,10 @@ def build_library_intro_context(
     maintainers = list(library_version.maintainers.exclude(id__in=author_ids))
 
     combined = (authors + maintainers)[:max_authors]
+    if combined:
+        from badges.display import active_badges_prefetch
+
+        prefetch_related_objects(combined, active_badges_prefetch())
     roles = {}
     for user in combined:
         roles[user.id] = "Author" if user.id in author_ids else "Maintainer"

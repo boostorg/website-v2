@@ -109,3 +109,52 @@ def test_version_missing_docs(version, version_name, expected):
     version.save()
     result = version_missing_docs(version)
     assert result == expected
+
+
+@patch("libraries.tasks.call_command")
+def test_update_authors_and_maintainers_backfills_only_library_sources(mock_call):
+    """A blanket backfill here would sweep the commit, review and news tables."""
+    from libraries.tasks import update_authors_and_maintainers
+
+    update_authors_and_maintainers()
+
+    backfills = [
+        c for c in mock_call.call_args_list if c.args[0] == "backfill_achievements"
+    ]
+    assert len(backfills) == 1
+    assert set(backfills[0].args[1:]) == {
+        "--source",
+        "library-authoring",
+        "library-maintenance",
+        "library-versioning",
+    }
+
+
+@patch("libraries.tasks.LibraryUpdater")
+@patch("libraries.tasks.call_command")
+def test_update_commits_does_not_backfill(mock_call, _mock_updater, db):
+    """release_tasks sweeps every source once; a call here would double it."""
+    from libraries.tasks import update_commits
+
+    update_commits()
+
+    assert not [
+        c for c in mock_call.call_args_list if c.args[0] == "backfill_achievements"
+    ]
+
+
+@patch("libraries.tasks.call_command")
+def test_release_tasks_delegates_the_backfill_to_the_command(mock_call):
+    """The sweep is an Action inside release_tasks, not a trailing extra call."""
+    from libraries.management.commands.release_tasks import ReleaseTasksManager
+    from libraries.tasks import release_tasks
+
+    release_tasks("https://example.com")
+
+    assert [c.args[0] for c in mock_call.call_args_list] == ["release_tasks"]
+    manager = ReleaseTasksManager(base_uri="https://example.com", user_id=None)
+    assert [
+        task.description
+        for task in manager.tasks
+        if task.handler == ["backfill_achievements"]
+    ] == ["Backfilling achievements"]

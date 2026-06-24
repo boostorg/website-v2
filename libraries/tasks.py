@@ -217,6 +217,17 @@ def update_authors_and_maintainers():
     call_command("update_authors")
     call_command("update_maintainers")
     call_command("update_library_version_authors", "--clean")
+    # Only the sources whose upstream data just changed. A blanket backfill would
+    # also sweep the commit, review and news tables this task never touches.
+    call_command(
+        "backfill_achievements",
+        "--source",
+        "library-authoring",
+        "--source",
+        "library-maintenance",
+        "--source",
+        "library-versioning",
+    )
 
 
 @app.task
@@ -232,6 +243,10 @@ def update_commits(token=None, clean=False, min_version=""):
             library=library, clean=clean, min_version=min_version
         )
     logger.info("update_commits finished.")
+    # No achievement backfill here on purpose: this runs as a step of the
+    # release_tasks command, which sweeps every source once at the end. Calling
+    # it here too would walk the whole Commit table twice per release. Ad hoc
+    # runs use the "Backfill achievements" button in the badges admin.
     return commits_handled
 
 

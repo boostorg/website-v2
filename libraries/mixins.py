@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
 
+from badges.display import active_badges_prefetch
 from core.models import RenderedContent
 from libraries.constants import (
     LATEST_RELEASE_URL_PATH_STR,
@@ -283,7 +284,7 @@ class ContributorMixin:
             raise ValueError("relation must be maintainers or authors.")
         if exclude_ids:
             qs = qs.exclude(id__in=exclude_ids)
-        qs = list(qs)
+        qs = list(qs.prefetch_related(active_badges_prefetch()))
         patch_commit_authors(qs)
         return qs
 

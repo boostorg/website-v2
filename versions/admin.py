@@ -5,11 +5,67 @@ from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import path
 from django.utils.html import format_html, format_html_join
 
+from core.admin_buttons import TaskButton, TaskButtonAdminMixin
 from libraries.tasks import import_new_versions_tasks
 
 from . import models
 from .models import Version
-from .tasks import dispatch_whats_new
+from .tasks import dispatch_whats_new, import_reviews_task
+
+
+def _import_reviews_preview(_request, _value):
+    """Static warning for the destructive parts of review reconciliation."""
+    return {
+        "title": "Import reviews from boost.org",
+        "summary": (
+            "This re-scrapes the published formal-review results and updates the "
+            "stored reviews to match. Existing reviews with the same normalized "
+            "identity are updated instead of copied."
+        ),
+        "rows": (
+            {
+                "label": "Duplicate reviews",
+                "detail": (
+                    "Duplicate stored reviews are merged; the duplicate rows, "
+                    "their results, and achievements sourced from them are deleted."
+                ),
+                "warning": True,
+            },
+            {
+                "label": "Review results",
+                "detail": (
+                    "Published results are created or updated for every imported "
+                    "review."
+                ),
+                "warning": False,
+            },
+        ),
+        "warning": (
+            "Continue only if boost.org is the source you intend to reconcile "
+            "against."
+        ),
+        "can_apply": True,
+    }
+
+
+IMPORT_REVIEWS_BUTTON = TaskButton(
+    name="import_reviews",
+    label="Import Reviews from boost.org",
+    task=import_reviews_task,
+    success_message="Reviews are being imported from boost.org in the background.",
+    busy_message=(
+        "A review import is already queued or running; not starting another one."
+    ),
+    permission="versions.delete_review",
+    confirm=_import_reviews_preview,
+    description=(
+        "Re-scrapes the formal-review results published on boost.org and updates "
+        "the reviews and results below, matching each against what is already "
+        "stored rather than adding a near-duplicate. Duplicate reviews, their "
+        "results, and achievements sourced from them may be deleted; Reviewer "
+        "achievements are brought into step afterwards."
+    ),
+)
 
 
 class VersionFileInline(admin.StackedInline):
@@ -134,16 +190,38 @@ class ResultInline(admin.StackedInline):
 
 
 @admin.register(models.Review)
-class ReviewAdmin(admin.ModelAdmin):
-    list_display = ["submission", "review_dates", "get_results"]
-    search_fields = ["submission"]
+class ReviewAdmin(TaskButtonAdminMixin, admin.ModelAdmin):
+    list_display = [
+        "id",
+        "submission",
+        "review_dates",
+        "get_results",
+        "get_review_manager",
+        "get_scraped_review_manager",
+    ]
+    ordering = ["-id"]
+    search_fields = ["submission", "review_manager_raw", "review_manager__name"]
     inlines = [ResultInline]
+    task_buttons = (IMPORT_REVIEWS_BUTTON,)
 
     def get_results(self, obj):
-        return " | ".join(obj.results.values_list("short_description", flat=True))
+        return " | ".join(result.short_description for result in obj.results.all())
+
+    @admin.display(description="Review manager", ordering="review_manager__name")
+    def get_review_manager(self, obj):
+        return obj.review_manager or ""
+
+    @admin.display(description="Scraped review manager", ordering="review_manager_raw")
+    def get_scraped_review_manager(self, obj):
+        return obj.review_manager_raw
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
-        return super().get_queryset(request).prefetch_related("results")
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("review_manager")
+            .prefetch_related("results")
+        )
 
 
 @admin.register(models.ReviewResult)

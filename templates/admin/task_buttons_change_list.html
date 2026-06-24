@@ -1,0 +1,37 @@
+{% extends "admin/admin_actions_change_list.html" %}
+
+{% block extrahead %}
+  {{ block.super }}
+  {% if task_buttons %}
+    {# Same source and version as admin/report_polling.html: one HTMX in the admin. #}
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>
+  {% endif %}
+{% endblock %}
+
+{% block admin-actions-extra %}
+  {% if task_buttons %}
+    <ul class="task-buttons">
+      {% for button in task_buttons %}
+        {% include "admin/task_button_status.html" with status=button.status %}
+        <li>
+          <form action="{{ button.url }}" method="post">
+            {% csrf_token %}
+            {% if button.choices %}
+              <label for="{{ button.field_id }}">{{ button.choice_label }}</label>
+              <select name="{{ button.argument }}" id="{{ button.field_id }}">
+                <option value="">{{ button.all_label }}</option>
+                {% for value, label in button.choices %}
+                  <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            {% endif %}
+            <button type="submit">{{ button.label }}</button>
+          </form>
+          {% if button.description %}
+            <p class="help">{{ button.description }}</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

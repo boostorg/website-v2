@@ -26,7 +26,6 @@ from core.validators import (
     large_file_max_size_validator,
     downscale_image_file_size_validator,
 )
-from core.templatetags.custom_static import large_static
 
 logger = logging.getLogger(__name__)
 
@@ -188,22 +187,20 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         return super().save(*args, **kwargs)
 
 
-class Badge(models.Model):
-    name = models.CharField(_("name"), max_length=100, blank=True)
-    display_name = models.CharField(_("display name"), max_length=100, blank=True)
-
-
 class User(BaseUser):
     """
     Our custom user model.
 
     NOTE: See ./signals.py for signals that relate to this model.
+
+    Achievements and badges live in the ``badges`` app and reference this model
+    via ``UserAchievement`` / ``UserBadge`` (reverse accessors ``achievements``
+    and ``badges``).
     """
 
     TAGLINE_MAX_LENGTH = 70
     BIOGRAPHY_MAX_LENGTH = 20000
 
-    badges = models.ManyToManyField(Badge)
     # todo: consider making this unique=True after checking user data for duplicates
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
     is_commit_author_name_overridden = models.BooleanField(
@@ -368,12 +365,14 @@ class User(BaseUser):
 
     def to_v3_profile_dict(self, role=None):
         """Dict shape consumed by `v3/includes/_user_profile.html`."""
+        featured = self.featured_badge
         return {
             "name": self.display_name or str(self),
             "profile_url": None,
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
-            "badge": None,
+            "badge": featured["icon"] if featured else None,
+            "badge_label": featured["name"] if featured else "",
             "bio": None,
         }
 
@@ -398,13 +397,17 @@ class User(BaseUser):
         return self.get_avatar_url()
 
     @cached_property
-    def badge_url(self):
-        """
-        This is a placeholder value
+    def featured_badge(self):
+        """The user's publicly visible headline badge as a dict, or ``None``.
 
-        TODO: Replace this value
+        Templates read this as an attribute, which is the only reason it lives
+        here; everything about how badges are selected and rendered is in
+        ``badges.display``. Views that need the owner's hidden badges call
+        ``badges.display`` directly with ``include_hidden``.
         """
-        return large_static("img/v3/badges/badge-gold-medal.png")
+        from badges.display import featured_badge
+
+        return featured_badge(self)
 
     @cached_property
     def role(self):
