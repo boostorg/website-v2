@@ -243,7 +243,6 @@ class V3UserProfileForm(forms.Form):
     # Left Column Fields
     tagline = forms.CharField(
         max_length=70,
-        help_text="This tagline is displayed next to your avatar on your profile & across the site",
         widget=forms.TextInput(
             attrs={"placeholder": "Placeholder", "display_max_chars": True}
         ),

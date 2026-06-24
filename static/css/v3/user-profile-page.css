@@ -215,6 +215,38 @@
     z-index: 10;
 }
 
+.user-profile__save-indicator {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-tertiary);
+}
+
+.user-profile__save-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-default);
+}
+
+.user-profile__save-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-tertiary);
+}
+
+.user-profile__save-icon--spin {
+  animation: create-post-spin 0.8s linear infinite;
+}
+
+@keyframes create-post-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 768px) {
 
     /* ──────── Stack header row on mobile ──────── */

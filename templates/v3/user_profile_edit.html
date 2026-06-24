@@ -22,11 +22,56 @@
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column user-profile__xl-space-col px-large">
             <div class="user-profile__default-space-col">
+              <div x-data="createTagline">
               {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.tagline %}
+              <div class="field__label-row">
+                <span class="field__help">This tagline is displayed next to your avatar on your profile & across the site</span>
+              <div class="user-profile__content-actions" x-show="taglineSaveStatus" x-cloak>
+              <span class="user-profile__save-indicator" role="status" aria-live="polite">
+                <span class="user-profile__save-state" x-show="taglineSaveStatus === 'saving'" x-cloak>
+                  <span class="user-profile__save-text">Saving</span>
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
+                </span>
+                <span class="user-profile__save-state" x-show="taglineSaveStatus === 'saved'" x-cloak>
+                  <span class="user-profile__save-text">Saved</span>
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
+                </span>
+              </span>
+              </div>
+            </div>
+              </div>
             </div>
             <div class="user-profile__default-space-col">
-              <span class="field__label">Biography</span>
-              {% include 'v3/includes/_wysiwyg_editor.html' with textarea_id='id_content' textarea_name='content' label='Biography' preset='minimal' help_text='This text field supports Markdown and this content is what will appear on your public profile' only %}
+              {% comment %} Content (Blog, News): WYSIWYG editor. Char counter, Saving/Saved indicator, and draft persistence are driven by the wysiwyg-update event (see handleWysiwygUpdate). No placeholder by design. {% endcomment %}
+            <div x-data="createWysiwyg" @wysiwyg-update="handleWysiwygUpdate($event)" class="field create-post-page__content-field" :class="{ 'field--error': errors.content }">
+            <div class="field__label-row">
+              <label class="field__label" for="field-content">Biography</label>
+              <span
+              class="field__max-chars"
+              aria-hidden="true"
+              x-text="(20000 - contentLength).toLocaleString() + ' left'">
+              20,000 left
+            </span>
+            </div>
+            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value preset="minimal" only %}
+            <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
+            {% comment %} Content auto-save indicator (no Auto-Generate button — that's Description-only). Hidden when nothing is written; driven by contentSaveStatus. {% endcomment %}
+            <div class="field__label-row">
+              <div class="field__help">This text field supports Markdown and this content is what will appear on your public profile</div>
+            <div class="user-profile__content-actions" x-show="contentSaveStatus" x-cloak>
+              <span class="user-profile__save-indicator" role="status" aria-live="polite">
+                <span class="user-profile__save-state" x-show="contentSaveStatus === 'saving'" x-cloak>
+                  <span class="user-profile__save-text">Saving</span>
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
+                </span>
+                <span class="user-profile__save-state" x-show="contentSaveStatus === 'saved'" x-cloak>
+                  <span class="user-profile__save-text">Saved</span>
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
+                </span>
+              </span>
+            </div>
+            </div>
+          </div>
             </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
@@ -222,5 +267,140 @@
     } else {
       init()
     }
+
+
+  document.addEventListener('alpine:init', () => {
+    window.createTagline = function () {
+      const taglineInput = document.querySelector("input[name='{{user_profile_form.tagline.name}}']")
+
+      return {
+        taglineSaveStatus: '',
+
+        async init() {
+          await Alpine.nextTick();
+          if (taglineInput) {
+            taglineInput.addEventListener('input', () => this.onTaglineEdited());
+            this.restoreTaglineDraft();
+          }
+        },
+
+        taglineDraftKey() {
+          return 'boost:editUser:taglineDraft';
+        },
+
+        onTaglineEdited() {
+          clearTimeout(this._taglineSaveTimer);
+          this.taglineSaveStatus = 'saving';
+          this._taglineSaveTimer = setTimeout(() => this.saveTaglineDraft(), 800);
+        },
+
+        saveTaglineDraft() {
+          if (!taglineInput) return;
+          try {
+            const value = taglineInput.value;
+            if (value) localStorage.setItem(this.taglineDraftKey(), value);
+            else localStorage.removeItem(this.taglineDraftKey());
+            this.taglineSaveStatus = 'saved';
+          } catch (_) {}
+        },
+
+        restoreTaglineDraft({ allowEmpty = false } = {}) {
+          if (!taglineInput) return;
+          let saved = null;
+          try { saved = localStorage.getItem(this.taglineDraftKey()); } catch (_) {}
+          if (saved !== null) {
+            taglineInput.value = saved;
+            Alpine.$data(taglineInput.parentElement.parentElement)['value'] = saved;
+          }
+          else if (allowEmpty) taglineInput.value = '';
+        },
+
+        clearTaglineDraft() {
+          try { localStorage.removeItem(this.taglineDraftKey()); } catch (_) {}
+        },
+      }
+    }
+
+
+    window.createWysiwyg = function () {
+      return {
+        content: '{{ user_profile_form.bio|default_if_none:""|escapejs }}',
+        contentLength: 0,
+        contentSaveStatus: '',       // same states, for the Content field
+        _contentSaveTimer: null,
+        errors: {
+          content:      '{{ user_profile_form.bio.errors.0|default:""|escapejs }}',
+        },
+
+
+        async init() {
+          await Alpine.nextTick()
+          this.restoreContentDraft();
+        },
+
+        // Bridge from the WYSIWYG editor: keep the counter, indicator, and draft
+        // in sync. Programmatic updates (initial load / restore) skip the
+        // "Saving" animation and persistence.
+        handleWysiwygUpdate(e) {
+          if (e.detail.id !== 'field-content') return;
+          this.contentLength = e.detail.characters;
+          this.content = e.detail.value;
+          if (e.detail.programmatic) {
+            this.contentSaveStatus = this.content ? 'saved' : '';
+          } else {
+            this.onContentEdited();
+          }
+        },
+
+        // Push a value into the WYSIWYG editor (used by restoreContentDraft).
+        setWysiwygContent(markdown) {
+          window.dispatchEvent(new CustomEvent('wysiwyg-set-content', {
+            detail: { id: 'field-content', value: markdown },
+          }));
+        },
+
+        // ── Content draft: localStorage, keyed per post type (mirrors Description) ──
+        contentDraftKey() {
+          return 'boost:userEdit:bioDraft:' + (this.postType || '');
+        },
+
+        onContentEdited(e) {
+          const value = e ? e.target.value : this.content;
+          clearTimeout(this._contentSaveTimer);
+          if (!value) {
+            this.contentSaveStatus = '';
+            this.clearContentDraft();
+            return;
+          }
+          this.contentSaveStatus = 'saving';
+          this._contentSaveTimer = setTimeout(() => {
+            this.saveContentDraft();
+            this.contentSaveStatus = 'saved';
+          }, 800);
+        },
+
+        saveContentDraft() {
+          try {
+            if (this.content) localStorage.setItem(this.contentDraftKey(), this.content);
+            else localStorage.removeItem(this.contentDraftKey());
+          } catch (_) {}
+        },
+
+        restoreContentDraft({ allowEmpty = false } = {}) {
+          let saved = null;
+          try { saved = localStorage.getItem(this.contentDraftKey()); } catch (_) {}
+          // Push the draft into the editor; content/contentLength/contentSaveStatus
+          // are then updated by the resulting (programmatic) wysiwyg-update.
+          if (saved !== null) this.setWysiwygContent(saved);
+          else if (allowEmpty) this.setWysiwygContent('');
+        },
+
+        clearContentDraft() {
+          try { localStorage.removeItem(this.contentDraftKey()); } catch (_) {}
+        },
+      };
+    };
+  });
+
   </script>
 {% endblock %}
