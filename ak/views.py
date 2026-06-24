@@ -18,6 +18,7 @@ from core.constants import HOMEPAGE_POPULAR_TERMS_DISPLAY
 from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
 from core.models import PopularSearchTerm
+from core.templatetags.custom_static import large_static
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
 from mailing_list.constants import MAILING_LIST_LABELS
@@ -29,7 +30,6 @@ from ak.homepage import (
     build_get_started_code,
     build_join_developers_links,
     build_library_intro,
-    hero_image_context,
 )
 from testimonials.utils import get_testimonial_cards
 from libraries.utils import commit_data_to_stats_bars, get_commit_data_by_release
@@ -127,9 +127,6 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             get_commit_data_by_release(limit=10)
         )
 
-        # Hero Image
-        ctx.update(hero_image_context())
-
         user = self.request.user
         if user.is_authenticated and self.request.session.pop(
             "show_ml_post_auth_modal", False
@@ -145,6 +142,20 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             ]
             ctx["post_auth_modal_user_email"] = user.email
 
+        # Hero foreground/background swapped with the community hero (see
+        # CommunityView): home now shows the community scene and vice versa.
+        home_foreground = large_static("img/v3/community-page/community-foreground.png")
+        ctx["hero_image_url"] = home_foreground
+        ctx["hero_image_url_light"] = home_foreground
+        ctx["hero_image_url_dark"] = home_foreground
+        # Mobile art-direction: a tightly-trimmed foreground so it isn't letterboxed
+        # on narrow screens. Desktop/tablet keep the wide foreground above.
+        ctx["hero_image_url_mobile"] = large_static(
+            "img/v3/community-page/community-foreground-mobile.png"
+        )
+        ctx["hero_background_image_url"] = large_static(
+            "img/v3/community-page/community-background.png"
+        )
         return ctx
 
 

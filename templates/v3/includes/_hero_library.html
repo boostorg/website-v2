@@ -13,32 +13,27 @@
     source_url         (optional) — Source code link URL. Omit to hide.
     slack_url          (optional) — Discuss in Slack URL. Omit to hide.
     github_url         (optional) — GitHub Issues URL. Omit to hide.
-    rss_url            (optional) — RSS feed URL. Omit to hide.
     hero_image_url     (optional) — Image URL. If omitted, image block is not shown.
+    hero_image_url_mobile (optional) — Art-directed image swapped in at &lt;=767px (e.g. a tighter crop). If omitted, the desktop image is used at all widths.
     hero_background_image_url (optional) — Background image URL for the hero container.
+    extra_classes      (optional) — Extra modifier classes for the hero <section>, e.g. "hero--community" (community) or "hero--release" (release detail).
     is_flagship_lib    (optional) — Boolean value stating whether or not this is the hero for a flagship library. If it isn't, styles are a bit different.
 
   If none of category_tags/version_tag/added_text are passed, the tags row is
-  hidden. If none of doc_url/source_url/slack_url/github_url/rss_url are
-  passed, the links row is hidden.
-
-  When `version_alert` is in context (along with version_alert_message and
-  selected_version), a v3/includes/_version_alert.html banner is rendered as
-  the last child of the hero section. Note: callers using `only` must forward
-  these three vars explicitly.
+  hidden. If none of doc_url/source_url/slack_url/github_url are passed, the
+  links row is hidden.
 
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
 {% endcomment %}
-<section class="hero-library{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-library--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero-library--with-bg-and-image{% endif %}{% if hero_background_image_url %} hero-library--with-background-image{% endif %}"
+<section class="hero{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero--with-bg-and-image{% endif %}{% if hero_background_image_url %} hero--with-background-image{% endif %}{% if extra_classes %} {{ extra_classes }}{% endif %}"
          {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
          aria-label="Library hero">
-  <div class="hero-library__block">
-    <div class="hero-library__main">
-    <div class="hero-library__content">
-      <div class="hero-library__meta">
+  <div class="hero__block">
+    <div class="hero__content">
+      <div class="hero__meta">
         {% if category_tags or version_tag or added_text %}
-        <div class="hero-library__tags">
+        <div class="hero__tags">
           {% for tag in category_tags %}
           {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url|default:"#" variant="neutral" size="default" %}
           {% endfor %}
@@ -46,24 +41,23 @@
           <span class="version-tag version-tag--default">{{ version_tag }}</span>
           {% endif %}
           {% if added_text %}
-          <div class="hero-library__added-wrap">
-            <span class="hero-library__added">{{ added_text }}</span>
+          <div class="hero__added-wrap">
+            <span class="hero__added">{{ added_text }}</span>
           </div>
           {% endif %}
         </div>
         {% endif %}
-        <div class="hero-library__text-block">
+        <div class="hero__text-block">
           {% if title %}
-          <h1 class="hero-library__title{% if is_flagship_lib %} hero-library__title--flagship
-{% endif %}" style="margin-bottom: 0;">{{ title }}</h1>
+          <h1 class="hero__title{% if is_flagship_lib %} hero__title--flagship{% endif %}" style="margin-bottom: 0;">{{ title }}</h1>
           {% endif %}
           {% if description %}
-          <p class="hero-library__description">{{ description }}</p>
+          <p class="hero__description">{{ description }}</p>
           {% endif %}
         </div>
       </div>
       {% if doc_url or source_url or slack_url or github_url or rss_url %}
-      <div class="hero-library__links">
+      <div class="hero__links">
         {% if doc_url %}
         {% include "v3/includes/_button.html" with icon_position="right" label="Documentation" url=doc_url style="icon-library" icon_name="documentation" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
@@ -82,18 +76,25 @@
       </div>
       {% endif %}
     </div>
-
     {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
-    <div class="hero-library__image{% if hero_image_url_dark %} hero-library__image--theme-aware{% endif %}">
+    {# fullbleed_fg: community uses the shared .hero-fg frame; other library heroes keep the small-box .hero__image. #}
+    {% with fgwrap=fullbleed_fg|yesno:"hero-fg,hero__image" fgimg=fullbleed_fg|yesno:"hero-fg__img,hero__img" %}
+    <div class="{{ fgwrap }}{% if hero_image_url_dark %} {{ fgwrap }}--theme-aware{% endif %}">
       {% with hero_light=hero_image_url_light|default:hero_image_url hero_dark=hero_image_url_dark %}
-      <img alt="" class="hero-library__img hero-library__img--light" src="{{ hero_light }}" loading="lazy" decoding="async">
+      <picture>
+        {% if hero_image_url_mobile %}<source media="(max-width: 767px)" srcset="{{ hero_image_url_mobile }}">{% endif %}
+        <img alt="" class="{{ fgimg }} {{ fgimg }}--light" src="{{ hero_light }}" loading="lazy" decoding="async">
+      </picture>
       {% if hero_dark %}
-      <img alt="" class="hero-library__img hero-library__img--dark" src="{{ hero_dark }}" loading="lazy" decoding="async">
+      <picture>
+        {% if hero_image_url_mobile %}<source media="(max-width: 767px)" srcset="{{ hero_image_url_mobile }}">{% endif %}
+        <img alt="" class="{{ fgimg }} {{ fgimg }}--dark" src="{{ hero_dark }}" loading="lazy" decoding="async">
+      </picture>
       {% endif %}
       {% endwith %}
     </div>
+    {% endwith %}
     {% endif %}
-    </div>
-    {% include "v3/includes/_version_alert.html" %}
   </div>
+  {% include "v3/includes/_version_alert.html" %}
 </section>

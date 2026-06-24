@@ -395,6 +395,10 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
     hero_image_url_light = large_static("img/v3/home-page/home-page-foreground.png")
     hero_image_url_dark = large_static("img/v3/home-page/home-page-foreground.png")
 
+    hero_background_image_url = large_static(
+        "img/v3/home-page/home-page-background.png"
+    )
+
     library_about_code = (
         "int main()\n"
         "{\n"

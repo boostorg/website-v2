@@ -231,6 +231,10 @@
   font-family: var(--font-sans);
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-medium);
+  /* Pin line-height + letter-spacing to the Figma button spec (17.36px / -0.14px
+     at the 14px size) instead of inheriting the page defaults (16.8px / -0.16px). */
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-primary);
   background-color: var(--color-surface-weak);
   border: 1px solid var(--color-stroke-weak);

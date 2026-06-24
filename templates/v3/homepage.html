@@ -18,8 +18,9 @@
   {% url 'calendar' as calendar_url %}
   {% url 'community' as community_url %}
   {% url 'license' as license_url %}
+  {% include "v3/includes/_hero_home.html" with hero_background_image_url=hero_background_image_url install_card_id="hero-home-1" hero_image_url_light=hero_image_url_light hero_image_url_dark=hero_image_url_dark hero_image_url_mobile=hero_image_url_mobile primary_url=hero_primary_url secondary_url=hero_secondary_url %}
   <div class="homepage-container">
-      {% include "v3/includes/_hero_home.html" with hero_background_image_url="" install_card_id="hero-home-1" hero_image_url_light=hero_legacy_image_url_light hero_image_url_dark=hero_legacy_image_url_dark primary_url=hero_primary_url secondary_url=hero_secondary_url %}
+
     <div class="card-masonry-top">
       <div class="item-a">
         {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}

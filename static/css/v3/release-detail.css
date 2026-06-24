@@ -13,17 +13,8 @@
   flex: 1 0 auto;
 }
 
-body:has(.releases-v3) .header {
-  position: absolute;
-  z-index: 10;
-  left: 0;
-  right: 0;
-}
-
-/* Hero background color override for release pages */
-body:has(.releases-v3) .hero-library--no-image {
-  background: var(--color-surface-weak-accent-yellow);
-}
+/* Hero styling (including the --release variant) lives in heros.css; header
+   positioning is centralized in header.css (body.v3 .header). */
 
 .release-detail {
   display: flex;
@@ -139,25 +130,6 @@ body:has(.releases-v3) .hero-library--no-image {
 
   .release-detail__bottom-cards > :last-child {
     grid-column: auto;
-  }
-
-  body:has(.releases-v3) .hero-library--no-image .hero-library__block {
-    height: 520px;
-    padding: 80px 0 0 0;
-  }
-
-  body:has(.releases-v3) .hero-library--no-image .hero-library__main {
-    justify-content: flex-start;
-  }
-
-  body:has(.releases-v3) .hero-library--no-image .hero-library__content {
-    padding: 0 var(--space-medium);
-    width: 100%;
-  }
-
-  body:has(.releases-v3) .hero-library--no-image .banner {
-    margin: 0 var(--space-medium);
-    padding: var(--space-default) var(--space-large);
   }
 
   .downloads-table-card__td--hash {

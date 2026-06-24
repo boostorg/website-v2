@@ -21,6 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 from waffle import flag_is_active
 
 from core.mixins import V3Mixin
+from core.templatetags.custom_static import large_static
 from mailing_list.mixins import MailingListCardMixin
 from core.models import RenderedContent
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -202,6 +203,17 @@ class VersionDetail(
         ctx.update(
             {
                 "hero_title": f"{heading} ({obj.display_name})",
+                # Hero illustration: foreground + art-directed mobile crop + background
+                # scene. Assets land under static/static-large/img/v3/releases-page/.
+                "hero_image_url": large_static(
+                    "img/v3/releases-page/release-foreground.png"
+                ),
+                "hero_image_url_mobile": large_static(
+                    "img/v3/releases-page/release-foreground-mobile.png"
+                ),
+                "hero_background_image_url": large_static(
+                    "img/v3/releases-page/release-background.png"
+                ),
                 "is_development_branch": is_development_branch,
                 "whats_new_heading": f"What's new in {obj.display_name}",
                 "whats_new_approved": obj.whats_new_approved,
