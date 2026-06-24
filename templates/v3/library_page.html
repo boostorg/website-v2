@@ -396,9 +396,7 @@ Inputs:
     <form action="" method="get">
       <div id="library-page-filter-container" class="mb-xl library-page__filter-row">
         {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields clear_url=library_filter_clear_url %}
-        {% url 'libraries-list' version_slug='master' library_view_str=library_view_str as master_branch_url %}
-        {% url 'libraries-list' version_slug='develop' library_view_str=library_view_str as develop_branch_url %}
-        {% include 'v3/includes/_branch_buttons.html' with master_url=master_branch_url develop_url=develop_branch_url %}
+        {% include 'v3/includes/_branch_buttons.html' %}
       </div>
     </form>
     {% if library_view_str == 'list' %}

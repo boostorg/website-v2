@@ -1,28 +1,33 @@
+{% load branch_url_tag %}
 {% comment %}
-  V3 Branch Buttons — two small, unobtrusive links to the Master and Develop
-  branch resources, per Rob's approved design (Figma node 7696:45822).
+  V3 Branch Buttons — two small, unobtrusive links that switch the current page
+  to the Master / Develop Boost version, per Rob's approved design (Figma node
+  7696:45822).
 
   Each button is a bordered icon square with a small amber corner badge showing
   a single letter ("M" / "D"). The full words "Master" / "Develop" are exposed
   via title + aria-label for accessibility (the AC requires those exact words).
 
+  URLs are derived from the current view via branch_url_tag (same pattern as the
+  legacy libraries/includes/dev_master_links.html), so this partial is page-
+  agnostic: it reuses request.resolver_match and just swaps in the branch as the
+  version_slug. Works on any versioned page (library list, library detail, ...).
+
+  Requires the `request` context processor (project default). No variables.
+
   Styles: static/css/v3/branch-buttons.css (link it in the page's extra_head).
 
-  Variables:
-    master_url   (required) — href for the Master branch resource.
-    develop_url  (required) — href for the Develop branch resource.
-
   Usage:
-    {% include "v3/includes/_branch_buttons.html" with master_url=master_url develop_url=develop_url %}
+    {% include "v3/includes/_branch_buttons.html" %}
 {% endcomment %}
 <div class="branch-buttons" role="group" aria-label="Switch branch">
-  <a class="branch-button" href="{{ master_url }}" title="Master" aria-label="Master">
+  <a class="branch-button" href="{% branch_url_tag request.resolver_match.view_name branch='master' kwargs=request.resolver_match.kwargs %}" title="Master" aria-label="Master">
     <span class="branch-button__square">
       {% include "includes/icon.html" with icon_name="git-branch" icon_class="branch-button__icon" icon_size=16 icon_viewbox="0 0 16 16" %}
     </span>
     <span class="branch-button__badge" aria-hidden="true">M</span>
   </a>
-  <a class="branch-button" href="{{ develop_url }}" title="Develop" aria-label="Develop">
+  <a class="branch-button" href="{% branch_url_tag request.resolver_match.view_name branch='develop' kwargs=request.resolver_match.kwargs %}" title="Develop" aria-label="Develop">
     <span class="branch-button__square">
       {% include "includes/icon.html" with icon_name="git-branch" icon_class="branch-button__icon" icon_size=16 icon_viewbox="0 0 16 16" %}
     </span>

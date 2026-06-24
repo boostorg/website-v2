@@ -6,6 +6,7 @@
 {% block extra_head %}
   {{ block.super }}
   <link href="{% static 'css/v3/library-subpage.css' %}" rel="stylesheet">
+  <link href="{% static 'css/v3/branch-buttons.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -19,9 +20,9 @@
 {% else %}
   {% with cpp_ver=library_version.get_cpp_standard_minimum_display|default:"C++03" %}
       {% if is_flagship_lib %}
-        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver first_boost_version=object.first_boost_version.display_name doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url is_flagship_lib=True hero_image_url_light=library_hero_image_url_light hero_image_url_dark=library_hero_image_url_dark %}
+        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver first_boost_version=object.first_boost_version.display_name doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url is_flagship_lib=True hero_image_url_light=library_hero_image_url_light hero_image_url_dark=library_hero_image_url_dark show_branch_buttons=True %}
       {% else %}
-        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver first_boost_version=object.first_boost_version.display_name doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url %}
+        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver first_boost_version=object.first_boost_version.display_name doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url show_branch_buttons=True %}
       {% endif %}
   {% endwith %}
 
