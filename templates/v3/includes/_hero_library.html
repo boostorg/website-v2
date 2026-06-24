@@ -18,7 +18,7 @@
     hero_background_image_url (optional) — Background image URL for the hero container.
     extra_classes      (optional) — Extra modifier classes for the hero <section>, e.g. "hero--community" (community) or "hero--release" (release detail).
     is_flagship_lib    (optional) — Boolean value stating whether or not this is the hero for a flagship library. If it isn't, styles are a bit different.
-    show_branch_buttons (optional) — Boolean. If truthy, renders the small Master/Develop version-switch buttons (v3/includes/_branch_buttons.html) in the tags row. Off by default so the buttons only appear on library sub-pages, not other heroes (community, release, examples). Requires branch-buttons.css linked on the page.
+    show_branch_buttons (optional) — Boolean. If truthy, renders the small Master/Develop version-switch buttons (v3/includes/_branch_buttons.html) at the far right of the actions/links row. Off by default so the buttons only appear on library sub-pages, not other heroes (community, release, examples). Requires branch-buttons.css linked on the page.
 
   If none of category_tags/version_tag/first_boost_version are passed, the tags
   row is hidden. If none of doc_url/source_url/slack_url/github_url are passed,
@@ -33,7 +33,7 @@
   <div class="hero__block">
     <div class="hero__content">
       <div class="hero__meta">
-        {% if category_tags or version_tag or first_boost_version or show_branch_buttons %}
+        {% if category_tags or version_tag or first_boost_version %}
         <div class="hero__tags">
           {% for tag in category_tags %}
           {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url|default:"#" variant="neutral" size="default" %}
@@ -45,9 +45,6 @@
           <div class="hero__added-wrap">
             <span class="hero__added">Added in {{ first_boost_version }}</span>
           </div>
-          {% endif %}
-          {% if show_branch_buttons %}
-          {% include "v3/includes/_branch_buttons.html" %}
           {% endif %}
         </div>
         {% endif %}
@@ -100,6 +97,9 @@
       {% endwith %}
     </div>
     {% endwith %}
+    {% endif %}
+    {% if show_branch_buttons %}
+    {% include "v3/includes/_branch_buttons.html" %}
     {% endif %}
   </div>
   {% include "v3/includes/_version_alert.html" %}
