@@ -107,6 +107,18 @@ Build applications handling thousands of connections or more.
 === A base for further abstraction
 Components are well-suited for building upon.
 
+
+[#links]
+== Links
+
+// Two links into Beast's own Boost documentation. Full URLs into the
+// library's docs.
+//   :common-use-case-url:  the most common use case
+//   :code-example-url:     a representative code example
+
+:common-use-case-url: https://www.boost.org/doc/libs/latest/libs/beast/doc/html/beast/quick_start.html
+:code-example-url: https://www.boost.org/doc/libs/latest/libs/beast/doc/html/beast/examples.html
+
 ////
 [#install] is OMITTED here on purpose. Boost.Beast is header-only (the default —
 no :separately-compiled-library: attribute), so there is nothing to author: the website renders

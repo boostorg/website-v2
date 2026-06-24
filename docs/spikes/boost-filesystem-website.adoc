@@ -73,6 +73,18 @@ Walk directory trees with directory_iterator and recursive_directory_iterator.
 The reference implementation that the C++17 std::filesystem library was based on.
 
 
+[#links]
+== Links
+
+// Two links into Filesystem's own Boost documentation. Full URLs into the
+// library's docs.
+//   :common-use-case-url:  the most common use case
+//   :code-example-url:     a representative code example
+
+:common-use-case-url: https://www.boost.org/doc/libs/latest/libs/filesystem/doc/index.htm
+:code-example-url: https://www.boost.org/doc/libs/latest/libs/filesystem/doc/tutorial.html
+
+
 [#install]
 == Install
 

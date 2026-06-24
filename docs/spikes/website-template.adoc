@@ -24,6 +24,7 @@ headings and body copy; do NOT rename the IDs or attributes.
     [#about]         a blurb + one code sample
     [#playground]    one runnable code sample (feeds the "Edit in Compiler Explorer" button)
     [#designed-for]  a few headings, each with a short description
+    [#links]         two links into your library's documentation
     [#install]       separately-compiled libraries ONLY — build/link steps
     [#benchmarks]    one bar chart per subsection
 ////
@@ -70,6 +71,19 @@ headings and body copy; do NOT rename the IDs or attributes.
 
 === <Strength or use case>
 <One or two sentences.>
+
+
+[#links]
+== Links
+
+// Two links into your library's own Boost documentation. Use full URLs,
+// pointing at the relevant page under your library's docs, e.g.
+// https://www.boost.org/doc/libs/latest/libs/beast/doc/html/beast/examples.html
+//   :common-use-case-url:  a page showing your library's most common use case
+//   :code-example-url:     a page with a representative code example
+
+:common-use-case-url: <https://www.boost.org/doc/libs/latest/libs/.../...>
+:code-example-url: <https://www.boost.org/doc/libs/latest/libs/.../...>
 
 
 ////
