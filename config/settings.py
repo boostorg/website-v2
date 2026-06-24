@@ -562,15 +562,30 @@ NEWS_MODERATION_ALLOWLIST = [
     # with PKs is safe since users.User's PKs are integers.
 ]
 
-# EMAIL SETTINGS -- THESE NEED ADJUSTMENT WHEN DECIDED WHICH ESP WILL BE USED
-EMAIL_HOST = "maildev"
-EMAIL_PORT = 1025
-DEFAULT_FROM_EMAIL = "boost@cppalliance.org"
+# EMAIL SETTINGS
+# Production sends through Mailgun (Anymail). In local development the default
+# is the maildev SMTP container, but every setting below is overridable via env
+# so you can route test sends through your own email service provider -- either
+# an SMTP provider (set EMAIL_HOST/EMAIL_PORT/EMAIL_HOST_USER/
+# EMAIL_HOST_PASSWORD/EMAIL_USE_TLS) or an Anymail API backend (set
+# EMAIL_BACKEND plus that backend's credentials in ANYMAIL).
+EMAIL_HOST = env("EMAIL_HOST", default="maildev")
+EMAIL_PORT = env.int("EMAIL_PORT", default=1025)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)
+# Use a "from" on a domain your provider has verified (some providers only
+# accept senders on a domain you own).
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="boost@cppalliance.org")
 SERVER_EMAIL = "errors@cppalliance.org"
 
-# Deployed email configuration
 if LOCAL_DEVELOPMENT:
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_BACKEND = env(
+        "EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
+    )
+    # Credentials for an Anymail backend, as a JSON env var, e.g.
+    # ANYMAIL='{"<PROVIDER>_API_TOKEN": "..."}'. Empty/ignored for plain SMTP.
+    ANYMAIL = env.json("ANYMAIL", default={})
 else:
     EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
     ANYMAIL = {
