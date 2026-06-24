@@ -1,0 +1,31 @@
+{% comment %}
+  V3 Branch Buttons — two small, unobtrusive links to the Master and Develop
+  branch resources, per Rob's approved design (Figma node 7696:45822).
+
+  Each button is a bordered icon square with a small amber corner badge showing
+  a single letter ("M" / "D"). The full words "Master" / "Develop" are exposed
+  via title + aria-label for accessibility (the AC requires those exact words).
+
+  Styles: static/css/v3/branch-buttons.css (link it in the page's extra_head).
+
+  Variables:
+    master_url   (required) — href for the Master branch resource.
+    develop_url  (required) — href for the Develop branch resource.
+
+  Usage:
+    {% include "v3/includes/_branch_buttons.html" with master_url=master_url develop_url=develop_url %}
+{% endcomment %}
+<div class="branch-buttons" role="group" aria-label="Switch branch">
+  <a class="branch-button" href="{{ master_url }}" title="Master" aria-label="Master">
+    <span class="branch-button__square">
+      {% include "includes/icon.html" with icon_name="git-branch" icon_class="branch-button__icon" icon_size=16 icon_viewbox="0 0 16 16" %}
+    </span>
+    <span class="branch-button__badge" aria-hidden="true">M</span>
+  </a>
+  <a class="branch-button" href="{{ develop_url }}" title="Develop" aria-label="Develop">
+    <span class="branch-button__square">
+      {% include "includes/icon.html" with icon_name="git-branch" icon_class="branch-button__icon" icon_size=16 icon_viewbox="0 0 16 16" %}
+    </span>
+    <span class="branch-button__badge" aria-hidden="true">D</span>
+  </a>
+</div>

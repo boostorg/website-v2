@@ -18,6 +18,23 @@
     padding: 0 var(--space-large);
 }
 
+/* Filter toolbar row: filters fill the row, branch buttons sit at the far right,
+   bottom-aligned with the filter dropdowns. */
+.library-page__filter-row {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-medium);
+}
+
+.library-page__filter-row .library-filter {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.library-page__filter-row .branch-buttons {
+    flex: 0 0 auto;
+}
+
 /* === Hero === */
 
 .library-page-hero {
