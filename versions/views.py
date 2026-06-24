@@ -28,6 +28,7 @@ from libraries.mixins import VersionAlertMixin, BoostVersionMixin
 from libraries.models import Commit, CommitAuthor, ReleaseReport
 from libraries.tasks import generate_release_report
 from libraries.utils import (
+    apply_collective_author_overrides,
     set_selected_boost_version,
     determine_selected_boost_version,
     library_doc_latest_transform,
@@ -181,10 +182,12 @@ class VersionDetail(
 
     def get_v3_contributors(self, version):
         """Shape the release's top contributors for the v3 contributors card."""
-        return [
-            author.to_v3_profile_dict("Contributor")
-            for author in self.get_top_contributors_release(version)
-        ]
+        return apply_collective_author_overrides(
+            [
+                author.to_v3_profile_dict("Contributor")
+                for author in self.get_top_contributors_release(version)
+            ]
+        )
 
     def get_v3_context_data(self, **kwargs):
         obj = self.object
