@@ -165,3 +165,17 @@ extra build/link steps the generic card can't cover, e.g. Boost.Filesystem
 | libevent    | 210
 | raw sockets | 165
 |===
+
+
+[#freeform]
+== Upgrading from Beast 1.0
+
+// A free-form card: your own heading + any content (paragraphs, lists,
+// links, code, etc.). Rendered as-is into a single card on the page.
+
+Beast follows Boost's release cadence, but the networking types track
+Boost.Asio. When upgrading across a major Boost release:
+
+* Re-run your build against the new `boost/asio` — executor changes surface here first.
+* Check `BOOST_BEAST_VERSION` if you guard on specific protocol features.
+* See the https://www.boost.org/doc/libs/latest/libs/beast/doc/html/beast/release_notes.html[release notes] for breaking changes.

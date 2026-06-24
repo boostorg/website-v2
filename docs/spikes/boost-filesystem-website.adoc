@@ -104,3 +104,20 @@ g++ app.cpp -lboost_filesystem
 [#benchmarks] omitted — Boost.Filesystem has no meaningful comparative benchmarks.
 The section is optional, so it is simply left out.
 ////
+
+
+[#freeform]
+== Boost.Filesystem vs. std::filesystem
+
+// A free-form card: your own heading + any content (paragraphs, lists,
+// links, code). Rendered as-is into a single card on the page.
+
+C++17 adopted `std::filesystem`, modeled on this library. Prefer Boost.Filesystem when:
+
+* You target a compiler whose `std::filesystem` is incomplete or unshipped.
+* You need features that never made it into the standard, such as
+  `unique_path` or the wider set of portable error-handling overloads.
+* You want a single API that behaves identically across toolchains and Boost releases.
+
+For new code on a modern toolchain with no such constraints, `std::filesystem`
+is the lighter-weight default.

@@ -27,6 +27,7 @@ headings and body copy; do NOT rename the IDs or attributes.
     [#links]         two links into your library's documentation
     [#install]       separately-compiled libraries ONLY — build/link steps
     [#benchmarks]    one bar chart per subsection
+    [#freeform]      your own heading + free-form content, shown in a card
 ////
 = Boost.<LibraryName> — Website Content
 :library-key: <your-libraries.json-key>
@@ -127,3 +128,14 @@ then uncomment and fill in the section below:
 | Boost.<LibraryName> | <number>
 | <comparison>      | <number>
 |===
+
+
+[#freeform]
+== <Your heading>
+
+// A free-form card: write your own heading above and any content below —
+// paragraphs, lists, links, inline code, etc. Whatever you put here is
+// rendered as-is into a single card on your library's page.
+// Keep the [#freeform] ID; change the heading text to whatever you like.
+
+<Your content here. Markdown formatting is supported.>
