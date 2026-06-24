@@ -10,7 +10,6 @@ from libraries.utils import build_library_intro_context
 from news.models import Entry
 from versions.models import Version
 
-
 # Fallback code snippet shown on the Get Started card when no featured
 # library snippet is available. TODO: replace with a proper empty state.
 HELLO_WORLD_SNIPPET = """#include <iostream>
