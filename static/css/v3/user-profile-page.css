@@ -176,7 +176,27 @@
     width: 100%;
 }
 
-.user-profile__avatar-row .avatar:has(img[src='']) {
+.user-profile__avatar-row:has(img[src='']) .avatar__img {
+    display: none;
+}
+
+.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:checked) .avatar__img {
+    display: none;
+}
+
+.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:checked) .btn-primary {
+    display:none;
+}
+
+.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:checked) .btn-error {
+    display:none;
+}
+
+.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:not(:checked)) .btn-secondary {
+    display:none;
+}
+
+.user-profile__avatar-row:not(:has(img[src=''])):not(:has(input[id='user-profile__avatar-delete-checkbox']:checked)) .avatar__initials {
     display: none;
 }
 
@@ -188,24 +208,8 @@
     display: none;
 }
 
-.user-profile__avatar-row:has(input[name='avatar-row-checkbox']:checked) .user-profile__default-avatar-buttons {
-    display: none;
-}
-
 .user-profile__avatar-row:has(input[name='avatar-row-checkbox']:not(:checked)) .user-profile__activated-avatar-buttons {
     display: none;
-}
-
-.user-profile__avatar-edit-button-row {
-    display: flex;
-    gap: var(--space-default);
-}
-
-.user-profile__avatar-edit-button-row .btn {
-    max-width: fit-content;
-    min-width: fit-content;
-    width: fit-content !important;
-    padding: var(--space-large)
 }
 
 .user-profile__edit-avatar-box {

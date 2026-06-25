@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static avatar_tags %}
 
 {% block title %}
   User Profile - Edit
@@ -95,25 +95,25 @@
             <div class="user-profile__default-space-col">
               <span class="field__label">Avatar</span>
               <div class="user-profile__avatar-row">
-                <span id="user-profile-editable-avatar" class="avatar avatar--xxxl" aria-hidden="true"><img src="{{ user_profile_form.avatar.value }}" class="avatar avatar--xxl avatar__img" alt="" loading="lazy" decoding="async" /></span>
+                <span id="user-profile-editable-avatar" class="avatar avatar--xxxl avatar--yellow" aria-hidden="true">
+                  <img src="{{ user_profile_form.avatar.value }}" class="avatar avatar--xxl avatar__img" alt="" loading="lazy" decoding="async" />
+                  {% with inits=request.user.name|avatar_initials %}
+                    <span class="avatar__initials" aria-hidden="true">{{ inits }}</span>
+                  {% endwith %}
+                </span>
                 <input type="checkbox" id="user-profile__avatar-row-checkbox" name="avatar-row-checkbox" class="badge-button__radio" />
                 {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name extra_class='user-profile__empty-avatar-input' accept='image/png,image/jpeg' only %}
                 <div class="user-profile__default-space-col user-profile__default-avatar-buttons">
                   <label for="user-profile__avatar-row-checkbox" class="btn btn-primary">Replace Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
-                  <input type="checkbox" id="user-profile__avatar-row-checkbox" name="{{ user_profile_form.delete_avatar.name }}" class="badge-button__radio" />
-                  <label aria-label="Delete Avatar" id="avatar-row__delete-avatar" for="{{ user_profile_form.delete_avatar.name }}" class="btn btn-error">Delete Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
-                </div>
-                <div class="user-profile__default-space-col user-profile__activated-avatar-buttons">
-                  <div class="user-profile__avatar-edit-button-row">
-                    <label aria-label="Save Avatar Change" id="avatar-row__save-button" for="user-profile__avatar-row-checkbox" class="btn btn-primary"><span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
-                    <label aria-label="Reset Avatar Change" id="avatar-row__close-button" for="user-profile__avatar-row-checkbox" class="btn btn-primary"><span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
-                  </div>
-                  <div>
+                  <input type="checkbox" id="user-profile__avatar-delete-checkbox" name="{{ user_profile_form.delete_avatar.name }}" class="badge-button__radio" />
+                  <label aria-label="Delete Avatar" for="user-profile__avatar-delete-checkbox" class="btn btn-error">Delete Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                  <label aria-label="Delete Avatar" for="user-profile__avatar-delete-checkbox" class="btn btn-secondary">Undo Changes<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-arrow-return' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                  <div class="user-profile__activated-avatar-buttons">
                     <div class="card px-large user-profile__default-space-col user-profile__edit-avatar-box">
                       {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name label='Replace Image' help_text='This should be a PNG or JPEG format and no larger than 5MB' accept='image/png,image/jpeg' only %}
                     </div>
+                    </div>
                   </div>
-                </div>
               </div>
               <span class="field__help">This should be a PNG or JPEG format and no larger than 5MB</span>
             </div>
