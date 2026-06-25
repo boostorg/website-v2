@@ -37,6 +37,7 @@ class MailingLists(Enum):
 
 MAILING_LIST_LABELS = {
     MailingLists.BOOST.value: {
+        "id": f"{MailingLists.BOOST.value}.{MAILMAN_DOMAIN}",
         "name": "Boost Developers",
         "address": build_mailing_list_address(MailingLists.BOOST.value),
         "description": (
@@ -48,6 +49,7 @@ MAILING_LIST_LABELS = {
         ),
     },
     MailingLists.BOOST_ANNOUNCE.value: {
+        "id": f"{MailingLists.BOOST_ANNOUNCE.value}.{MAILMAN_DOMAIN}",
         "name": "Boost Announcements",
         "address": build_mailing_list_address(MailingLists.BOOST_ANNOUNCE.value),
         "description": (
@@ -57,6 +59,7 @@ MAILING_LIST_LABELS = {
         ),
     },
     MailingLists.BOOST_USERS.value: {
+        "id": f"{MailingLists.BOOST_USERS.value}.{MAILMAN_DOMAIN}",
         "name": "Boost Users",
         "address": build_mailing_list_address(MailingLists.BOOST_USERS.value),
         "description": (
@@ -68,7 +71,7 @@ MAILING_LIST_LABELS = {
     },
 }
 
-MAILMAN_LISTS = [f"{_l}.{MAILMAN_DOMAIN}" for _l in MAILING_LIST_LABELS.keys()]
+MAILMAN_LISTS = [_l["id"] for _l in MAILING_LIST_LABELS.values()]
 
 # we only want boost devel for now, leaving the others in case that changes.
 ML_STATS_URLS = [
