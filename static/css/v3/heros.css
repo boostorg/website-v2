@@ -401,7 +401,10 @@
   background-image: var(--hero-bg-image);
   background-repeat: no-repeat;
   background-position: center center;
-  background-size: var(--hero-bg-community-size);
+  /* Base stays cover; the community art's tuned per-breakpoint sizing
+     (--hero-bg-community-size) is applied only on .hero--community so library
+     and release heroes don't inherit it. */
+  background-size: cover;
   background-color: var(--color-surface-weak-accent-yellow);
   align-items: center;
 }
@@ -707,9 +710,11 @@ html.dark .hero__links .btn-icon-library:hover {
      --release    release detail: solid surface, taller block, no foreground
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Community: background focal point (independent of other library heroes) */
+/* Community: background focal point + tuned per-breakpoint sizing (independent of
+   other library heroes, which keep the base `cover`). */
 .hero--community {
   background-position: var(--hero-bg-community-position-x) var(--hero-bg-community-position-y);
+  background-size: var(--hero-bg-community-size);
 }
 
 /* Community foreground uses the shared `.hero-fg` frame (gated by fullbleed_fg in

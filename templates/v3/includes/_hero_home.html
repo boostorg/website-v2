@@ -38,10 +38,12 @@
     {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
     <div class="hero-fg{% if hero_image_url_dark %} hero-fg--theme-aware{% endif %}">
       {% with hero_light=hero_image_url_light|default:hero_image_url hero_dark=hero_image_url_dark %}
+      {% if hero_light %}
       <picture>
         {% if hero_image_url_mobile %}<source media="(max-width: 767px)" srcset="{{ hero_image_url_mobile }}">{% endif %}
         <img alt="" class="hero-fg__img hero-fg__img--light" src="{{ hero_light }}" loading="lazy" decoding="async">
       </picture>
+      {% endif %}
       {% if hero_dark %}
       <picture>
         {% if hero_image_url_mobile %}<source media="(max-width: 767px)" srcset="{{ hero_image_url_mobile }}">{% endif %}

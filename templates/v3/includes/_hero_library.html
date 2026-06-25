@@ -81,10 +81,12 @@
     {% with fgwrap=fullbleed_fg|yesno:"hero-fg,hero__image" fgimg=fullbleed_fg|yesno:"hero-fg__img,hero__img" %}
     <div class="{{ fgwrap }}{% if hero_image_url_dark %} {{ fgwrap }}--theme-aware{% endif %}">
       {% with hero_light=hero_image_url_light|default:hero_image_url hero_dark=hero_image_url_dark %}
+      {% if hero_light %}
       <picture>
         {% if hero_image_url_mobile %}<source media="(max-width: 767px)" srcset="{{ hero_image_url_mobile }}">{% endif %}
         <img alt="" class="{{ fgimg }} {{ fgimg }}--light" src="{{ hero_light }}" loading="lazy" decoding="async">
       </picture>
+      {% endif %}
       {% if hero_dark %}
       <picture>
         {% if hero_image_url_mobile %}<source media="(max-width: 767px)" srcset="{{ hero_image_url_mobile }}">{% endif %}
