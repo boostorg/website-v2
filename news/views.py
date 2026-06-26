@@ -193,6 +193,21 @@ class EntryListView(V3Mixin, ListView):
             context["is_moderator"] = can_approve(self.request.user)
         return context
 
+    def dispatch(self, request, *args, **kwargs):
+        if post_filter := self.request.GET.get("post-filter"):
+            match post_filter:
+                case "all":
+                    return HttpResponseRedirect(reverse_lazy("news"))
+                case "blogpost":
+                    return HttpResponseRedirect(reverse_lazy("news-blogpost-list"))
+                case "video":
+                    return HttpResponseRedirect(reverse_lazy("news-video-list"))
+                case "news":
+                    return HttpResponseRedirect(reverse_lazy("news-news-list"))
+                case "link":
+                    return HttpResponseRedirect(reverse_lazy("news-link-list"))
+        return super().dispatch(request, *args, **kwargs)
+
 
 class BlogPostListView(EntryListView):
     header_text = "Blogs"

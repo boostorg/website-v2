@@ -20,6 +20,12 @@ body:has(.auth-page) .header {
   min-height: 100vh;
 }
 
+/* ── Error styling scoped to auth page ──────── */
+
+.auth-page .field__error-container {
+  min-height: 20px;
+}
+
 /* ── Reset base.html intermediate wrappers ──── */
 .auth-page .w-full,
 .auth-page .md\:px-0 {
@@ -170,6 +176,7 @@ body:has(.auth-page) .header {
 .auth-page__sign-in-link a{
   text-decoration: underline;
   color: var(--color-text-link-accent);
+  font-weight: var(--font-weight-regular);
 }
 
 /* ── Divider ───────────────────────────────── */
