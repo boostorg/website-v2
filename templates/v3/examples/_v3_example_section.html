@@ -617,7 +617,7 @@
   {% with section_title="Mailing List Card" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
-      <div class="v3-examples-section__example-box">{% include "v3/includes/_mailing_list_card.html" with subscribe_url=demo_quick_subscribe_url list_id=demo_mailing_list_card_list_id state=demo_mailing_list_card_state user_email=demo_subscribed_lists_email subscription_count=demo_subscription_count %}</div>
+      <div class="v3-examples-section__example-box">{% include "v3/includes/_mailing_list_card.html" with subscribe_url=demo_quick_subscribe_url modal_subscribe_url=demo_modal_subscribe_url list_id=demo_mailing_list_card_list_id state=demo_mailing_list_card_state user_email=demo_subscribed_lists_email subscription_count=demo_subscription_count mailing_lists=demo_mailing_lists %}</div>
     </div>
   {% endwith %}
 

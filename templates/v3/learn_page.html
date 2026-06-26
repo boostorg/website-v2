@@ -49,7 +49,7 @@
         {% include 'v3/includes/_vertical_card.html' with title="Boost is released three times a year" text="Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." primary_button_url=calendar_url primary_button_label="View release calendar" primary_style='secondary-grey' image_url=calendar_image %}
       </div>
       <div class="item-e">
-        {% include 'v3/includes/_mailing_list_card.html' with subscribe_url=mailing_list_card_subscribe_url list_id=mailing_list_card_list_id state=mailing_list_card_state user_email=mailing_list_card_user_email manage_url=mailing_list_card_manage_url subscription_count=mailing_list_card_subscription_count error_message=mailing_list_card_error_message %}
+        {% include 'v3/includes/_mailing_list_card.html' with subscribe_url=mailing_list_card_subscribe_url modal_subscribe_url=mailing_list_card_modal_subscribe_url list_id=mailing_list_card_list_id state=mailing_list_card_state user_email=mailing_list_card_user_email manage_url=mailing_list_card_manage_url subscription_count=mailing_list_card_subscription_count error_message=mailing_list_card_error_message mailing_lists=mailing_list_card_lists subscribed_ids=mailing_list_card_subscribed_ids %}
       </div>
     </div>
   </div>

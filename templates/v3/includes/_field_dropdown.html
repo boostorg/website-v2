@@ -5,6 +5,7 @@
     label       (optional) — label text
     placeholder (optional) — placeholder text when nothing selected
     options     (required) — list of (value, label) 2-tuples (e.g. from TextChoices.choices)
+    disabled    (optional) — if true, disables the input and applies the disabled style
     selected    (optional) — value of the pre-selected option
     default     (optional) — value to reset to when the clear button is clicked (defaults to '')
     help_text   (optional) — help text below the field
@@ -91,17 +92,17 @@
           {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
           {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
           x-show="!jsReady"
-          :disabled="jsReady"
+          :disabled="jsReady || {% if disabled %}true{% else %}false{% endif %}"
           @change="$dispatch('field-change', { name: '{{ name }}', value: $event.target.value, label: $event.target.options[$event.target.selectedIndex].text })">
     {% if placeholder %}<option value="">{{ placeholder }}</option>{% endif %}
     {% for value, label in options %}
       <option value="{{ value }}" {% if value == selected %}selected{% endif %}>{{ label }}</option>
     {% endfor %}
   </select>
-  <div class="dropdown" :class="{ 'dropdown--open': open{% if deselectable %}, 'dropdown--has-value': selected && selected !== defaultValue{% endif %} }" x-cloak>
+  <div class="dropdown{% if disabled %} dropdown--disabled{% endif %}" :class="{ 'dropdown--open': open{% if deselectable %}, 'dropdown--has-value': selected && selected !== defaultValue{% endif %} }" x-cloak>
     <div class="dropdown__trigger"
          role="button"
-         tabindex="0"
+         {% if not disabled %}
          x-ref="trigger"
          @click="open = !open"
          @keydown.enter.prevent="open = !open"
@@ -110,6 +111,10 @@
          @keydown.arrow-down.prevent="open = true; $nextTick(() => firstEnabledOption()?.focus())"
          :aria-expanded="open"
          aria-haspopup="listbox"
+         tabindex="0"
+         {% else %}
+         aria-disabled="true"
+         {% endif %}
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
          {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
       <span class="dropdown__trigger-text"
@@ -118,7 +123,11 @@
             x-cloak></span>
       <span class="dropdown__trigger-text dropdown__trigger-placeholder"
             x-show="!selected">{{ placeholder|default:"Select..." }}</span>
+      {% if not disabled %}
       {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
+      {% else %}
+      {% include "includes/icon.html" with icon_name="lock" icon_size=16 icon_viewbox="0 0 16 16"  %}
+      {% endif %}
       {% if deselectable %}
       <button type="button"
               class="dropdown__clear-btn"

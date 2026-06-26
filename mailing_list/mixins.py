@@ -63,7 +63,11 @@ class MailingListCardMixin:
         context["mailing_list_card_subscribe_url"] = reverse(
             "mailing-list-quick-subscribe"
         )
+        context["mailing_list_card_modal_subscribe_url"] = reverse(
+            "mailing-list-modal-subscribe"
+        )
         context["mailing_list_card_list_id"] = _DEFAULT_LIST_ID
+        context["mailing_list_card_lists"] = constants.MAILING_LIST_LABELS.values()
 
         if request.user.is_authenticated:
             managed_lists = set(constants.MAILMAN_LISTS)
@@ -73,6 +77,11 @@ class MailingListCardMixin:
             context["mailing_list_card_subscription_count"] = state.count
             context["mailing_list_card_user_email"] = state.email
             context["mailing_list_card_manage_url"] = reverse("profile-account")
+            context["mailing_list_card_subscribed_ids"] = set(
+                UserMailingListSubscription.objects.filter(
+                    user=request.user, list_id__in=managed_lists
+                ).values_list("list_id", flat=True)
+            )
 
         # URL-param overrides for the no-JS PRG flow.
         # Error state always wins (DB record was rolled back on failure).

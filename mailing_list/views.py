@@ -216,6 +216,25 @@ want to set the _mailing_list_card.html state to show the 'pending' or 'subscrib
 """
 
 
+def _build_card_context(request) -> dict:
+    """Build the base context dict for rendering _mailing_list_card.html."""
+    managed_lists = set(constants.MAILMAN_LISTS)
+    ctx = {
+        "subscribe_url": reverse("mailing-list-quick-subscribe"),
+        "modal_subscribe_url": reverse("mailing-list-modal-subscribe"),
+        "login_url": reverse("account_login"),
+        "mailing_lists": constants.MAILING_LIST_LABELS.values(),
+        "subscribed_ids": set(),
+    }
+    if request.user.is_authenticated:
+        ctx["subscribed_ids"] = set(
+            UserMailingListSubscription.objects.filter(
+                user=request.user, list_id__in=managed_lists
+            ).values_list("list_id", flat=True)
+        )
+    return ctx
+
+
 class QuickSubscribeView(View):
     """Subscribe to a single list. Works for both authenticated and anonymous users.
 
@@ -224,17 +243,10 @@ class QuickSubscribeView(View):
     """
 
     def _card(self, request, **ctx):
-        subscribe_url = reverse("mailing-list-quick-subscribe")
-        login_url = reverse("account_login")
         return render(
             request,
             "v3/includes/_mailing_list_card.html",
-            {
-                "subscribe_url": subscribe_url,
-                "login_url": login_url,
-                "list_id": constants.MAILMAN_LISTS[0],
-                **ctx,
-            },
+            {**_build_card_context(request), **ctx},
         )
 
     def post(self, request):
@@ -312,14 +324,12 @@ class QuickSubscribeView(View):
                 user=request.user, list_id__in=managed_lists
             ).count()
             if _is_htmx(request):
-                return render(
+                return self._card(
                     request,
-                    "v3/mailing_list/_subscribe_success_card.html",
-                    {
-                        "email": existing.email,
-                        "subscription_count": subscription_count,
-                        "manage_url": manage_url,
-                    },
+                    state="active",
+                    user_email=existing.email,
+                    subscription_count=subscription_count,
+                    manage_url=manage_url,
                 )
             return _prg_redirect(request)
 
@@ -498,3 +508,152 @@ class ConfirmSubscriptionView(View):
                 "home_url": "/",
             },
         )
+
+
+class ModalSubscribeView(View):
+    """Subscribe to one or more lists via the list-selection modal.
+
+    Accepts email + one or more list_id POST values. Works for both authenticated
+    and anonymous users. Only reachable via HTMX (the modal is Alpine-only).
+
+    Authenticated flow: subscribes to newly checked lists and unsubscribes from
+    any currently tracked lists that were unchecked.
+    Anonymous flow: subscribe-only - sends a single confirmation email for all
+    checked lists. Unsubscribe not supported for anonymous users.
+    """
+
+    def _card(self, request, **ctx):
+        return render(
+            request,
+            "v3/includes/_mailing_list_card.html",
+            {**_build_card_context(request), **ctx},
+        )
+
+    def post(self, request):
+        email = request.POST.get("email", "").strip()
+        managed_lists = set(constants.MAILMAN_LISTS)
+        list_ids = [
+            lid for lid in request.POST.getlist("list_id") if lid in managed_lists
+        ]
+
+        if not email:
+            return self._card(
+                request, state="error", error_message="Email is required."
+            )
+
+        if _is_rate_limited(request):
+            return self._card(
+                request,
+                state="error",
+                error_message="Too many attempts. Please try again later.",
+                user_email=email,
+            )
+
+        if request.user.is_authenticated:
+            return self._handle_authenticated(request, email, list_ids, managed_lists)
+        return self._handle_anonymous(request, email, list_ids)
+
+    def _handle_authenticated(self, request, email, list_ids, managed_lists):
+        manage_url = reverse("profile-account")
+
+        current_subs = {
+            sub.list_id: sub
+            for sub in UserMailingListSubscription.objects.filter(
+                user=request.user, list_id__in=managed_lists
+            )
+        }
+        to_subscribe = [lid for lid in list_ids if lid not in current_subs]
+        to_unsubscribe = [lid for lid in current_subs if lid not in list_ids]
+
+        for lid in to_unsubscribe:
+            sub = current_subs[lid]
+            if sub.status == SubscriptionStatus.PENDING:
+                sub.delete()
+            else:
+                try:
+                    MailmanClient().unsubscribe(sub.email, lid)
+                    UserMailingListSubscription.objects.filter(
+                        user=request.user, list_id=lid
+                    ).delete()
+                except MailmanAPIError as exc:
+                    logger.error(
+                        "Mailman unsubscribe error for %s/%s: %s", sub.email, lid, exc
+                    )
+
+        if not to_subscribe:
+            subscription_count = UserMailingListSubscription.objects.filter(
+                user=request.user, list_id__in=managed_lists
+            ).count()
+            if subscription_count == 0:
+                return self._card(request, user_email=email)
+            return self._card(
+                request,
+                state="active",
+                user_email=email,
+                subscription_count=subscription_count,
+                manage_url=manage_url,
+            )
+
+        succeeded = []
+        for lid in to_subscribe:
+            try:
+                with transaction.atomic():
+                    UserMailingListSubscription.objects.update_or_create(
+                        user=request.user,
+                        list_id=lid,
+                        defaults={"email": email, "status": SubscriptionStatus.PENDING},
+                    )
+                succeeded.append(lid)
+            except IntegrityError:
+                pass
+
+        if not succeeded:
+            return self._card(
+                request,
+                state="error",
+                error_message="Could not subscribe. Please try again.",
+                user_email=email,
+            )
+
+        try:
+            _send_confirmation_email(request, email, request.user.pk, succeeded)
+        except Exception as exc:
+            logger.error("Failed to send confirmation email to %s: %s", email, exc)
+            UserMailingListSubscription.objects.filter(
+                user=request.user, list_id__in=succeeded
+            ).delete()
+            return self._card(
+                request,
+                state="error",
+                error_message="Could not send confirmation email. Please try again.",
+                user_email=email,
+            )
+
+        return self._card(
+            request,
+            state="pending",
+            user_email=email,
+            manage_url=manage_url,
+        )
+
+    def _handle_anonymous(self, request, email, list_ids):
+        if not list_ids:
+            return self._card(
+                request,
+                state="error",
+                error_message="Please select at least one mailing list.",
+                user_email=email,
+            )
+
+        try:
+            _send_confirmation_email(request, email, None, list_ids)
+        except Exception as exc:
+            logger.error("Failed to send confirmation email to %s: %s", email, exc)
+            return self._card(
+                request,
+                state="error",
+                error_message="Could not send confirmation email. Please try again.",
+                user_email=email,
+            )
+
+        return self._card(request, state="pending", user_email=email)
