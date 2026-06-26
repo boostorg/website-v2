@@ -263,6 +263,7 @@ class EntryDetailView(V3Mixin, DetailView):
         return result
 
     def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
         self.object = self.get_object()
         entry = self.object
         next_entry = (
@@ -287,7 +288,7 @@ class EntryDetailView(V3Mixin, DetailView):
         )
         if next_entry is not None:
             related_qs = related_qs.exclude(pk=next_entry.pk)
-        return {
+        v3_context = {
             "post_author": user_profile_card(entry.author),
             "post_tag": news_type_label(entry.tag),
             "next_post_items": (
@@ -298,6 +299,8 @@ class EntryDetailView(V3Mixin, DetailView):
                 for e in related_qs.order_by("-publish_at", "-pk")[:3]
             ],
         }
+        context.update(v3_context)
+        return context
 
     @classmethod
     def _post_card_item(cls, entry):

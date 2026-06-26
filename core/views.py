@@ -125,7 +125,7 @@ class CalendarView(V3Mixin, TemplateView):
     v3_template_name = "v3/calendar.html"
 
     def get_context_data(self, **kwargs):
-        ctx = {}
+        ctx = super().get_context_data(**kwargs)
         ctx["boost_calendar"] = settings.BOOST_CALENDAR
         return ctx
 

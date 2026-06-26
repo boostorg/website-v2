@@ -128,9 +128,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
 
     def get_v3_context_data(self, queryset=None, **kwargs):
         queryset = self.get_queryset()
-        context = super().get_v3_context_data(
-            **kwargs, object_list=queryset, queryset=queryset
-        )
+        context = super().get_v3_context_data(**kwargs)
         view_str = self.kwargs.get("library_view_str")
 
         cpp_options = [("all", "All")] + list(
@@ -324,7 +322,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         # Resolve selected_version once so get_v3_context_data can reuse it.
         self._selected_version = self._resolve_selected_version()
         response = super().dispatch(request, *args, **kwargs)
-        """Set the selected version in the cookies."""
+        # Set the selected version in the cookies.
         set_selected_boost_version(self.kwargs.get("version_slug"), response)
         view = get_prioritized_library_view(request)
         if request.resolver_match.view_name == "libraries":

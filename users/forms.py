@@ -5,8 +5,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.db import models
 from django import forms
 
-from allauth.account.forms import ResetPasswordKeyForm
-from allauth.account.forms import SignupForm
+from allauth.account.forms import ResetPasswordKeyForm, SignupForm
 
 from .models import Preferences
 from news.models import NEWS_MODELS
