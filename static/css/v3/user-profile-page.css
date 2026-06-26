@@ -158,6 +158,8 @@
     padding-right: var(--space-large);
 }
 
+/* ————— Styling for avatar component ——————— */
+
 .user-profile__avatar-row {
     display: flex;
     gap: var(--space-default);
@@ -176,39 +178,65 @@
     width: 100%;
 }
 
-.user-profile__avatar-row:has(img[src='']) .avatar__img {
-    display: none;
-}
+/*
+    EMPTY STATE STYLES
 
-.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:checked) .avatar__img {
-    display: none;
-}
+    When the image src is empty, no file has been uploaded and the user has no set avatar
+    So we hide the image, show the initials avatar, and show the default upload
+    image button. We hide the replace and delete buttons.
+*/
 
-.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:checked) .btn-primary {
-    display:none;
-}
+.user-profile__avatar-row:has(img[src='']) {
 
-.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:checked) .btn-error {
-    display:none;
-}
-
-.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:not(:checked)) .btn-secondary {
-    display:none;
-}
-
-.user-profile__avatar-row:not(:has(img[src=''])):not(:has(input[id='user-profile__avatar-delete-checkbox']:checked)) .avatar__initials {
-    display: none;
-}
-
-.user-profile__avatar-row:has(img[src='']) .user-profile__default-avatar-buttons {
-    display: none;
+    .user-profile__default-avatar-buttons,
+    .avatar__img {
+        display: none;
+    }
 }
 
 .user-profile__avatar-row:not(:has(img[src=''])) .user-profile__empty-avatar-input {
     display: none;
 }
 
+/*
+    DELETE STATE STYLES
+
+    Once the delete avatar check has been checked, we hide the delete and replace buttons,
+    hide the image, and show the undo button
+*/
+.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:checked) {
+
+    .avatar__img,
+    .btn-primary,
+    .btn-error {
+        display: none;
+    }
+}
+
+.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:not(:checked)) .btn-secondary {
+    display: none;
+}
+
+/*
+    DEFAULT STATE STYLES
+
+    If we are not in the hide or empty states, hide the initial avatar button
+*/
+
+.user-profile__avatar-row:not(:has(img[src=''])):not(:has(input[id='user-profile__avatar-delete-checkbox']:checked)) .avatar__initials {
+    display: none;
+}
+
+/*
+    EDIT STATE STYLES
+    When the replace checkbox has been checked, hide the delete button, show the avatar box
+*/
+
 .user-profile__avatar-row:has(input[name='avatar-row-checkbox']:not(:checked)) .user-profile__activated-avatar-buttons {
+    display: none;
+}
+
+.user-profile__avatar-row:has(input[name='avatar-row-checkbox']:checked) .btn-error {
     display: none;
 }
 
@@ -216,39 +244,48 @@
     padding: var(--space-large);
     width: 209px !important;
     position: absolute;
+    z-index: 11;
+}
+
+.user-profile__edit-avatar-box-cover {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top:0;
+    left: 0;
     z-index: 10;
 }
 
 .user-profile__save-indicator {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-sans);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: var(--letter-spacing-tight);
-  color: var(--color-text-tertiary);
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-sans);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--letter-spacing-tight);
+    color: var(--color-text-tertiary);
 }
 
 .user-profile__save-state {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-default);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-default);
 }
 
 .user-profile__save-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--color-text-tertiary);
+    width: 16px;
+    height: 16px;
+    color: var(--color-text-tertiary);
 }
 
 .user-profile__save-icon--spin {
-  animation: create-post-spin 0.8s linear infinite;
+    animation: create-post-spin 0.8s linear infinite;
 }
 
 @keyframes create-post-spin {
-  to {
-    transform: rotate(360deg);
-  }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @media (max-width: 768px) {

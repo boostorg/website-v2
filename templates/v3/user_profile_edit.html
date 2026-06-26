@@ -109,6 +109,7 @@
                   <label aria-label="Delete Avatar" for="user-profile__avatar-delete-checkbox" class="btn btn-error">Delete Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
                   <label aria-label="Delete Avatar" for="user-profile__avatar-delete-checkbox" class="btn btn-secondary">Undo Changes<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-arrow-return' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
                   <div class="user-profile__activated-avatar-buttons">
+                  <label class="user-profile__edit-avatar-box-cover" for="user-profile__avatar-row-checkbox"></label>
                     <div class="card px-large user-profile__default-space-col user-profile__edit-avatar-box">
                       {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name label='Replace Image' help_text='This should be a PNG or JPEG format and no larger than 5MB' accept='image/png,image/jpeg' only %}
                     </div>
