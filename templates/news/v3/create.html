@@ -510,6 +510,8 @@
           if (!content || this.generating) return;
           this.generating = true;
           this.descriptionError = '';
+          const previousDescription = this.description;
+          this.description = '';
           try {
             const title = document.querySelector('input[name="title"]')?.value || '';
             const res = await fetch('{% url "v3-news-generate-description" %}', {
@@ -529,11 +531,13 @@
               this.descriptionError = '';
               this.onDescriptionEdited();   // persist generated text + show Saving/Saved
             } else {
+              this.description = previousDescription;
               console.error('Description generation failed:', (data && data.error) || res.status);
               this.descriptionError = (data && data.error)
                 || "The description is taking longer than expected to generate. Please try again in a moment.";
             }
           } catch (err) {
+            this.description = previousDescription;
             console.error('Description generation request failed:', err);
             this.descriptionError = "The description is taking longer than expected to generate. Please try again in a moment.";
           } finally {
@@ -548,6 +552,8 @@
           if (!this.linkUrlValid || this.linkGenerating) return;
           this.linkGenerating = true;
           this.linkError = '';
+          const previousLinkDescription = this.linkDescription;
+          this.linkDescription = '';
           try {
             const res = await fetch('{% url "v3-news-generate-link-description" %}', {
               method: 'POST',
@@ -562,9 +568,11 @@
               this.linkDescription = data.description;
               this.onLinkDescriptionEdited();   // persist + show Saving/Saved
             } else {
+              this.linkDescription = previousLinkDescription;
               this.linkError = (data && data.error) || "We couldn't read that link. Please check the URL and try again.";
             }
           } catch (err) {
+            this.linkDescription = previousLinkDescription;
             console.error('Link description generation request failed:', err);
             this.linkError = "We couldn't read that link. Please check the URL and try again.";
           } finally {
