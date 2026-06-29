@@ -58,8 +58,7 @@ via dialog.js (which recognises the checkbox toggle).
           action="{{ post_auth_modal_subscribe_url }}"
           novalidate
           hx-post="{{ post_auth_modal_subscribe_url }}"
-          hx-target="#ml-post-auth-modal"
-          hx-swap="outerHTML"
+          hx-swap="none"
           hx-trigger="ml-submit"
           hx-on::after-request="document.getElementById('ml-post-auth-toggle').checked = false"
           @submit.prevent="emailTouched = true; if (!emailInvalid) htmx.trigger($el, 'ml-submit')">
