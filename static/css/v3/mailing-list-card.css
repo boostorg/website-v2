@@ -256,6 +256,16 @@ input.mailing-list-modal__checkbox:focus-visible + .mailing-list-modal__checkbox
   border-color: var(--color-stroke-strong);
 }
 
+.ml-post-auth-modal__email-field--error {
+  background-color: var(--color-surface-error-weak) !important;
+  border-color: var(--color-stroke-error) !important;
+  color: var(--color-text-error);
+}
+
+.ml-post-auth-modal__email-row .field__error {
+  margin-top: var(--space-s);
+}
+
 .ml-post-auth-modal__container .dialog-modal__buttons {
   padding-top: var(--space-large);
 }

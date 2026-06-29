@@ -17,6 +17,10 @@ Close: backdrop link (href="#_"), Cancel button, or ESC via dialog.js.
      id="ml-post-auth-modal"
      x-data="{
        mlEmail: '{{ post_auth_modal_user_email|default:''|escapejs }}',
+       emailTouched: false,
+       get emailInvalid() {
+         return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.mlEmail.trim());
+       },
        totalLists: {{ post_auth_modal_mailing_lists|length }},
        checkedCount: {{ post_auth_modal_mailing_lists|length }},
        updateCount() {
@@ -50,8 +54,12 @@ Close: backdrop link (href="#_"), Cancel button, or ESC via dialog.js.
              type="email"
              autocomplete="email"
              x-model="mlEmail"
+             @blur="emailTouched = true"
+             :class="{ 'ml-post-auth-modal__email-field--error': emailTouched && emailInvalid }"
+             :aria-invalid="emailTouched && emailInvalid"
              placeholder="Email address"
              aria-label="Email address">
+      <p class="field__error" x-cloak x-show="emailTouched && emailInvalid" role="alert">Please enter a valid email address.</p>
     </div>
 
     <hr class="card__hr">
@@ -60,7 +68,9 @@ Close: backdrop link (href="#_"), Cancel button, or ESC via dialog.js.
           hx-post="{{ post_auth_modal_subscribe_url }}"
           hx-target="#ml-post-auth-modal"
           hx-swap="outerHTML"
-          hx-on::before-swap="history.replaceState(null, '', window.location.pathname + window.location.search)">
+          hx-trigger="ml-submit"
+          hx-on::before-swap="history.replaceState(null, '', window.location.pathname + window.location.search)"
+          @submit.prevent="emailTouched = true; if (!emailInvalid) htmx.trigger($el, 'ml-submit')">
       {% csrf_token %}
       <input type="hidden" name="email" :value="mlEmail">
 
