@@ -7,16 +7,20 @@ Variables:
   mailing_lists        - (required) list of dicts: {id, name, address, description}
   list_id              - (optional) list ID for the no-JS hidden input; defaults to "boost.lists.boost.org"
   state                - "active" | "pending" | "error" | None
-  user_email           - (optional) email used in the subscription
-  manage_url           - (optional) URL for managing subscriptions (no-JS fallback for the manage button)
+  user_email           - (optional) email used in the subscription; also rendered into the
+                         modal's hidden email input as the no-JS fallback value
+  manage_url           - (optional) when set, shows the "Manage your lists" modal trigger
+                         (authenticated users); the trigger opens the modal via :target
   subscription_count   - (optional) number of lists subscribed to (shown in active state)
   subscribed_ids       - (optional) set of list IDs the user is currently subscribed to; controls checkbox state
   error_message        - error text shown when state="error"
 
 Modal open/close: CSS-only via :target (id="mailing-list-modal"), matching the _dialog.html pattern.
+The "Manage your lists" trigger and the modal form work without JS (the form posts
+natively via method/action; the view redirects (PRG) for non-HTMX requests).
 dialog.js provides focus trap, ESC close, and initial focus automatically.
-Alpine is used only to capture the email value and bind it to the modal's hidden input.
-After HTMX swaps [data-ml-block], x-init clears the URL hash so the modal closes.
+With JS, Alpine captures the quick-subscribe email and binds it to the modal's hidden input,
+and HTMX swaps [data-ml-block] in place; x-init then clears the URL hash so the modal closes.
 {% endcomment %}
 <div data-ml-block
      x-data="{ mlEmail: '{{ user_email|default:''|escapejs }}' }"
@@ -35,13 +39,9 @@ After HTMX swaps [data-ml-block], x-init clears the URL hash so the modal closes
         </span>
       </div>
       <div class="card__cta_section">
-        <button type="button"
-                class="btn btn-primary"
-                x-cloak
-                @click="window.location.hash = 'mailing-list-modal'">Manage your lists &rarr;</button>
-        <noscript>
-          <a href="{{ manage_url|default:'' }}" class="btn btn-primary">Manage your lists &rarr;</a>
-        </noscript>
+        <a href="#mailing-list-modal"
+           class="btn btn-primary"
+           role="button">Manage your lists &rarr;</a>
       </div>
     </div>
 
@@ -57,13 +57,9 @@ After HTMX swaps [data-ml-block], x-init clears the URL hash so the modal closes
       </div>
       {% if manage_url %}
         <div class="card__cta_section">
-          <button type="button"
-                  class="btn btn-primary"
-                  x-cloak
-                  @click="window.location.hash = 'mailing-list-modal'">Manage your lists &rarr;</button>
-          <noscript>
-            <a href="{{ manage_url }}" class="btn btn-primary">Manage your lists &rarr;</a>
-          </noscript>
+          <a href="#mailing-list-modal"
+             class="btn btn-primary"
+             role="button">Manage your lists &rarr;</a>
         </div>
       {% endif %}
     </div>
@@ -120,11 +116,13 @@ After HTMX swaps [data-ml-block], x-init clears the URL hash so the modal closes
                   class="mailing-list-modal__select-all"
                   @click="$el.closest('.dialog-modal__container').querySelector('form').querySelectorAll('[name=list_id]').forEach(cb => cb.checked = true)">Select All</button>
         </div>
-        <form hx-post="{{ modal_subscribe_url }}"
+        <form method="post"
+              action="{{ modal_subscribe_url }}"
+              hx-post="{{ modal_subscribe_url }}"
               hx-target="closest [data-ml-block]"
               hx-swap="outerHTML">
           {% csrf_token %}
-          <input type="hidden" name="email" :value="mlEmail">
+          <input type="hidden" name="email" value="{{ user_email|default:'' }}" :value="mlEmail">
           <div class="mailing-list-modal__list-card">
           <ul class="mailing-list-modal__list" role="list">
             {% for ml in mailing_lists %}
