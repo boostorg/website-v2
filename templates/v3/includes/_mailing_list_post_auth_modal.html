@@ -10,9 +10,14 @@ Variables:
   post_auth_modal_mailing_lists  - list of dicts: {id, name, address, description}
   post_auth_modal_user_email     - logged-in user's email (pre-fills the input)
 
-Auto-open: x-init sets the URL hash, which triggers the CSS :target selector.
-Close: backdrop link (href="#_"), Cancel button, or ESC via dialog.js.
+No-JS: a server-rendered, pre-checked checkbox toggle (.dialog-modal__toggle)
+opens the modal via CSS, and the form submits natively (method/action) — the
+view redirects (PRG) for non-HTMX requests. The backdrop and Cancel are
+<label>s that uncheck the toggle to close.
+JS enhances this with HTMX submit, inline email validation, and ESC/focus trap
+via dialog.js (which recognises the checkbox toggle).
 {% endcomment %}
+<input type="checkbox" id="ml-post-auth-toggle" class="dialog-modal__toggle" checked hidden>
 <div class="dialog-modal"
      id="ml-post-auth-modal"
      x-data="{
@@ -34,9 +39,8 @@ Close: backdrop link (href="#_"), Cancel button, or ESC via dialog.js.
          this.$refs.checkboxContainer.querySelectorAll('[name=list_id]').forEach(cb => { cb.checked = true; });
          this.checkedCount = this.totalLists;
        }
-     }"
-     x-init="window.location.hash = 'ml-post-auth-modal'">
-  <a class="dialog-modal__backdrop" href="#_" tabindex="-1" aria-label="Close"></a>
+     }">
+  <label class="dialog-modal__backdrop" for="ml-post-auth-toggle" aria-label="Close"></label>
   <div class="dialog-modal__container ml-post-auth-modal__container"
        role="dialog"
        aria-modal="true"
@@ -49,30 +53,34 @@ Close: backdrop link (href="#_"), Cancel button, or ESC via dialog.js.
 
     <hr class="card__hr">
 
-    <div class="ml-post-auth-modal__email-row">
-      <input class="ml-post-auth-modal__email-field"
-             type="email"
-             autocomplete="email"
-             x-model="mlEmail"
-             @blur="emailTouched = true"
-             :class="{ 'ml-post-auth-modal__email-field--error': emailTouched && emailInvalid }"
-             :aria-invalid="emailTouched && emailInvalid"
-             placeholder="Email address"
-             aria-label="Email address">
-      <p class="field__error" x-cloak x-show="emailTouched && emailInvalid" role="alert">Please enter a valid email address.</p>
-    </div>
-
-    <hr class="card__hr">
-
     <form id="ml-post-auth-form"
+          method="post"
+          action="{{ post_auth_modal_subscribe_url }}"
+          novalidate
           hx-post="{{ post_auth_modal_subscribe_url }}"
           hx-target="#ml-post-auth-modal"
           hx-swap="outerHTML"
           hx-trigger="ml-submit"
-          hx-on::before-swap="history.replaceState(null, '', window.location.pathname + window.location.search)"
+          hx-on::after-request="document.getElementById('ml-post-auth-toggle').checked = false"
           @submit.prevent="emailTouched = true; if (!emailInvalid) htmx.trigger($el, 'ml-submit')">
       {% csrf_token %}
-      <input type="hidden" name="email" :value="mlEmail">
+
+      <div class="ml-post-auth-modal__email-row">
+        <input class="ml-post-auth-modal__email-field"
+               type="email"
+               name="email"
+               value="{{ post_auth_modal_user_email|default:'' }}"
+               autocomplete="email"
+               x-model="mlEmail"
+               @blur="emailTouched = true"
+               :class="{ 'ml-post-auth-modal__email-field--error': emailTouched && emailInvalid }"
+               :aria-invalid="emailTouched && emailInvalid"
+               placeholder="Email address"
+               aria-label="Email address">
+        <p class="field__error" x-cloak x-show="emailTouched && emailInvalid" role="alert">Please enter a valid email address.</p>
+      </div>
+
+      <hr class="card__hr">
 
       <div class="ml-post-auth-modal__body" id="ml-post-auth-modal-desc">
         <p class="ml-post-auth-modal__description">Subscribe to any of our mailing lists. You can change these any time.</p>
@@ -114,10 +122,10 @@ Close: backdrop link (href="#_"), Cancel button, or ESC via dialog.js.
       <hr class="card__hr">
 
       <div class="dialog-modal__buttons">
-        <a href="#_"
-           class="btn btn-secondary btn-flex"
-           role="button"
-           @click="history.replaceState(null, '', window.location.pathname + window.location.search)">Cancel</a>
+        <label for="ml-post-auth-toggle"
+               class="btn btn-secondary btn-flex"
+               role="button"
+               tabindex="0">Cancel</label>
         {% include "v3/includes/_button.html" with type="submit" label="Subscribe" style="primary" extra_classes="btn-flex" only %}
       </div>
     </form>
