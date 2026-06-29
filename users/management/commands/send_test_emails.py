@@ -75,7 +75,7 @@ TEMPLATES = {
         "subject": "emails/unknown_account_subject.txt",
         "text": "emails/unknown_account.txt",
         "html": "emails/unknown_account.html",
-        "action_url": "https://www.boost.org/accounts/signup/",
+        "action_url": "https://www.boost.org/v3/accounts/signup/",
     },
 }
 
