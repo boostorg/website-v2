@@ -557,9 +557,27 @@ class ModalSubscribeView(View):
     any currently tracked lists that were unchecked.
     Anonymous flow: subscribe-only - sends a single confirmation email for all
     checked lists. Unsubscribe not supported for anonymous users.
+
+    With JS the form posts via HTMX and the card partial is swapped in place.
+    Without JS the form posts natively; we redirect (PRG) back to the page so
+    the card re-renders from DB state on the next GET.
     """
 
     def _card(self, request, **ctx):
+        if not _is_htmx(request):
+            state = ctx.get("state")
+            if state == "error":
+                return _prg_redirect(
+                    request,
+                    ml_state="error",
+                    ml_error=ctx.get("error_message", ""),
+                    ml_email=ctx.get("user_email", ""),
+                )
+            if state == "pending" and not request.user.is_authenticated:
+                return _prg_redirect(
+                    request, ml_state="pending", ml_email=ctx.get("user_email", "")
+                )
+            return _prg_redirect(request)
         return render(
             request,
             "v3/includes/_mailing_list_card.html",
