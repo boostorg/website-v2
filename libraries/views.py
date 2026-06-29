@@ -127,7 +127,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
     v3_template_name = "v3/library_page.html"
 
     def get_v3_context_data(self, queryset=None, **kwargs):
-        queryset = self.get_queryset()
+        queryset = getattr(self, "object_list") or []
         context = super().get_v3_context_data(**kwargs)
         view_str = self.kwargs.get("library_view_str")
 

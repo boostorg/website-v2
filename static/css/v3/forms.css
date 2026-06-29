@@ -672,7 +672,7 @@
 
 .checkbox__label a {
   text-decoration: underline;
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-link-accent);
 }
 

@@ -176,7 +176,7 @@ body:has(.auth-page) .header {
 .auth-page__sign-in-link a{
   text-decoration: underline;
   color: var(--color-text-link-accent);
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-medium);
 }
 
 /* ── Divider ───────────────────────────────── */
