@@ -16,6 +16,3 @@ ignore this email safely.
 
 --
 Boost.org is supported by grants from The C++ Alliance.
-
-Want to change how you receive these emails?
-You can update your preferences or unsubscribe from this list.
