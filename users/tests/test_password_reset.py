@@ -6,17 +6,27 @@ common-password rejection), and the legacy (non-V3) flow.
 """
 
 import re
+from datetime import timedelta
 
 import pytest
 import waffle.testutils
+from django.conf import settings as django_settings
+from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 
+from users.utils import humanize_link_lifetime
 from users.validators import CommonPasswordValidator
 
 RESET_LINK_RE = re.compile(r"https?://[^\s]+/password/reset/key/[^\s]+")
 
 NEW_PASSWORD = "korkly-blue-mantis7"
+
+
+def _subject(text):
+    """Branded subject as allauth sends it: the site-name prefix (e.g.
+    "[www.boost.org] ") prepended to the template's subject line."""
+    return f"[{Site.objects.get_current().name}] {text}"
 
 
 @pytest.fixture(autouse=True)
@@ -53,13 +63,18 @@ def test_reset_request_sends_branded_email(tp, user, mailoutbox):
     assert len(mailoutbox) == 1
     msg = mailoutbox[0]
     assert msg.to == [user.email]
-    assert msg.subject == "Password reset link"
+    assert msg.subject == _subject("Password reset link")
     assert "/v3/accounts/password/reset/key/" in msg.body
     # The branded HTML alternative carries the same reset link
     html = msg.alternatives[0][0]
     assert msg.alternatives[0][1] == "text/html"
     assert "/v3/accounts/password/reset/key/" in html
     assert "Reset your password" in html
+    lifetime = humanize_link_lifetime(
+        timedelta(seconds=django_settings.PASSWORD_RESET_TIMEOUT)
+    )
+    assert f"This link will expire in {lifetime}." in msg.body
+    assert f"This link will expire in {lifetime}." in html
 
 
 @waffle.testutils.override_flag("v3", active=True)
@@ -74,7 +89,7 @@ def test_reset_request_unknown_email_sends_signup_email(tp, db, mailoutbox):
     assert len(mailoutbox) == 1
     msg = mailoutbox[0]
     assert msg.to == ["not-registered@example.com"]
-    assert msg.subject == "No account found for this email"
+    assert msg.subject == _subject("No account found for this email")
     assert reverse("v3-signup") in msg.body
     html = msg.alternatives[0][0]
     assert reverse("v3-signup") in html
@@ -93,7 +108,7 @@ def test_reset_request_for_social_only_user_sends_email(tp, user, mailoutbox):
     assert res.status_code == 302
     assert res["Location"] == reverse("v3-password-reset-done")
     assert len(mailoutbox) == 1
-    assert mailoutbox[0].subject == "Password reset link"
+    assert mailoutbox[0].subject == _subject("Password reset link")
 
 
 @waffle.testutils.override_flag("v3", active=True)

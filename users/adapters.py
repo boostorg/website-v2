@@ -1,9 +1,13 @@
+from datetime import timedelta
 from urllib.parse import quote, urlsplit
 
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.utils import build_absolute_uri
+from django.conf import settings
 from django.urls import reverse
 from waffle import flag_is_active
+
+from users.utils import humanize_link_lifetime
 
 
 class AccountAdapter(DefaultAccountAdapter):
@@ -43,6 +47,9 @@ class AccountAdapter(DefaultAccountAdapter):
                 "first_name": getattr(user, "first_name", ""),
                 "user_email": email,
                 "action_url": context["password_reset_url"],
+                "password_reset_link_lifetime": humanize_link_lifetime(
+                    timedelta(seconds=settings.PASSWORD_RESET_TIMEOUT)
+                ),
             }
         )
         return super().send_password_reset_mail(user, email, context)

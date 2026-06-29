@@ -417,8 +417,6 @@ MONDAY_LEADS_BOARD_ID = env("MONDAY_LEADS_BOARD_ID", default="")
 # Django Allauth settings
 
 ACCOUNT_ADAPTER = "users.adapters.AccountAdapter"
-# Subjects come fully formed from the branded email templates
-ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_ON_GET = True
