@@ -85,7 +85,7 @@ Import `VersionFile` objects from Artifactory.
 
 | Options    | Format | Description                                                                                                                  |
 |------------|--------|------------------------------------------------------------------------------------------------------------------------------|
-| `--new`    | bool   | Default: 'true'. If 'true', will import only the newest release data. Set to 'false' to import archive data for all releases |
+| `--new`    | bool   | Default: 'true'. If 'true', imports archive data for the most recent full release and (if one exists) the most recent beta release. Set to 'false' to import archive data for all releases |
 | `--release` | string   | Format: `boost-1.63.0`. If passed, will import Archive urls for only that release. Overrides --new                        |
 
 **More Information**
