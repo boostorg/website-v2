@@ -1,7 +1,5 @@
 /*
-  Branch Buttons
-  Small, unobtrusive Master ("M") / Develop ("D") branch links.
-  Bordered icon square with an amber corner badge. Matches Figma node 7696:45822.
+  Branch Buttons — small Master ("M") / Develop ("D") version-switch links.
   Depends on: foundations.css, semantics.css, spacing.css, border-radius.css
 */
 
@@ -70,21 +68,15 @@
   border-radius: var(--border-radius-s);
 }
 
-/* In the library sub-page hero the buttons are a direct child of __block
-   (sibling of the content column), pinned to the far right and bottom-aligned
-   with the actions row — matching Figma node 7146-55502 (hero is items-end).
-   The right edge is inset by --space-large so it lines up with the right edge
-   of the content cards below (.library-subpage-container has 16px side padding).
-   Figma node 7696-45623. */
+/* Sub-page hero: far right, bottom-aligned with the actions row; right edge
+   inset to line up with the content cards below. */
 .hero__block > .branch-buttons {
   align-self: flex-end;
   flex-shrink: 0;
   margin-right: var(--space-large);
 }
 
-/* Mobile: __block becomes a column, so the buttons stack below the actions row.
-   Left-align them with the cards' left edge (block + cards both pad 8px here)
-   and add a little separation. Figma node 7611-62006. */
+/* Mobile: stacks below the actions row, left-aligned with the cards. */
 @media (max-width: 767px) {
   .hero__block > .branch-buttons {
     align-self: flex-start;
