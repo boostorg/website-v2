@@ -161,7 +161,12 @@ def import_versions(
 def import_release_notes(new_versions_only=True):
     """Imports release notes from the existing rendered
     release notes in the repository."""
-    versions = [Version.objects.with_partials().most_recent()]
+    # Include both the most recent full release and the most recent beta (if
+    # one exists). `most_recent()` filters out betas, so without this a
+    # freshly-imported beta would be silently skipped when running with
+    # ``new_versions_only=True`` (e.g. ``./manage.py import_release_notes``).
+    qs = Version.objects.with_partials()
+    versions = [v for v in (qs.most_recent(), qs.most_recent_beta()) if v is not None]
     if not new_versions_only:
         versions = (
             Version.objects.exclude(name__in=["master", "develop"])
