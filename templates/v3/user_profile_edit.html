@@ -107,11 +107,11 @@
                   <label for="user-profile__avatar-row-checkbox" class="btn btn-primary">Replace Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
                   <input type="checkbox" id="user-profile__avatar-delete-checkbox" name="{{ user_profile_form.delete_avatar.name }}" class="badge-button__radio" />
                   <label aria-label="Delete Avatar" for="user-profile__avatar-delete-checkbox" class="btn btn-error">Delete Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
-                  <label aria-label="Delete Avatar" for="user-profile__avatar-delete-checkbox" class="btn btn-secondary">Undo Changes<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-arrow-return' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                  <label aria-label="Undo Changes" for="user-profile__avatar-delete-checkbox" class="btn btn-secondary">Undo Changes<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-arrow-return' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
                   <div class="user-profile__activated-avatar-buttons">
                   <label class="user-profile__edit-avatar-box-cover" for="user-profile__avatar-row-checkbox"></label>
                     <div class="card px-large user-profile__default-space-col user-profile__edit-avatar-box">
-                      {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name label='Replace Image' help_text='This should be a PNG or JPEG format and no larger than 5MB' accept='image/png,image/jpeg' only %}
+                      {% include 'v3/includes/_field_file.html' with id="field-avatar-modal" name=user_profile_form.avatar.name label='Replace Image' help_text='This should be a PNG or JPEG format and no larger than 5MB' accept='image/png,image/jpeg' only %}
                     </div>
                     </div>
                   </div>
