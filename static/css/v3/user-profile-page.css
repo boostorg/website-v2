@@ -236,6 +236,10 @@
     display: none;
 }
 
+.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:checked) .user-profile__activated-avatar-buttons {
+    display: none;
+}
+
 .user-profile__avatar-row:has(input[name='avatar-row-checkbox']:checked) .btn-error {
     display: none;
 }
