@@ -216,15 +216,15 @@
 .field__control--disabled,
 .field__control--disabled:hover,
 .field__control--disabled:focus-within {
-  background-color: var(--color-surface-mid, #f7f7f8);
-  border-color: var(--color-stroke-strong, #05081640);
+  background-color: var(--color-surface-mid);
+  border-color: var(--color-stroke-strong);
   cursor: not-allowed;
 }
 
 .field__control--disabled .field__input,
 .field__control--disabled .field__input::placeholder,
 .field__control--disabled:hover .field__input::placeholder {
-  color: var(--color-text-secondary, #6b6d78);
+  color: var(--color-text-secondary);
 }
 
 .field__control--disabled .field__input {
@@ -234,7 +234,7 @@
 .field__control--disabled .field__icon,
 .field__control--disabled:hover .field__icon,
 .field__control--disabled:focus-within .field__icon {
-  color: var(--color-icon-secondary, #6b6d78);
+  color: var(--color-icon-secondary);
 }
 
 /* ========== Datetime-local: hide native icon, full-area click ========== */
