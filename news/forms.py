@@ -57,6 +57,11 @@ class V3NewsForm(NewsForm):
         fields = ["title", "publish_at", "content", "summary", "image"]
 
 
+class V3LinkForm(LinkForm):
+    class Meta(LinkForm.Meta):
+        fields = ["title", "publish_at", "external_url", "summary", "image"]
+
+
 class PollForm(EntryForm):
     class Meta:
         model = Poll

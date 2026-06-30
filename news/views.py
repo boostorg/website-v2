@@ -1,6 +1,7 @@
 from datetime import timedelta
 from functools import partial
 
+import requests
 import structlog
 
 from django.conf import settings
@@ -45,6 +46,7 @@ from .constants import (
     MAGIC_LINK_EXPIRATION,
     DESCRIPTION_SUMMARY_MAX_LENGTH,
 )
+
 from .forms import (
     BlogPostForm,
     EntryForm,
@@ -52,13 +54,14 @@ from .forms import (
     NewsForm,
     PollForm,
     V3BlogPostForm,
+    V3LinkForm,
     V3NewsForm,
     VideoForm,
 )
-from .helpers import extract_content
 from .models import BlogPost, Entry, Link, News, Poll, Video
 from .services import news_type_label
 from .tasks import generate_summary
+from .helpers import UnsafeURLError, extract_article, extract_content, safe_get
 from .notifications import (
     send_email_news_approved,
     send_email_news_needs_moderation,
@@ -523,7 +526,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
     _POST_TYPE_MAP = {
         "blog": (BlogPost, V3BlogPostForm),
         "news": (News, V3NewsForm),
-        "link": (Link, LinkForm),
+        "link": (Link, V3LinkForm),
         "video": (Video, VideoForm),
     }
 
@@ -553,12 +556,16 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
         model_class, form_class = type_config
 
-        # The v3 create page posts the Description textarea as `description`
-        # (kept named so for the existing frontend wiring). Bind it to the
-        # model's `summary` field on submit for the forms that include it.
+        # The v3 create page has two Description textareas — `description` for
+        # Blog/News and `link_description` for Link/Video — so the two don't
+        # collide in the submitted form. Bind whichever applies to the model's
+        # `summary` field on submit for the forms that include it.
         post_data = request.POST.copy()
-        if post_data.get("description") and not post_data.get("summary"):
-            post_data["summary"] = post_data["description"]
+        description_field = (
+            "link_description" if post_type in ("link", "video") else "description"
+        )
+        if post_data.get(description_field) and not post_data.get("summary"):
+            post_data["summary"] = post_data[description_field]
 
         form = form_class(post_data, request.FILES)
 
@@ -626,6 +633,77 @@ def generate_description(request):
         )
     except Exception:
         logger.exception("generate_description: summarization failed")
+        return JsonResponse(
+            {"error": "Could not generate a description. Please try again."},
+            status=502,
+        )
+
+    if not summary:
+        return JsonResponse(
+            {"error": "Could not generate a description. Please try again."},
+            status=502,
+        )
+
+    return JsonResponse({"description": summary.strip()})
+
+
+_LINK_FETCH_ERROR = "We couldn't read that link. Please check the URL and try again."
+_LINK_INVALID_ERROR = "Please enter a valid, public http(s) link."
+
+
+@login_required
+@require_POST
+def generate_link_description(request):
+    """Fetch the linked page, extract its main text, and summarize it.
+
+    Works for any public http(s) URL (trafilatura isolates the main article and
+    falls back to a visible-text dump for unusual templates). The fetch goes
+    through ``safe_get``, which blocks SSRF to internal/private hosts and
+    re-validates redirect targets.
+
+    Failure modes return separate JSON errors:
+      - URL is missing, malformed, or points at a non-public host (400).
+      - Fetch failed or no readable text could be extracted (502, "couldn't
+        read that link").
+      - Summarization failed or returned empty (502, "couldn't generate").
+
+    NOTE: still no rate limiting — add per-user throttling before relying on
+    auth alone to bound spend.
+    """
+    url = request.POST.get("url", "").strip()
+    if not url:
+        return JsonResponse({"error": _LINK_INVALID_ERROR}, status=400)
+
+    try:
+        resp = safe_get(url, timeout=10)
+        resp.raise_for_status()
+    except UnsafeURLError:
+        logger.warning("generate_link_description: blocked unsafe url", url=url)
+        return JsonResponse({"error": _LINK_INVALID_ERROR}, status=400)
+    except requests.RequestException:
+        logger.exception("generate_link_description: fetch failed", url=url)
+        return JsonResponse({"error": _LINK_FETCH_ERROR}, status=502)
+
+    title, body = extract_article(resp.text, url=url)
+    if not body:
+        # Page fetched OK but no readable text could be isolated.
+        logger.warning("generate_link_description: extraction empty", url=url)
+        return JsonResponse({"error": _LINK_FETCH_ERROR}, status=502)
+
+    # Feed the extracted body through the same summarizer used by the Blog/News
+    # path — synchronously, with a real timeout so a hung upstream doesn't tie
+    # up a web worker (autoretry_for on the Celery task is a no-op when called
+    # inline; see news/tasks.py).
+    try:
+        summary = generate_summary(
+            body,
+            title,
+            settings.SUMMARIZATION_MODEL,
+            DESCRIPTION_SUMMARY_MAX_LENGTH,
+            timeout=30,
+        )
+    except Exception:
+        logger.exception("generate_link_description: summarization failed", url=url)
         return JsonResponse(
             {"error": "Could not generate a description. Please try again."},
             status=502,
