@@ -1,7 +1,7 @@
 import base64
 import re
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone as dt_timezone, timedelta
 from socket import gaierror
 import time
 from urllib.error import URLError
@@ -23,6 +23,37 @@ from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
 logger = structlog.get_logger()
+
+# Module-level cache for GitHub org node IDs (fetched once per process).
+_org_node_id_cache: dict[str, str] = {}
+
+_CONTRIBUTIONS_QUERY = """
+query BoostActivity($login: String!, $orgId: ID!, $from: DateTime!, $to: DateTime!) {
+  user(login: $login) {
+    contributionsCollection(organizationID: $orgId, from: $from, to: $to) {
+      totalCommitContributions
+      totalRepositoriesWithContributedCommits
+      totalPullRequestContributions
+      totalRepositoriesWithContributedPullRequests
+      totalPullRequestReviewContributions
+      totalRepositoriesWithContributedPullRequestReviews
+      repositoryContributions(first: 1) {
+        totalCount
+      }
+      pullRequestContributions(first: 50) {
+        nodes {
+          pullRequest {
+            title
+            url
+            repository { nameWithOwner }
+            comments { totalCount }
+          }
+        }
+      }
+    }
+  }
+}
+"""
 
 
 class GithubAPIClient:
@@ -554,6 +585,23 @@ class GithubAPIClient:
         with myzip.open(myzip.filelist[0]) as f:
             return f.read().decode()
 
+    def graphql(self, query: str, variables: dict) -> dict:
+        """Execute a GitHub GraphQL query using the app-level PAT."""
+        response = requests.post(
+            "https://api.github.com/graphql",
+            json={"query": query, "variables": variables},
+            headers={
+                "Authorization": f"Bearer {self.token}",
+                "Content-Type": "application/json",
+            },
+            timeout=30,
+        )
+        response.raise_for_status()
+        data = response.json()
+        if "errors" in data:
+            raise ValueError(f"GitHub GraphQL errors: {data['errors']}")
+        return data["data"]
+
 
 class GithubDataParser:
     def get_commits_per_month(self, commits: list[dict]):
@@ -692,3 +740,92 @@ class GithubDataParser:
             val = val.replace(email.group(), "")
 
         return val.strip()
+
+
+def _get_org_node_id(org: str, token: str) -> str:
+    """Return the GitHub GraphQL node ID for an org, caching after first fetch."""
+    if org not in _org_node_id_cache:
+        resp = requests.get(
+            f"https://api.github.com/orgs/{org}",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/vnd.github+json",
+            },
+            timeout=15,
+        )
+        resp.raise_for_status()
+        _org_node_id_cache[org] = resp.json()["node_id"]
+    return _org_node_id_cache[org]
+
+
+def boost_activity(login: str) -> dict:
+    """Fetch Boost org contribution totals for a GitHub user (trailing 12 months).
+
+    Queries both ``boostorg`` and ``cppalliance`` orgs and sums the results.
+    Raises on GraphQL errors so the caller can decide whether to keep the last
+    good snapshot.
+
+    Returns a dict with keys:
+        total_commits, commit_repo_count, repos_created,
+        prs_opened, pr_repo_count, prs_reviewed, review_repo_count,
+        featured_pr (dict or None)
+    """
+    client = GithubAPIClient()
+    orgs = getattr(settings, "BOOST_GITHUB_ORGS", ["boostorg", "cppalliance"])
+
+    now = datetime.now(dt_timezone.utc)
+    from_str = (now - timedelta(days=365)).isoformat()
+    to_str = now.isoformat()
+
+    totals = {
+        "total_commits": 0,
+        "commit_repo_count": 0,
+        "repos_created": 0,
+        "prs_opened": 0,
+        "pr_repo_count": 0,
+        "prs_reviewed": 0,
+        "review_repo_count": 0,
+    }
+    all_prs: list[dict] = []
+
+    for org in orgs:
+        try:
+            org_id = _get_org_node_id(org, client.token)
+        except Exception as exc:
+            logger.warning("boost_activity_org_id_failed", org=org, exc_msg=str(exc))
+            continue
+
+        data = client.graphql(
+            _CONTRIBUTIONS_QUERY,
+            {"login": login, "orgId": org_id, "from": from_str, "to": to_str},
+        )
+
+        user_node = data.get("user")
+        if not user_node:
+            logger.warning("boost_activity_user_not_found", login=login, org=org)
+            continue
+
+        coll = user_node["contributionsCollection"]
+        totals["total_commits"] += coll["totalCommitContributions"]
+        totals["commit_repo_count"] += coll["totalRepositoriesWithContributedCommits"]
+        totals["repos_created"] += coll["repositoryContributions"]["totalCount"]
+        totals["prs_opened"] += coll["totalPullRequestContributions"]
+        totals["pr_repo_count"] += coll["totalRepositoriesWithContributedPullRequests"]
+        totals["prs_reviewed"] += coll["totalPullRequestReviewContributions"]
+        totals["review_repo_count"] += coll[
+            "totalRepositoriesWithContributedPullRequestReviews"
+        ]
+
+        for node in coll["pullRequestContributions"]["nodes"]:
+            pr = node["pullRequest"]
+            all_prs.append(
+                {
+                    "title": pr["title"],
+                    "url": pr["url"],
+                    "repo": pr["repository"]["nameWithOwner"],
+                    "comment_count": pr["comments"]["totalCount"],
+                }
+            )
+
+    featured_pr = max(all_prs, key=lambda p: p["comment_count"]) if all_prs else None
+    return {**totals, "featured_pr": featured_pr}

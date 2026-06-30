@@ -95,6 +95,44 @@ def send_account_deleted_email(email):
     )
 
 
+@app.task
+def refresh_github_activity(user_pk):
+    """Fetch and cache Boost org GitHub activity for a single user.
+
+    Keeps the last good snapshot on API error rather than blanking the row.
+    """
+    from core.githubhelper import boost_activity
+    from users.models import GithubActivity
+
+    try:
+        user = User.objects.get(pk=user_pk)
+    except User.DoesNotExist:
+        logger.exception("refresh_github_activity_user_not_found", user_pk=user_pk)
+        raise
+
+    if not user.github_username:
+        logger.info("refresh_github_activity_no_username", user_pk=user_pk)
+        return
+
+    try:
+        activity_data = boost_activity(user.github_username)
+    except Exception as exc:
+        logger.error(
+            "refresh_github_activity_failed",
+            user_pk=user_pk,
+            login=user.github_username,
+            exc_msg=str(exc),
+        )
+        raise
+
+    GithubActivity.upsert_for_user(user, activity_data)
+    logger.info(
+        "refresh_github_activity_done",
+        user_pk=user_pk,
+        login=user.github_username,
+    )
+
+
 @shared_task
 def remove_unverified_users():
     """
