@@ -197,3 +197,15 @@
   margin: 0;
   color: var(--color-text-secondary);
 }
+
+/* Dark mode overrides */
+html.dark {
+  .library-highlight-carousel__card {
+    border: none;
+  }
+
+  .library-highlight-carousel__tags .category-tag {
+    background: var(--color-primary-grey-100);
+    color: var(--color-primary-grey-800);
+  }
+}
