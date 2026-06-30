@@ -280,6 +280,15 @@
     </div>
   {% endwith %}
 
+  {% with section_title="Library Highlight Carousel" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_library_highlight_carousel.html" with carousel_id="library-highlight-demo" slides=demo_library_highlight_slides %}
+      </div>
+    </div>
+  {% endwith %}
+
   {% with section_title="Detail card carousel with autoplay" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>

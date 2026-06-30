@@ -1,0 +1,144 @@
+{% comment %}
+  Library Highlight carousel — "Explore battle tested libraries".
+  CSS-only, radio-driven carousel (no JavaScript), mirroring the testimonial
+  card: hidden radios are the state. Only the yellow card translates; the meta
+  row (added-in + dots), divider and CTA stay static and swap their per-slide
+  content via the inline <style> rules. Prev/next wrap cyclically (first<->last).
+  Requires static/css/v3/library-highlight-carousel.css, carousel-buttons.css.
+
+  Variables:
+    carousel_id (required) — id for the carousel root, radios and controls.
+    slides (required) — list of dicts: name, category_tags (list of {label}),
+                        description, added_in_version, docs_url.
+{% endcomment %}
+{% with total=slides|length %}
+<section id="{{ carousel_id }}" class="library-highlight-carousel" role="region" aria-labelledby="{{ carousel_id }}-heading">
+  {% if slides %}
+    {% if total > 1 %}
+      <style>
+        {% for slide in slides %}
+          /* Shift the track to bring this slide's card into view. */
+          #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .library-highlight-carousel__track .library-highlight-carousel__list {
+            transform: translateX(-{{ forloop.counter0 }}00%);
+          }
+          /* Swap in this slide's static content: nav block, added-in, dot, CTA. */
+          #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .library-highlight-carousel__header .library-highlight-carousel__nav--{{ forloop.counter }} {
+            display: inline-flex;
+          }
+          #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .library-highlight-carousel__meta .library-highlight-carousel__added--{{ forloop.counter }} {
+            display: inline;
+          }
+          #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .library-highlight-carousel__meta .library-highlight-carousel__dots .library-highlight-carousel__dot:nth-child({{ forloop.counter }}) {
+            background: var(--color-icon-secondary);
+          }
+          #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .library-highlight-carousel__button--{{ forloop.counter }} {
+            display: flex;
+          }
+          /* Mirror the hidden radio's focus onto the visible nav wrapper. */
+          #{{ carousel_id }}-{{ forloop.counter }}:focus-visible ~ .library-highlight-carousel__header .library-highlight-carousel__nav--{{ forloop.counter }} {
+            outline: 2px solid var(--color-stroke-link-accent);
+          }
+        {% endfor %}
+      </style>
+
+      {# Hidden radios drive all carousel state via the per-state rules above. #}
+      {% for slide in slides %}
+        <input type="radio"
+               name="{{ carousel_id }}-state"
+               id="{{ carousel_id }}-{{ forloop.counter }}"
+               class="library-highlight-carousel__radio"
+               aria-label="Show {{ slide.name }}"
+               {% if forloop.first %}checked{% endif %}>
+      {% endfor %}
+    {% endif %}
+
+    <div class="library-highlight-carousel__header">
+      <h2 id="{{ carousel_id }}-heading" class="library-highlight-carousel__heading">Explore battle tested libraries</h2>
+      {% if total > 1 %}
+        {# One nav block per slide; prev/next wrap cyclically (first <-> last). #}
+        {% for slide in slides %}
+          <div class="carousel-buttons library-highlight-carousel__nav library-highlight-carousel__nav--{{ forloop.counter }}" role="group" aria-label="Carousel navigation">
+            {% if forloop.first %}
+              <label for="{{ carousel_id }}-{{ total }}" class="btn btn-carousel" role="button" aria-label="Previous">
+            {% else %}
+              <label for="{{ carousel_id }}-{{ forloop.counter|add:'-1' }}" class="btn btn-carousel" role="button" aria-label="Previous">
+            {% endif %}
+              <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=16 %}</span>
+            </label>
+            {% if forloop.last %}
+              <label for="{{ carousel_id }}-1" class="btn btn-carousel" role="button" aria-label="Next">
+            {% else %}
+              <label for="{{ carousel_id }}-{{ forloop.counter|add:1 }}" class="btn btn-carousel" role="button" aria-label="Next">
+            {% endif %}
+              <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=16 %}</span>
+            </label>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    {# Translating track — only the yellow cards move. #}
+    <div class="library-highlight-carousel__track">
+      <ul class="library-highlight-carousel__list" aria-label="Featured libraries">
+        {% for slide in slides %}
+          <li class="library-highlight-carousel__item">
+            <article class="library-highlight-carousel__card">
+              <div class="library-highlight-carousel__card-head">
+                <h3 class="library-highlight-carousel__name">{{ slide.name }}</h3>
+                {% if slide.category_tags %}
+                  <div class="library-highlight-carousel__tags">
+                    {% for tag in slide.category_tags %}
+                      {% if tag.slug %}
+                        {% url 'libraries-list' version_slug='latest' library_view_str='list' as category_url %}
+                        {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=category_url|add:"?category="|add:tag.slug variant="neutral" size="default" aria_label="Browse "|add:tag.label|add:" libraries" %}
+                      {% else %}
+                        {% include "v3/includes/_category_tag.html" with tag_label=tag.label variant="neutral" size="default" %}
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+              {% if slide.description %}
+                <p class="library-highlight-carousel__description">{{ slide.description }}</p>
+              {% endif %}
+            </article>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    {# Static meta row — content swaps per active slide, position never moves. #}
+    <div class="library-highlight-carousel__meta">
+      {% for slide in slides %}
+        {% if slide.added_in_version %}
+          <span class="library-highlight-carousel__added library-highlight-carousel__added--{{ forloop.counter }}">Added in Boost {{ slide.added_in_version }}</span>
+        {% endif %}
+      {% endfor %}
+      {% if total > 1 %}
+        <div class="library-highlight-carousel__dots" aria-label="Library pagination">
+          {% for slide in slides %}
+            <label for="{{ carousel_id }}-{{ forloop.counter }}"
+                   class="library-highlight-carousel__dot"
+                   aria-label="Show slide {{ forloop.counter }}"></label>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <hr class="library-highlight-carousel__divider" aria-hidden="true" />
+
+    {# Static CTA — one per slide stacked in place, only the active one shown. #}
+    {% for slide in slides %}
+      {% with cnt=forloop.counter|stringformat:"s" %}
+        {% include "v3/includes/_button.html" with label="View documentation" url=slide.docs_url|default:"#" extra_classes="btn-flex library-highlight-carousel__button library-highlight-carousel__button--"|add:cnt %}
+      {% endwith %}
+    {% endfor %}
+  {% else %}
+    <div class="library-highlight-carousel__header">
+      <h2 id="{{ carousel_id }}-heading" class="library-highlight-carousel__heading">Explore battle tested libraries</h2>
+    </div>
+    {# Empty state: no libraries configured and no fallback available. #}
+    <p class="library-highlight-carousel__empty">No libraries to highlight yet. Check back soon.</p>
+  {% endif %}
+</section>
+{% endwith %}

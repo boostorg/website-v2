@@ -223,6 +223,10 @@ class Tier(models.IntegerChoices):
     LEGACY = 40, "Legacy"
 
 
+# Tiers eligible to be featured on the V3 homepage (spotlight + highlight carousel).
+FEATURED_LIBRARY_TIERS = [Tier.FLAGSHIP, Tier.CORE]
+
+
 class Library(models.Model):
     """
     Model to represent component Libraries of Boost
