@@ -8,31 +8,23 @@ Everything here is OPTIONAL: delete any section you don't use. An omitted sectio
 just renders nothing on the page — it is never an error.
 
 THE CONTRACT — the website keys off the section IDs (e.g. [#about]) and attribute
-names (e.g. :separately-compiled-library:) below, NOT the prose. You may freely change the
+names (e.g. :library-key:) below, NOT the prose. You may freely change the
 headings and body copy; do NOT rename the IDs or attributes.
 
   Document attributes
     :library-key:      your key in meta/libraries.json (sanity check)
-    :separately-compiled-library:   true | false  (DEFAULT false). Leave this OUT if your library
-                       is header-only — almost all are. Set it to true ONLY if your
-                       library is one of the 10 separately-compiled libraries
-                       (Filesystem, IOStreams, ProgramOptions, Python, Regex,
-                       Serialization, Signals, System, Thread, Wave); then fill in
-                       the [#install] section with its build/link steps.
 
   Sections (shown on the page in this order)
     [#about]         a blurb + one code sample
     [#playground]    one runnable code sample (feeds the "Edit in Compiler Explorer" button)
     [#designed-for]  a few headings, each with a short description
     [#links]         two links into your library's documentation
-    [#install]       separately-compiled libraries ONLY — build/link steps
+    [#install]       build/link steps
     [#benchmarks]    one bar chart per subsection
     [#freeform]      your own heading + free-form content, shown in a card
 ////
 = Boost.<LibraryName> — Website Content
 :library-key: <your-libraries.json-key>
-// Uncomment the next line ONLY if this is an separately-compiled library (see list above):
-// :separately-compiled-library: true
 
 
 [#about]
@@ -87,25 +79,19 @@ headings and body copy; do NOT rename the IDs or attributes.
 :code-example-url: <https://www.boost.org/doc/libs/latest/libs/.../...>
 
 
-////
-[#install] — SEPARATELY-COMPILED LIBRARIES ONLY.
+[#install]
+== Install
 
-DELETE this whole block if your library is header-only (almost all are) — the
-website shows a generic "get Boost" install card automatically.
+// Build/link steps for your library. Fill this in — all libraries must provide
+// the code needed to build and link against them.
 
-If your library is separately compiled, set  :separately-compiled-library: true  at the top,
-then uncomment and fill in the section below:
-
-  [#install]
-  == Install
-  [source,bash]
-  ----
-  # build it with b2:
-  ./b2 --with-<library> install
-  # then link against it:
-  g++ app.cpp -lboost_<library>
-  ----
-////
+[source,bash]
+----
+# build it with b2:
+./b2 --with-<library> install
+# then link against it:
+g++ app.cpp -lboost_<library>
+----
 
 
 [#benchmarks]

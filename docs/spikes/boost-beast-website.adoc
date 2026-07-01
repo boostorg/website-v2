@@ -1,17 +1,15 @@
 ////
-Worked example of meta/website.adoc for a HEADER-ONLY library.
+Worked example of meta/website.adoc for a header-only library (Boost.Beast).
 
-Almost all Boost libraries are header-only: they author NO install steps — they
-omit the :separately-compiled-library: attribute and the [#install] section, and the website
-shows a generic "get Boost" install card automatically. (Separately-compiled
-libraries set :separately-compiled-library: true and add an [#install] section — see
-boost-filesystem-website.adoc.)
+Every library authors an [#install] section with its build/link steps. For a
+header-only library like Beast that is just getting Boost and including the
+header; separately-compiled libraries add extra build + link steps — see
+boost-filesystem-website.adoc.
 
 See website-template.adoc for the full contract (section IDs + attributes).
 ////
 = Boost.Beast — Website Content
 :library-key: beast
-// header-only (the default) — :separately-compiled-library: omitted
 
 
 [#about]
@@ -119,17 +117,16 @@ Components are well-suited for building upon.
 :common-use-case-url: https://www.boost.org/doc/libs/latest/libs/beast/doc/html/beast/quick_start.html
 :code-example-url: https://www.boost.org/doc/libs/latest/libs/beast/doc/html/beast/examples.html
 
-////
-[#install] is OMITTED here on purpose. Boost.Beast is header-only (the default —
-no :separately-compiled-library: attribute), so there is nothing to author: the website renders
-a generic "get Boost" install card for every library —
-  vcpkg install boost / conan install boost/<ver> / apt install libboost-all-dev
-  + #include <boost/beast.hpp>
+[#install]
+== Install
 
-Only separately-compiled libraries (:separately-compiled-library: true) add an [#install] section with the
-extra build/link steps the generic card can't cover, e.g. Boost.Filesystem
-(a separately-compiled library):
-////
+// Build/link steps. Boost.Beast is header-only — install Boost and include the
+// header; there is no separate link step.
+
+[source,cpp]
+----
+#include <boost/beast/core.hpp>
+----
 
 
 [#benchmarks]

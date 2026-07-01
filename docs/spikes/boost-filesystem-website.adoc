@@ -1,16 +1,14 @@
 ////
-Worked example of meta/website.adoc for a SEPARATELY-COMPILED LIBRARY.
+Worked example of meta/website.adoc for a separately-compiled library (Boost.Filesystem).
 
-The point of this example is the [#install] section: because Boost.Filesystem is
-one of the 10 separately-compiled libraries, it sets  :separately-compiled-library: true
-and authors its own build/link steps. (Header-only libraries omit all of that — see
-boost-beast-website.adoc for the Boost.Beast header-only example.)
+The point of this example is the [#install] section: Boost.Filesystem is separately
+compiled, so it authors its own build/link steps. (Header-only libraries provide a
+lighter install — see boost-beast-website.adoc for the Boost.Beast example.)
 
 See website-template.adoc for the full contract (section IDs + attributes).
 ////
 = Boost.Filesystem — Website Content
 :library-key: filesystem
-:separately-compiled-library: true
 
 
 [#about]
@@ -88,7 +86,7 @@ The reference implementation that the C++17 std::filesystem library was based on
 [#install]
 == Install
 
-// Separately-compiled library: these are the extra build + link steps the website appends because :separately-compiled-library: true is set above.
+// Boost.Filesystem is separately compiled — these are its build + link steps.
 
 [source,bash]
 ----
