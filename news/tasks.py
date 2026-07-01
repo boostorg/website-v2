@@ -297,7 +297,7 @@ def set_summary_for_event_page(pk: int):
         return
     logger.info(f"handing off {pk=} to summarize_content task")
     summarize_content.apply_async(
-        (content, page.title, "gpt-oss-120b"),
+        (content, page.title, SUMMARIZATION_MODEL),
         link=save_page_summary_value.s(pk),
     )
 
@@ -323,7 +323,7 @@ def set_summary_for_link_page(pk: int):
 
     logger.info(f"dispatching summarize task for {pk=} with {content[:40]=}...")
     summarize_content.apply_async(
-        (content, page.title, "gpt-oss-120b"), link=save_page_summary_value.s(pk)
+        (content, page.title, SUMMARIZATION_MODEL), link=save_page_summary_value.s(pk)
     )
 
 
