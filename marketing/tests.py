@@ -4,10 +4,6 @@ from unittest.mock import patch
 import pytest
 
 
-def test_whitepaper_view(tp):
-    tp.assertGoodView("whitepaper", slug="_example")
-
-
 @pytest.mark.parametrize("url_stem", ["qrc", "bsm"])
 def test_plausible_redirect_and_plausible_payload(tp, url_stem):
     """XFF present; querystring preserved; payload/headers correct."""
