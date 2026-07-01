@@ -289,7 +289,6 @@ class PostPage(BasePage):
     def author(self):
         return self.owner
 
-    @cached_property
     def get_absolute_url(self):
         return self.url
 
