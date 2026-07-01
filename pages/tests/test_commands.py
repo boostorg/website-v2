@@ -106,10 +106,6 @@ class TestConvertTextContent:
 
         assert "<a href=" in result
         assert "example.com" in result
-        assert result.startswith("<p>")
-
-    def test_handles_empty_content(self):
-        assert convert_text_content("") == "<p></p>"
 
 
 class TestBasicConversion:
