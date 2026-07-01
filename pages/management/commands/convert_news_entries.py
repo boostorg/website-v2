@@ -12,7 +12,6 @@ from news.models import Link
 from news.models import Entry
 
 from django.template.defaultfilters import urlize
-from django.template.defaultfilters import linebreaks_filter
 
 
 def get_or_create_page(entry: Entry, index_page: PostIndexPage) -> PostPage:
@@ -40,7 +39,6 @@ def get_or_create_page(entry: Entry, index_page: PostIndexPage) -> PostPage:
 def convert_text_content(content: str):
     r_content = content
     r_content = urlize(r_content)
-    r_content = linebreaks_filter(r_content)
     return r_content
 
 
