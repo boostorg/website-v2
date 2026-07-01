@@ -197,11 +197,18 @@ class V3ProfileLinkChoices(models.TextChoices):
     SLACK = "slack"
 
 
+# Slack links persist as the public profile URL from the CPPLang Slack
+# workspace (kept in sync with the frontend construction in
+# user_profile_edit.html) — the same link produced by "Copy link to profile"
+# in a user's Slack profile within the CPPLang workspace.
+SLACK_PROFILE_URL_PREFIX = "https://cpplang.slack.com/team/"
+
+
 class V3ProfileLinkForm(forms.Form):
     type = forms.ChoiceField(
         choices=V3ProfileLinkChoices.choices, disabled=True, label=""
     )
-    value = forms.CharField(max_length=80, label="")
+    value = forms.CharField(max_length=200, label="")
 
 
 V3ProfileLinkFormset = forms.formset_factory(V3ProfileLinkForm, extra=0)
@@ -248,7 +255,7 @@ class V3UserProfileForm(forms.Form):
             elif field_value == V3ProfileLinkChoices.EMAIL:
                 placeholder = "example@example.com"
             elif field_value == V3ProfileLinkChoices.SLACK:
-                placeholder = "@"
+                placeholder = "CPPLang profile URL"
             form.fields["value"].widget.attrs["placeholder"] = placeholder
 
     # Left Column Fields

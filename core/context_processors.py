@@ -213,6 +213,11 @@ class NavLink:
     is_unread: bool = False
 
 
+def edit_profile_url():
+    """Shared CTA URL for the profile edit page."""
+    return f"{reverse('profile-account')}?edit=True"
+
+
 def header_context(request):
     """Context processor for header nav links."""
     nav_links = [
@@ -229,6 +234,7 @@ def header_context(request):
     return {
         "nav_links": nav_links,
         "releases_url": reverse("releases-most-recent"),
+        "edit_profile_url": edit_profile_url(),
     }
 
 

@@ -2,7 +2,10 @@
   V3 text input field.
   Variables:
     name                    (required) —  input name attribute
+    data_link_type          (optional) —  renders a data-link-type attribute for JS to key off of,
+                                          instead of relying on DOM/array position
     label                   (optional) —  label text
+    aria_label              (optional) —  accessible name for the input when no visible label is rendered
     placeholder             (optional) —  placeholder text
     value                   (optional) —  pre-filled value; with submit_icon, also seeds the Alpine x-model state so it survives init
     type                    (optional) —  input type, default "text"
@@ -96,6 +99,8 @@
            type="{{ type|default:'text' }}"
            id="field-{{ name }}"
            name="{{ name }}"
+           {% if data_link_type %}data-link-type="{{ data_link_type }}"{% endif %}
+           {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}
            {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
            {% if value %}value="{{ value }}"{% endif %}
            {% if required %}required{% endif %}
