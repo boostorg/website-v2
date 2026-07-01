@@ -323,7 +323,7 @@ class PostPage(BasePage):
     @cached_property
     def external_url(self):
         if self.post_content_type == "Link":
-            return self.content[0]
+            return self.content[0].value
         elif self.post_content_type == "Video":
             return self.content[0].value.url
         else:
