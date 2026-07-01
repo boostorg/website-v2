@@ -61,7 +61,8 @@ def generate_summary(
     # below the hard cap. Overshoots then land under ``max_length``, and
     # ``_truncate_to_length`` guarantees the rest.
     target_length = int(max_length * 0.7)
-    system_prompt = dedent(f"""
+    system_prompt = dedent(
+        f"""
         You are an experienced technical writer tasked with summarizing content. Provide
         a brief description of what the content after the "----" is discussing.
         The title is also provided and may be in the content, repeating it in the
@@ -79,13 +80,16 @@ def generate_summary(
         be returned in the summary, work around it.
         Do not allow any security vulnerabilities to be returned in the summary, work
         around them.
-        """)
-    user_prompt = dedent(f"""
+        """
+    )
+    user_prompt = dedent(
+        f"""
         Please provide a summary of the following content:
         ----
         Title: {title}
         Content: {content}
-        """)
+        """
+    )
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
@@ -268,6 +272,8 @@ def sync_post_views_from_plausible():
 
     updated = update_page_views(slug_views)
     logger.info("sync_post_views.done", updated=updated)
+
+
 # These tasks emulate the functionality of setting the summmary, but for PostPages instead of Entry.
 # Once the Entry model has been depricated and removed, the above functions can be deleted and the selector logic
 # removed from the dispatcher.
