@@ -27,6 +27,13 @@ class CustomResetPasswordFromKeyForm(ResetPasswordKeyForm):
 
 class CustomSignUpForm(SignupForm):
     accept_terms_of_use = forms.BooleanField(required=True)
+    username = forms.CharField(max_length=255, required=True)
+
+    def clean_email(self):
+        email = super().clean_email()
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("A user with this email already exists!")
+        return email
 
 
 class PreferencesForm(forms.ModelForm):
