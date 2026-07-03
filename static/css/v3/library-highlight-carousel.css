@@ -105,6 +105,7 @@
 
 .library-highlight-carousel__card-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-medium);
@@ -139,9 +140,6 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  /* Always reserve 3 lines so every card resolves to the same fit-content
-     height regardless of how long the description actually is. */
-  height: calc(3 * var(--line-height-relaxed) * var(--font-size-small));
 }
 
 /* ── Static meta row: "Added in" + dots ────────── */

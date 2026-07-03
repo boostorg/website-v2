@@ -198,6 +198,10 @@ def build_library_highlight_carousel(limit=3):
                 "docs_url": get_documentation_url(lv, latest=True) if lv else "",
             }
         )
+    slides.sort(
+        key=lambda slide: (len(slide["description"]), len(slide["category_tags"])),
+        reverse=True,
+    )  # sort by description length, then category count, to improve UI appearance
     return slides
 
 
