@@ -62,6 +62,10 @@
   color: var(--color-text-primary);
 }
 
+.card-group--list .card-group__list {
+  border-top: 1px solid var(--color-stroke-weak);
+}
+
 /* ── List ──────────────────────────────────── */
 
 .card-group__list {
@@ -76,12 +80,8 @@
 
 .card-group__item {
   list-style: none;
-  border-top: 1px solid var(--color-stroke-weak);
-  min-width: 0;
-}
-
-.card-group__item:last-child {
   border-bottom: 1px solid var(--color-stroke-weak);
+  min-width: 0;
 }
 
 .card-group__item:has(.card-group__item-link:hover) {
@@ -116,7 +116,6 @@
   flex-wrap: nowrap;
   gap: var(--space-s);
   min-width: 0;
-
 }
 
 .card-group--horizontal .card-group__item {

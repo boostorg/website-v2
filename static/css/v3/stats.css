@@ -60,7 +60,7 @@
 .stats__separator {
   height: 0;
   border: none;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-stroke-weak);
   margin: 0;
   padding: 0;
 }
