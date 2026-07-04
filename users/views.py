@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseNotFound, HttpResponseRedirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, FormView
 from django.views.generic.base import TemplateView
 from django.utils import timezone
@@ -101,23 +101,61 @@ class CurrentUserProfileView(
     v3_template_name = "v3/user_profile_page.html"
     v3_edit_template_name = "v3/user_profile_edit.html"
 
-    def get_v3_context_data(self, **kwargs):
-        user = self.request.user
-        ctx = {}
+    def dispatch(self, request, *args, **kwargs):
+        # V3Mixin.dispatch() renders unconditionally (for every HTTP method)
+        # whenever the v3 flag is active, so it never reaches
+        # LoginRequiredMixin's check, nor post(). This page always requires
+        # login, so enforce that first, then route v3 POSTs to post()
+        # directly since V3Mixin would otherwise never reach it.
+        if flag_is_active(request, "v3") and not request.user.is_authenticated:
+            return self.handle_no_permission()
+        if request.method == "POST" and flag_is_active(request, "v3"):
+            self._v3_active = True
+            return self.post(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
-        if self.request.GET.get("edit", "").lower() == "true":
-            ctx["user_profile_form"] = V3UserProfileForm(
+    def get_v3_edit_initial(self):
+        user = self.request.user
+        return {
+            "avatar": user.avatar_url,
+            "username": user.display_name,
+            "email": user.email,
+            "country": user.country.code,
+            "indicate_last_login_method": user.indicate_last_login_method,
+            "override_commit_author_name": user.is_commit_author_name_overridden,
+            "hide_github": user.hide_github_activity,
+            "hide_ml": user.hide_mailing_list_activity,
+            "hide_ach": user.hide_badges,
+            "allow_notification_own_news_approved": (
+                user.preferences.allow_notification_own_news_approved
+            ),
+            "allow_notification_others_news_posted": (
+                user.preferences.allow_notification_others_news_posted
+            ),
+        }
+
+    def get_v3_edit_context(self, form=None):
+        """Context for the v3 edit-profile template. `form` is a bound form
+        (with errors) when re-rendering after a failed POST; otherwise a
+        fresh form seeded from the user's current data is built."""
+        if form is None:
+            form = V3UserProfileForm(
+                user=self.request.user,
                 user_links={"website": "www.example.com"},
-                initial={"avatar": self.request.user.avatar_url},
+                initial=self.get_v3_edit_initial(),
             )
-            ctx["badge_tiers"] = [
+        return {
+            "user_profile_form": form,
+            "country_options": form.fields["country"].choices,
+            "profile_account_url": reverse("profile-account"),
+            "badge_tiers": [
                 {"tier": "1", "name": "Bronze"},
                 {"tier": "2", "name": "Silver"},
                 {"tier": "3", "name": "Gold"},
                 {"tier": "4", "name": "Platinum"},
                 {"tier": "5", "name": "Diamond"},
-            ]
-            ctx["account_connections_mixed"] = [
+            ],
+            "account_connections_mixed": [
                 {
                     "platform": "github",
                     "label": "GitHub",
@@ -134,8 +172,15 @@ class CurrentUserProfileView(
                     "action_label": "Connect",
                     "action_url": "#",
                 },
-            ]
-            return ctx
+            ],
+        }
+
+    def get_v3_context_data(self, **kwargs):
+        user = self.request.user
+        ctx = {}
+
+        if self.request.GET.get("edit", "").lower() == "true":
+            return self.get_v3_edit_context()
 
         ctx["user_info"] = {
             "user_name": user.display_name,
@@ -452,6 +497,9 @@ class CurrentUserProfileView(
         """
         Process each form submission individually if present
         """
+        if getattr(self, "_v3_active", False):
+            return self.post_v3(request, *args, **kwargs)
+
         if "change_password" in request.POST:
             change_password_form = ChangePasswordForm(
                 data=request.POST, user=self.request.user
@@ -480,6 +528,111 @@ class CurrentUserProfileView(
             self.update_preferences(profile_preferences_form, request)
 
         return HttpResponseRedirect(self.success_url)
+
+    # Maps each section's submit-button name to the fields it owns and the
+    # method that persists them. Keeps the button name, the validated field
+    # set, and the save logic in one place instead of two parallel if/elif
+    # chains keyed on the same button names.
+    V3_EDIT_SECTIONS = {
+        "v3_update_profile": (
+            ["hide_github", "hide_ml", "hide_ach"],
+            "_save_v3_visibility_section",
+        ),
+        "v3_update_details": (
+            [
+                "username",
+                "country",
+                "indicate_last_login_method",
+                "override_commit_author_name",
+            ],
+            "_save_v3_details_section",
+        ),
+        "v3_update_email_preferences": (
+            [
+                "allow_notification_own_news_approved",
+                "allow_notification_others_news_posted",
+            ],
+            "_save_v3_email_preferences_section",
+        ),
+    }
+
+    def post_v3(self, request, *args, **kwargs):
+        """Handle the v3 edit-profile page's independently-submitted section
+        forms. Each section has its own <form>/submit button; only the
+        fields owned by that section are validated and persisted."""
+        edit_url = f"{reverse('profile-account')}?edit=true"
+
+        section = next(
+            (v for key, v in self.V3_EDIT_SECTIONS.items() if key in request.POST),
+            None,
+        )
+        if section is None:
+            return HttpResponseRedirect(edit_url)
+        section_fields, save_method_name = section
+
+        form = V3UserProfileForm(
+            request.POST,
+            user=request.user,
+            user_links={"website": "www.example.com"},
+            initial=self.get_v3_edit_initial(),
+        )
+        # Only the submitted section's fields are validated; the other fields
+        # share this form but have no save handler yet, so neither their
+        # required-ness nor their validators (e.g. max_length) should block
+        # this section's save.
+        for name, field in form.fields.items():
+            if name not in section_fields:
+                field.required = False
+                field.validators = []
+
+        if not form.is_valid():
+            context = self.get_v3_edit_context(form=form)
+            return self.render_to_response(context)
+
+        getattr(self, save_method_name)(request.user, form)
+
+        messages.success(request, self.success_message)
+        return HttpResponseRedirect(edit_url)
+
+    def _save_v3_visibility_section(self, user, form):
+        user.hide_github_activity = form.cleaned_data["hide_github"]
+        user.hide_mailing_list_activity = form.cleaned_data["hide_ml"]
+        user.hide_badges = form.cleaned_data["hide_ach"]
+        user.save()
+
+    def _save_v3_details_section(self, user, form):
+        user.display_name = form.cleaned_data["username"]
+        user.country = form.cleaned_data["country"]
+        user.indicate_last_login_method = form.cleaned_data[
+            "indicate_last_login_method"
+        ]
+        user.is_commit_author_name_overridden = form.cleaned_data[
+            "override_commit_author_name"
+        ]
+        user.save()
+
+    def _save_v3_email_preferences_section(self, user, form):
+        """Save the v3 page's email-preference checkboxes. The v3 page only
+        shows a subset of news types (V3_EMAIL_PREFERENCE_CHOICES); any other
+        type the user already had allowed (e.g. "poll") is preserved rather
+        than being dropped just because it has no checkbox here.
+        """
+        preferences = user.preferences
+        v3_managed_types = {
+            key
+            for key, _ in form.fields["allow_notification_own_news_approved"].choices
+        }
+        for field_name in (
+            "allow_notification_own_news_approved",
+            "allow_notification_others_news_posted",
+        ):
+            preserved = [
+                news_type
+                for news_type in getattr(preferences, field_name)
+                if news_type not in v3_managed_types
+            ]
+            setattr(preferences, field_name, preserved + form.cleaned_data[field_name])
+        preferences.save()
 
     def change_password(self, form, request):
         """Change the password of the user."""
