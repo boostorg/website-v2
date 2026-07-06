@@ -1,4 +1,6 @@
 import datetime
+from urllib.parse import urlparse
+
 import structlog
 
 from django.contrib import messages
@@ -15,7 +17,6 @@ from django.views.generic import DetailView, ListView, FormView, TemplateView
 
 from core.constants import SLACK_JOIN_URL
 from core.githubhelper import GithubAPIClient
-from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
 from mailing_list.mixins import MailingListCardMixin
 from core.mock_data import SharedResources
@@ -56,16 +57,41 @@ logger = structlog.get_logger()
 # ── V3 context helpers ─────────────────────────────────────────────────────
 
 
-def _build_quick_start_links(documentation_url, github_url, github_issues_url):
-    """Build the quick-start links list for the V3 library hero card."""
-    links = []
-    if documentation_url:
-        links.append({"label": "Documentation", "url": documentation_url})
-    if github_url:
-        links.append({"label": "Source Code", "url": github_url})
-    if github_issues_url:
-        links.append({"label": "GitHub Issues", "url": github_issues_url})
-    return links
+def _is_boost_url(url):
+    """True when `url` points at a Boost-owned location (boost.org or
+    github.com/boostorg). Guards the maintainer-supplied Quick Start links so a
+    stray/off-site URL falls back to the documentation link instead."""
+    if not url:
+        return False
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        return False
+    host = (parsed.hostname or "").lower()
+    if host == "boost.org" or host.endswith(".boost.org"):
+        return True
+    if host in ("github.com", "www.github.com"):
+        return parsed.path.lower().lstrip("/").startswith("boostorg/")
+    return False
+
+
+def _build_quick_start_links(documentation_url, links):
+    """Build the Quick Start card links from website.adoc's [#links] section.
+
+    "Common use cases" and "Code examples" come from the maintainer's
+    :common-use-case-url: / :code-example-url:. Each is used only if it is a
+    valid Boost URL; otherwise it falls back to the documentation link.
+    """
+    links = links or {}
+    result = []
+    common = links.get("common_use_case_url")
+    example = links.get("code_example_url")
+    common_url = common if _is_boost_url(common) else documentation_url
+    example_url = example if _is_boost_url(example) else documentation_url
+    if common_url:
+        result.append({"label": "Common use cases", "url": common_url})
+    if example_url:
+        result.append({"label": "Code examples", "url": example_url})
+    return result
 
 
 def _build_dependencies_list(current_dependencies, version_str):
@@ -518,10 +544,8 @@ class LibraryDetail(
 
         version_str = base_context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
 
-        context["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS
-        context["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
-        context["library_about_code"] = SharedResources.library_about_code
-        context["library_install_code"] = SharedResources.library_install_code
+        library_version = base_context.get("library_version")
+        context["website_adoc"] = getattr(library_version, "website_adoc", None) or {}
         context["slack_url"] = self.object.slack_url or SLACK_JOIN_URL
 
         context["category_tags_v3"] = [
@@ -545,8 +569,7 @@ class LibraryDetail(
 
         context["quick_start_links"] = _build_quick_start_links(
             base_context.get("documentation_url"),
-            base_context.get("github_url") or self.object.github_url,
-            getattr(self.object, "github_issues_url", None),
+            context["website_adoc"].get("links"),
         )
 
         dep_diff = base_context.get("dependency_diff", {})

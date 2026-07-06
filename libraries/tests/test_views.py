@@ -7,7 +7,49 @@ from model_bakery import baker
 
 from ..constants import README_MISSING
 from ..models import Library
+from ..views import _build_quick_start_links, _is_boost_url
 from versions.models import Version
+
+
+@pytest.mark.parametrize(
+    "url,expected",
+    [
+        ("https://www.boost.org/doc/libs/1_90_0/libs/x/use.html", True),
+        ("https://boost.org/anything", True),
+        ("https://github.com/boostorg/beast/blob/x.cpp", True),
+        ("https://github.com/someone/beast", False),
+        ("https://evil.example.com/boost.org", False),
+        ("ftp://boost.org/x", False),
+        ("", False),
+        (None, False),
+    ],
+)
+def test_is_boost_url(url, expected):
+    assert _is_boost_url(url) is expected
+
+
+def test_build_quick_start_links_validates_and_falls_back():
+    docs = "/doc/libs/1_90_0/libs/x/index.html"
+    links = {
+        "common_use_case_url": "https://www.boost.org/doc/libs/x/use.html",
+        "code_example_url": "https://evil.example.com/x",  # rejected -> docs
+    }
+    result = _build_quick_start_links(docs, links)
+    assert result == [
+        {
+            "label": "Common use cases",
+            "url": "https://www.boost.org/doc/libs/x/use.html",
+        },
+        {"label": "Code examples", "url": docs},
+    ]
+
+
+def test_build_quick_start_links_no_adoc_links_uses_docs():
+    docs = "/doc/libs/1_90_0/libs/x/index.html"
+    assert _build_quick_start_links(docs, None) == [
+        {"label": "Common use cases", "url": docs},
+        {"label": "Code examples", "url": docs},
+    ]
 
 
 def test_library_list(library_version, tp, url_name="libraries", request_kwargs=None):

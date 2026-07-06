@@ -95,6 +95,7 @@ body:has(.is_flagship) .library-subpage-container {
 .card-masonry-bottom > div > .card-group,
 .card-masonry-bottom > div > .post-card,
 .library-subpage__documentation > .markdown-card,
+.library-subpage__freeform > .markdown-card,
 .library-subpage__all-contributors > .contributors-list {
   max-width: 100%;
   width: 100%;
