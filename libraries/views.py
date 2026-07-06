@@ -48,6 +48,7 @@ from .utils import (
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
     group_libraries_by_tier,
+    designed_for_html,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
@@ -546,6 +547,9 @@ class LibraryDetail(
 
         library_version = base_context.get("library_version")
         context["website_adoc"] = getattr(library_version, "website_adoc", None) or {}
+        context["designed_for_html"] = designed_for_html(
+            context["website_adoc"].get("designed_for")
+        )
         context["slack_url"] = self.object.slack_url or SLACK_JOIN_URL
 
         context["category_tags_v3"] = [

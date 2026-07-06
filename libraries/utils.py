@@ -18,6 +18,8 @@ from django.conf import settings
 from django.db.models import Count, F, QuerySet
 from django.db.models.functions import Lower
 from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 from libraries.constants import (
@@ -487,6 +489,22 @@ def apply_collective_author_overrides(author_dicts):
             author["profile_url"] = None
             author["role"] = None
     return author_dicts
+
+
+def designed_for_html(items):
+    """Render website.adoc [#designed-for] items as an HTML fragment.
+
+    Each item becomes an <h3> heading + optional <p> description, for display
+    in the shared markdown card. Dynamic text is escaped via format_html.
+    """
+    if not items:
+        return ""
+    parts = []
+    for item in items:
+        parts.append(format_html("<h3>{}</h3>", item.get("heading") or ""))
+        if item.get("description"):
+            parts.append(format_html("<p>{}</p>", item["description"]))
+    return mark_safe("".join(parts))
 
 
 def build_library_intro_context(

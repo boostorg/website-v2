@@ -22,11 +22,18 @@
 
   <div class="library-subpage-container">
     <div class="card-masonry-top">
-      {% if website_adoc.about %}
+      {% if website_adoc.about or website_adoc.designed_for %}
       <div class="masonry-col masonry-col--1">
+        {% if website_adoc.about %}
         <div class="item-a">
           {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description=website_adoc.about.blurb code=website_adoc.about.code.code language=website_adoc.about.code.language card_variant="neutral" button_text="Explore examples" button_url=documentation_url|default:"#" button_aria_label="Explore examples for "|add:object.display_name %}
         </div>
+        {% endif %}
+        {% if website_adoc.designed_for %}
+        <div class="item-f">
+          {% include "v3/includes/_markdown_card.html" with title="This library is designed for" html=designed_for_html %}
+        </div>
+        {% endif %}
       </div>
       {% endif %}
       <div class="masonry-col masonry-col--2">

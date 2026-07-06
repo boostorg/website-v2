@@ -7,6 +7,7 @@ from model_bakery import baker
 
 from ..constants import README_MISSING
 from ..models import Library
+from ..utils import designed_for_html
 from ..views import _build_quick_start_links, _is_boost_url
 from versions.models import Version
 
@@ -42,6 +43,26 @@ def test_build_quick_start_links_validates_and_falls_back():
         },
         {"label": "Code examples", "url": docs},
     ]
+
+
+def test_designed_for_html_empty():
+    assert designed_for_html(None) == ""
+    assert designed_for_html([]) == ""
+
+
+def test_designed_for_html_renders_and_escapes():
+    html = designed_for_html(
+        [
+            {"heading": "Fast <parsing>", "description": "Handles 1M ops."},
+            {"heading": "Header-only", "description": ""},
+        ]
+    )
+    # headings + descriptions become h3/p, dynamic text is escaped
+    assert "<h3>Fast &lt;parsing&gt;</h3>" in html
+    assert "<p>Handles 1M ops.</p>" in html
+    assert "<h3>Header-only</h3>" in html
+    # no <p> emitted for the empty description
+    assert html.count("<p>") == 1
 
 
 def test_build_quick_start_links_no_adoc_links_uses_docs():

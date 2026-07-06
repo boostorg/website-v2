@@ -44,6 +44,7 @@ from libraries.utils import (
     get_prioritized_version,
     set_selected_boost_version,
     modernize_boost_slug,
+    designed_for_html,
 )
 from mailing_list import constants
 from versions.models import Version, docs_path_to_boost_name
@@ -2003,6 +2004,24 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "action_url": "#",
             },
         ]
+        context["designed_for_demo_html"] = designed_for_html(
+            [
+                {
+                    "heading": "High-throughput parsing",
+                    "description": "Handles millions of messages per second with "
+                    "near-zero allocations on the hot path.",
+                },
+                {
+                    "heading": "Header-only",
+                    "description": "Add Boost to your include path — no separate "
+                    "build step required.",
+                },
+                {
+                    "heading": "Standards-tracking",
+                    "description": "APIs mirror the C++ standard where applicable.",
+                },
+            ]
+        )
         context["markdown_data"] = {
             "title": "Markdown Block",
             "markdown": dedent("""
