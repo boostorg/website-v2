@@ -45,6 +45,12 @@
       </div>
     </div>
 
+    {% if description %}
+      <div class="library-subpage__documentation">
+        {% include "v3/includes/_markdown_card.html" with title="Documentation" html=description %}
+      </div>
+    {% endif %}
+
     <div class="card-masonry-bottom">
       <div class="item-d item-d--tablet">
         {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="all" contributors=this_release_contributors heading_level="2" %}
