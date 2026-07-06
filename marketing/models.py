@@ -152,7 +152,11 @@ class OutreachHomePage(Page):
         "wagtailcore.Page",
         "pages.RoutableHomePage",
     ]
-    subpage_types = ["marketing.ProgramPageIndex", "marketing.TopicPage"]
+    subpage_types = [
+        "marketing.ProgramPageIndex",
+        "marketing.TopicPage",
+        "testimonials.TestimonialsIndexPage",
+    ]
     max_count = 1  # one container
 
     def route(self, request, path_components):
