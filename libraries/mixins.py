@@ -340,3 +340,40 @@ class ContributorMixin:
         if exclude:
             qs = qs.exclude(id__in=exclude)
         return qs
+
+    def build_all_contributors(self, library_version, authors, maintainers):
+        """All Contributors: authors + maintainers + commit contributors from the
+        first release up to and including the selected version.
+
+        Deduplication is identity-based only: linked authors/maintainers are
+        excluded from the commit-author rows by CommitAuthor id (never by name),
+        so an author who hasn't yet claimed their commit email may appear twice
+        until linked. `authors` and `maintainers` must already be patched via patch_commit_authors.
+        """
+        author_ca_ids = [
+            u.commitauthor.id
+            for u in authors
+            if getattr(getattr(u, "commitauthor", None), "id", None)
+        ]
+        maintainer_ca_ids = [
+            u.commitauthor.id
+            for u in maintainers
+            if getattr(getattr(u, "commitauthor", None), "id", None)
+        ]
+        library_versions = LibraryVersion.objects.filter(
+            library=library_version.library,
+            version__in=Version.objects.minor_versions().filter(
+                version_array__lte=library_version.version.cleaned_version_parts_int
+            ),
+        )
+        contributors = (
+            CommitAuthor.humans.filter(commit__library_version__in=library_versions)
+            .exclude(id__in=author_ca_ids + maintainer_ca_ids)
+            .annotate(count=Count("commit"))
+            .order_by("-count")
+        )
+        return (
+            [u.to_v3_profile_dict("Author") for u in authors]
+            + [u.to_v3_profile_dict("Maintainer") for u in maintainers]
+            + [c.to_v3_profile_dict("Contributor") for c in contributors]
+        )

@@ -1,8 +1,11 @@
 import datetime
 import pytest
+from django.contrib.auth import get_user_model
 from django.test import RequestFactory
 from model_bakery import baker
-from libraries.mixins import VersionAlertMixin
+from libraries.mixins import ContributorMixin, VersionAlertMixin
+from libraries.models import CommitAuthor
+from libraries.utils import patch_commit_authors
 from libraries.views import LibraryListBase
 
 
@@ -100,3 +103,78 @@ def test_version_alert_message_dev_branch():
     msg = _alert_message(selected, current)
     assert "under active development" in msg
     assert "develop" in msg
+
+
+# ── build_all_contributors ──────────────────────────────────────────────────
+
+
+def _make_linked_author(name, email):
+    """User linked to a CommitAuthor via a matching CommitAuthorEmail."""
+    user = baker.make(get_user_model(), display_name=name, email=email)
+    author = baker.make(
+        CommitAuthor,
+        name=name,
+        is_bot=False,
+        avatar_url="https://example.com/a.png",
+        github_profile_url="https://github.com/x",
+    )
+    baker.make("libraries.CommitAuthorEmail", author=author, email=email)
+    return user, author
+
+
+@pytest.mark.django_db
+def test_build_all_contributors_linked_author_single_entry(library_version):
+    """A linked author is labeled Author and not double-listed as a Contributor."""
+    user, author = _make_linked_author("Ada Lovelace", "ada@example.com")
+    baker.make("libraries.Commit", author=author, library_version=library_version)
+    library_version.authors.add(user)
+
+    authors = [user]
+    patch_commit_authors(authors)
+    result = ContributorMixin().build_all_contributors(library_version, authors, [])
+
+    ada = [c for c in result if c["name"] == "Ada Lovelace"]
+    assert len(ada) == 1
+    assert ada[0]["role"] == "Author"
+
+
+@pytest.mark.django_db
+def test_build_all_contributors_unlinked_author_not_merged_by_name(library_version):
+    """An unlinked author is NOT merged with a same-named CommitAuthor."""
+    user = baker.make(get_user_model(), display_name="Jane Doe", email="jane@x.com")
+    author = baker.make(CommitAuthor, name="Jane Doe", is_bot=False)
+    baker.make("libraries.Commit", author=author, library_version=library_version)
+    library_version.authors.add(user)
+
+    authors = [user]
+    patch_commit_authors(authors)  # no matching CommitAuthorEmail -> stub, no pk
+    result = ContributorMixin().build_all_contributors(library_version, authors, [])
+
+    janes = [c for c in result if c["name"] == "Jane Doe"]
+    assert {c["role"] for c in janes} == {"Author", "Contributor"}
+
+
+@pytest.mark.django_db
+def test_build_all_contributors_bounded_by_selected_version(library, version):
+    """Contributors up to the selected version are included; newer ones excluded."""
+    older = baker.make("versions.Version", name="boost-1.70.0", fully_imported=True)
+    newer = baker.make("versions.Version", name="boost-1.80.0", fully_imported=True)
+    older_lv = baker.make("libraries.LibraryVersion", library=library, version=older)
+    current_lv = baker.make(
+        "libraries.LibraryVersion", library=library, version=version
+    )
+    newer_lv = baker.make("libraries.LibraryVersion", library=library, version=newer)
+
+    past = baker.make(CommitAuthor, name="Past Dev", is_bot=False)
+    current = baker.make(CommitAuthor, name="Current Dev", is_bot=False)
+    future = baker.make(CommitAuthor, name="Future Dev", is_bot=False)
+    baker.make("libraries.Commit", author=past, library_version=older_lv)
+    baker.make("libraries.Commit", author=current, library_version=current_lv)
+    baker.make("libraries.Commit", author=future, library_version=newer_lv)
+
+    names = {
+        c["name"] for c in ContributorMixin().build_all_contributors(current_lv, [], [])
+    }
+    assert "Past Dev" in names
+    assert "Current Dev" in names
+    assert "Future Dev" not in names

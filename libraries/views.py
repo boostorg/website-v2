@@ -577,10 +577,16 @@ class LibraryDetail(
             or SharedResources.library_release_contributors
         )
 
-        all_time = [
-            a.to_v3_profile_dict("Contributor")
-            for a in base_context.get("previous_contributors", [])
-        ]
+        library_version = base_context.get("library_version")
+        all_time = (
+            self.build_all_contributors(
+                library_version,
+                base_context.get("authors", []),
+                base_context.get("maintainers", []),
+            )
+            if library_version
+            else []
+        )
         context["all_time_contributors"] = (
             apply_collective_author_overrides(all_time)
             or SharedResources.library_all_contributors
