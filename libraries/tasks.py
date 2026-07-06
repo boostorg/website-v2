@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db.models import Q, Count, Sum, OuterRef
 from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
+from core.githubhelper import GithubAPIClient
 from libraries.github import LibraryUpdater
 from libraries.models import (
     Library,
@@ -19,6 +20,7 @@ from libraries.models import (
     CommitAuthor,
     ReleaseReport,
 )
+from libraries.website_adoc import build_website_adoc
 from mailing_list.models import EmailData, PostingData
 from reports.generation import (
     generate_algolia_words,
@@ -49,6 +51,48 @@ def update_library_version_documentation_urls_all_versions():
     """Run the task to update all documentation URLs for all versions"""
     for version in Version.objects.with_partials().all().order_by("-name"):
         get_and_store_library_version_documentation_urls_for_version(version.pk)
+
+
+@app.task
+def update_library_version_website_adoc():
+    """Refresh parsed meta/website.adoc for the current release.
+
+    Scoped to the most recent version and fetched from `master` (mirroring
+    update_libraries) so maintainer edits between releases are picked up.
+    Historical versions keep the snapshot captured at their release import — a
+    tagged release's meta/website.adoc is immutable, so re-fetching every
+    version daily would be thousands of pointless requests.
+    """
+    version = Version.objects.most_recent()
+    if version is None:
+        return
+    store_library_version_website_adoc(version, ref="master")
+
+
+def store_library_version_website_adoc(version, ref):
+    """Fetch + parse each library's meta/website.adoc at `ref` and store it.
+
+    A repo without the file (or an unreachable fetch) leaves the existing value
+    untouched, so a transient failure never wipes previously-parsed content.
+    """
+    client = GithubAPIClient()
+    library_versions = LibraryVersion.objects.filter(version=version).select_related(
+        "library"
+    )
+    for library_version in library_versions:
+        repo_slug = library_version.library.github_repo
+        if not repo_slug:
+            continue
+        content = client.get_website_adoc(repo_slug=repo_slug, tag=ref)
+        if content is None:
+            # Missing file or unreachable fetch — keep any existing value.
+            continue
+        try:
+            parsed = build_website_adoc(content)
+        except Exception:
+            logger.exception("website_adoc_parse_failed", repo=repo_slug, ref=ref)
+            continue
+        LibraryVersion.objects.filter(pk=library_version.pk).update(website_adoc=parsed)
 
 
 @app.task

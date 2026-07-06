@@ -1,0 +1,130 @@
+////
+Boost library website content — TEMPLATE
+
+Copy this file to meta/website.adoc in your library repo and fill it in. It powers
+the extra cards on your library's page on boost.org.
+
+Everything here is OPTIONAL: delete any section you don't use. An omitted section
+just renders nothing on the page — it is never an error.
+
+THE CONTRACT — the website keys off the section IDs (e.g. [#about]) and attribute
+names (e.g. :library-key:) below, NOT the prose. You may freely change the
+headings and body copy; do NOT rename the IDs or attributes.
+
+  Document attributes
+    :library-key:      your key in meta/libraries.json (sanity check)
+
+  Sections (shown on the page in this order)
+    [#about]         a blurb + one code sample
+    [#playground]    one runnable code sample (feeds the "Edit in Compiler Explorer" button)
+    [#designed-for]  a few headings, each with a short description
+    [#links]         two links into your library's documentation
+    [#install]       build/link steps
+    [#benchmarks]    one bar chart per subsection
+    [#freeform]      your own heading + free-form content, shown in a card
+////
+= Boost.<LibraryName> — Website Content
+:library-key: <your-libraries.json-key>
+
+
+[#about]
+== About
+
+// One or two sentences for the "About" card, followed by exactly one code sample.
+
+<One or two sentences describing what your library does and why someone would use it.>
+
+[source,cpp]
+----
+// A short, representative snippet.
+----
+
+
+[#playground]
+== Playground
+
+// Exactly one code sample. Its code is URL-encoded into the
+// "Edit in Compiler Explorer" (https://godbolt.org/) button — keep it
+// self-contained so it compiles and runs on its own.
+
+[source,cpp]
+----
+// A self-contained, runnable example.
+----
+
+
+[#designed-for]
+== Designed for
+
+// A set of subsections — each is a heading + a short description (no intro paragraph).
+// Add or remove subsections as needed.
+
+=== <Strength or use case>
+<One or two sentences.>
+
+=== <Strength or use case>
+<One or two sentences.>
+
+
+[#links]
+== Links
+
+// Two links into your library's own Boost documentation. Use full URLs,
+// pointing at the relevant page under your library's docs, e.g.
+// https://www.boost.org/doc/libs/latest/libs/beast/doc/html/beast/examples.html
+//   :common-use-case-url:  a page showing your library's most common use case
+//   :code-example-url:     a page with a representative code example
+
+:common-use-case-url: <https://www.boost.org/doc/libs/latest/libs/.../...>
+:code-example-url: <https://www.boost.org/doc/libs/latest/libs/.../...>
+
+
+[#install]
+== Install
+
+// An optional one-sentence blurb, followed by the build/link steps. All libraries
+// must provide the code needed to build and link against them; the blurb is
+// optional — delete the line below if you don't want one.
+
+<Optional: one sentence of install context, e.g. "Header-only — just add Boost to your include path.">
+
+[source,bash]
+----
+# build it with b2:
+./b2 --with-<library> install
+# then link against it:
+g++ app.cpp -lboost_<library>
+----
+
+
+[#benchmarks]
+== Benchmarks
+
+// Optional. One subsection per bar chart.
+//   :unit:     value-axis label (e.g. req/s, µs)
+//   :caption:  optional sub-label
+//   :source:   optional citation URL
+// Table columns:  Label | Value (plain number)
+
+[#benchmarks-<id>]
+=== <Chart title>
+:unit: <unit>
+:caption: <optional sub-label>
+
+[cols="2,1",options="header"]
+|===
+| Label             | Value
+| Boost.<LibraryName> | <number>
+| <comparison>      | <number>
+|===
+
+
+[#freeform]
+== <Your heading>
+
+// A free-form card: write your own heading above and any content below —
+// paragraphs, lists, links, inline code, etc. Whatever you put here is
+// rendered as-is into a single card on your library's page.
+// Keep the [#freeform] ID; change the heading text to whatever you like.
+
+<Your content here. Markdown formatting is supported.>

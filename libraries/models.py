@@ -540,6 +540,15 @@ class LibraryVersion(models.Model):
     data = models.JSONField(
         default=dict, help_text="Contains the libraries.json for this library-version"
     )
+    website_adoc = models.JSONField(
+        null=True,
+        blank=True,
+        help_text=(
+            "Parsed content of the library's optional meta/website.adoc "
+            "(About, Playground, Designed for, Links, Install, Benchmarks, "
+            "Freeform). Null when the repo has no website.adoc for this version."
+        ),
+    )
     # stats from git stored between x.x.0 versions
     insertions = models.IntegerField(default=0)
     deletions = models.IntegerField(default=0)

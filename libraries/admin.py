@@ -54,6 +54,7 @@ from .tasks import (
     update_issues,
     update_libraries,
     update_library_version_documentation_urls_all_versions,
+    update_library_version_website_adoc,
 )
 from .utils import generate_release_report_filename
 
@@ -589,6 +590,11 @@ class LibraryVersionAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.update_docs_urls),
                 name="update_docs_urls",
             ),
+            path(
+                "update_website_adoc/",
+                self.admin_site.admin_view(self.update_website_adoc),
+                name="update_website_adoc",
+            ),
         ]
         return my_urls + urls
 
@@ -601,6 +607,12 @@ class LibraryVersionAdmin(admin.ModelAdmin):
             Documentation links are being refreshed.
         """,
         )
+        return HttpResponseRedirect("../")
+
+    def update_website_adoc(self, request):
+        """Run the task to refresh parsed meta/website.adoc content."""
+        update_library_version_website_adoc.delay()
+        self.message_user(request, "website.adoc content is being refreshed.")
         return HttpResponseRedirect("../")
 
 

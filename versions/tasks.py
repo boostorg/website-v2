@@ -28,6 +28,7 @@ from core.githubhelper import GithubAPIClient, GithubDataParser
 from libraries.constants import SKIP_LIBRARY_VERSIONS
 from libraries.github import LibraryUpdater
 from libraries.models import Library, LibraryVersion
+from libraries.website_adoc import fetch_website_adoc
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
 from libraries.utils import version_within_range
 from versions.exceptions import BoostImportedDataException
@@ -473,6 +474,9 @@ def import_library_versions(version_name, token=None, version_type="tag"):
                     "cpp_standard_maximum": lib_data.get("cxxstd_max"),
                     "cpp20_module_support": lib_data.get("cpp20_module_support"),
                     "description": lib_data.get("description"),
+                    "website_adoc": fetch_website_adoc(
+                        client, library_name, version_name
+                    ),
                 },
             )
             if not library.github_url:
