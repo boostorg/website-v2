@@ -12,7 +12,7 @@ class TestimonialsIndexPage(Page):
     """Container page for all testimonials."""
 
     max_count = 1  # Only allow one testimonials index page
-    parent_page_types = ["wagtailcore.Page"]
+    parent_page_types = ["marketing.OutreachHomePage"]
     subpage_types = ["testimonials.Testimonial"]
 
     def get_url(self, request=None, current_site=None):
