@@ -277,6 +277,14 @@ class Library(models.Model):
         null=True,
         help_text="The URL of the library's GitHub repository.",
     )
+    slack_url = models.URLField(
+        max_length=500,
+        blank=True,
+        help_text=(
+            "URL of the dedicated Slack channel for this library. "
+            "Falls back to the general Boost Slack when blank."
+        ),
+    )
     versions = models.ManyToManyField(
         "versions.Version", through="libraries.LibraryVersion", related_name="libraries"
     )

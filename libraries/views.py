@@ -13,7 +13,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, FormView, TemplateView
 
-from core.constants import SLACK_URL
+from core.constants import SLACK_JOIN_URL
 from core.githubhelper import GithubAPIClient
 from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
@@ -522,7 +522,7 @@ class LibraryDetail(
         context["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
         context["library_about_code"] = SharedResources.library_about_code
         context["library_install_code"] = SharedResources.library_install_code
-        context["slack_url"] = SLACK_URL
+        context["slack_url"] = self.object.slack_url or SLACK_JOIN_URL
 
         context["category_tags_v3"] = [
             {

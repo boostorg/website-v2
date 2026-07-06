@@ -28,6 +28,7 @@ class BadgeToken(StrEnum):
 
 
 SLACK_URL = "https://cpplang.slack.com"
+SLACK_JOIN_URL = "https://cppalliance.org/slack/"  # URL to join the Slack workspace, not the Slack workspace itself
 SLACK_MEMBER_COUNT = "24,000+"
 STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES = ("releases/",)
 # possible library versions are: boost_1_53_0_beta1, 1_82_0, 1_55_0b1
