@@ -106,15 +106,6 @@
   padding: 0 var(--space-card);
 }
 
-/* Lets a <form> wrap part of a card's children (e.g. to scope a submit)
-   without breaking .card's flex column + gap layout. */
-.card__form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-large);
-  width: 100%;
-}
-
 .card__cta_section .btn {
   flex: 1 0 0;
 }

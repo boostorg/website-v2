@@ -11,8 +11,6 @@
     - icon_viewbox (optional; forwarded to includes/icon.html when using icon_name),
     - icon_position (optional): "left" or "right", defaults to "left"
     - type (optional): button type (e.g. "button", "submit"); defaults to "button" if url is not provided, otherwise "a"
-    - name (optional): name attribute on the rendered <button> (e.g. to distinguish which of several
-        submit buttons in a page was pressed via request.POST)
     - style (optional): Choice between
         - primary (default)
         - secondary
@@ -64,7 +62,6 @@
   <button type="{{ type|default:'button' }}"
           class="{% if style == 'icon-library' %}btn-icon-library {{ extra_classes }}{% else %}btn btn-{{ style|default:"primary" }} {{ extra_classes }}{% endif %}"
           aria-label="{{aria_label|default:label}}"
-          {% if name %}name="{{ name }}" value="true"{% endif %}
           {% if disabled %}disabled{% endif %}
           {% if alpine_disabled %}:disabled="{{ alpine_disabled }}"{% endif %}
         >

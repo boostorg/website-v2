@@ -16,7 +16,6 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django_countries.fields import CountryField
 from imagekit.exceptions import MissingSource
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
@@ -261,19 +260,6 @@ class User(BaseUser):
     indicate_last_login_method = models.BooleanField(
         default=False,
         help_text="Indicate on the login page the last login method used.",
-    )
-    country = CountryField(blank=True)
-    hide_github_activity = models.BooleanField(
-        default=False,
-        help_text="Hide GitHub activity from the public profile.",
-    )
-    hide_mailing_list_activity = models.BooleanField(
-        default=False,
-        help_text="Hide mailing list activity from the public profile.",
-    )
-    hide_badges = models.BooleanField(
-        default=False,
-        help_text="Hide badges from the public profile.",
     )
     # If non-null, the user has requested deletion but the grace period has not
     # elapsed.

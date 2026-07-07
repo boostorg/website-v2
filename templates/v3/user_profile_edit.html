@@ -16,11 +16,6 @@
     <div class="user-profile__profile-content-area">
       <div class="user-profile__col">
         <div class="basic-card card user-profile__profile-edit-card">
-          {% comment %} novalidate: this form still contains required fields (tagline, bio, links) with
-          no save handler yet; native constraint validation would silently block "Save changes" for
-          sections that are otherwise ready. Server-side validation is authoritative. {% endcomment %}
-          <form method="post" action="{% url 'profile-account' %}?edit=true" class="card__form" enctype="multipart/form-data" novalidate>
-          {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Profile</span>
           </div>
@@ -144,10 +139,8 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_profile' label='Save changes' only %}
-            {% include 'v3/includes/_button.html' with style='secondary' url=profile_account_url label='Cancel' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save Changes' only %}
           </div>
-          </form>
         </div>
         <div class="basic-card card user-profile__delete-account">
           <div class="card__header">
@@ -168,8 +161,6 @@
       </div>
       <div class="user-profile__col">
         <div class="basic-card card user-profile__update-details">
-          <form method="post" action="{% url 'profile-account' %}?edit=true" class="card__form">
-          {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Update Details</span>
           </div>
@@ -177,16 +168,15 @@
           <div class="user-profile__xl-space-col px-large">
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.username %}
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.email %}
-            {% include 'v3/includes/_field_combo.html' with name=user_profile_form.country.name label='Country' options=country_options selected=user_profile_form.country.value placeholder='Select' error=user_profile_form.country.errors.0 %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.country %}
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.indicate_last_login_method %}
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.override_commit_author_name %}
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.override_commit_author_email %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_details' label='Save details' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save changes' only %}
           </div>
-          </form>
         </div>
         <div class="basic-card card user-profile__commit-email-card">
           <div class="card__header">
@@ -209,8 +199,6 @@
           </div>
         </div>
         <div class="basic-card card user-profile__email-preferences-card">
-          <form method="post" action="{% url 'profile-account' %}?edit=true" class="card__form">
-          {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Email Preferences</span>
           </div>
@@ -229,9 +217,8 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_email_preferences' label='Update' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save Changes' only %}
           </div>
-          </form>
         </div>
         <div class="user-profile-edit__connections-card">
           {% include 'v3/includes/_account_connections_card.html' with connections=account_connections_mixed %}

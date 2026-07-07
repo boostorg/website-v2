@@ -48,7 +48,7 @@
     {% if validate_type == "email" %}
     data-validate
     x-data="{
-      value: '{{ value|default:''|escapejs }}',
+      value: '',
       touched: false,
       get isInvalid() {
         return this.touched && this.value.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value);
@@ -62,7 +62,7 @@
     {% elif alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"
     {% elif max_chars %}
     x-data="{
-      value: '{{ value|default:''|escapejs }}',
+      value: '',
       maxChars: {{max_chars}},
       get charLeft() {
         return Number(this.maxChars) - this.value?.length || 0;

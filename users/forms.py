@@ -6,7 +6,6 @@ from django.db import models
 from django import forms
 
 from allauth.account.forms import ResetPasswordKeyForm
-from django_countries import countries
 
 from .models import Preferences
 from news.models import NEWS_MODELS
@@ -15,15 +14,6 @@ from news.acl import can_approve
 User = get_user_model()
 
 NEWS_ENTRY_CHOICES = [(m.news_type, m._meta.verbose_name.title()) for m in NEWS_MODELS]
-
-# Email preference content types shown on the v3 edit-profile page. A subset of
-# NEWS_ENTRY_CHOICES/ALL_NEWS_TYPES matching the Figma design (no Poll checkbox).
-V3_EMAIL_PREFERENCE_CHOICES = [
-    ("blogpost", "Blog posts"),
-    ("link", "Links"),
-    ("news", "News"),
-    ("video", "Video"),
-]
 
 
 class CustomResetPasswordFromKeyForm(ResetPasswordKeyForm):
@@ -219,9 +209,7 @@ class V3UserProfileForm(forms.Form):
     def __init__(self, *args, **kwargs):
         links = kwargs.pop("user_links", None)
         commit_emails = kwargs.pop("commit_emails", None)
-        self._user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
-        self.fields["country"].choices = [("", "Select")] + list(countries)
         if links:
             self.link_formset = V3ProfileLinkFormset(
                 initial=[
@@ -252,17 +240,6 @@ class V3UserProfileForm(forms.Form):
                 placeholder = "@"
             form.fields["value"].widget.attrs["placeholder"] = placeholder
 
-    def clean_username(self):
-        username = self.cleaned_data["username"]
-        if not username:
-            return username
-        existing = User.objects.filter(display_name__iexact=username)
-        if self._user is not None:
-            existing = existing.exclude(pk=self._user.pk)
-        if existing.exists():
-            raise forms.ValidationError("This username is already taken")
-        return username
-
     # Left Column Fields
     tagline = forms.CharField(
         max_length=70,
@@ -291,15 +268,15 @@ class V3UserProfileForm(forms.Form):
         label="Select Title",
     )
     hide_github = forms.BooleanField(
-        label="Hide your GitHub activity from your profile",
+        label="Hide GitHub activity from your profile",
         required=False,
     )
     hide_ml = forms.BooleanField(
-        label="Hide your mailing list activity from your profile",
+        label="Hide mailing list activity from your profile",
         required=False,
     )
     hide_ach = forms.BooleanField(
-        label="Hide badges on your profile",
+        label="Hide achievements & badges from your profile",
         required=False,
     )
 
@@ -312,7 +289,7 @@ class V3UserProfileForm(forms.Form):
         widget=forms.TextInput(attrs={"placeholder": "Placeholder"}),
         disabled=True,
     )
-    country = forms.ChoiceField(choices=[], required=False)
+    country = forms.ChoiceField(choices=[])
     indicate_last_login_method = forms.BooleanField(
         help_text="The login page will indicate the last method you used to login",
         required=False,
@@ -337,13 +314,13 @@ class V3UserProfileForm(forms.Form):
 
     # Email Alerts
     allow_notification_own_news_approved = forms.MultipleChoiceField(
-        choices=V3_EMAIL_PREFERENCE_CHOICES,
+        choices=NEWS_ENTRY_CHOICES,
         widget=forms.widgets.CheckboxSelectMultiple,
         label="Your own news is approved after moderation",
         required=False,
     )
     allow_notification_others_news_posted = forms.MultipleChoiceField(
-        choices=V3_EMAIL_PREFERENCE_CHOICES,
+        choices=NEWS_ENTRY_CHOICES,
         widget=forms.widgets.CheckboxSelectMultiple,
         label="Other users publish their news",
         required=False,
