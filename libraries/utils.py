@@ -507,6 +507,31 @@ def designed_for_html(items):
     return mark_safe("".join(parts))
 
 
+def benchmark_sets(benchmarks):
+    """Map website.adoc [#benchmarks] charts to _stats_benchmarks `sets`.
+
+    Each chart becomes a set; bar widths (`width_pct`, 0-100) are normalized to
+    that chart's largest value. The chart's unit is folded into the set title
+    since the component has no separate unit/caption slot.
+    """
+    sets = []
+    for chart in benchmarks or []:
+        rows_data = chart.get("data") or []
+        max_value = max((row.get("value") or 0 for row in rows_data), default=0)
+        rows = []
+        for row in rows_data:
+            value = row.get("value") or 0
+            width_pct = round(value / max_value * 100, 2) if max_value else 0
+            rows.append(
+                {"label": row.get("label"), "value": value, "width_pct": width_pct}
+            )
+        title = chart.get("title") or ""
+        if chart.get("unit"):
+            title = f"{title} ({chart['unit']})"
+        sets.append({"title": title, "rows": rows})
+    return sets
+
+
 def build_library_intro_context(
     library_version, *, max_authors=None, include_contributors=False
 ):

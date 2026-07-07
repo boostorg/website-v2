@@ -49,6 +49,7 @@ from .utils import (
     commit_data_to_stats_bars,
     group_libraries_by_tier,
     designed_for_html,
+    benchmark_sets,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
@@ -549,6 +550,9 @@ class LibraryDetail(
         context["website_adoc"] = getattr(library_version, "website_adoc", None) or {}
         context["designed_for_html"] = designed_for_html(
             context["website_adoc"].get("designed_for")
+        )
+        context["benchmark_sets"] = benchmark_sets(
+            context["website_adoc"].get("benchmarks")
         )
         context["slack_url"] = self.object.slack_url or SLACK_JOIN_URL
 

@@ -48,6 +48,11 @@
         <div class="item-e">
           {% include "v3/includes/_dependencies_card.html" with dependencies=dependencies_list %}
         </div>
+        {% if benchmark_sets %}
+        <div class="item-g">
+          {% include "v3/includes/_stats_benchmarks.html" with heading="Benchmarks" sets=benchmark_sets sized_by_parent=True %}
+        </div>
+        {% endif %}
       </div>
       <div class="masonry-col masonry-col--3">
         <div class="item-d item-d--desktop">

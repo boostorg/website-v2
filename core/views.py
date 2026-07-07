@@ -45,6 +45,7 @@ from libraries.utils import (
     set_selected_boost_version,
     modernize_boost_slug,
     designed_for_html,
+    benchmark_sets,
 )
 from mailing_list import constants
 from versions.models import Version, docs_path_to_boost_name
@@ -2019,6 +2020,27 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 {
                     "heading": "Standards-tracking",
                     "description": "APIs mirror the C++ standard where applicable.",
+                },
+            ]
+        )
+        context["benchmark_demo_sets"] = benchmark_sets(
+            [
+                {
+                    "title": "Throughput",
+                    "unit": "req/s",
+                    "data": [
+                        {"label": "Boost.Example", "value": 1200},
+                        {"label": "Alternative A", "value": 800},
+                        {"label": "Alternative B", "value": 450},
+                    ],
+                },
+                {
+                    "title": "Latency",
+                    "unit": "µs",
+                    "data": [
+                        {"label": "Boost.Example", "value": 12},
+                        {"label": "Alternative A", "value": 30},
+                    ],
                 },
             ]
         )
