@@ -65,11 +65,15 @@
       <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
     {% endif %}
     {% include "v3/includes/_button.html" with label="Sign in" type="submit" style="primary" alpine_disabled="hasErrors" %}
-  </form>
 
-  <p class="auth-page__divider">OR</p>
+      <div class="auth-page__signup-divider">
+      <hr />
+      <span>
+      OR
+      </span>
+      <hr />
+    </div>
 
-  <div class="auth-page__social-card">
     {% get_providers as socialaccount_providers %}
     {% if socialaccount_providers %}
     {% for provider in socialaccount_providers %}
@@ -81,6 +85,6 @@
     {% endif %}
     {% endfor %}
     {% endif %}
-    {% include "v3/includes/_button.html" with label="Don't have an account? Sign up →" url=signup_url style="primary" %}
-  </div>
+    </form>
+    <p class="auth-page__sign-in-link">Dont't have an account? <a href="{{signup_url}}">Create Account</a></p>
 {% endblock auth_content %}
