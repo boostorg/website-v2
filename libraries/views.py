@@ -127,7 +127,8 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
     v3_template_name = "v3/library_page.html"
 
     def get_v3_context_data(self, queryset=None, **kwargs):
-        context = {}
+        queryset = getattr(self, "object_list") or []
+        context = super().get_v3_context_data(**kwargs)
         view_str = self.kwargs.get("library_view_str")
 
         cpp_options = [("all", "All")] + list(
@@ -260,16 +261,6 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         context["library_search_query"] = self.request.GET.get("q", "")
         return context
 
-    def render_v3_response(self):
-        """Render the v3 template through Django's standard TemplateView pipeline."""
-        queryset = self.get_queryset()
-        # Resolve selected_version once so get_v3_context_data can reuse it.
-        self._selected_version = self._resolve_selected_version()
-        context = self.get_context_data(
-            **self.get_v3_context_data(queryset=queryset), object_list=queryset
-        )
-        return self.render_to_response(context)
-
     def _resolve_selected_version(self):
         version_slug = determine_selected_boost_version(
             self.kwargs.get("version_slug"), self.request
@@ -328,8 +319,10 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         )
 
     def dispatch(self, request, *args, **kwargs):
-        """Set the selected version in the cookies."""
+        # Resolve selected_version once so get_v3_context_data can reuse it.
+        self._selected_version = self._resolve_selected_version()
         response = super().dispatch(request, *args, **kwargs)
+        # Set the selected version in the cookies.
         set_selected_boost_version(self.kwargs.get("version_slug"), response)
         view = get_prioritized_library_view(request)
         if request.resolver_match.view_name == "libraries":
@@ -471,13 +464,6 @@ class LibraryDetail(
     redirect_to_docs = False
     slug_url_kwarg = "library_slug"
 
-    def render_v3_response(self):
-        self.set_extra_context(self.request)
-        self.object = self.get_object()
-        context = self.get_context_data()
-        context.update(self.get_v3_context_data(base_context=context))
-        return self.render_to_response(context)
-
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
         context = super().get_context_data(**kwargs)
@@ -525,9 +511,9 @@ class LibraryDetail(
 
         return context
 
-    def get_v3_context_data(self, base_context=None, **kwargs):
-        context = super().get_v3_context_data(**kwargs)
-        base_context = base_context or {}
+    def get_v3_context_data(self, **kwargs):
+        context = {**kwargs}
+        base_context = context
 
         version_str = base_context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
 
@@ -657,6 +643,7 @@ class LibraryDetail(
 
     def dispatch(self, request, *args, **kwargs):
         """Redirect to the documentation page, if configured to."""
+        self.set_extra_context(request)
         if self.redirect_to_docs:
             try:
                 library_version = LibraryVersion.objects.get(

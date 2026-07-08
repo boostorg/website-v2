@@ -124,26 +124,6 @@ class EntryListView(V3Mixin, ListView):
     def libary_values(self):
         return [(x.slug, x.name) for x in Library.objects.all().order_by("name")]
 
-    def render_v3_response(self):
-        """Render the v3 template through Django's standard TemplateView pipeline."""
-        if post_filter := self.request.GET.get("post-filter"):
-            match post_filter:
-                case "all":
-                    return HttpResponseRedirect(reverse_lazy("news"))
-                case "blogpost":
-                    return HttpResponseRedirect(reverse_lazy("news-blogpost-list"))
-                case "video":
-                    return HttpResponseRedirect(reverse_lazy("news-video-list"))
-                case "news":
-                    return HttpResponseRedirect(reverse_lazy("news-news-list"))
-                case "link":
-                    return HttpResponseRedirect(reverse_lazy("news-link-list"))
-
-        context = self.get_context_data(
-            **self.get_v3_context_data(), object_list=self.get_queryset()
-        )
-        return self.render_to_response(context)
-
     def get_v3_context_data(self, **kwargs):
         return {
             "filter_terms": [
@@ -183,6 +163,7 @@ class EntryListView(V3Mixin, ListView):
             "libraries": self.libary_values,
             "header_text": self.header_text,
             "filter_value": self.filter_value,
+            **kwargs,
         }
 
     def get_queryset(self):
@@ -211,6 +192,21 @@ class EntryListView(V3Mixin, ListView):
         if self.request.user.is_authenticated:
             context["is_moderator"] = can_approve(self.request.user)
         return context
+
+    def dispatch(self, request, *args, **kwargs):
+        if post_filter := self.request.GET.get("post-filter"):
+            match post_filter:
+                case "all":
+                    return HttpResponseRedirect(reverse_lazy("news"))
+                case "blogpost":
+                    return HttpResponseRedirect(reverse_lazy("news-blogpost-list"))
+                case "video":
+                    return HttpResponseRedirect(reverse_lazy("news-video-list"))
+                case "news":
+                    return HttpResponseRedirect(reverse_lazy("news-news-list"))
+                case "link":
+                    return HttpResponseRedirect(reverse_lazy("news-link-list"))
+        return super().dispatch(request, *args, **kwargs)
 
 
 class BlogPostListView(EntryListView):
@@ -282,6 +278,7 @@ class EntryDetailView(V3Mixin, DetailView):
         return result
 
     def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
         self.object = self.get_object()
         entry = self.object
         next_entry = (
@@ -306,7 +303,7 @@ class EntryDetailView(V3Mixin, DetailView):
         )
         if next_entry is not None:
             related_qs = related_qs.exclude(pk=next_entry.pk)
-        return {
+        v3_context = {
             "post_author": user_profile_card(entry.author),
             "post_tag": news_type_label(entry.tag),
             "next_post_items": (
@@ -317,6 +314,8 @@ class EntryDetailView(V3Mixin, DetailView):
                 for e in related_qs.order_by("-publish_at", "-pk")[:3]
             ],
         }
+        context.update(v3_context)
+        return context
 
     @classmethod
     def _post_card_item(cls, entry):

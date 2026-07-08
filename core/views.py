@@ -31,6 +31,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
+from waffle import flag_is_active
 
 from core.templatetags.custom_static import large_static
 from config.settings import ENABLE_DB_CACHE
@@ -131,7 +132,6 @@ class CalendarView(V3Mixin, TemplateView):
 
     def get_v3_context_data(self, **kwargs):
         ctx = super().get_v3_context_data(**kwargs)
-        print(self.request.headers)
         ctx["timezone"] = "America/Chicago"
         return ctx
 
@@ -144,7 +144,11 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
     template_name = "community.html"
     v3_template_name = "v3/community.html"
 
-    def render_v3_response(self):
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        if not flag_is_active(request, "v3"):
+            return response
+
         version_slug = self.kwargs.get("version_slug")
         if not version_slug:
             version_data = context_processors.selected_version(self.request)
@@ -154,7 +158,6 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
                 else LATEST_RELEASE_URL_PATH_STR
             )
             return redirect("community-version", version_slug=target)
-        response = super().render_v3_response()
         if version_slug != LATEST_RELEASE_URL_PATH_STR:
             set_selected_boost_version(version_slug, response)
         return response
@@ -494,7 +497,7 @@ class LearnPageView(MailingListCardMixin, V3Mixin, TemplateView):
     v3_template_name = "v3/learn_page.html"
 
     def get_v3_context_data(self, **kwargs):
-        ctx = self.get_context_data(**kwargs)
+        ctx = super().get_v3_context_data(**kwargs)
         ctx["learn_card_data"] = [
             {
                 "title": "I want to learn:",
