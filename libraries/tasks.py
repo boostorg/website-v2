@@ -20,7 +20,7 @@ from libraries.models import (
     CommitAuthor,
     ReleaseReport,
 )
-from libraries.website_adoc import build_website_adoc
+from libraries.website_adoc import website_adoc_fields
 from mailing_list.models import EmailData, PostingData
 from reports.generation import (
     generate_algolia_words,
@@ -88,11 +88,11 @@ def store_library_version_website_adoc(version, ref):
             # Missing file or unreachable fetch — keep any existing value.
             continue
         try:
-            parsed = build_website_adoc(content)
+            fields = website_adoc_fields(content)
         except Exception:
             logger.exception("website_adoc_parse_failed", repo=repo_slug, ref=ref)
             continue
-        LibraryVersion.objects.filter(pk=library_version.pk).update(website_adoc=parsed)
+        LibraryVersion.objects.filter(pk=library_version.pk).update(**fields)
 
 
 @app.task

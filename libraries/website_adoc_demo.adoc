@@ -1,0 +1,127 @@
+= Boost.Demo — Website Content
+:library-key: demo
+
+// A fully-filled example that exercises every website.adoc section, for
+// previewing the library subpage UI via `manage.py load_website_adoc_demo`.
+
+[#about]
+== About
+
+Boost.Demo is a header-only library for high-throughput message parsing with a
+modern, allocation-free API.
+
+[source,cpp]
+----
+#include <boost/beast/core.hpp>
+#include <boost/beast/http.hpp>
+#include <iostream>
+
+namespace beast = boost::beast;
+namespace http = beast::http;
+
+int main()
+{
+    // Build an HTTP GET request
+    http::request<http::string_body> req{http::verb::get, "/index.html", 11};
+    req.set(http::field::host, "www.example.com");
+    req.set(http::field::user_agent, "Boost.Beast");
+
+    std::cout << req << std::endl;
+
+    // Build an HTTP response
+    http::response<http::string_body> res{http::status::ok, 11};
+    res.set(http::field::server, "Boost.Beast");
+    res.set(http::field::content_type, "text/plain");
+    res.body() = "Hello from Boost.Beast!";
+    res.prepare_payload();
+
+    std::cout << res << std::endl;
+
+    return 0;
+}
+----
+
+[#playground]
+== Playground
+
+[source,cpp]
+----
+#include <boost/demo.hpp>
+#include <iostream>
+
+int main() {
+    boost::demo::parser p;
+    std::cout << p.run("hello world") << "\n";
+}
+----
+
+[#designed-for]
+== Designed for
+
+=== High-throughput parsing
+Handles millions of messages per second with near-zero allocations on the hot path.
+
+=== Header-only
+Add Boost to your include path — no separate build step required.
+
+=== Standards-tracking
+APIs mirror the C++ standard where applicable, easing future migration.
+
+[#links]
+== Links
+
+:common-use-case-url: https://www.boost.org/doc/libs/1_90_0/libs/demo/doc/html/use-cases.html
+:code-example-url: https://www.boost.org/doc/libs/1_90_0/libs/demo/doc/html/examples.html
+
+[#install]
+== Install
+
+Header-only — add Boost to your include path, or build with b2.
+
+[source,bash]
+----
+# build it with b2:
+./b2 --with-demo install
+# then link against it:
+g++ app.cpp -lboost_demo
+----
+
+[#benchmarks]
+== Benchmarks
+
+[#benchmarks-throughput]
+=== Throughput
+:unit: req/s
+:caption: higher is better
+
+[cols="2,1",options="header"]
+|===
+| Label | Value
+| Boost.Demo | 1200000
+| Alternative A | 800000
+| Alternative B | 450000
+|===
+
+[#benchmarks-latency]
+=== Latency
+:unit: microseconds
+:caption: lower is better
+
+[cols="2,1",options="header"]
+|===
+| Label | Value
+| Boost.Demo | 12
+| Alternative A | 30
+| Alternative B | 55
+|===
+
+[#freeform]
+== Notes from the maintainer
+
+Boost.Demo is maintained by the demo team. Highlights:
+
+* Zero-allocation fast path
+* Extensive fuzz testing
+* Works on all major compilers
+
+See the https://www.boost.org/[Boost website] for more.

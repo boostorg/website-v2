@@ -540,13 +540,22 @@ class LibraryVersion(models.Model):
     data = models.JSONField(
         default=dict, help_text="Contains the libraries.json for this library-version"
     )
+    website_adoc_source = models.TextField(
+        null=True,
+        blank=True,
+        help_text=(
+            "Raw meta/website.adoc for this version (the source of truth). "
+            "Editing this and saving re-derives website_adoc."
+        ),
+    )
     website_adoc = models.JSONField(
         null=True,
         blank=True,
         help_text=(
             "Parsed content of the library's optional meta/website.adoc "
             "(About, Playground, Designed for, Links, Install, Benchmarks, "
-            "Freeform). Null when the repo has no website.adoc for this version."
+            "Freeform), derived from website_adoc_source. Null when the repo "
+            "has no website.adoc for this version."
         ),
     )
     # stats from git stored between x.x.0 versions

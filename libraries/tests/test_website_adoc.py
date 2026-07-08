@@ -2,7 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from libraries.website_adoc import build_website_adoc, parse_website_adoc
+from libraries.website_adoc import (
+    build_website_adoc,
+    parse_website_adoc,
+    website_adoc_fields,
+    website_adoc_section_statuses,
+)
 
 FILLED = """\
 = Boost.Example — Website Content
@@ -141,6 +146,23 @@ def test_unfilled_template_drops_placeholder_sections():
     assert parsed.get("install", {}).get("blurb") is None
 
 
+def test_website_adoc_fields_keeps_raw_source_and_parsed():
+    fields = website_adoc_fields(FILLED.encode())
+    assert fields["website_adoc_source"] == FILLED  # raw retained as source of truth
+    assert fields["website_adoc"]["library_key"] == "example"  # derived parse
+
+
+def test_website_adoc_fields_none_when_no_source():
+    assert website_adoc_fields(None) == {
+        "website_adoc_source": None,
+        "website_adoc": None,
+    }
+    assert website_adoc_fields("") == {
+        "website_adoc_source": None,
+        "website_adoc": None,
+    }
+
+
 def test_omitted_sections_absent():
     parsed = parse_website_adoc(
         "= Title\n:library-key: foo\n\n[#install]\n== Install\n\n"
@@ -148,6 +170,77 @@ def test_omitted_sections_absent():
     )
     assert set(parsed) == {"library_key", "install"}
     assert parsed["install"]["code"]["code"] == "make"
+
+
+def test_warns_on_authored_but_empty_section():
+    # [#benchmarks] anchor present but its content is all placeholders -> omitted
+    # from output AND flagged, while a never-authored section is not flagged.
+    parsed = parse_website_adoc(
+        "= T\n:library-key: k\n\n"
+        "[#install]\n== Install\n\n[source,bash]\n----\nmake\n----\n\n"
+        "[#benchmarks]\n== Benchmarks\n\n[#benchmarks-x]\n=== <Chart title>\n"
+    )
+    assert "benchmarks" not in parsed  # authored but empty -> omitted
+    assert parsed["_warnings"] == [
+        {"section": "benchmarks", "reason": "empty_or_placeholder"}
+    ]
+    assert "install" in parsed  # unaffected
+
+
+def test_section_metadata_derives_from_single_source():
+    # SECTION_IDS and the admin status list both come from _SECTION_BUILDERS, so
+    # adding/removing a section can't leave them out of sync.
+    import libraries.website_adoc as mod
+
+    assert mod.SECTION_IDS == {sid for _, sid, _, _ in mod._SECTION_BUILDERS}
+    statuses = website_adoc_section_statuses({})
+    assert [s["label"] for s in statuses] == [
+        label for _, _, label, _ in mod._SECTION_BUILDERS
+    ]
+
+
+def test_section_statuses_covers_rendered_omitted_and_absent():
+    # install rendered; benchmarks authored-but-empty; links never authored.
+    parsed = parse_website_adoc(
+        "= T\n:library-key: k\n\n"
+        "[#install]\n== Install\n\n[source,bash]\n----\nmake\n----\n\n"
+        "[#benchmarks]\n== Benchmarks\n\n[#benchmarks-x]\n=== <Chart title>\n"
+    )
+    by_label = {s["label"]: s for s in website_adoc_section_statuses(parsed)}
+    assert len(by_label) == 7  # every known section is represented
+    assert by_label["Install"]["status"] == "rendered"
+    assert by_label["Benchmarks"] == {
+        "label": "Benchmarks",
+        "status": "omitted",
+        "reason": "empty_or_placeholder",
+    }
+    assert by_label["Links"]["status"] == "absent"  # missing -> visible, neutral
+
+
+def test_no_warnings_key_when_all_authored_sections_render():
+    parsed = parse_website_adoc(
+        "= T\n:library-key: k\n\n[#install]\n== Install\n\n"
+        "[source,bash]\n----\nmake\n----\n"
+    )
+    assert "_warnings" not in parsed
+
+
+def test_warns_on_parse_error(monkeypatch):
+    import libraries.website_adoc as mod
+
+    def boom(_lines):
+        raise ValueError("broken")
+
+    monkeypatch.setattr(
+        mod,
+        "_SECTION_BUILDERS",
+        tuple(
+            (out, sid, label, boom if sid == "benchmarks" else fn)
+            for out, sid, label, fn in mod._SECTION_BUILDERS
+        ),
+    )
+    parsed = parse_website_adoc(FILLED)
+    assert {"section": "benchmarks", "reason": "parse_error"} in parsed["_warnings"]
 
 
 def test_broken_section_dropped_others_kept(monkeypatch):
@@ -162,8 +255,8 @@ def test_broken_section_dropped_others_kept(monkeypatch):
         mod,
         "_SECTION_BUILDERS",
         tuple(
-            (out, sid, boom if sid == "benchmarks" else fn)
-            for out, sid, fn in mod._SECTION_BUILDERS
+            (out, sid, label, boom if sid == "benchmarks" else fn)
+            for out, sid, label, fn in mod._SECTION_BUILDERS
         ),
     )
 

@@ -18,20 +18,6 @@ from core.asciidoc import convert_adoc_to_html
 
 logger = structlog.get_logger()
 
-# Top-level section IDs that anchor a block. Nested benchmark anchors
-# (``[#benchmarks-*]``) are parsed within the benchmarks section, not here.
-SECTION_IDS = frozenset(
-    [
-        "about",
-        "playground",
-        "designed-for",
-        "links",
-        "install",
-        "benchmarks",
-        "freeform",
-    ]
-)
-
 _ANCHOR_RE = re.compile(r"^\[#([a-z0-9-]+)\]\s*$")
 _ATTR_RE = re.compile(r"^:([a-z0-9-]+):\s*(.*)$")
 _SOURCE_RE = re.compile(r"^\[source(?:%[^\],]*)?(?:,\s*([a-z0-9+#-]+))?.*\]\s*$")
@@ -232,19 +218,50 @@ def _build_links(lines):
     return links or None
 
 
-# Output key -> (section ID, builder). Each builder takes the section's body
-# lines and returns a truthy value or a falsy/None value when it has nothing
-# usable. Builders are run in isolation so one broken section is dropped
-# without affecting the others.
+# The single source of truth for website.adoc sections. Each entry is
+# (output key, section anchor id, human label, builder). Adding or removing a
+# section here automatically updates the segmenter (SECTION_IDS), the parser,
+# and the admin section-status view — nothing else to keep in sync.
+# The builder takes the section's body lines and returns a truthy value, or a
+# falsy value when it has nothing usable; builders run in isolation so one
+# broken section is dropped without affecting the others.
 _SECTION_BUILDERS = (
-    ("about", "about", _build_blurb_and_code),
-    ("playground", "playground", _first_source_block),
-    ("designed_for", "designed-for", _subsections),
-    ("links", "links", _build_links),
-    ("install", "install", _build_blurb_and_code),
-    ("benchmarks", "benchmarks", _benchmarks),
-    ("freeform", "freeform", _freeform),
+    ("about", "about", "About", _build_blurb_and_code),
+    ("playground", "playground", "Playground", _first_source_block),
+    ("designed_for", "designed-for", "Designed for", _subsections),
+    ("links", "links", "Links", _build_links),
+    ("install", "install", "Install", _build_blurb_and_code),
+    ("benchmarks", "benchmarks", "Benchmarks", _benchmarks),
+    ("freeform", "freeform", "Freeform", _freeform),
 )
+
+# Top-level anchor ids, derived so the segmenter can't drift from the parser.
+# Nested benchmark anchors (``[#benchmarks-*]``) are handled within the
+# benchmarks section, not here.
+SECTION_IDS = frozenset(section_id for _, section_id, _, _ in _SECTION_BUILDERS)
+
+
+def website_adoc_section_statuses(parsed):
+    """Per-section render status for the admin, covering every known section.
+
+    Returns an ordered list of ``{label, status, reason}``:
+      - ``rendered`` — present in the parsed output (will show on the page)
+      - ``omitted``  — authored but dropped; ``reason`` is parse_error /
+                       empty_or_placeholder / render_error
+      - ``absent``   — no ``[#id]`` anchor in the source (optional, not written)
+    """
+    parsed = parsed or {}
+    warned = {w["section"]: w.get("reason") for w in parsed.get("_warnings", [])}
+    statuses = []
+    for out_key, section_id, label, _builder in _SECTION_BUILDERS:
+        if out_key in parsed:
+            status, reason = "rendered", None
+        elif section_id in warned:
+            status, reason = "omitted", warned[section_id]
+        else:
+            status, reason = "absent", None
+        statuses.append({"label": label, "status": status, "reason": reason})
+    return statuses
 
 
 def _segment(content):
@@ -297,6 +314,12 @@ def parse_website_adoc(content):
     Returned keys are only present when the corresponding section has usable
     content. The ``freeform`` section carries raw AsciiDoc under ``content``;
     call ``build_website_adoc`` to also render it to HTML.
+
+    A reserved ``_warnings`` key (list of ``{"section", "reason"}``) is added
+    when a section's ``[#id]`` anchor is present but produced nothing — so QA
+    can tell "authored but omitted from the UI" from "never authored". Reasons:
+    ``parse_error``, ``empty_or_placeholder``, ``render_error`` (freeform gem).
+    The template ignores this key (it reads named sections only).
     """
     if content is None:
         return None
@@ -307,21 +330,29 @@ def parse_website_adoc(content):
 
     sections, doc_attrs = _segment(content)
     parsed = {}
+    warnings = []
 
     if library_key := _clean(doc_attrs.get("library-key")):
         parsed["library_key"] = library_key
 
-    for out_key, section_id, builder in _SECTION_BUILDERS:
+    for out_key, section_id, _label, builder in _SECTION_BUILDERS:
         if section_id not in sections:
-            continue
+            continue  # not authored — nothing to warn about
         try:
             value = builder(sections[section_id])
         except Exception:
             # A broken section is dropped; the rest of the document is unaffected.
             logger.exception("website_adoc_section_failed", section=section_id)
+            warnings.append({"section": section_id, "reason": "parse_error"})
             continue
         if value:
             parsed[out_key] = value
+        else:
+            # Authored (the [#id] anchor exists) but yielded nothing usable.
+            warnings.append({"section": section_id, "reason": "empty_or_placeholder"})
+
+    if warnings:
+        parsed["_warnings"] = warnings
 
     return parsed or None
 
@@ -343,18 +374,34 @@ def build_website_adoc(content):
             # section — every other section is still returned.
             logger.exception("website_adoc_freeform_render_failed")
             parsed.pop("freeform", None)
+            parsed.setdefault("_warnings", []).append(
+                {"section": "freeform", "reason": "render_error"}
+            )
     return parsed or None
 
 
-def fetch_website_adoc(client, repo_slug, tag):
-    """Fetch and parse ``meta/website.adoc`` for a repo/tag.
+def website_adoc_fields(raw):
+    """Map raw website.adoc (bytes/str/None) to LibraryVersion field values.
 
-    Never raises — returns ``None`` on a missing file or any parse/render
-    error, so it is safe to call inline in the ingestion pipeline.
+    Returns ``{"website_adoc_source", "website_adoc"}`` — the raw text (source
+    of truth) and its derived parse — for use in update()/update_or_create().
+    """
+    source = raw.decode("utf-8", "replace") if isinstance(raw, bytes) else raw
+    return {
+        "website_adoc_source": source or None,
+        "website_adoc": build_website_adoc(raw),
+    }
+
+
+def fetch_website_adoc_fields(client, repo_slug, tag):
+    """Fetch meta/website.adoc for a repo/tag and return LibraryVersion fields.
+
+    Never raises — returns both fields as ``None`` on a missing file or any
+    fetch/parse error, so it is safe to call inline in the ingestion pipeline.
     """
     try:
-        content = client.get_website_adoc(repo_slug=repo_slug, tag=tag)
-        return build_website_adoc(content)
+        raw = client.get_website_adoc(repo_slug=repo_slug, tag=tag)
+        return website_adoc_fields(raw)
     except Exception:
         logger.exception("website_adoc_parse_failed", repo=repo_slug, tag=tag)
-        return None
+        return {"website_adoc_source": None, "website_adoc": None}
