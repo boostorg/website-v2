@@ -26,6 +26,7 @@ from versions.models import Version
 
 from .constants import README_MISSING
 from .forms import CommitAuthorEmailForm
+from .godbolt import build_compiler_explorer_url
 from .mixins import VersionAlertMixin, BoostVersionMixin, ContributorMixin
 from .models import (
     Category,
@@ -579,6 +580,23 @@ class LibraryDetail(
             base_context.get("documentation_url"),
             context["website_adoc"].get("links"),
         )
+
+        playground = context["website_adoc"].get("playground")
+        if playground and playground.get("code"):
+            selected_version = base_context.get("selected_version")
+            boost_version = (
+                selected_version.name.replace("boost-", "") if selected_version else ""
+            )
+            compiler_explorer_url = build_compiler_explorer_url(
+                playground["code"], boost_version
+            )
+            if compiler_explorer_url:
+                context["quick_start_links"].append(
+                    {
+                        "label": "Edit in Compiler Explorer",
+                        "url": compiler_explorer_url,
+                    }
+                )
 
         dep_diff = base_context.get("dependency_diff", {})
         context["dependencies_list"] = _build_dependencies_list(
