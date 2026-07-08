@@ -99,7 +99,6 @@ class CurrentUserSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "id",
             "email",  # Users shouldn't change their email this way
-            "profile_image",
             "date_joined",
         )
 

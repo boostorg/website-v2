@@ -5,6 +5,7 @@ from allauth.account import app_settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -161,13 +162,15 @@ class CurrentUserProfileView(
         # Data shared between both versions, Boost Github and Mailing List activity
         ctx["github_activity_card_data"] = {
             "title": "Latest Boost Github activity",
-            "markdown_text": dedent("""
+            "markdown_text": dedent(
+                """
                         * Created 24 Commits in [**7 repositories**](https://www.example.com)
                         * Created [**1 repository**](https://www.example.com)
                         * Created a pull request in [**cppalliance/buffers**](https://www.example.com) that received 6 comments
                         * Opened 17 other pull requests in [**6 repositories**](https://www.example.com)
                         * Reviewed 3 pull requests in [**3 repositories**](https://www.example.com)
-                    """),
+                    """
+            ),
             "button_url": "https://www.github.com",
             "button_label": "View on Github",
         }
@@ -203,7 +206,8 @@ class CurrentUserProfileView(
         }
 
         if self.request.GET.get("filled"):
-            ctx["bio"] = dedent("""
+            ctx["bio"] = dedent(
+                """
                 **Professional Profile**
 
                 I am a software engineer and C++ expert with extensive experience in systems programming and open-source software development. My work focuses on advancing the C++ ecosystem through libraries, tools, and community leadership.
@@ -227,7 +231,8 @@ class CurrentUserProfileView(
                 * Network Programming: High-performance asynchronous networking solutions in C++
 
                 These interests have shaped my contributions to the C++ ecosystem, particularly in developing libraries that make network programming more accessible and efficient for developers.
-            """)
+            """
+            )
             ctx["contributor_data"] = {
                 "Author": ["Beast", "JSON"],
                 "Maintainer": ["Beast", "Accumulator"],
@@ -537,6 +542,13 @@ class CurrentUserProfileView(
         else:
             for error in form.errors.values():
                 messages.error(request, f"{error}")
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.GET.get("edit", "").lower() == "true" and isinstance(
+            request.user, AnonymousUser
+        ):
+            return HttpResponseRedirect(reverse_lazy("account_login"))
+        return super().dispatch(request, *args, **kwargs)
 
 
 # Custom Allauth Views

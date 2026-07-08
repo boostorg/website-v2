@@ -420,6 +420,9 @@
       const SLACK_PROFILE_URL_PREFIX = '{{ SLACK_PROFILE_URL_PREFIX|escapejs }}';
       const SLACK_MEMBER_ID_PATTERN = /^[A-Z0-9]{9,11}$/i;
 
+      const avatarInput = document.querySelector("input[name='{{user_profile_form.avatar.name}}']");
+      const avatarDelete = document.querySelector('#avatar-row__delete-avatar')
+
       return {
         saving: false,
         saveStatus: '',   // '' | 'saved' | 'error' (button shows "saving" via :disabled)
@@ -510,6 +513,11 @@
           });
           if (hasError) return;
 
+          
+          let avatar = avatarInput.value
+          if(avatarDelete.checked) {
+            avatar = null;
+          }
           this.saving = true;
           this.saveStatus = '';
           this.saveError = '';
