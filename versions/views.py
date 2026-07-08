@@ -196,21 +196,25 @@ class VersionDetail(
 
         ctx = super().get_v3_context_data(**kwargs)
 
-        ctx.update({
-            "hero_title": f"{heading} ({obj.display_name})",
-            "is_development_branch": is_development_branch,
-            "whats_new_heading": f"What's new in {obj.display_name}",
-            "whats_new_approved": obj.whats_new_approved,
-            "whats_new_items": obj.whats_new_items if obj.whats_new_approved else [],
-            "contributors_guide_url": reverse(
-                "docs-user-guide",
-                kwargs={"content_path": "contributor-guide/contributors-faq.html"},
-            ),
-            "release_process_url": reverse(
-                "docs-user-guide",
-                kwargs={"content_path": "user-guide/release-process.html"},
-            ),
-        })
+        ctx.update(
+            {
+                "hero_title": f"{heading} ({obj.display_name})",
+                "is_development_branch": is_development_branch,
+                "whats_new_heading": f"What's new in {obj.display_name}",
+                "whats_new_approved": obj.whats_new_approved,
+                "whats_new_items": (
+                    obj.whats_new_items if obj.whats_new_approved else []
+                ),
+                "contributors_guide_url": reverse(
+                    "docs-user-guide",
+                    kwargs={"content_path": "contributor-guide/contributors-faq.html"},
+                ),
+                "release_process_url": reverse(
+                    "docs-user-guide",
+                    kwargs={"content_path": "user-guide/release-process.html"},
+                ),
+            }
+        )
 
         release_notes_html = self.get_release_notes(obj)
         if release_notes_html:

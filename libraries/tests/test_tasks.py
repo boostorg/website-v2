@@ -21,12 +21,14 @@ def test_get_and_store_library_version_documentation_urls_for_version(
     version = library_version.version
     library = library_version.library
     library_name = library.name.lower()
-    mock_s3_response = {"content": f"""
+    mock_s3_response = {
+        "content": f"""
         <h2>Libraries Listed <a name="Alphabetically">Alphabetically</a></h2>
         <ul>
             <li><a href="{library_name}/index.html">{library_name}</a></li>
         </ul>
-    """}
+    """
+    }
 
     # Mock the get_content_from_s3 function to return the mock S3 response
     mock_s3_client.get_object.return_value = mock_s3_response
