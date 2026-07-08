@@ -130,3 +130,10 @@ def setup_periodic_tasks(sender, **kwargs):
         crontab(hour=6, minute=0),
         app.signature("news.tasks.sync_post_views_from_plausible"),
     )
+
+    # Refresh homepage popular search terms from Algolia.
+    # Executes weekly on Mondays at 5:15 AM.
+    sender.add_periodic_task(
+        crontab(day_of_week="mon", hour=5, minute=15),
+        app.signature("core.tasks.refresh_popular_search_terms"),
+    )

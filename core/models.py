@@ -10,7 +10,7 @@ from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
 
 from libraries.path_matcher.utils import determine_latest_url
 from versions.models import Version
-from .managers import RenderedContentManager
+from .managers import PopularSearchTermManager, RenderedContentManager
 
 
 class LatestPathMatchIndicator(models.IntegerChoices):
@@ -182,3 +182,83 @@ class HomepageSettings(BaseGenericSetting):
 
     class Meta:
         verbose_name = "Homepage Settings"
+
+
+class PopularSearchTerm(models.Model):
+    """Top popular Algolia search terms, refreshed weekly by Celery.
+
+    Each weekly refresh runs an LLM quality check to drop typos/garbage
+    before any row is written. Tick `is_pinned` on an admin-created row to
+    pin it above Algolia-fetched terms; the weekly refresh leaves
+    `is_pinned` alone.
+    """
+
+    label = models.CharField(max_length=64)
+    # `rank` is a compound sort key whose meaning depends on row state:
+    #   - fresh rows (this week's refresh): rank 1..N in popularity order
+    #   - stale rows: re-packed into a contiguous band right below the fresh
+    #     block each run (ordered by prior rank), so they sort below fresh
+    #     without their rank growing unbounded over time
+    #   - pinned rows: curator-set rank for explicit ordering above all others
+    # Always interpret `rank` together with `is_pinned`. Full rationale in
+    # docs/popular_search_terms.md.
+    rank = models.PositiveSmallIntegerField()
+    search_count = models.PositiveIntegerField(default=0)
+    is_pinned = models.BooleanField(
+        default=False,
+        help_text=(
+            "Pin this term above Algolia-derived rows on the homepage. "
+            "Use rank to order among multiple pins."
+        ),
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    objects = PopularSearchTermManager()
+
+    class Meta:
+        ordering = ["-is_pinned", "rank", "label"]
+        constraints = [
+            models.UniqueConstraint(
+                Lower("label"),
+                name="core_popularsearchterm_label_ci_unique",
+                violation_error_message=(
+                    "A popular search term with this label already exists "
+                    "(matching is case-insensitive)."
+                ),
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        self.label = self.label.lower()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        pin = "[PIN] " if self.is_pinned else ""
+        return f"{pin}{self.rank}. {self.label} ({self.search_count})"
+
+
+class PopularSearchTermExclusion(models.Model):
+    """Search terms that should never appear on the homepage (case-insensitive)."""
+
+    term = models.CharField(max_length=64)
+    note = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        # Exclusions are matched case-insensitively; enforce that at the DB layer.
+        constraints = [
+            models.UniqueConstraint(
+                Lower("term"),
+                name="core_popularsearchtermexclusion_term_ci_unique",
+                violation_error_message=(
+                    "This term is already in the exclusion list "
+                    "(matching is case-insensitive)."
+                ),
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        self.term = self.term.lower()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.term

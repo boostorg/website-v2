@@ -1,9 +1,20 @@
+from datetime import date
+
 from django.contrib import admin
 from django.urls import path
 from django.shortcuts import redirect, render
 from django.contrib import messages
+from django.db import transaction
+from django.db.models import BooleanField, Case, Value, When
 from django.utils import timezone
-from .models import RenderedContent, SiteSettings
+
+from .constants import HOMEPAGE_POPULAR_TERMS_DISPLAY
+from .models import (
+    PopularSearchTerm,
+    PopularSearchTermExclusion,
+    RenderedContent,
+    SiteSettings,
+)
 from .tasks import delete_all_rendered_content
 
 
@@ -92,3 +103,97 @@ class SiteSettingsAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(PopularSearchTerm)
+class PopularSearchTermAdmin(admin.ModelAdmin):
+    list_display = (
+        "rank",
+        "label",
+        "search_count",
+        "is_pinned",
+        "on_homepage",
+        "updated_at",
+    )
+    list_display_links = ("label",)
+    list_editable = ("is_pinned",)
+    list_filter = ("is_pinned",)
+    search_fields = ("label",)
+    ordering = ("-is_pinned", "rank")
+    actions = ("move_to_exclusions",)
+
+    def get_urls(self):
+        return [
+            path(
+                "refresh-from-algolia/",
+                self.admin_site.admin_view(self.refresh_from_algolia_view),
+                name="core_popularsearchterm_refresh",
+            ),
+        ] + super().get_urls()
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = {**(extra_context or {}), "has_refresh_button": True}
+        return super().changelist_view(request, extra_context=extra_context)
+
+    def get_queryset(self, request):
+        visible_ids = list(
+            PopularSearchTerm.objects.visible().values_list("id", flat=True)[
+                :HOMEPAGE_POPULAR_TERMS_DISPLAY
+            ]
+        )
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(
+                _on_homepage=Case(
+                    When(id__in=visible_ids, then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                )
+            )
+        )
+
+    @admin.display(boolean=True, description="On homepage?", ordering="-_on_homepage")
+    def on_homepage(self, obj):
+        return obj._on_homepage
+
+    @admin.action(description="Move selected to exclusions (homepage banlist)")
+    def move_to_exclusions(self, request, queryset):
+        labels = list(queryset.values_list("label", flat=True))
+        if not labels:
+            return
+        today = date.today().isoformat()
+        with transaction.atomic():
+            for label in labels:
+                if not PopularSearchTermExclusion.objects.filter(
+                    term__iexact=label
+                ).exists():
+                    PopularSearchTermExclusion.objects.create(
+                        term=label, note=f"Excluded via admin on {today}"
+                    )
+            queryset.delete()
+        self.message_user(
+            request,
+            f"Excluded {len(labels)} term(s) and removed from the homepage list: "
+            f"{', '.join(labels)}",
+            messages.SUCCESS,
+        )
+
+    def refresh_from_algolia_view(self, request):
+        if request.method != "POST":
+            return redirect("..")
+        from core.tasks import refresh_popular_search_terms
+
+        refresh_popular_search_terms.delay()
+        self.message_user(
+            request,
+            "Refresh from Algolia queued. Reload in ~5 seconds to see updated rows.",
+            messages.SUCCESS,
+        )
+        return redirect("..")
+
+
+@admin.register(PopularSearchTermExclusion)
+class PopularSearchTermExclusionAdmin(admin.ModelAdmin):
+    list_display = ("term", "note")
+    search_fields = ("term",)

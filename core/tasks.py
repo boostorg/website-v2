@@ -1,11 +1,14 @@
 import structlog
+from json import JSONDecodeError
 
 from celery import shared_task
 from dateutil.parser import parse
+from openai import OpenAIError
 
 from django.core.cache import caches
 from django.utils import timezone
 
+from config.celery import app
 from core.asciidoc import convert_adoc_to_html
 from libraries.path_matcher.utils import get_path_match_from_chain
 from versions.models import Version
@@ -108,6 +111,17 @@ def save_rendered_content(cache_key, content_type, content_html, last_updated_at
         obj_id=obj.id,
         obj_created=created,
     )
+
+
+@app.task(bind=True, max_retries=3, autoretry_for=(OpenAIError, JSONDecodeError))
+def refresh_popular_search_terms(self):
+    """Refresh PopularSearchTerm rows from Algolia."""
+    from core.services.popular_search_terms import (
+        refresh_popular_search_terms as _refresh,
+    )
+
+    written = _refresh()
+    logger.info("popular_search_terms.refresh_done", written=written)
 
 
 @shared_task

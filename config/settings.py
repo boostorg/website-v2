@@ -681,6 +681,12 @@ ALGOLIA = {
     "region": env("ALGOLIA_APP_REGION", "us"),
 }
 
+# Min Algolia search_count to enter the homepage LLM candidate set.
+# Raise in prod to drop one-off curiosity searches; keep at 1 locally for data.
+POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT = env.int(
+    "POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT", default=1
+)
+
 # Required by Wagtail
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
 WAGTAIL_SITE_NAME = "Boost.org"

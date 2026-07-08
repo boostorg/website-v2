@@ -51,3 +51,25 @@ class RenderedContentManager(models.Manager):
         logger.info(
             "rendered_content_manager_delete_by_content_type", content_type=content_type
         )
+
+
+class PopularSearchTermManager(models.Manager):
+    def visible(self):
+        """Rows safe to display on the homepage, pinned first then by rank.
+
+        Filters out `PopularSearchTermExclusion` labels (case-insensitive) so
+        admin exclusions take effect without re-running the refresh task.
+        """
+        from django.db.models.functions import Lower
+        from core.models import PopularSearchTermExclusion
+
+        excluded_lower = list(
+            PopularSearchTermExclusion.objects.annotate(t=Lower("term")).values_list(
+                "t", flat=True
+            )
+        )
+        return (
+            self.annotate(label_lower=Lower("label"))
+            .exclude(label_lower__in=excluded_lower)
+            .order_by("-is_pinned", "rank", "label")
+        )
