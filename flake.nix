@@ -64,7 +64,6 @@
             asciidoctorBoostGem
             pre-commit
             python313 # matches Dockerfile, due for upgrade?
-            python313.pkgs.black
             python313.pkgs.isort
             python313.pkgs.pip-tools
             git

@@ -36,8 +36,7 @@ LOOKBACK_DAYS = 14
 POPULAR_TERMS_AI_MODEL = "gpt-oss-120b"
 POPULAR_TERMS_AI_TIMEOUT_S = 180
 
-_AI_SYSTEM_PROMPT_TEMPLATE = dedent(
-    """\
+_AI_SYSTEM_PROMPT_TEMPLATE = dedent("""\
     You filter search queries submitted to boost.org, the C++ Boost libraries
     website. For each query decide KEEP (legitimate library, technical
     concept, or domain topic) or REJECT (typo, gibberish, personal name, test
@@ -75,8 +74,7 @@ _AI_SYSTEM_PROMPT_TEMPLATE = dedent(
 
     Return one object per KEEP query with its original text and display label;
     omit everything you REJECT.
-    """
-)
+    """)
 
 # OpenRouter Structured Outputs schema: the provider constrains the model to
 # emit exactly this shape, replacing the looser json_object mode.
