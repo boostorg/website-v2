@@ -207,6 +207,7 @@ body:has(.auth-page) .header {
 
 .auth-page__signup-divider hr {
   flex: 1 1 0;
+  border-color: var(--color-stroke-weak);
 }
 
 /* ── Social Card ───────────────────────────── */

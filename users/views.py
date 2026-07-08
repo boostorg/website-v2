@@ -621,7 +621,9 @@ class CustomSignupView(ClaimExistingAccountMixin, V3AuthContextMixin, SignupView
         return res if res else super().form_invalid(form)
 
 
-class CustomLoginView(LoginView):
+class CustomLoginView(V3AuthContextMixin, LoginView):
+    v3_template_name = "v3/accounts/login.html"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contributor_account_redirect_message"] = self.request.session.pop(
