@@ -266,6 +266,11 @@ input.mailing-list-modal__checkbox:focus-visible + .mailing-list-modal__checkbox
   margin-top: var(--space-s);
 }
 
+.ml-post-auth-modal__email-row + .card__hr {
+  margin-top: var(--space-large);
+  margin-bottom: var(--space-large);
+}
+
 .ml-post-auth-modal__container .dialog-modal__buttons {
   padding-top: var(--space-large);
 }
