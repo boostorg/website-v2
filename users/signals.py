@@ -47,3 +47,6 @@ def user_logged_in_handler(request, user, **kwargs):
     except (KeyError, IndexError):
         method = None
     request.session[LOGIN_METHOD_SESSION_FIELD_NAME] = method or "email"
+
+    if not user.data.get("ml_post_auth_seen"):
+        request.session["show_ml_post_auth_modal"] = True

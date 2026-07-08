@@ -40,8 +40,19 @@
   display: flex !important;
 }
 
+/* Checkbox-driven open (no-JS auto-open / toggle): a checked .dialog-modal__toggle
+   shows the adjacent .dialog-modal, mirroring the :target behaviour. */
+.dialog-modal__toggle {
+  display: none;
+}
+
+.dialog-modal__toggle:checked ~ .dialog-modal {
+  display: flex !important;
+}
+
 /* Lock background page scroll while any dialog is open. */
-html:has(.dialog-modal:target) {
+html:has(.dialog-modal:target),
+html:has(.dialog-modal__toggle:checked) {
   overflow: hidden;
 }
 
