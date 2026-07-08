@@ -20,7 +20,6 @@ from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils.text import slugify
 
-from core.constants import BadgeToken
 from libraries.constants import (
     DEFAULT_LIBRARIES_LANDING_VIEW,
     SELECTED_BOOST_VERSION_COOKIE_NAME,
@@ -57,15 +56,33 @@ def get_commit_data_by_release_for_library(library, limit=20):
         .order_by("-version__name")
     )[:limit]
     return [
-        {"release": x.version_name.strip("boost-"), "commit_count": x.count}
+        {"release": x.version_name.removeprefix("boost-"), "commit_count": x.count}
         for x in reversed(list(qs))
+    ]
+
+
+def get_commit_data_by_release(limit=10):
+    """Return list of { release, commit_count } across all Boost libraries per
+    minor release, ordered by release (oldest first).
+
+    Used by the homepage "Boost in numbers" chart.
+    """
+    qs = (
+        Version.objects.minor_versions()
+        .annotate(count=Count("library_version__commit"))
+        .order_by("-name")
+    )[:limit]
+    return [
+        {"release": v.name.removeprefix("boost-"), "commit_count": v.count}
+        for v in reversed(list(qs))
     ]
 
 
 def commit_data_to_stats_bars(commit_data):
     """Convert commit_data_by_release (list of { release, commit_count }) to stats bar format.
 
-    Returns list of { label, height_px } with heights scaled to STATS_COMMITS_BAR_HEIGHT_*.
+    Returns list of { label, height_px, commit_count } with heights scaled to
+    STATS_COMMITS_BAR_HEIGHT_*. commit_count is preserved for tooltip rendering.
     """
     if not commit_data:
         return []
@@ -80,6 +97,7 @@ def commit_data_to_stats_bars(commit_data):
                     (d["commit_count"] / max_count) * STATS_COMMITS_BAR_HEIGHT_MAX_PX
                 ),
             ),
+            "commit_count": d["commit_count"],
         }
         for d in commit_data
     ]
@@ -452,13 +470,17 @@ def patch_commit_authors(users):
     return users
 
 
-def build_library_intro_context(library_version, *, max_authors=3):
+def build_library_intro_context(
+    library_version, *, max_authors=None, include_contributors=False
+):
     """Build template context for the library intro card.
 
     Returns a dict with keys: library_name, description, authors, cta_url.
 
-    Matches the detail page's ordering: authors first, then maintainers
-    (excluding duplicates), then top git contributors to fill remaining slots.
+    Authors first, then maintainers (excluding duplicates). When
+    `include_contributors` is True, top git contributors fill the remaining
+    slots; set it False to show authors and maintainers only. `max_authors`
+    caps the number shown; pass None to show all.
     """
     from libraries.models import CommitAuthor
 
@@ -474,61 +496,29 @@ def build_library_intro_context(library_version, *, max_authors=3):
     for user in combined:
         roles[user.id] = "Author" if user.id in author_ids else "Maintainer"
 
-    # Fill remaining slots with top git contributors
-    remaining = max_authors - len(combined)
-    if remaining > 0:
-        exclude_commit_author_ids = []
-        patch_commit_authors(combined)
-        for user in combined:
-            ca_id = getattr(user.commitauthor, "id", None)
-            if ca_id:
-                exclude_commit_author_ids.append(ca_id)
+    patch_commit_authors(combined)
 
+    # Optionally fill remaining slots with top git contributors.
+    top_contributors = []
+    remaining = max_authors - len(combined) if max_authors is not None else 0
+    if include_contributors and remaining > 0:
+        exclude_commit_author_ids = [
+            user.commitauthor.id
+            for user in combined
+            if getattr(user.commitauthor, "id", None)
+        ]
         top_contributors = (
             CommitAuthor.humans.filter(commit__library_version=library_version)
             .exclude(id__in=exclude_commit_author_ids)
             .annotate(count=Count("commit"))
             .order_by("-count")[:remaining]
         )
-    else:
-        top_contributors = []
-        patch_commit_authors(combined)
 
-    def get_avatar(user):
-        url = user.get_thumbnail_url()
-        if url:
-            return url
-        return getattr(user.commitauthor, "avatar_url", "") or ""
-
-    medals = [BadgeToken.TIER_3, BadgeToken.TIER_2, BadgeToken.TIER_1]
-
-    author_dicts = []
-    for user in combined:
-        author_dicts.append(
-            {
-                "name": user.display_name or user.get_full_name(),
-                "role": roles[user.id],
-                "avatar_url": get_avatar(user),
-                "badge": (
-                    medals[len(author_dicts)] if len(author_dicts) < len(medals) else ""
-                ),
-                "bio": "",
-                "profile_url": "",
-            }
-        )
-    for ca in top_contributors:
-        author_dicts.append(
-            {
-                "name": ca.display_name,
-                "role": "Contributor",
-                "avatar_url": ca.avatar_url or "",
-                "badge": (
-                    medals[len(author_dicts)] if len(author_dicts) < len(medals) else ""
-                ),
-                "bio": "",
-                "profile_url": "",
-            }
-        )
+    author_dicts = [user.to_v3_profile_dict(role=roles[user.id]) for user in combined]
+    author_dicts.extend(
+        contributor.to_v3_profile_dict("Contributor")
+        for contributor in top_contributors
+    )
 
     return {
         "library_name": library.display_name,

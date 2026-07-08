@@ -3,7 +3,9 @@
 
   Variables:
     title        (string, required) — card heading
-    text         (string, required) — description text beside the image
+    text         (HTML, required)   — description beside the image. Rendered with |safe;
+                                      callers wrap paragraphs in <p>…</p> tags themselves
+                                      (multi-line strings can't survive Django tag parsing).
     image_url    (string, required) — URL of the image
     image_alt    (string, optional) — alt text for image, defaults to ""
     button_url   (string, optional) — CTA link destination
@@ -20,7 +22,7 @@
   </div>
   <hr class="card__hr" />
   <div class="horizontal-card__content-row">
-    <p class="horizontal-card__text">{{ text }}</p>
+    <div class="horizontal-card__text">{{ text|safe }}</div>
     <div class="horizontal-card__image">
       <img src="{{ image_url }}" alt="{{ image_alt|default:'' }}" />
     </div>

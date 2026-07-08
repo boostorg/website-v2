@@ -119,7 +119,7 @@
                     </svg>
                   </div>
                 {% if testimonial.slug %}</a>{% else %}</div>{% endif %}
-                {% include "v3/includes/_user_profile.html" with author=testimonial.author only %}
+                {% include "v3/includes/_user_profile.html" with author=testimonial.author new_tab=True only %}
               </li>
             {% endfor %}
           {% endif %}

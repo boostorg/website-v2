@@ -46,3 +46,17 @@
   letter-spacing: -0.12px;
   color: var(--color-text-secondary);
 }
+
+.event-card__empty {
+  padding: var(--space-card);
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.event-card__empty-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 var(--space-card);
+  border-radius: var(--border-radius-l);
+}

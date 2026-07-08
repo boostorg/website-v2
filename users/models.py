@@ -327,12 +327,14 @@ class User(BaseUser):
         return ""
 
     def to_v3_profile_dict(self, role=None):
+        """Dict shape consumed by `v3/includes/_user_profile.html`."""
         return {
             "name": self.display_name or str(self),
             "profile_url": None,
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
-            "badge_url": None,
+            "badge": None,
+            "bio": None,
         }
 
     def get_hq_image_url(self):

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load custom_static %}
 {% load waffle_tags %}
 
 {% block main_content_wrapper %}<div class="homepage-v3">{% endblock %}
@@ -10,27 +11,31 @@
 {% endblock %}
 
 {% block content %}
+  {% url 'docs-user-guide' content_path='user-guide/getting-started.html' as hero_primary_url %}
+  {% url 'libraries-list' version_slug='latest' library_view_str='list' as hero_secondary_url %}
+  {% url 'news' as posts_url %}
+  {% url 'release-detail' version_slug='latest' as release_url %}
+  {% url 'calendar' as calendar_url %}
+  {% url 'community' as community_url %}
+  {% url 'license' as license_url %}
   <div class="homepage-container">
-      {% include "v3/includes/_hero_home.html" with hero_background_image_url="" install_card_id="hero-home-1" hero_image_url_light=hero_legacy_image_url_light hero_image_url_dark=hero_legacy_image_url_dark %}
+      {% include "v3/includes/_hero_home.html" with hero_background_image_url="" install_card_id="hero-home-1" hero_image_url_light=hero_legacy_image_url_light hero_image_url_dark=hero_legacy_image_url_dark primary_url=hero_primary_url secondary_url=hero_secondary_url %}
     <div class="card-masonry-top">
       <div class="item-a">
         {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
       </div>
       <div class="item-b responsive-limit-3-items">
-        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="list" primary_cta_label="Download latest release" primary_cta_url="#" secondary_cta_label="View events calendar" secondary_cta_url="#" %}
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=upcoming_events variant="list" primary_cta_label="Download latest release" primary_cta_url=release_url secondary_cta_label="View events calendar" secondary_cta_url=calendar_url %}
       </div>
       <div class="item-c responsive-limit-2-items">
-        {% with data=posts_from_the_boost_community %}
-          {% include "v3/includes/_post_card.html" with heading=data.heading items=data.items variant=data.variant theme=data.theme primary_cta_label=data.primary_cta_label primary_cta_url=data.primary_cta_url %}
-        {% endwith %}
+        {% include "v3/includes/_post_card.html" with heading="Posts from the Boost Community" items=community_posts variant="card" theme="teal" primary_cta_label="View all posts" primary_cta_url=posts_url %}
       </div>
-      <div class="item-d">
-        {% include "v3/includes/_code_block_card.html" with heading="Get started with our libraries" code=code_demo_hello block_variant="grey-bg" button_text="Explore examples" language="cpp" button_aria_label="Explore examples" %}
-      </div>
+        <div class="item-d">
+          {% url 'library-detail' version_slug='latest' library_slug=get_started_code.library_slug as get_started_url %}
+          {% include "v3/includes/_code_block_card.html" with heading=get_started_code.heading code=get_started_code.code language=get_started_code.language block_variant="grey-bg" button_text="View library" button_url=get_started_url button_aria_label="Explore examples" %}
+        </div>
       <div class="item-e homepage-join-card">
-        {% with data=join_developers_building_the_future_of_cpp %}
-          {% include "v3/includes/_join_card.html" with heading="Join developers building the future of C++" items=data.items variant="card" theme="yellow" primary_cta_label="Explore the community" primary_cta_url="#" %}
-        {% endwith %}
+        {% include "v3/includes/_join_card.html" with heading="Join developers building the future of C++" items=join_developers_links variant="card" theme="yellow" primary_cta_label="Explore the community" primary_cta_url=community_url %}
       </div>
       <div class="item-f">
         {% include "v3/includes/_install_card.html" with title=install_card_title|default:"Install Boost and get started in your terminal." card_id=install_card_id|default:"hero-home-install" %}
@@ -41,24 +46,19 @@
     </div>
     <div class="card-masonry-bottom py-large">
       <div class="item-a responsive-limit-5-items">
-        {% with data=stats_in_numbers %}
-          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=data.example_library_commits_bars theme="default" primary_cta_label="View library" primary_cta_url="#" %}
-        {% endwith %}
+        {% include "v3/includes/_stats_in_numbers.html" with heading="Boost in numbers" description="Every bar tells a story; the collective effort of a community building Boost" bars=commits_data theme="default" primary_cta_label="Boost Org on GitHub" primary_cta_url="https://github.com/boostorg/boost" %}
       </div>
       <div class="item-b">
         {% with data=library_intro %}
-          {% include "v3/includes/_library_intro_card.html" with library_name=data.library_name description=data.description authors=data.authors cta_url=data.cta_url %}
+          {% include "v3/includes/_library_intro_card.html" with library_name=data.library_name description=data.description authors=data.authors cta_url=data.cta_url cta_label="View Library" %}
         {% endwith %}
       </div>
       <div class="item-c">
-        {% with data=testimonial_data %}
-          {% include "v3/includes/_testimonial_card.html" with heading="What engineers are saying" testimonials=data.testimonials %}
-        {% endwith %}
+        {% include "v3/includes/_testimonial_card.html" with heading="What engineers are saying" testimonials=testimonial_cards %}
       </div>
       <div class="item-d license-card">
-        {% with data=build_anything_with_boost %}
-          {% include "v3/includes/_horizontal_card.html" with title=data.title text=data.text image_url=data.image_url button_url=data.button_url button_label=data.button_label image_alt=data.image_alt %}
-        {% endwith %}
+        {% large_static 'img/v3/solo-images/capy-hot-tub.png' as license_card_image %}
+        {% include "v3/includes/_horizontal_card.html" with title="Build anything with the Boost Software License" text="<p>A simple, one-paragraph license created specifically for C++. It gives permission to use, modify, and distribute for any purpose.</p><p>No license file is required in binaries, just attribution in the source code. And it's compatible with virtually all other licenses.</p><p>Companies like Microsoft, Adobe and Citigroup have used it for the past 20 years.</p>" image_url=license_card_image image_alt="" button_url=license_url button_label="See the license" %}
       </div>
     </div>
   </div>

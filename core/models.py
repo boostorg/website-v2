@@ -3,6 +3,10 @@ import re
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
+from django.db.models.functions import Lower
+from wagtail.admin.forms.models import WagtailAdminModelForm
+from wagtail.admin.panels import FieldPanel
+from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
 
 from libraries.path_matcher.utils import determine_latest_url
 from versions.models import Version
@@ -137,3 +141,44 @@ class SiteSettings(models.Model):
     @property
     def wordcloud_ignore_set(self):
         return set(x.strip().lower() for x in self.wordcloud_ignore.split(","))
+
+
+class HomepageSettingsForm(WagtailAdminModelForm):
+    """Scopes the featured-library chooser to flagship and core libraries
+    present in the latest stable release, A→Z."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from libraries.models import Library, Tier
+
+        qs = Library.objects.filter(tier__in=[Tier.FLAGSHIP, Tier.CORE])
+        latest = Version.objects.most_recent()
+        if latest:
+            qs = qs.filter(library_version__version=latest)
+        self.fields["featured_library"].queryset = qs.order_by(Lower("name"))
+
+
+@register_setting
+class HomepageSettings(BaseGenericSetting):
+    """Editor-managed homepage configuration, set in the Wagtail admin."""
+
+    base_form_class = HomepageSettingsForm
+
+    featured_library = models.ForeignKey(
+        "libraries.Library",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text=(
+            "Library featured in the V3 homepage. Only flagship and core "
+            "libraries present in the latest stable release are listed "
+            "(beta-only libraries are excluded). If not set, a random "
+            "flagship or core library will be featured."
+        ),
+    )
+
+    panels = [FieldPanel("featured_library")]
+
+    class Meta:
+        verbose_name = "Homepage Settings"

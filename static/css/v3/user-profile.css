@@ -72,8 +72,17 @@
   width: auto;
 }
 
-.user-profile__role {
+.user-profile__role, .user-profile__role p {
+  margin: 0;
+  padding: 0;
   color: var(--color-text-secondary);
+}
+
+.user-profile__role a {
+  padding: 0;
+  margin: 0;
+  color: var(--color-text-link-accent);
+  text-decoration: underline;
 }
 
 /* ── Bio ────────────────────────────── */

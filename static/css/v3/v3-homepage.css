@@ -89,6 +89,10 @@ body:has(.homepage-v3) .header {
   max-width: 100%;
 }
 
+.license-card .horizontal-card .horizontal-card__image img {
+  object-fit: scale-down;
+}
+
 @media (min-width: 768px) {
   .license-card .horizontal-card {
     min-height: 358px;
@@ -101,7 +105,7 @@ body:has(.homepage-v3) .header {
 }
 
 @media (max-width: 1279px) {
-  .responsive-limit-5-items .stats__bar-wrap:nth-child(n+6) {
+  .responsive-limit-5-items .stats__bar-wrap:nth-last-child(n+6) {
     display: none;
   }
 }
