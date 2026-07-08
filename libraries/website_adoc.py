@@ -160,8 +160,6 @@ def _benchmarks(lines):
                 "id": chart["id"],
                 "title": title,
                 "unit": _clean(attrs.get("unit")),
-                "caption": _clean(attrs.get("caption")),
-                "source": _clean(attrs.get("source")),
                 "data": data,
             }
         )

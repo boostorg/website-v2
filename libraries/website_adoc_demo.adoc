@@ -92,7 +92,6 @@ g++ app.cpp -lboost_demo
 [#benchmarks-throughput]
 === Throughput
 :unit: req/s
-:caption: higher is better
 
 [cols="2,1",options="header"]
 |===
@@ -105,7 +104,6 @@ g++ app.cpp -lboost_demo
 [#benchmarks-latency]
 === Latency
 :unit: microseconds
-:caption: lower is better
 
 [cols="2,1",options="header"]
 |===

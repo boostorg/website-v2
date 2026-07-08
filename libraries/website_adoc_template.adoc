@@ -102,14 +102,11 @@ g++ app.cpp -lboost_<library>
 
 // Optional. One subsection per bar chart.
 //   :unit:     value-axis label (e.g. req/s, µs)
-//   :caption:  optional sub-label
-//   :source:   optional citation URL
 // Table columns:  Label | Value (plain number)
 
 [#benchmarks-<id>]
 === <Chart title>
 :unit: <unit>
-:caption: <optional sub-label>
 
 [cols="2,1",options="header"]
 |===

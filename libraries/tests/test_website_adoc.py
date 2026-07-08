@@ -62,7 +62,6 @@ Header-only — just add Boost to your include path.
 [#benchmarks-throughput]
 === Throughput
 :unit: req/s
-:caption: higher is better
 
 [cols="2,1",options="header"]
 |===
@@ -119,7 +118,6 @@ def test_parse_filled_document():
     assert chart["id"] == "benchmarks-throughput"
     assert chart["title"] == "Throughput"
     assert chart["unit"] == "req/s"
-    assert chart["caption"] == "higher is better"
     assert chart["data"] == [
         {"label": "Boost.Example", "value": 1200.0},
         {"label": "Other", "value": 800.0},
