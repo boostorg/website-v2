@@ -148,31 +148,37 @@ def build_library_highlight_carousel(limit=3):
     """Per-slide content for the homepage 'Explore battle tested libraries'
     carousel.
 
-    Shows the libraries an editor curated in HomepageSettings first (in random
-    order); when fewer than `limit` are curated, the remaining slots are filled
-    with random flagship/core libraries in the latest release. Returns a list
-    of dicts (name, category_tags, description, added_in_version, docs_url);
-    empty when no candidate library exists.
+    Shows the libraries an editor curated in HomepageSettings; when fewer than
+    `limit` are curated, the remaining slots are filled with random flagship/core
+    libraries in the latest release (admins may curate more than `limit`). When
+    admins curate libraries, their pinned order is preserved (fallback top-ups
+    follow); with no pins, slides are ordered by description length for UI
+    appearance. Returns a list of dicts (name, category_tags, description,
+    added_in_version, docs_url); empty when no candidate library exists.
     """
     latest = Version.objects.most_recent()
-    libraries = list(
-        HomepageSettings.load()
-        .highlighted_libraries.prefetch_related("categories")
-        .order_by("?")
+    highlighted_ids = list(
+        HomepageSettings.load().highlighted_libraries.values_list("id", flat=True)
     )
+    library_ids = list(highlighted_ids)
 
-    remaining_slots = limit - len(libraries)
+    # Admins may curate more than `limit`; only top up when they curate fewer.
+    remaining_slots = limit - len(highlighted_ids)
     if remaining_slots > 0:
-        libraries += list(
+        library_ids += list(
             Library.objects.filter(
                 tier__in=FEATURED_LIBRARY_TIERS,
                 library_version__version=latest,
             )
-            .exclude(id__in=[lib.id for lib in libraries])
+            .exclude(id__in=highlighted_ids)
             .distinct()
-            .prefetch_related("categories")
-            .order_by("?")[:remaining_slots]
+            .order_by("?")
+            .values_list("id", flat=True)[:remaining_slots]
         )
+
+    libraries = Library.objects.filter(id__in=library_ids).prefetch_related(
+        "categories"
+    )
     if not libraries:
         return []
 
@@ -181,28 +187,45 @@ def build_library_highlight_carousel(limit=3):
         for lv in LibraryVersion.objects.filter(library__in=libraries, version=latest)
     }
 
-    slides = []
+    category_list_url = reverse(
+        "libraries-list",
+        kwargs={"version_slug": "latest", "library_view_str": "list"},
+    )
+
+    slides_by_id = {}
     for library in libraries:
         lv = library_versions.get(library.id)
         first_version = library.first_boost_version
-        slides.append(
-            {
-                "name": library.display_name_short,
-                "category_tags": library.category_tags,
-                "description": (
-                    (lv.description if lv else None) or library.description or ""
-                ),
-                "added_in_version": (
-                    first_version.display_name if first_version else ""
-                ),
-                "docs_url": get_documentation_url(lv, latest=True) if lv else "",
-            }
-        )
-    slides.sort(
+        slides_by_id[library.id] = {
+            "name": library.display_name_short,
+            "category_tags": [
+                (
+                    {
+                        **tag,
+                        "url": f"{category_list_url}?category={tag['slug']}",
+                        "aria_label": f"Browse {tag['label']} libraries",
+                    }
+                    if tag["slug"]
+                    else tag
+                )
+                for tag in library.category_tags
+            ],
+            "description": (
+                (lv.description if lv else None) or library.description or ""
+            ),
+            "added_in_version": (first_version.display_name if first_version else ""),
+            "docs_url": get_documentation_url(lv, latest=True) if lv else "",
+        }
+
+    if highlighted_ids:
+        # Respect the admin's pinned order; fallback top-ups follow.
+        return [slides_by_id[lib_id] for lib_id in library_ids]
+    # No pins: order by description length, then category count, for looks.
+    return sorted(
+        slides_by_id.values(),
         key=lambda slide: (len(slide["description"]), len(slide["category_tags"])),
         reverse=True,
-    )  # sort by description length, then category count, to improve UI appearance
-    return slides
+    )
 
 
 def build_library_intro():

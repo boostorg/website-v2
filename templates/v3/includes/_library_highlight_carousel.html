@@ -88,12 +88,7 @@
                 {% if slide.category_tags %}
                   <div class="library-highlight-carousel__tags">
                     {% for tag in slide.category_tags %}
-                      {% if tag.slug %}
-                        {% url 'libraries-list' version_slug='latest' library_view_str='list' as category_url %}
-                        {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=category_url|add:"?category="|add:tag.slug variant="neutral" size="default" aria_label="Browse "|add:tag.label|add:" libraries" %}
-                      {% else %}
-                        {% include "v3/includes/_category_tag.html" with tag_label=tag.label variant="neutral" size="default" %}
-                      {% endif %}
+                      {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url variant="neutral" size="default" aria_label=tag.aria_label %}
                     {% endfor %}
                   </div>
                 {% endif %}
