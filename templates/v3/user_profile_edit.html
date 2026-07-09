@@ -503,6 +503,7 @@
 
         async save() {
           if (this.saving) return;
+          const formData = new FormData()
 
           // Validate all links up front; block the save if any fail.
           let hasError = false;
@@ -512,6 +513,7 @@
             if (msg) hasError = true;
           });
           if (hasError) return;
+          formData.append('profile_links', this.collectLinks())
 
           
           let avatar = avatarInput.value
@@ -521,14 +523,15 @@
           this.saving = true;
           this.saveStatus = '';
           this.saveError = '';
+          formData.append('profile_image', avatarInput.files[0])
           try {
             const res = await fetch('/api/v1/users/me/', {
               method: 'PATCH',
               headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json',
+                'Content-Type': 'multipart/form-data',
               },
-              body: JSON.stringify({ profile_links: this.collectLinks() }),
+              body: formData,
             });
             if (!res.ok) {
               let data = {};
