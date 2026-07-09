@@ -27,6 +27,11 @@ from .tasks import set_thumbnail_for_video_entry
 User = get_user_model()
 logger = get_logger(__name__)
 
+# Single source of truth for the `category` label shown on V3 post cards.
+# Used by `Entry.to_v3_post_card_dict()`; tags not listed here fall back
+# to title-case (so "news"/"link"/"video"/"poll" render as themselves).
+POST_CARD_TAG_LABELS = {"blogpost": "Blog"}
+
 
 class ExtractEpoch(Func):
     function = "EXTRACT"
@@ -250,6 +255,23 @@ class Entry(models.Model):
 
     def get_absolute_url(self):
         return reverse("news-detail", args=[self.slug])
+
+    def to_v3_post_card_dict(self, author_role=None):
+        """Dict shape consumed by `v3/includes/_post_card.html` items."""
+        category = ""
+
+        if self.tag:
+            tag_key = str(self.tag).lower()
+            category = POST_CARD_TAG_LABELS.get(tag_key, self.tag.capitalize())
+
+        return {
+            "title": self.title,
+            "url": self.get_absolute_url(),
+            "date": self.publish_at,
+            "category": category,
+            "tag": "",
+            "author": self.author.to_v3_profile_dict(role=author_role),
+        }
 
     def can_view(self, user):
         return acl.can_view(user, self)

@@ -80,6 +80,15 @@
     if (hashModal) {
       return hashModal.querySelector('[role="dialog"]') || hashModal;
     }
+    // Checkbox-based dialog modals (.dialog-modal__toggle drives an adjacent .dialog-modal)
+    var dialogToggle = document.querySelector('.dialog-modal__toggle:checked');
+    if (dialogToggle) {
+      var modal = dialogToggle.nextElementSibling;
+      while (modal && !modal.classList.contains('dialog-modal')) {
+        modal = modal.nextElementSibling;
+      }
+      if (modal) return modal.querySelector('[role="dialog"]') || modal;
+    }
     // Checkbox-based modals (library filter)
     var toggle = document.querySelector('.library-filter__toggle:checked');
     if (toggle) {
@@ -99,8 +108,10 @@
         window.location.href = closeLink.href;
       }
     } else {
-      // Checkbox-based: uncheck the toggle
-      var toggle = document.querySelector('.library-filter__toggle:checked');
+      // Checkbox-based (dialog modal or library filter): uncheck the toggle
+      var toggle = document.querySelector(
+        '.dialog-modal__toggle:checked, .library-filter__toggle:checked'
+      );
       if (toggle) {
         toggle.checked = false;
       }
@@ -130,14 +141,32 @@
 
   // Checkbox-based modals open via toggle change
   document.addEventListener('change', function (e) {
-    if (e.target.matches('.library-filter__toggle') && e.target.checked) {
+    if (
+      e.target.matches('.library-filter__toggle, .dialog-modal__toggle') &&
+      e.target.checked
+    ) {
       var dialog = getActiveDialog();
       if (dialog) {
-        triggerElement = e.target.parentElement.querySelector('.library-filter__trigger');
+        triggerElement = e.target.matches('.library-filter__toggle')
+          ? e.target.parentElement.querySelector('.library-filter__trigger')
+          : document.activeElement;
         setInitialFocus(dialog);
       }
     }
   });
+
+  // Auto-opened checkbox dialog (server-renders the toggle checked): focus on load.
+  function focusAutoOpenedDialog() {
+    var dialog = getActiveDialog();
+    if (dialog) {
+      setInitialFocus(dialog);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', focusAutoOpenedDialog);
+  } else {
+    focusAutoOpenedDialog();
+  }
 
   // Enter key activates label[role="button"] elements (labels only natively respond to click)
   document.addEventListener('keydown', function (e) {

@@ -36,6 +36,7 @@
       {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ fid }}-error' : {% if help_text %}'field-{{ fid }}-help'{% else %}null{% endif %}"{% elif error %}aria-invalid="true" aria-describedby="field-{{ fid }}-error"{% elif help_text %}aria-describedby="field-{{ fid }}-help"{% endif %}
     >{% if value %}{{ value }}{% endif %}</textarea>
   </div>
+  <div class="field__error-container">
   {% if alpine_error %}
   <p class="field__error" id="field-{{ fid }}-error" role="alert" x-show="{{ alpine_error }}" x-text="{{ alpine_error }}" x-cloak aria-live="polite"></p>
   {% if error %}
@@ -51,5 +52,6 @@
   <p class="field__help" id="field-{{ fid }}-help">{{ help_text }}</p>
   {% endif %}
   {% endif %}
+  </div>
 </div>
 {% endwith %}

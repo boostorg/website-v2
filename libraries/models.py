@@ -105,13 +105,19 @@ class CommitAuthor(models.Model):
     def __str__(self):
         return self.name
 
-    def to_v3_profile_dict(self, role):
+    def to_v3_profile_dict(self, role=None):
+        """Dict shape consumed by `v3/includes/_user_profile.html`.
+
+        Mirrors `User.to_v3_profile_dict` so the same template can render
+        either a registered user or a git-only contributor.
+        """
         return {
-            "name": self.display_name or self.name,
+            "name": self.display_name,
             "profile_url": self.github_profile_url,
             "role": role,
             "avatar_url": self.avatar_url or "",
-            "badge_url": None,
+            "badge": None,
+            "bio": None,
         }
 
     @transaction.atomic

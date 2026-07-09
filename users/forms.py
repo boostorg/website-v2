@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.db import models
 from django import forms
 
-from allauth.account.forms import ResetPasswordKeyForm
+from allauth.account.forms import ResetPasswordKeyForm, SignupForm
 from django_countries import countries
 
 from .models import Preferences
@@ -33,6 +33,17 @@ class CustomResetPasswordFromKeyForm(ResetPasswordKeyForm):
         result = super().save(**kwargs)
         self.user.claim()
         return result
+
+
+class CustomSignUpForm(SignupForm):
+    accept_terms_of_use = forms.BooleanField(required=True)
+    username = forms.CharField(max_length=255, required=True)
+
+    def clean_email(self):
+        email = super().clean_email()
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("A user with this email already exists!")
+        return email
 
 
 class PreferencesForm(forms.ModelForm):

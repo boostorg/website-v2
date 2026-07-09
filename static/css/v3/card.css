@@ -135,6 +135,7 @@
 .horizontal-card__content-row {
     display: flex;
     align-items: flex-start;
+    justify-content: space-between;
     gap: var(--space-large, 16px);
     align-self: stretch;
     padding: 0 var(--space-large, 16px);
@@ -143,12 +144,22 @@
 .horizontal-card__text {
     flex: 1 0 0;
     padding: 0;
-    color: var(--color-text-secondary, #585a64);
+    color: var(--color-text-secondary);
     font-family: var(--font-sans);
-    font-size: var(--font-size-base, 16px);
-    font-weight: var(--font-weight-regular, 400);
-    line-height: var(--line-height-default, 1.2);
-    letter-spacing: var(--letter-spacing-tight, -0.01em);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-default);
+    letter-spacing: var(--letter-spacing-tight);
+    max-width: 480px;
+}
+
+.horizontal-card__text > p {
+    margin: 0;
+    padding: 0;
+}
+
+.horizontal-card__text > p + p {
+    margin-top: var(--space-large);
 }
 
 .horizontal-card__image {

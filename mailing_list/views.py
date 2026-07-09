@@ -7,9 +7,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import signing
 from django.core.cache import cache
-from django.db import IntegrityError, transaction
 from django.core.mail import send_mail
-from django.http import HttpResponseRedirect
+from django.db import IntegrityError, transaction
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -81,6 +81,43 @@ def _is_rate_limited(request) -> bool:
     key = _rate_limit_key(request)
     cache.add(key, 0, timeout=_SUBSCRIBE_RATE_WINDOW)
     return cache.incr(key) > _SUBSCRIBE_RATE_LIMIT
+
+
+def _subscribe_pending(
+    request, user, email: str, list_ids: list[str]
+) -> tuple[list[str], str | None]:
+    """Create PENDING subscription records and send a confirmation email.
+
+    Returns (succeeded, error_message). On email failure the records are
+    rolled back and error_message is set; on partial IntegrityError the
+    affected list is silently skipped.
+    """
+    succeeded = []
+    for lid in list_ids:
+        try:
+            with transaction.atomic():
+                UserMailingListSubscription.objects.update_or_create(
+                    user=user,
+                    list_id=lid,
+                    defaults={"email": email, "status": SubscriptionStatus.PENDING},
+                )
+            succeeded.append(lid)
+        except IntegrityError:
+            pass
+
+    if not succeeded:
+        return [], None
+
+    try:
+        _send_confirmation_email(request, email, user.pk, succeeded)
+    except Exception as exc:
+        logger.error("Failed to send confirmation email to %s: %s", email, exc)
+        UserMailingListSubscription.objects.filter(
+            user=user, list_id__in=succeeded
+        ).delete()
+        return [], "Could not send confirmation email. Please try again."
+
+    return succeeded, None
 
 
 def _send_confirmation_email(
@@ -520,9 +557,27 @@ class ModalSubscribeView(View):
     any currently tracked lists that were unchecked.
     Anonymous flow: subscribe-only - sends a single confirmation email for all
     checked lists. Unsubscribe not supported for anonymous users.
+
+    With JS the form posts via HTMX and the card partial is swapped in place.
+    Without JS the form posts natively; we redirect (PRG) back to the page so
+    the card re-renders from DB state on the next GET.
     """
 
     def _card(self, request, **ctx):
+        if not _is_htmx(request):
+            state = ctx.get("state")
+            if state == "error":
+                return _prg_redirect(
+                    request,
+                    ml_state="error",
+                    ml_error=ctx.get("error_message", ""),
+                    ml_email=ctx.get("user_email", ""),
+                )
+            if state == "pending" and not request.user.is_authenticated:
+                return _prg_redirect(
+                    request, ml_state="pending", ml_email=ctx.get("user_email", "")
+                )
+            return _prg_redirect(request)
         return render(
             request,
             "v3/includes/_mailing_list_card.html",
@@ -594,38 +649,20 @@ class ModalSubscribeView(View):
                 manage_url=manage_url,
             )
 
-        succeeded = []
-        for lid in to_subscribe:
-            try:
-                with transaction.atomic():
-                    UserMailingListSubscription.objects.update_or_create(
-                        user=request.user,
-                        list_id=lid,
-                        defaults={"email": email, "status": SubscriptionStatus.PENDING},
-                    )
-                succeeded.append(lid)
-            except IntegrityError:
-                pass
+        succeeded, error = _subscribe_pending(
+            request, request.user, email, to_subscribe
+        )
+
+        if error:
+            return self._card(
+                request, state="error", error_message=error, user_email=email
+            )
 
         if not succeeded:
             return self._card(
                 request,
                 state="error",
                 error_message="Could not subscribe. Please try again.",
-                user_email=email,
-            )
-
-        try:
-            _send_confirmation_email(request, email, request.user.pk, succeeded)
-        except Exception as exc:
-            logger.error("Failed to send confirmation email to %s: %s", email, exc)
-            UserMailingListSubscription.objects.filter(
-                user=request.user, list_id__in=succeeded
-            ).delete()
-            return self._card(
-                request,
-                state="error",
-                error_message="Could not send confirmation email. Please try again.",
                 user_email=email,
             )
 
@@ -657,3 +694,33 @@ class ModalSubscribeView(View):
             )
 
         return self._card(request, state="pending", user_email=email)
+
+
+class PostAuthSubscribeView(LoginRequiredMixin, View):
+    """Subscribe to one or more lists from the post-login homepage modal.
+
+    Only for authenticated users. Returns an empty fragment so HTMX removes
+    the modal from the DOM. Falls back to a homepage redirect for non-HTMX.
+    """
+
+    def post(self, request):
+        email = (request.POST.get("email") or "").strip() or request.user.email
+        managed_lists = set(constants.MAILMAN_LISTS)
+        list_ids = [
+            lid for lid in request.POST.getlist("list_id") if lid in managed_lists
+        ]
+
+        if list_ids and not _is_rate_limited(request):
+            current = {
+                sub.list_id
+                for sub in UserMailingListSubscription.objects.filter(
+                    user=request.user, list_id__in=managed_lists
+                )
+            }
+            to_subscribe = [lid for lid in list_ids if lid not in current]
+
+            _subscribe_pending(request, request.user, email, to_subscribe)
+
+        if _is_htmx(request):
+            return HttpResponse("")
+        return _prg_redirect(request)

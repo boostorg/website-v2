@@ -8,14 +8,31 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
 
-from core.calendar import extract_calendar_events, events_by_month, get_calendar
+from core.calendar import (
+    extract_calendar_events,
+    events_by_month,
+    get_calendar,
+    upcoming_events,
+)
+from core.constants import HOMEPAGE_POPULAR_TERMS_DISPLAY
+from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
-from core.templatetags.custom_static import large_static
+from core.models import PopularSearchTerm
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
+from mailing_list.constants import MAILING_LIST_LABELS
 from news.models import Entry
 from testimonials.models import Testimonial
-from core.mock_data import SharedResources
+from ak.homepage import (
+    WHY_BOOST_CARDS,
+    build_community_posts,
+    build_get_started_code,
+    build_join_developers_links,
+    build_library_intro,
+    hero_image_context,
+)
+from testimonials.utils import get_testimonial_cards
+from libraries.utils import commit_data_to_stats_bars, get_commit_data_by_release
 
 logger = structlog.get_logger()
 
@@ -73,124 +90,61 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         return dict(sorted_events)
 
     def get_v3_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
-        ctx["install_card_system_install"] = SharedResources.install_card_system_install
+        ctx = super().get_v3_context_data(**kwargs)
 
-        demo_cards = [
-            {
-                "title": "Performant",
-                "description": "Optimized for production at any scale, Boost outperforms many standard benchmarks.",
-                "icon_name": "bullseye-arrow",
-            },
-            {
-                "title": "Peer-reviewed",
-                "description": "Well tested by members of the C++ standards committee.",
-                "icon_name": "get-help",
-            },
-            {
-                "title": "Portable",
-                "description": "Works across all platforms, compilers, and C++ standards.",
-                "icon_name": "link",
-            },
-            {
-                "title": "Innovative",
-                "description": "Over 40 Boost libraries have become part of the C++ standard over the past 25 years.",
-                "icon_name": "bullseye-arrow",
-            },
-            {
-                "title": "Community-powered",
-                "description": "Contributing to Boost builds credibility, sharpens skills, and advances careers.",
-                "icon_name": "human",
-            },
-            {
-                "title": "Known worldwide",
-                "description": "Used in countless projects, you've probably encountered Boost without realizing it.",
-                "icon_name": "link",
-            },
-            {
-                "title": "Free",
-                "description": "Open source now and always, thanks to the Boost Software License.",
-                "icon_name": "check",
-            },
-            {
-                "title": "Production-ready",
-                "description": "Battle-tested in critical systems across industries around the globe.",
-                "icon_name": "bullseye-arrow",
-            },
-        ]
+        # Install Card
+        ctx["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS
+        ctx["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
 
-        ctx["library_cards"] = demo_cards
-        ctx["why_boost_cards"] = demo_cards[:8]
-        ctx["calendar_card"] = {
-            "title": "Boost is released three times a year",
-            "text": "Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process.",
-            "primary_button_url": "www.example.com",
-            "primary_button_label": "View the Release Calendar",
-            "secondary_button_url": "www.example.com",
-            "secondary_button_label": "Secondary Button",
-            "image": large_static("img/v3/demo-page/calendar.png"),
-        }
-        ctx["info_card"] = {
-            "title": "How we got here",
-            "text": "Since 1998, Boost has been where C++ innovation happens. What started with three developers has grown into the foundation of modern C++ development.",
-            "primary_button_url": "www.example.com",
-            "primary_button_label": "Explore Our History",
-        }
-        tag_display = {"blogpost": "Blog"}
-        popular_entries = (
-            Entry.objects.ranked()
-            .filter(deleted_at__isnull=True, published=True)
-            .select_related("author")[:5]
+        # Why Boost Card
+        ctx["why_boost_cards"] = WHY_BOOST_CARDS
+
+        # Posts Card
+        ctx["community_posts"] = build_community_posts()
+
+        # Join Card
+        ctx["join_developers_links"] = build_join_developers_links()
+
+        # Popular Search Terms
+        ctx["popular_terms"] = list(
+            PopularSearchTerm.objects.visible()[:HOMEPAGE_POPULAR_TERMS_DISPLAY]
         )
-        ctx["posts_from_the_boost_community"] = {
-            "heading": "Posts from the Boost Community",
-            "primary_cta_label": "View all posts",
-            "primary_cta_url": reverse("news"),
-            "variant": "card",
-            "theme": "teal",
-            "items": [
-                {
-                    "title": entry.title,
-                    "url": entry.get_absolute_url(),
-                    "date": entry.publish_at,
-                    "category": (
-                        tag_display.get(str(entry.tag).lower(), entry.tag.capitalize())
-                        if entry.tag
-                        else ""
-                    ),
-                    "tag": "",
-                    "author": entry.author.to_v3_profile_dict(),
-                }
-                for entry in popular_entries
-            ],
-        }
-        ctx["join_developers_building_the_future_of_cpp"] = {
-            "items": SharedResources.demo_join_community_links[:5]
-        }
-        ctx["boost_community_data"] = {
-            "heading": "The Boost community",
-            "view_all_url": "#",
-            "view_all_label": "Explore the community",
-            "posts": SharedResources.demo_posts,
-        }
-        ctx["popular_terms"] = SharedResources.popular_terms
-        ctx["demo_events_with_links"] = SharedResources.demo_events_with_links[:4]
-        ctx["code_demo_hello"] = SharedResources.code_demo_hello
-        ctx["stats_in_numbers"] = {
-            "example_library_commits_bars": SharedResources.example_library_commits_bars
-        }
-        ctx["testimonial_data"] = {"testimonials": SharedResources.testimonials}
 
-        ctx["library_intro"] = SharedResources.library_intro
+        # Upcoming Events
+        ctx["upcoming_events"] = upcoming_events(self.get_events(), 4)
 
-        ctx["build_anything_with_boost"] = SharedResources.build_anything_with_boost
+        # Testimonial Card
+        ctx["testimonial_cards"] = get_testimonial_cards(limit=5)
 
-        ctx["hero_legacy_image_url_light"] = SharedResources.hero_legacy_image_url_light
-        ctx["hero_legacy_image_url_dark"] = SharedResources.hero_legacy_image_url_dark
-        ctx["hero_image_url"] = SharedResources.hero_image_url
-        ctx["hero_image_url_light"] = SharedResources.hero_image_url_light
-        ctx["hero_image_url_dark"] = SharedResources.hero_image_url_dark
+        # Get Started Card
+        ctx["get_started_code"] = build_get_started_code()
+
+        # Library Intro Card
+        ctx["library_intro"] = build_library_intro()
+
+        # "Boost in numbers" is project-wide, not tied to the featured library.
+        ctx["commits_data"] = commit_data_to_stats_bars(
+            get_commit_data_by_release(limit=10)
+        )
+
+        # Hero Image
+        ctx.update(hero_image_context())
+
+        user = self.request.user
+        if user.is_authenticated and self.request.session.pop(
+            "show_ml_post_auth_modal", False
+        ):
+            user.data["ml_post_auth_seen"] = True
+            user.save(update_fields=["data"])
+            ctx["show_ml_post_auth_modal"] = True
+            ctx["post_auth_modal_subscribe_url"] = reverse(
+                "mailing-list-post-auth-subscribe"
+            )
+            ctx["post_auth_modal_mailing_lists"] = [
+                {**v} for v in MAILING_LIST_LABELS.values()
+            ]
+            ctx["post_auth_modal_user_email"] = user.email
+
         return ctx
 
 

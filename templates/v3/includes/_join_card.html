@@ -10,6 +10,7 @@
       - url             (string, optional)  — link URL
       - description     (string, optional)  — link description
       - icon_name       (string, optional)  — optional icon
+      - icon_viewbox    (string, optional)  — icon viewBox; set "0 0 16 16" for 16-unit glyphs
       - cta_label       (string, optional)  — override per-item link label; defaults to "Start here"
     variant             (string, optional)  — "list" or "card", defaults to "list"
     theme               (string, optional)  — only for variant "card": "default", "grey", "yellow", "green", "teal"
@@ -30,9 +31,7 @@
           <article class="join-card">
             <div class="join-card__content">
               <div class="join-card__title-block">
-                {% if item.title and item.url %}
-                  <a href="{{ item.url }}" class="join-card__title">{{ item.title }}</a>
-                {% elif item.title %}
+                {% if item.title %}
                   <h3 class="join-card__title">{{ item.title }}</h3>
                 {% endif %}
                 {% if item.description %}
@@ -40,7 +39,7 @@
                 {% endif %}
               </div>
               {% if item.icon_name %}
-                {% include 'includes/icon.html' with icon_name=item.icon_name icon_size=16 %}
+                {% include 'includes/icon.html' with icon_name=item.icon_name icon_size=16 icon_viewbox=item.icon_viewbox %}
               {% endif %}
             </div>
             {% if item.url %}

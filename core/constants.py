@@ -92,3 +92,6 @@ FULLY_MODERNIZED_LIB_VERSIONS = [
     "doc/antora/url",
 ]
 RENDERED_CONTENT_BATCH_DELETE_SIZE = 10000
+
+# How many popular search terms the V3 homepage renders.
+HOMEPAGE_POPULAR_TERMS_DISPLAY = 10

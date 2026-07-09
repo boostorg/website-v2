@@ -11,7 +11,7 @@
   padding: var(--space-card);
   border-radius: var(--border-radius-l);
   background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-stroke-weak);
   display: flex;
   flex-direction: column;
   gap: var(--space-default);
@@ -24,19 +24,19 @@
 
 a:hover .content-detail-icon:not(.content-detail-icon--contained) {
   background: var(--color-primary-grey-200);
-  border-color: var(--color-border);
+  border-color: var(--color-stroke-weak);
 }
 
 .content-detail-icon__icon {
   position: absolute;
   top: var(--space-card);
   right: var(--space-card);
-  color: var(--color-icon-secondary);
+  color: var(--color-icon-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--space-xlarge);
-  height: var(--space-xlarge);
+  width: 16px;
+  height: 16px;
   transition: color 0.2s ease;
 }
 
