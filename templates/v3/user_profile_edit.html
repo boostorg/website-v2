@@ -421,7 +421,9 @@
       const SLACK_MEMBER_ID_PATTERN = /^[A-Z0-9]{9,11}$/i;
 
       const avatarInput = document.querySelector("input[name='{{user_profile_form.avatar.name}}']");
-      const avatarDelete = document.querySelector('#avatar-row__delete-avatar')
+      const avatarDelete = document.querySelector('#user-profile__avatar-delete-checkbox')
+      const avatarComponent = document.querySelector('#user-profile-editable-avatar')
+      const avatarImg = avatarComponent.querySelector('img')
 
       return {
         saving: false,
@@ -520,16 +522,19 @@
           if(avatarDelete.checked) {
             avatar = null;
           }
+          if(avatarInput.files.length > 0) formData.append('profile_image', avatarInput.files[0])
+          formData.append('delete_profile_image', avatarDelete.checked)
+          
           this.saving = true;
           this.saveStatus = '';
           this.saveError = '';
-          formData.append('profile_image', avatarInput.files[0])
+
+
           try {
             const res = await fetch('/api/v1/users/me/', {
               method: 'PATCH',
               headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'multipart/form-data',
               },
               body: formData,
             });
@@ -554,6 +559,10 @@
               throw new Error(fieldErrors.length ? fieldErrors.join(' ') : `Save failed (${res.status})`);
             }
             this.saveStatus = 'saved';
+            if(avatarDelete.checked) {
+              avatarDelete.checked = false;
+              avatarImg.src = "";
+            }
           } catch (err) {
             console.error('Profile save failed:', err);
             this.saveStatus = 'error';
