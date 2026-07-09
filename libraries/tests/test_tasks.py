@@ -1,9 +1,12 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
+from model_bakery import baker
+
 from libraries.tasks import (
     get_and_store_library_version_documentation_urls_for_version,
     library_version_missing_docs,
+    update_library_version_website_adoc,
     version_missing_docs,
 )
 
@@ -109,3 +112,55 @@ def test_version_missing_docs(version, version_name, expected):
     version.save()
     result = version_missing_docs(version)
     assert result == expected
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "beta_name, expect_refresh",
+    [
+        ("boost-1.91.0.beta1", False),  # newer release in beta -> hold
+        ("boost-1.90.0.beta1", True),  # beta for the current stable -> refresh
+        ("boost-1.89.0.beta1", True),  # stale older beta -> refresh
+        (None, True),  # no beta -> refresh
+    ],
+)
+def test_update_library_version_website_adoc_beta_guard(beta_name, expect_refresh):
+    """The daily website.adoc refresh holds only while a NEWER release is in beta.
+
+    A newer beta means each library's `master` has drifted toward the next
+    release, so refreshing the current stable from `master` would surface
+    pre-release content on the stable page.
+    """
+    stable = baker.make(
+        "versions.Version",
+        name="boost-1.90.0",
+        beta=False,
+        full_release=True,
+        active=True,
+        fully_imported=True,
+    )
+    if beta_name:
+        baker.make(
+            "versions.Version",
+            name=beta_name,
+            beta=True,
+            full_release=False,
+            active=True,
+            fully_imported=True,
+        )
+
+    with patch("libraries.tasks.store_library_version_website_adoc") as mock_store:
+        update_library_version_website_adoc()
+
+    if expect_refresh:
+        mock_store.assert_called_once_with(stable, ref="master")
+    else:
+        mock_store.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_update_library_version_website_adoc_no_stable_release():
+    """No most-recent full release -> nothing to refresh."""
+    with patch("libraries.tasks.store_library_version_website_adoc") as mock_store:
+        update_library_version_website_adoc()
+    mock_store.assert_not_called()

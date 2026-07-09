@@ -62,9 +62,21 @@ def update_library_version_website_adoc():
     Historical versions keep the snapshot captured at their release import — a
     tagged release's meta/website.adoc is immutable, so re-fetching every
     version daily would be thousands of pointless requests.
+
+    Skipped while a newer release is in beta: `master` has already drifted toward
+    that release, so refreshing the current stable from it would surface
+    pre-release content on the stable page. The stable keeps its release-tag
+    import snapshot until the beta becomes the full release.
     """
     version = Version.objects.most_recent()
     if version is None:
+        return
+    # During a beta cycle for the NEXT release, each library's `master` has
+    # already drifted toward that release, so refreshing the current stable from
+    # master would show it pre-release content. Hold until the beta is promoted
+    # to a full release (matches the newer-beta check used for the version dropdown).
+    beta = Version.objects.most_recent_beta()
+    if beta and beta.cleaned_version_parts > version.cleaned_version_parts:
         return
     store_library_version_website_adoc(version, ref="master")
 
