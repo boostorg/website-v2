@@ -105,6 +105,29 @@ def test_v3_update_details_saves_account_fields(user, tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
+def test_v3_update_details_unchecks_omitted_toggles(user, tp):
+    """The detail toggles are plain checkboxes, so an omitted key means the box
+    was unchecked; the saved field must reset to False rather than keep its old
+    True value."""
+    user.indicate_last_login_method = True
+    user.is_commit_author_name_overridden = True
+    user.save()
+    with tp.login(user):
+        response = tp.post(
+            f"{tp.reverse('profile-account')}?edit=true",
+            data={
+                "v3_update_details": "true",
+                "username": user.display_name,
+                "country": "",
+            },
+        )
+        assert response.status_code == 302
+    user.refresh_from_db()
+    assert user.indicate_last_login_method is False
+    assert user.is_commit_author_name_overridden is False
+
+
+@waffle.testutils.override_flag("v3", active=True)
 def test_v3_update_details_blank_country_clears_it(user, tp):
     user.country = "US"
     user.save()
