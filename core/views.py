@@ -657,14 +657,7 @@ class LearnPageView(MailingListCardMixin, V3Mixin, TemplateView):
                     "description": category.short_description,
                     "badge_count": category.library_count,
                     "cta_label": "Start here",
-                    "cta_href": reverse(
-                        "libraries-list",
-                        kwargs={
-                            "version_slug": LATEST_RELEASE_URL_PATH_STR,
-                            "library_view_str": "list",
-                            "category_slug": category.slug,
-                        },
-                    ),
+                    "cta_href": category.get_filter_url(),
                 }
             )
         return cards

@@ -558,21 +558,7 @@ class LibraryDetail(
         context["slack_url"] = self.object.slack_url or SLACK_JOIN_URL
 
         context["category_tags_v3"] = [
-            {
-                "label": cat.name,
-                "url": (
-                    reverse(
-                        "libraries-list",
-                        kwargs={
-                            "version_slug": version_str,
-                            "library_view_str": "grid",
-                            "category_slug": cat.slug,
-                        },
-                    )
-                    if cat.slug
-                    else "#"
-                ),
-            }
+            {"label": cat.name, "url": cat.get_filter_url(version_str)}
             for cat in self.object.categories.all().order_by("name")
         ]
 

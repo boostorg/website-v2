@@ -2,7 +2,7 @@ import datetime
 from django.db.models import Sum
 from model_bakery import baker
 
-from libraries.models import CommitAuthor
+from libraries.models import Category, CommitAuthor
 from mailing_list.models import EmailData
 
 
@@ -59,6 +59,20 @@ def test_get_issues_link_override():
 
 def test_category_creation(category):
     assert category.name is not None
+
+
+def test_category_get_filter_url(category):
+    """Builds the list-view URL with a ?category=<slug> query param."""
+    assert category.get_filter_url("1.90.0") == "/libraries/1.90.0/list/?category=math"
+
+
+def test_category_get_filter_url_defaults_to_latest(category):
+    assert category.get_filter_url() == "/libraries/latest/list/?category=math"
+
+
+def test_category_get_filter_url_no_slug():
+    """A category without a slug has no filter target."""
+    assert Category(name="X", slug="").get_filter_url() == "#"
 
 
 def test_library_creation(library):

@@ -3,7 +3,7 @@ import re
 import uuid
 from datetime import timedelta
 from typing import Self
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 from django.core.cache import caches
 from django.db import models, transaction
@@ -31,7 +31,7 @@ from libraries.managers import (
 )
 from mailing_list.models import EmailData
 from versions.models import ReportConfiguration
-from .constants import LIBRARY_GITHUB_URL_OVERRIDES
+from .constants import LATEST_RELEASE_URL_PATH_STR, LIBRARY_GITHUB_URL_OVERRIDES
 
 from .utils import (
     generate_random_string,
@@ -66,6 +66,21 @@ class Category(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         return super(Category, self).save(*args, **kwargs)
+
+    def get_filter_url(self, version_slug=LATEST_RELEASE_URL_PATH_STR):
+        """URL to the libraries list filtered by this category.
+
+        e.g. /libraries/1.90.0/list/?category=asynchronous — the query-param
+        form the list/grid category filter reads. Single source of truth for
+        category-tag links; returns "#" when the category has no slug.
+        """
+        if not self.slug:
+            return "#"
+        base = reverse(
+            "libraries-list",
+            kwargs={"version_slug": version_slug, "library_view_str": "list"},
+        )
+        return f"{base}?{urlencode({'category': self.slug})}"
 
 
 class CommitAuthor(models.Model):
