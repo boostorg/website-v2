@@ -124,9 +124,9 @@
 .library-highlight-carousel__tags {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: var(--space-xs);
-  flex-shrink: 0;
+  min-width: 0;
 }
 
 .library-highlight-carousel__description {

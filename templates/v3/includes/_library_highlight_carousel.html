@@ -50,6 +50,15 @@
                aria-label="Show {{ slide.name }}"
                {% if forloop.first %}checked{% endif %}>
       {% endfor %}
+    {% else %}
+      <style>
+        #{{ carousel_id }} .library-highlight-carousel__added--1 {
+          display: inline;
+        }
+        #{{ carousel_id }} .library-highlight-carousel__button--1 {
+          display: flex;
+        }
+      </style>
     {% endif %}
 
     <div class="library-highlight-carousel__header">
