@@ -344,9 +344,9 @@ class GithubAPIClient:
         url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/{tag}/meta/website.adoc"  # noqa
 
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=10)
             response.raise_for_status()
-        except requests.exceptions.HTTPError:
+        except requests.exceptions.RequestException:
             self.logger.info("website_adoc_not_found", repo=repo_slug, tag=tag)
             return None
         return response.content

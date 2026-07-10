@@ -94,7 +94,11 @@ def store_library_version_website_adoc(version, ref):
         repo_slug = library_version.library.github_repo
         if not repo_slug:
             continue
-        content = client.get_website_adoc(repo_slug=repo_slug, tag=ref)
+        try:
+            content = client.get_website_adoc(repo_slug=repo_slug, tag=ref)
+        except Exception:
+            logger.exception("website_adoc_fetch_failed", repo=repo_slug, ref=ref)
+            continue
         if content is None:
             # Missing file or unreachable fetch — keep any existing value.
             continue
