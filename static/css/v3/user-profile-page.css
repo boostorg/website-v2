@@ -213,7 +213,7 @@
     }
 }
 
-.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:not(:checked)) .btn-secondary {
+.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:not(:checked)) #user-profile__avatar-delete-checkbox-button {
     display: none;
 }
 
