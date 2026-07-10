@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
             name="slack_url",
             field=models.URLField(
                 blank=True,
+                default="",
                 help_text="URL of the dedicated Slack channel for this library. Falls back to the general Boost Slack when blank.",
                 max_length=500,
             ),
