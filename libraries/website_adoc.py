@@ -170,14 +170,19 @@ def _freeform(lines):
     """Return ``{"heading", "content"}`` — the maintainer heading + raw AsciiDoc."""
     heading = None
     body = []
+    in_source = False
     for line in lines:
         stripped = line.strip()
+        if stripped == "----":
+            in_source = not in_source
+            body.append(line)
+            continue
         if heading is None:
             match = _HEADING_RE.match(stripped)
             if match:
                 heading = match.group(1).strip()
                 continue
-        if stripped.startswith("//"):
+        if not in_source and stripped.startswith("//"):
             continue
         body.append(line)
     content = "\n".join(body).strip("\n")

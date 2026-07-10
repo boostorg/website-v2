@@ -127,6 +127,30 @@ def test_parse_filled_document():
     assert "free-form content" in parsed["freeform"]["content"]
 
 
+def test_freeform_keeps_comments_inside_code_fence():
+    """`//` lines inside a `----` block are verbatim; `//` comments outside drop."""
+    doc = """\
+= Boost.Example — Website Content
+:library-key: example
+
+[#freeform]
+== Notes from the maintainer
+
+// this AsciiDoc comment is stripped
+Example usage:
+
+----
+int main() {
+    // keep this C++ comment
+    return 0;
+}
+----
+"""
+    content = parse_website_adoc(doc)["freeform"]["content"]
+    assert "// keep this C++ comment" in content
+    assert "this AsciiDoc comment is stripped" not in content
+
+
 def test_unfilled_template_drops_placeholder_sections():
     """The raw template (angle-bracket placeholders) yields no placeholder data."""
     template = (
