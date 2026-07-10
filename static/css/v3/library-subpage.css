@@ -118,6 +118,22 @@ body:has(.is_flagship) .library-subpage-container {
     padding: var(--space-large) var(--space-default);
   }
 
+  /* Single column on mobile — use flex so `order` controls card sequence
+     (multi-column children don't respond to `order`). */
+  .card-masonry-top {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-masonry-top .item-a { order: 1; }  /* About */
+  .card-masonry-top .item-b { order: 2; }  /* Quick Start */
+  .card-masonry-top .item-c { order: 3; }  /* Install */
+  .card-masonry-top .item-g { order: 4; }  /* Benchmarks */
+  .card-masonry-top .item-e { order: 5; }  /* Dependencies */
+  .card-masonry-top .item-d { order: 6; }  /* Contributors: This Release */
+  .card-masonry-top .item-f { order: 7; }  /* Designed for */
+  .card-masonry-top .library-subpage__freeform { order: 8; }  /* Freeform */
+
   .card-masonry-bottom {
     grid-template-columns: 1fr;
     grid-template-areas:
