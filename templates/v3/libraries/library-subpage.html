@@ -11,13 +11,11 @@
 {% block content %}
 
   {% with cpp_ver=library_version.get_cpp_standard_minimum_display|default:"C++03" %}
-    {% with added_text=object.first_boost_version.display_name %}
       {% if is_flagship_lib %}
-        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver added_text=added_text doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url is_flagship_lib=True hero_image_url_light=library_hero_image_url_light hero_image_url_dark=library_hero_image_url_dark %}
+        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver first_boost_version=object.first_boost_version.display_name doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url is_flagship_lib=True hero_image_url_light=library_hero_image_url_light hero_image_url_dark=library_hero_image_url_dark %}
       {% else %}
-        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver added_text=added_text doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url %}
+        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver first_boost_version=object.first_boost_version.display_name doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url %}
       {% endif %}
-    {% endwith %}
   {% endwith %}
 
   <div class="library-subpage-container">

@@ -8,7 +8,7 @@
     description        (optional) — Short description.
     category_tags      (optional) — List of dicts with "label" and "url". Omit to hide tag chips.
     version_tag        (optional) — e.g. "C++ 03". Omit to hide.
-    added_text         (optional) — e.g. "Added in 1.66.0". Omit to hide.
+    first_boost_version (optional) — Version display name only, e.g. "1.66.0" (rendered as "Added in {version}"). Omit to hide.
     doc_url            (optional) — Documentation link URL. Omit to hide.
     source_url         (optional) — Source code link URL. Omit to hide.
     slack_url          (optional) — Discuss in Slack URL. Omit to hide.
@@ -19,9 +19,9 @@
     extra_classes      (optional) — Extra modifier classes for the hero <section>, e.g. "hero--community" (community) or "hero--release" (release detail).
     is_flagship_lib    (optional) — Boolean value stating whether or not this is the hero for a flagship library. If it isn't, styles are a bit different.
 
-  If none of category_tags/version_tag/added_text are passed, the tags row is
-  hidden. If none of doc_url/source_url/slack_url/github_url are passed, the
-  links row is hidden.
+  If none of category_tags/version_tag/first_boost_version are passed, the tags
+  row is hidden. If none of doc_url/source_url/slack_url/github_url are passed,
+  the links row is hidden.
 
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
@@ -32,7 +32,7 @@
   <div class="hero__block">
     <div class="hero__content">
       <div class="hero__meta">
-        {% if category_tags or version_tag or added_text %}
+        {% if category_tags or version_tag or first_boost_version %}
         <div class="hero__tags">
           {% for tag in category_tags %}
           {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url|default:"#" variant="neutral" size="default" %}
@@ -40,9 +40,9 @@
           {% if version_tag %}
           <span class="version-tag version-tag--default">{{ version_tag }}</span>
           {% endif %}
-          {% if added_text %}
+          {% if first_boost_version %}
           <div class="hero__added-wrap">
-            <span class="hero__added">Added in {{ added_text }}</span>
+            <span class="hero__added">Added in {{ first_boost_version }}</span>
           </div>
           {% endif %}
         </div>
