@@ -2,7 +2,7 @@ import re
 
 import structlog
 
-from django.db.models import Count, Exists, OuterRef
+from django.db.models import Count, Exists, OuterRef, Q
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
@@ -360,11 +360,19 @@ class ContributorMixin:
             for u in maintainers
             if getattr(getattr(u, "commitauthor", None), "id", None)
         ]
+        # Minor releases up to the selected version, plus the selected version
+        # itself so patch/beta builds keep their own contributors. master/develop
+        # have no numeric version, so they sit ahead of every release — count all
+        # minor releases (an unbounded version_array__lte would match none).
+        applicable_versions = Version.objects.minor_versions()
+        selected_parts = library_version.version.cleaned_version_parts_int
+        if selected_parts:
+            applicable_versions = applicable_versions.filter(
+                version_array__lte=selected_parts
+            )
         library_versions = LibraryVersion.objects.filter(
-            library=library_version.library,
-            version__in=Version.objects.minor_versions().filter(
-                version_array__lte=library_version.version.cleaned_version_parts_int
-            ),
+            Q(library=library_version.library, version__in=applicable_versions)
+            | Q(pk=library_version.pk)
         )
         contributors = (
             CommitAuthor.humans.filter(commit__library_version__in=library_versions)
