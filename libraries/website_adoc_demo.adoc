@@ -46,12 +46,21 @@ int main()
 
 [source,cpp]
 ----
-#include <boost/demo.hpp>
+#include <boost/algorithm/string.hpp>
 #include <iostream>
+#include <string>
+#include <vector>
 
 int main() {
-    boost::demo::parser p;
-    std::cout << p.run("hello world") << "\n";
+    std::string text = "hello,world,from,boost";
+
+    std::vector<std::string> parts;
+    boost::algorithm::split(parts, text, boost::is_any_of(","));
+
+    for (auto& part : parts) {
+        boost::algorithm::to_upper(part);
+        std::cout << part << '\n';
+    }
 }
 ----
 
