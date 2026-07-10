@@ -129,12 +129,12 @@ flushed rather than leaking onto the next page. {% endcomment %}
                 {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name extra_class='user-profile__empty-avatar-input' accept='image/png,image/jpeg' only %}
                 <div class="user-profile__default-space-col user-profile__default-avatar-buttons">
                   {# Delete and replace buttons, shown in filled state #}
-                  <label for="user-profile__avatar-row-checkbox" class="btn btn-secondary">Replace Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                  <label id="user-profile__avatar-replace-button" for="user-profile__avatar-row-checkbox" class="btn btn-secondary">Replace Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
                   {# Invisible delete checkbox, triggers the delete state #}
                   <input type="checkbox" id="user-profile__avatar-delete-checkbox" name="{{ user_profile_form.delete_avatar.name }}" class="badge-button__radio" />
-                  <label aria-label="Delete Avatar" for="user-profile__avatar-delete-checkbox" class="btn btn-error">Delete Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                  <label id="user-profile__avatar-delete-checkbox-button" aria-label="Delete Avatar" for="user-profile__avatar-delete-checkbox" class="btn btn-error">Delete Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-trash' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
                   {# Delete State button #}
-                  <label id="user-profile__avatar-delete-checkbox-button" aria-label="Undo Changes" for="user-profile__avatar-delete-checkbox" class="btn btn-secondary">Undo Changes<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-arrow-return' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
+                  <label id="user-profile__avatar-undo-button" aria-label="Undo Changes" for="user-profile__avatar-delete-checkbox" class="btn btn-secondary">Undo Changes<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-arrow-return' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
                   {# Edit modal, only shown if the avatar-row-checkbox is toggled #}
                   <div class="user-profile__activated-avatar-buttons">
                   <label class="user-profile__edit-avatar-box-cover" for="user-profile__avatar-row-checkbox"></label>
@@ -291,7 +291,6 @@ flushed rather than leaking onto the next page. {% endcomment %}
     const init = () => {
       const fileInput = document.querySelectorAll("input[name='{{user_profile_form.avatar.name}}']")
       const avatarComponent = document.querySelector('#user-profile-editable-avatar')
-      const avatarRowClose = document.querySelector('#avatar-row__close-button')
       const avatarImg = avatarComponent.querySelector('img')
       const avatarDelete = document.querySelector('#avatar-row__delete-avatar')
 
@@ -301,13 +300,6 @@ flushed rather than leaking onto the next page. {% endcomment %}
             if (avatarImg !== null) avatarImg.src = data
           })
         })
-      })
-      avatarRowClose.addEventListener('click', () => {
-        fileInput.forEach((el)=> {
-          el.value = '';
-          Alpine.$data(el)['fileName'] = '';
-        })
-        if (avatarImg !== null) avatarImg.src = originalSrc
       })
     }
     if (document.readyState === 'loading') {
