@@ -22,43 +22,47 @@
 
   <div class="library-subpage-container">
     <div class="card-masonry-top">
-      {% if website_adoc.about or website_adoc.designed_for %}
-      <div class="masonry-col masonry-col--1">
-        {% if website_adoc.about %}
-        <div class="item-a">
-          {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description=website_adoc.about.blurb code=website_adoc.about.code.code language=website_adoc.about.code.language card_variant="neutral" button_text="Explore examples" button_url=documentation_url|default:"#" button_aria_label="Explore examples for "|add:object.display_name %}
-        </div>
-        {% endif %}
-        {% if website_adoc.designed_for %}
-        <div class="item-f">
-          {% include "v3/includes/_markdown_card.html" with title="This library is designed for" html=designed_for_html %}
-        </div>
-        {% endif %}
+      {% if website_adoc.about %}
+      <div class="item-a">
+        {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description=website_adoc.about.blurb code=website_adoc.about.code.code language=website_adoc.about.code.language card_variant="neutral" button_text="Explore examples" button_url=documentation_url|default:"#" button_aria_label="Explore examples for "|add:object.display_name %}
       </div>
       {% endif %}
-      <div class="masonry-col masonry-col--2">
-        <div class="item-b">
-          {% include "v3/includes/_quick_start_card.html" with heading="Quick Start" links=quick_start_links %}
-        </div>
-        {% if website_adoc.install %}
-        <div class="item-c">
-          {% include "v3/includes/_code_block_card.html" with heading="Install" description=website_adoc.install.blurb code=website_adoc.install.code.code language=website_adoc.install.code.language card_variant="teal" %}
-        </div>
-        {% endif %}
-        <div class="item-e">
-          {% include "v3/includes/_dependencies_card.html" with dependencies=dependencies_list %}
-        </div>
-        {% if benchmark_sets %}
-        <div class="item-g">
-          {% include "v3/includes/_stats_benchmarks.html" with heading="Benchmarks" sets=benchmark_sets %}
-        </div>
-        {% endif %}
+
+      {% if benchmark_sets %}
+      <div class="item-g">
+        {% include "v3/includes/_stats_benchmarks.html" with heading="Benchmarks" sets=benchmark_sets %}
       </div>
-      <div class="masonry-col masonry-col--3">
-        <div class="item-d item-d--desktop">
-          {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="release" contributors=this_release_contributors heading_level="2" %}
-        </div>
+      {% endif %}
+
+      <div class="item-b">
+        {% include "v3/includes/_quick_start_card.html" with heading="Quick Start" links=quick_start_links %}
       </div>
+
+      <div class="item-e">
+        {% include "v3/includes/_dependencies_card.html" with dependencies=dependencies_list %}
+      </div>
+
+      {% if website_adoc.designed_for %}
+      <div class="item-f">
+        {% include "v3/includes/_markdown_card.html" with title="This library is designed for" html=designed_for_html %}
+      </div>
+      {% endif %}
+
+      {% if website_adoc.install %}
+      <div class="item-c">
+        {% include "v3/includes/_code_block_card.html" with heading="Install" description=website_adoc.install.blurb code=website_adoc.install.code.code language=website_adoc.install.code.language card_variant="teal" %}
+      </div>
+      {% endif %}
+
+      <div class="item-d">
+        {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="release" contributors=this_release_contributors heading_level="2" %}
+      </div>
+
+      {% if website_adoc.freeform %}
+        <div class="library-subpage__freeform">
+          {% include "v3/includes/_markdown_card.html" with title=website_adoc.freeform.heading html=website_adoc.freeform.html %}
+        </div>
+      {% endif %}
     </div>
 
     {% if description %}
@@ -67,16 +71,7 @@
       </div>
     {% endif %}
 
-    {% if website_adoc.freeform %}
-      <div class="library-subpage__freeform">
-        {% include "v3/includes/_markdown_card.html" with title=website_adoc.freeform.heading html=website_adoc.freeform.html %}
-      </div>
-    {% endif %}
-
     <div class="card-masonry-bottom">
-      <div class="item-d item-d--tablet">
-        {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="all" contributors=this_release_contributors heading_level="2" %}
-      </div>
       <div class="item-a">
         {% include "v3/includes/_post_card.html" with heading="Latest "|add:object.display_name|add:" posts" items=library_posts variant="card" theme="teal" layout="horizontal" primary_cta_label="View all posts" primary_cta_url="/news/" %}
       </div>
