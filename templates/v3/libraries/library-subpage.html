@@ -10,6 +10,13 @@
 
 {% block content %}
 
+{% if library_version_missing %}
+  {% comment %} TODO: Extract this to a separate template & implement UI for empty state {% endcomment %}
+  <div style="margin: 10rem auto; max-width: 40rem; text-align: center;">
+    <h1 class="library-no-version__title">No library records available for this version.</h1>
+    <p class="library-no-version__description">There is no version of the <b>{{ object.display_name }}</b> library for Boost {{ selected_version.display_name }}. The first release of <b>{{ object.display_name }}</b> library was version <b>{{ object.first_boost_version.display_name }}</b>.</p>
+  </div>
+{% else %}
   {% with cpp_ver=library_version.get_cpp_standard_minimum_display|default:"C++03" %}
       {% if is_flagship_lib %}
         {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver first_boost_version=object.first_boost_version.display_name doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url is_flagship_lib=True hero_image_url_light=library_hero_image_url_light hero_image_url_dark=library_hero_image_url_dark %}
@@ -84,4 +91,5 @@
       </div>
     {% endif %}
   </div>
+{% endif %}
 {% endblock %}

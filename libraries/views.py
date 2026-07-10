@@ -540,6 +540,11 @@ class LibraryDetail(
                 library=self.object, version=context["selected_version"]
             )
         except LibraryVersion.DoesNotExist:
+            # No LibraryVersion for the selected release (e.g. viewing a version
+            # older than the library's first release). Flag it so the v3 template
+            # renders a placeholder instead of an empty subpage.
+            # TODO: replace with a designed empty-state (separate ticket).
+            context["library_version_missing"] = True
             return context
 
         context["library_version"] = library_version
