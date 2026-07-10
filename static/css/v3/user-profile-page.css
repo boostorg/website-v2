@@ -207,13 +207,13 @@
 .user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:checked) {
 
     .avatar__img,
-    .btn-primary,
-    .btn-error {
+    #user-profile__avatar-replace-button,
+    #user-profile__avatar-delete-checkbox-button {
         display: none;
     }
 }
 
-.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:not(:checked)) #user-profile__avatar-delete-checkbox-button {
+.user-profile__avatar-row:has(input[id='user-profile__avatar-delete-checkbox']:not(:checked)) #user-profile__avatar-undo-button {
     display: none;
 }
 
@@ -240,7 +240,7 @@
     display: none;
 }
 
-.user-profile__avatar-row:has(input[name='avatar-row-checkbox']:checked) .btn-error {
+.user-profile__avatar-row:has(input[name='avatar-row-checkbox']:checked) #user-profile__avatar-delete-button {
     display: none;
 }
 
