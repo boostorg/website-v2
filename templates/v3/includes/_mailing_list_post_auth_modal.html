@@ -1,0 +1,133 @@
+{% comment %}
+Post-login mailing list subscription modal.
+
+Shows automatically on the homepage the first time a user visits after logging
+in. The "seen" flag is set server-side when the homepage renders, so
+cancel/close need no backend call.
+
+Variables:
+  post_auth_modal_subscribe_url  - POST endpoint (mailing-list-post-auth-subscribe)
+  post_auth_modal_mailing_lists  - list of dicts: {id, name, address, description}
+  post_auth_modal_user_email     - logged-in user's email (pre-fills the input)
+
+No-JS: a server-rendered, pre-checked checkbox toggle (.dialog-modal__toggle)
+opens the modal via CSS, and the form submits natively (method/action) — the
+view redirects (PRG) for non-HTMX requests. The backdrop and Cancel are
+<label>s that uncheck the toggle to close.
+JS enhances this with HTMX submit, inline email validation, and ESC/focus trap
+via dialog.js (which recognises the checkbox toggle).
+{% endcomment %}
+<input type="checkbox" id="ml-post-auth-toggle" class="dialog-modal__toggle" checked hidden>
+<div class="dialog-modal"
+     id="ml-post-auth-modal"
+     x-data="{
+       mlEmail: '{{ post_auth_modal_user_email|default:''|escapejs }}',
+       emailTouched: false,
+       get emailInvalid() {
+         return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.mlEmail.trim());
+       },
+       totalLists: {{ post_auth_modal_mailing_lists|length }},
+       checkedCount: {{ post_auth_modal_mailing_lists|length }},
+       updateCount() {
+         this.checkedCount = this.$refs.checkboxContainer.querySelectorAll('[name=list_id]:checked').length;
+       },
+       unselectAll() {
+         this.$refs.checkboxContainer.querySelectorAll('[name=list_id]').forEach(cb => { cb.checked = false; });
+         this.checkedCount = 0;
+       },
+       selectAll() {
+         this.$refs.checkboxContainer.querySelectorAll('[name=list_id]').forEach(cb => { cb.checked = true; });
+         this.checkedCount = this.totalLists;
+       }
+     }">
+  <label class="dialog-modal__backdrop" for="ml-post-auth-toggle" aria-label="Close"></label>
+  <div class="dialog-modal__container ml-post-auth-modal__container"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="ml-post-auth-modal-title"
+       aria-describedby="ml-post-auth-modal-desc">
+
+    <div class="ml-post-auth-modal__header">
+      <h2 class="dialog-modal__title" id="ml-post-auth-modal-title">Never Miss an Update from Boost Community</h2>
+    </div>
+
+    <hr class="card__hr">
+
+    <form id="ml-post-auth-form"
+          method="post"
+          action="{{ post_auth_modal_subscribe_url }}"
+          novalidate
+          hx-post="{{ post_auth_modal_subscribe_url }}"
+          hx-swap="none"
+          hx-trigger="ml-submit"
+          hx-on::after-request="document.getElementById('ml-post-auth-toggle').checked = false"
+          @submit.prevent="emailTouched = true; if (!emailInvalid) htmx.trigger($el, 'ml-submit')">
+      {% csrf_token %}
+
+      <div class="ml-post-auth-modal__email-row">
+        <input class="ml-post-auth-modal__email-field"
+               type="email"
+               name="email"
+               value="{{ post_auth_modal_user_email|default:'' }}"
+               autocomplete="email"
+               x-model="mlEmail"
+               @blur="emailTouched = true"
+               :class="{ 'ml-post-auth-modal__email-field--error': emailTouched && emailInvalid }"
+               :aria-invalid="emailTouched && emailInvalid"
+               placeholder="Email address"
+               aria-label="Email address">
+        <p class="field__error" x-cloak x-show="emailTouched && emailInvalid" role="alert">Please enter a valid email address.</p>
+      </div>
+
+      <hr class="card__hr">
+
+      <div class="ml-post-auth-modal__body" id="ml-post-auth-modal-desc">
+        <p class="ml-post-auth-modal__description">Subscribe to any of our mailing lists. You can change these any time.</p>
+        <div class="ml-post-auth-modal__list-section">
+          <div class="mailing-list-modal__list-card ml-post-auth-modal__list-card">
+            <ul class="mailing-list-modal__list" role="list" x-ref="checkboxContainer">
+              {% for ml in post_auth_modal_mailing_lists %}
+                <li class="mailing-list-modal__item">
+                  <label class="mailing-list-modal__label">
+                    <input class="mailing-list-modal__checkbox"
+                           type="checkbox"
+                           name="list_id"
+                           value="{{ ml.id }}"
+                           checked
+                           @change="updateCount()">
+                    <span class="mailing-list-modal__checkbox-box" aria-hidden="true">
+                      {% include "includes/icon.html" with icon_name="check" icon_class="mailing-list-modal__checkbox-check" icon_size=16 %}
+                    </span>
+                    <div class="mailing-list-modal__item-content">
+                      <span class="mailing-list-modal__item-name">{{ ml.name }}</span>
+                      <span class="mailing-list-modal__item-description">{{ ml.description }}</span>
+                    </div>
+                  </label>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="ml-post-auth-modal__footer-row">
+            <button type="button"
+                    class="mailing-list-modal__select-all"
+                    @click="checkedCount === totalLists ? unselectAll() : selectAll()"
+                    x-text="checkedCount === totalLists ? 'Unselect All' : 'Select All'"></button>
+            <span class="ml-post-auth-modal__count"
+                  x-text="checkedCount + ' of ' + totalLists + ' selected'"></span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="card__hr">
+
+      <div class="dialog-modal__buttons">
+        <label for="ml-post-auth-toggle"
+               class="btn btn-secondary btn-flex"
+               role="button"
+               tabindex="0">Cancel</label>
+        {% include "v3/includes/_button.html" with type="submit" label="Subscribe" style="primary" extra_classes="btn-flex" only %}
+      </div>
+    </form>
+
+  </div>
+</div>

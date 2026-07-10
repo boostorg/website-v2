@@ -25,9 +25,41 @@
     <p class="search-card__popular-label">{{ popular_label|default:"Popular terms:" }}</p>
     <div class="search-card__tags">
       {% for term in popular_terms %}
-      <a href="{{ action_url }}?{{ input_name|default:'q' }}={{ term.label|urlencode }}" class="search-card__tag">{{ term.label }}</a>
+      <a href="{{ action_url }}?{{ input_name|default:'q' }}={{ term.label|urlencode }}" class="search-card__tag">{{ term.label|capfirst }}</a>
       {% endfor %}
     </div>
   </div>
   {% endif %}
+
+  {% comment %} No-JS fallback: form/tags depend on gecko-search-helper.js to
+  open the Gecko modal, so without JS we hide them and show a disabled pill —
+  same pattern as the header search bar. {% endcomment %}
+  <noscript>
+    <style>
+      .search-card form,
+      .search-card__popular { display: none; }
+      .search-card > noscript { display: contents; }
+      .search-card__no-js {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-medium);
+        padding: var(--space-medium) var(--space-large);
+        border-radius: var(--border-radius-xl);
+        color: var(--color-text-tertiary);
+        background: var(--color-surface-mid);
+        cursor: not-allowed;
+      }
+      .search-card__no-js-icon {
+        color: var(--color-icon-secondary);
+        display: inline-flex;
+      }
+    </style>
+    <span class="search-card__no-js" aria-disabled="true">
+      Search is not available with JS disabled
+      <span class="search-card__no-js-icon" aria-hidden="true">
+        {% include "includes/icon.html" with icon_name="lock" icon_size=16 icon_viewbox="0 0 16 16" %}
+      </span>
+    </span>
+  </noscript>
 </div>

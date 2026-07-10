@@ -98,31 +98,6 @@ class SharedResources:
         },
     ]
 
-    install_card_pkg_managers = [
-        {"label": "Conan", "value": "conan", "command": "conan install boost"},
-        {"label": "Vcpkg", "value": "vcpkg", "command": "vcpkg install boost"},
-    ]
-
-    install_card_system_install = [
-        {
-            "label": "Ubuntu",
-            "value": "ubuntu",
-            "command": "sudo apt install libboost-all-dev",
-        },
-        {
-            "label": "Fedora",
-            "value": "fedora",
-            "command": "sudo dnf install boost-devel",
-        },
-        {
-            "label": "CentOS",
-            "value": "centos",
-            "command": "sudo yum install boost-devel",
-        },
-        {"label": "Arch", "value": "arch", "command": "sudo pacman -S boost"},
-        {"label": "Homebrew", "value": "homebrew", "command": "brew install boost"},
-    ]
-
     popular_terms = [
         {"label": "Networking"},
         {"label": "Math"},
@@ -137,29 +112,25 @@ class SharedResources:
             "title": "Boost 1.90.0 closed for major changes",
             "description": "Release closed for major code changes. "
             "Still open for serious problem fixes.",
-            "date": "29/10/25",
-            "datetime": "2025-10-29",
+            "date": date(2025, 10, 29),
         },
         {
             "title": "C++ Now 2025 call for submissions",
             "description": "C++ Now conference is accepting talk proposals "
             "until March 15.",
-            "date": "12/02/25",
-            "datetime": "2025-02-12",
+            "date": date(2025, 2, 12),
         },
         {
             "title": "Boost 1.89.0 released",
             "description": "Boost 1.89.0 is available with updates to Asio, "
             "Beast, and several other libraries.",
-            "date": "15/01/25",
-            "datetime": "2025-01-15",
+            "date": date(2025, 1, 15),
         },
         {
             "title": "Boost 1.89.0 released",
             "description": "Boost 1.89.0 is available with updates to Asio, "
             "Beast, and several other libraries.",
-            "date": "15/01/25",
-            "datetime": "2025-01-15",
+            "date": date(2025, 1, 15),
         },
     ]
 

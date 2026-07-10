@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, FormView
 from django.views.generic.base import TemplateView
@@ -28,11 +28,11 @@ from allauth.socialaccount.views import SignupView as SocialSignupView
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
+
 from waffle import flag_is_active
 
 from core.constants import BadgeToken
-from core.mixins import V3Mixin
-from core.templatetags.custom_static import large_static
+from core.mixins import V3Mixin, V3AuthContextMixin
 from libraries.models import CommitAuthorEmail
 from .forms import (
     PreferencesForm,
@@ -40,6 +40,7 @@ from .forms import (
     UserProfilePhotoForm,
     DeleteAccountForm,
     V3UserProfileForm,
+    CustomSignUpForm,
 )
 from .models import User
 from .password_rules import build_password_rules
@@ -596,7 +597,7 @@ class CustomSocialSignupViewView(ClaimExistingAccountMixin, SocialSignupView):
         return res if res else super().form_invalid(form)
 
 
-class CustomSignupView(ClaimExistingAccountMixin, SignupView):
+class CustomSignupView(ClaimExistingAccountMixin, V3AuthContextMixin, SignupView):
     """
     Override the allauth SignupView to customize behavior:
 
@@ -604,6 +605,18 @@ class CustomSignupView(ClaimExistingAccountMixin, SignupView):
     because one was created for them, and it has not been claimed. This happens
     with authors and maintainers.
     """
+
+    v3_template_name = "v3/accounts/signup.html"
+
+    def get_form_class(self):
+        if flag_is_active(self.request, "v3"):
+            return CustomSignUpForm
+        return super().get_form_class()
+
+    def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
+        context["password_rules"] = build_password_rules()
+        return context
 
     def form_invalid(self, form):
         """
@@ -614,7 +627,9 @@ class CustomSignupView(ClaimExistingAccountMixin, SignupView):
         return res if res else super().form_invalid(form)
 
 
-class CustomLoginView(LoginView):
+class CustomLoginView(V3AuthContextMixin, LoginView):
+    v3_template_name = "v3/accounts/login.html"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contributor_account_redirect_message"] = self.request.session.pop(
@@ -632,60 +647,15 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
         return context
 
 
-class V3AuthContextMixin(V3Mixin):
-    """Shared context for all V3 auth pages (signup, login, password reset, etc.).
-
-    These pages are V3-only, and some of them are FormViews, so unlike
-    V3Mixin the request must flow through the underlying view's dispatch
-    (form handling included) while still rendering the V3 template.
-    """
-
-    def dispatch(self, request, *args, **kwargs):
-        if not flag_is_active(request, "v3"):
-            return HttpResponseNotFound()
-        self._v3_active = True
-        # Bypass V3Mixin.dispatch: it renders the template directly, which
-        # would discard POST handling on form views.
-        return super(V3Mixin, self).dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(self.get_v3_context_data())
-        return context
-
-    def get_v3_context_data(self, **kwargs):
-        context = super().get_v3_context_data(**kwargs)
-        context["page_title"] = getattr(self, "page_title", "Account")
-        context["foreground_image_url"] = large_static(
-            "img/v3/auth-page/auth-page-foreground.png"
-        )
-        context["background_image_url"] = large_static(
-            "img/v3/auth-page/auth-page-background.png"
-        )
-        context["login_url"] = reverse_lazy("v3-login")
-        # TODO: Switch to "v3-login" when it's ready.
-        context["login_url"] = reverse_lazy("account_login")
-        context["signup_url"] = reverse_lazy("v3-signup")
-        context["password_reset_url"] = reverse_lazy("v3-password-reset")
-        return context
-
-
-class V3SignupView(V3AuthContextMixin, TemplateView):
-    v3_template_name = "v3/accounts/signup.html"
-    page_title = "Create An Account"
-
-    def get_v3_context_data(self, **kwargs):
-        context = super().get_v3_context_data(**kwargs)
-        context["password_rules"] = build_password_rules()
-        return context
-
-
 class V3LoginView(V3AuthContextMixin, TemplateView):
     v3_template_name = "v3/accounts/login.html"
     page_title = "Login"
 
 
 class V3PasswordResetView(V3AuthContextMixin, PasswordResetView):
+    # Drop allauth's legacy template_name so V3AuthContextMixin 404s this
+    # v3-only route when the flag is off (instead of falling back to it).
+    template_name = None
     v3_template_name = "v3/accounts/password_reset.html"
     page_title = "Reset Password"
     success_url = reverse_lazy("v3-password-reset-done")
@@ -697,6 +667,8 @@ class V3PasswordResetDoneView(V3AuthContextMixin, TemplateView):
 
 
 class V3PasswordResetFromKeyView(V3AuthContextMixin, PasswordResetFromKeyView):
+    # See V3PasswordResetView: null template_name keeps this route v3-only.
+    template_name = None
     v3_template_name = "v3/accounts/password_reset_from_key.html"
     page_title = "Change Password"
     success_url = reverse_lazy("v3-password-reset-from-key-done")

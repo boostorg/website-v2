@@ -108,7 +108,7 @@
            {% elif help_text %}
            aria-describedby="field-{{ name }}-help"
            {% endif %}
-           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q" {% if dispatch_field_change %}@input.debounce.150ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% else %}x-model="value"{% endif %}>
+           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q" {% if dispatch_field_change %}@input.debounce.150ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% elif max_chars %}x-model="value"{% endif %}>
     {% if submit_icon %}
       <button type="submit"
               class="field__submit"
@@ -122,6 +122,7 @@
       </span>
     {% endif %}
   </div>
+  <div class="field__error-container">
   {% if validate_error %}
     <p class="field__error" x-cloak x-show="isInvalid" role="alert">{{ validate_error }}</p>
     <p class="field__error" x-cloak x-show="isEmpty" role="alert">This field is required.</p>
@@ -151,4 +152,5 @@
       <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
     {% endif %}
   {% endif %}
+  </div>
 </div>

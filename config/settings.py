@@ -95,6 +95,7 @@ INSTALLED_APPS += [
 INSTALLED_APPS += [
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
+    "wagtail.contrib.settings",
     "wagtail.embeds",
     "wagtail.sites",
     "wagtail.users",
@@ -416,13 +417,13 @@ MONDAY_LEADS_BOARD_ID = env("MONDAY_LEADS_BOARD_ID", default="")
 
 # Django Allauth settings
 
-ACCOUNT_ADAPTER = "users.adapters.AccountAdapter"
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+ACCOUNT_ADAPTER = "users.account_adapters.AccountAdapter"
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 ACCOUNT_UNIQUE_EMAIL = True
@@ -680,6 +681,12 @@ ALGOLIA = {
     "analytics_api_key": env("ALGOLIA_ANALYTICS_API_KEY", None),
     "region": env("ALGOLIA_APP_REGION", "us"),
 }
+
+# Min Algolia search_count to enter the homepage LLM candidate set.
+# Raise in prod to drop one-off curiosity searches; keep at 1 locally for data.
+POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT = env.int(
+    "POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT", default=1
+)
 
 # Required by Wagtail
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000

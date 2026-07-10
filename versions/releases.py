@@ -1,4 +1,5 @@
 import json
+import time
 from json.decoder import JSONDecodeError
 
 import requests
@@ -31,8 +32,18 @@ def get_download_uris_for_release(
     release_type = "beta" if "beta" in release else "release"
     release_path = f"{settings.ARCHIVES_URL}{release_type}/{release}/{subdir}/"
 
+    # Cache-bust the directory-listing request. The archives are served via
+    # Fastly with a ~5 minute TTL on directory index pages. When a fresh
+    # release is published and this importer is triggered within that TTL
+    # window, the CDN can serve a stale listing (often a 404 from before the
+    # directory existed) and we end up importing zero files. Adding a unique
+    # query string forces Fastly to treat this as a cache miss and re-fetch
+    # from the nginx origin, which ignores the unknown query string. The
+    # query string is *not* included in the returned file URLs.
+    listing_url = f"{release_path}?cb={time.time_ns()}"
+
     try:
-        resp = session.get(release_path)
+        resp = session.get(listing_url)
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
         logger.error(f"get_archives_releases_list_error {str(e)=}, {release_path=}")

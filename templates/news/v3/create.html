@@ -23,13 +23,13 @@
     html:not(.js) .field--file .field__control { cursor: pointer; }
 
     html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
-    html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: block; }
+    html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: flex; }
 
     html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__description-section,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__description-section { display: flex; }
 
     html:not(.js) form:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__description-field,
-    html:not(.js) form:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__description-field { display: block; }
+    html:not(.js) form:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__description-field { display: flex; }
 
     html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__link-fields,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__link-fields { display: none; }
@@ -65,7 +65,7 @@
           {% include "v3/includes/_field_text.html" with name="title" label="Post title *" placeholder="Title" value=form.title.value|default_if_none:"" required=True alpine_error="errors.title" error=form.title.errors.0 %}
 
           {% comment %} Link (Video, Link): shown via :style binding; html.js CSS hides before Alpine init. {% endcomment %}
-          <div class="create-post-page__link-fields" :style="isLinkType ? 'display: flex' : 'display: none'">
+          <div class="create-post-page__link-fields" :style="isLinkType ? 'display: flex' : 'display: none'" @input="if ($event.target?.name === 'external_url') externalUrl = $event.target.value">
             {% include "v3/includes/_field_text.html" with name="external_url" label="Link *" type="url" placeholder="https://..." value=form.external_url.value|default_if_none:"" alpine_error="errors.external_url" error=form.external_url.errors.0 help_text="Required for Video and Link post types." %}
           </div>
 
@@ -106,6 +106,7 @@
                 rows="4"
                 maxlength="1000"
                 placeholder="What would you like to write?"
+                :disabled="!isWriteUp"
                 x-model="description"
                 @input="onDescriptionEdited($event)"
               ></textarea>
@@ -136,8 +137,49 @@
             <p class="field__error" id="field-post_description-error" role="alert" x-show="descriptionError" x-text="descriptionError" x-cloak aria-live="polite"></p>
           </div>
 
-          <div class="field create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
-            {% include "v3/includes/_field_textarea.html" with name="content" field_id="description" label="Description" value=form.content.value|default_if_none:"" alpine_error="errors.content" error=form.content.errors.0 alpine_disabled_expr="isWriteUp" %}
+          <div class="field field--textarea create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
+            <div class="create-post-page__field-header">
+              <label class="field__label" for="field-description">Description</label>
+              <span class="create-post-page__char-counter" aria-hidden="true" x-text="(1000 - (linkDescription ? linkDescription.length : 0)).toLocaleString() + ' left'">1,000 left</span>
+            </div>
+            <div class="field__control field__control--textarea" x-show="!linkGenerating">
+              <textarea
+                class="field__input field__input--textarea"
+                id="field-description"
+                name="link_description"
+                rows="4"
+                maxlength="1000"
+                placeholder="What would you like to write?"
+                :disabled="isWriteUp"
+                x-model="linkDescription"
+                @input="onLinkDescriptionEdited($event)"
+              ></textarea>
+            </div>
+            {% comment %} Shown while Auto-Generate is in flight (visually replaces the textarea), mirroring the Blog/News Description section. {% endcomment %}
+            <div class="field__control field__control--textarea create-post-page__generating-placeholder" role="status" aria-live="polite" x-show="linkGenerating" x-cloak>
+              <span class="create-post-page__generating-message">
+                {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__generating-icon" icon_size=16 %}
+                <span>Hold on! We are generating a description for your content, it may take a few seconds</span>
+              </span>
+            </div>
+            {% comment %} Auto-Generate is Link-only (Video is out of scope). Disabled until the link field holds a valid http(s) URL. {% endcomment %}
+            <div class="create-post-page__description-actions" x-show="isLink" x-cloak>
+              <button type="button" class="btn btn-secondary create-post-page__generate-btn" @click="generateLinkDescription()" :disabled="!linkUrlValid || linkGenerating">Auto-Generate Description</button>
+              <span class="create-post-page__save-indicator" role="status" aria-live="polite">
+                <span class="create-post-page__save-state" x-show="linkDescriptionSaveStatus === 'saving'" x-cloak>
+                  <span class="create-post-page__save-text">Saving</span>
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
+                </span>
+                <span class="create-post-page__save-state" x-show="linkDescriptionSaveStatus === 'saved'" x-cloak>
+                  <span class="create-post-page__save-text">Saved</span>
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
+                </span>
+              </span>
+            </div>
+            {% comment %} Inline help shown while the link field is empty/invalid so the disabled button doesn't look mysterious. {% endcomment %}
+            <p class="field__help" x-show="isLink && !linkError && !linkUrlValid" x-cloak>Add a valid link above to auto-generate a description from the page.</p>
+            {% comment %} Error shown when Auto-Generate fails (invalid URL, fetch failed, or no readable text found). Cleared on next click. {% endcomment %}
+            <p class="field__error" id="field-link-description-error" role="alert" x-show="isLink && linkError" x-text="linkError" x-cloak aria-live="polite"></p>
           </div>
 
           {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 1MB" extra_class="field--file-narrow create-post-page__field-image" %}
@@ -163,14 +205,22 @@
         content: '{{ form.content.value|default_if_none:""|escapejs }}',
         contentLength: 0,
         description: '{{ form.summary.value|default_if_none:""|escapejs }}',
+        externalUrl: '{{ form.external_url.value|default_if_none:""|escapejs }}',
+        linkDescription: '{{ form.summary.value|default_if_none:""|escapejs }}',
+        linkGenerating: false,
+        linkError: '',
         generating: false,
         descriptionError: '',
-        descriptionSaveStatus: '',   // '' (hidden) / 'saving' / 'saved'
-        contentSaveStatus: '',       // same states, for the Content field
+        descriptionSaveStatus: '',          // '' (hidden) / 'saving' / 'saved'
+        contentSaveStatus: '',              // same states, for the Content field
+        linkDescriptionSaveStatus: '',      // same states, for the Link Description field
         _descriptionSaveTimer: null,
         _contentSaveTimer: null,
+        _linkDescriptionSaveTimer: null,
         _titleSaveTimer: null,
         titleEl: null,               // cached reference to the (non-Alpine) title input
+        _externalUrlSaveTimer: null,
+        externalUrlEl: null,         // cached reference to the (non-Alpine) Link URL input
         errors: {
           post_type:    '',
           title:        '{{ form.title.errors.0|default:""|escapejs }}',
@@ -181,17 +231,36 @@
 
         get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
         get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
+        get isLink() { return this.postType === 'link'; },
+        // Auto-Generate fetches and summarizes the linked page, so enable it
+        // once the link field holds a valid http(s) URL. Extraction quality
+        // varies by site and the server degrades gracefully when a page can't
+        // be read (see generate_link_description).
+        get linkUrlValid() {
+          const url = (this.externalUrl || '').trim();
+          if (!url) return false;
+          try {
+            const parsed = new URL(url);
+            return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+          } catch (_) { return false; }
+        },
 
         init() {
           // The title input is rendered by the shared field include (not
           // Alpine-bound), so cache it and drive its draft via the DOM.
           this.titleEl = this.$root.querySelector('input[name="title"]');
           if (this.titleEl) this.titleEl.addEventListener('input', () => this.onTitleEdited());
-          // Restore saved Title, Content, and Description drafts for the current
-          // post type. On a fresh load with no draft this leaves fields untouched.
+          // Same for the Link URL input (shown for Link and Video post types).
+          this.externalUrlEl = this.$root.querySelector('input[name="external_url"]');
+          if (this.externalUrlEl) this.externalUrlEl.addEventListener('input', () => this.onExternalUrlEdited());
+          // Restore saved Title / Link URL / Content / Description / Link-Description
+          // drafts for the current post type. On a fresh load with no draft this
+          // leaves the field untouched.
           this.restoreTitleDraft();
+          this.restoreExternalUrlDraft();
           this.restoreContentDraft();
           this.restoreDescriptionDraft();
+          this.restoreLinkDescriptionDraft();
         },
 
         handleFieldChange(e) {
@@ -201,15 +270,21 @@
           // draft belonging to the newly selected type.
           clearTimeout(this._descriptionSaveTimer);
           clearTimeout(this._contentSaveTimer);
+          clearTimeout(this._linkDescriptionSaveTimer);
           clearTimeout(this._titleSaveTimer);
+          clearTimeout(this._externalUrlSaveTimer);
           this.saveTitleDraft();
+          this.saveExternalUrlDraft();
           this.saveContentDraft();
           this.saveDescriptionDraft();
+          this.saveLinkDescriptionDraft();
           this.postType = value;
           this.errors.post_type = '';
           this.restoreTitleDraft({ allowEmpty: true });
+          this.restoreExternalUrlDraft({ allowEmpty: true });
           this.restoreContentDraft({ allowEmpty: true });
           this.restoreDescriptionDraft({ allowEmpty: true });
+          this.restoreLinkDescriptionDraft({ allowEmpty: true });
         },
 
         // Bridge from the WYSIWYG editor: keep the counter, indicator, and draft
@@ -261,6 +336,37 @@
 
         clearTitleDraft() {
           try { localStorage.removeItem(this.titleDraftKey()); } catch (_) {}
+        },
+
+
+        externalUrlDraftKey() {
+          return 'boost:createPost:externalUrlDraft:' + (this.postType || '');
+        },
+
+        onExternalUrlEdited() {
+          clearTimeout(this._externalUrlSaveTimer);
+          this._externalUrlSaveTimer = setTimeout(() => this.saveExternalUrlDraft(), 800);
+        },
+
+        saveExternalUrlDraft() {
+          if (!this.externalUrlEl) return;
+          try {
+            const value = this.externalUrlEl.value;
+            if (value) localStorage.setItem(this.externalUrlDraftKey(), value);
+            else localStorage.removeItem(this.externalUrlDraftKey());
+          } catch (_) {}
+        },
+
+        restoreExternalUrlDraft({ allowEmpty = false } = {}) {
+          if (!this.externalUrlEl) return;
+          let saved = null;
+          try { saved = localStorage.getItem(this.externalUrlDraftKey()); } catch (_) {}
+          if (saved !== null) { this.externalUrlEl.value = saved; this.externalUrl = saved; }
+          else if (allowEmpty) { this.externalUrlEl.value = ''; this.externalUrl = ''; }
+        },
+
+        clearExternalUrlDraft() {
+          try { localStorage.removeItem(this.externalUrlDraftKey()); } catch (_) {}
         },
 
         // ── Description draft: localStorage, keyed per post type ─────────────
@@ -354,12 +460,58 @@
           try { localStorage.removeItem(this.contentDraftKey()); } catch (_) {}
         },
 
+        // ── Link/Video description draft: localStorage, keyed per post type ───
+        linkDescriptionDraftKey() {
+          return 'boost:createPost:linkDescriptionDraft:' + (this.postType || '');
+        },
+
+        onLinkDescriptionEdited(e) {
+          const value = e ? e.target.value : this.linkDescription;
+          clearTimeout(this._linkDescriptionSaveTimer);
+          if (!value) {
+            this.linkDescriptionSaveStatus = '';
+            this.clearLinkDescriptionDraft();
+            return;
+          }
+          this.linkDescriptionSaveStatus = 'saving';
+          this._linkDescriptionSaveTimer = setTimeout(() => {
+            this.saveLinkDescriptionDraft();
+            this.linkDescriptionSaveStatus = 'saved';
+          }, 800);
+        },
+
+        saveLinkDescriptionDraft() {
+          if (!this.isLinkType) return;
+          try {
+            if (this.linkDescription) localStorage.setItem(this.linkDescriptionDraftKey(), this.linkDescription);
+            else localStorage.removeItem(this.linkDescriptionDraftKey());
+          } catch (_) {}
+        },
+
+        restoreLinkDescriptionDraft({ allowEmpty = false } = {}) {
+          if (!this.isLinkType) {
+            if (allowEmpty) this.linkDescriptionSaveStatus = '';
+            return;
+          }
+          let saved = null;
+          try { saved = localStorage.getItem(this.linkDescriptionDraftKey()); } catch (_) {}
+          if (saved !== null) this.linkDescription = saved;
+          else if (allowEmpty) this.linkDescription = '';
+          this.linkDescriptionSaveStatus = this.linkDescription ? 'saved' : '';
+        },
+
+        clearLinkDescriptionDraft() {
+          try { localStorage.removeItem(this.linkDescriptionDraftKey()); } catch (_) {}
+        },
+
         // Send the Content to the backend, which runs the summarization model.
         async generateDescription() {
           const content = (this.content || '').trim();
           if (!content || this.generating) return;
           this.generating = true;
           this.descriptionError = '';
+          const previousDescription = this.description;
+          this.description = '';
           try {
             const title = document.querySelector('input[name="title"]')?.value || '';
             const res = await fetch('{% url "v3-news-generate-description" %}', {
@@ -379,15 +531,52 @@
               this.descriptionError = '';
               this.onDescriptionEdited();   // persist generated text + show Saving/Saved
             } else {
+              this.description = previousDescription;
               console.error('Description generation failed:', (data && data.error) || res.status);
               this.descriptionError = (data && data.error)
                 || "The description is taking longer than expected to generate. Please try again in a moment.";
             }
           } catch (err) {
+            this.description = previousDescription;
             console.error('Description generation request failed:', err);
             this.descriptionError = "The description is taking longer than expected to generate. Please try again in a moment.";
           } finally {
             this.generating = false;
+          }
+        },
+
+        // Link Auto-Generate: POST the URL to the backend, which fetches the
+        // page, extracts its main text, summarizes it, and returns the summary
+        // to drop into the Description field.
+        async generateLinkDescription() {
+          if (!this.linkUrlValid || this.linkGenerating) return;
+          this.linkGenerating = true;
+          this.linkError = '';
+          const previousLinkDescription = this.linkDescription;
+          this.linkDescription = '';
+          try {
+            const res = await fetch('{% url "v3-news-generate-link-description" %}', {
+              method: 'POST',
+              headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams({ url: this.externalUrl }),
+            });
+            const data = await res.json().catch(() => null);
+            if (res.ok && data && data.description) {
+              this.linkDescription = data.description;
+              this.onLinkDescriptionEdited();   // persist + show Saving/Saved
+            } else {
+              this.linkDescription = previousLinkDescription;
+              this.linkError = (data && data.error) || "We couldn't read that link. Please check the URL and try again.";
+            }
+          } catch (err) {
+            this.linkDescription = previousLinkDescription;
+            console.error('Link description generation request failed:', err);
+            this.linkError = "We couldn't read that link. Please check the URL and try again.";
+          } finally {
+            this.linkGenerating = false;
           }
         },
 
@@ -411,7 +600,12 @@
             if (!url) {
               this.errors.external_url = 'Link is required.';
             } else {
-              try { new URL(url); } catch (_) {
+              try {
+                const parsed = new URL(url);
+                if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+                  throw new Error('unsupported scheme');
+                }
+              } catch (_) {
                 this.errors.external_url = 'Please enter a valid URL.';
               }
             }
@@ -437,9 +631,18 @@
             // Validation passed; the form will POST — drop the saved drafts.
             // (On a server-side reject, the description re-initializes from
             //  `form.summary.value` so the user's text stays visible.)
+            // Cancel any in-flight debounced saves first, or they could fire
+            // after the clears below and resurrect stale drafts.
+            clearTimeout(this._titleSaveTimer);
+            clearTimeout(this._externalUrlSaveTimer);
+            clearTimeout(this._contentSaveTimer);
+            clearTimeout(this._descriptionSaveTimer);
+            clearTimeout(this._linkDescriptionSaveTimer);
             this.clearTitleDraft();
+            this.clearExternalUrlDraft();
             this.clearContentDraft();
             this.clearDescriptionDraft();
+            this.clearLinkDescriptionDraft();
           }
         },
       };

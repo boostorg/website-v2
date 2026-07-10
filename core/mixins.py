@@ -1,6 +1,8 @@
 from django.http import Http404
-from django.urls import URLPattern, URLResolver, get_resolver
+from django.urls import URLPattern, URLResolver, get_resolver, reverse_lazy
 from waffle import flag_is_active
+
+from core.templatetags.custom_static import large_static
 
 
 class V3Mixin:
@@ -23,20 +25,26 @@ class V3Mixin:
     def dispatch(self, request, *args, **kwargs):
         if self.v3_template_name and flag_is_active(request, "v3"):
             self._v3_active = True
-            return self.render_v3_response()
+            return super().dispatch(request, *args, **kwargs)
         self._v3_active = False
         if not getattr(self, "template_name", None):
             raise Http404
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        if getattr(self, "_v3_active", False) and getattr(
+            self, "_get_v3_initial", True
+        ):
+            self._get_v3_initial = False
+            base_context = self.get_context_data(**kwargs)
+            context = self.get_v3_context_data(**base_context)
+        else:
+            context = super().get_context_data(**kwargs)
+        return context
+
     def get_v3_context_data(self, **kwargs):
         """Override in subclasses to provide v3-specific context."""
-        return {}
-
-    def render_v3_response(self):
-        """Render the v3 template through Django's standard TemplateView pipeline."""
-        context = self.get_context_data(**self.get_v3_context_data())
-        return self.render_to_response(context)
+        return {**kwargs}
 
     def get_template_names(self):
         if getattr(self, "_v3_active", False):
@@ -63,3 +71,29 @@ def iter_v3_views():
                     yield entry, view_class
 
     yield from walk(get_resolver().url_patterns)
+
+
+class V3AuthContextMixin(V3Mixin):
+    """Shared context for all V3 auth pages (signup, login, password reset, etc.)."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            if not getattr(self, "template_name", None):
+                raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
+        context["page_title"] = getattr(self, "page_title", "Account")
+        context["foreground_image_url"] = large_static(
+            "img/v3/auth-page/auth-page-foreground.png"
+        )
+        context["background_image_url"] = large_static(
+            "img/v3/auth-page/auth-page-background.png"
+        )
+        # account_login is the real login page (CustomLoginView renders the
+        # v3 login template); v3-login is only a design-preview route.
+        context["login_url"] = reverse_lazy("account_login")
+        context["signup_url"] = reverse_lazy("account_signup")
+        context["password_reset_url"] = reverse_lazy("v3-password-reset")
+        return context

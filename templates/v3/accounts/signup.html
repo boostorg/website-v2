@@ -18,16 +18,16 @@
     redirect_field_value  (string, optional, default unset) — URL to redirect to after signup; hidden input omitted when unset
     password_rules        (list, optional, default unset) — rule objects for password validation checklist
 {% endcomment %}
-{% load static %}
+{% load static socialaccount %}
 {% block auth_content %}
   <div class="auth-page__header">
     <h1 class="auth-page__title">Create an account</h1>
     <p class="auth-page__subtitle">Advance your career, learn from experts, and help shape the future of Boost and C++.</p>
   </div>
-  <form class="auth-page__card"
+  <form class="auth-page__card auth-page__signup-form"
+    id="signup_form"
     method="post"
     action=""
-    novalidate
     {# djlint:off #}
       x-data="{ hasErrors: false }"
       @input.debounce.150ms="hasErrors = !!$el.querySelector('.field--error')"
@@ -46,24 +46,58 @@
     >
     {% csrf_token %}
     {% include "v3/includes/_field_text.html" with name="email" type="email" label="Email Address*" placeholder="Email Address" required=True validate_type="email" validate_error="That doesn't look quite right, please double-check your email and try again." error=form.email.errors.0 %}
-    {% include "v3/includes/_field_password.html" with name="password1" label="Password*" placeholder="Password" required=True password_rules=password_rules %}
+    {% include "v3/includes/_field_password.html" with name="password1" label="Password*" placeholder="Password" required=True error=form.password1.errors.0 password_rules=password_rules %}
     {% include "v3/includes/_field_password.html" with name="password2" label="Re-enter Password*" placeholder="Password" required=True error=form.password2.errors.0 password_rules="" validate_match="#field-password1" validate_match_error="Passwords do not match, please try again." %}
-    {% include "v3/includes/_field_text.html" with name="username" label="Username" placeholder="Username" %}
+    {% include "v3/includes/_field_text.html" with name="username" label="Username" placeholder="Username" required=True error=form.username.errors.0 %}
     {% if form.non_field_errors %}
       {% for error in form.non_field_errors %}<p class="field__error" role="alert">{{ error }}</p>{% endfor %}
     {% endif %}
     {% include "v3/includes/_field_checkbox.html" with name="mailing_list" label="Also join the Boost Developers Mailing List" %}
+    <label class="checkbox  auth-page_tou-checkbox" for="checkbox-accept_terms_of_use">
+        <input
+          class="checkbox__input"
+          type="checkbox"
+          id="checkbox-accept_terms_of_use"
+          name="accept_terms_of_use"
+          value="on"
+          required
+        >
+          <span class="checkbox__box" aria-hidden="true">
+            {% include "includes/icon.html" with icon_name="check" icon_class="checkbox__check" %}
+          </span>
+          <span class="checkbox__label">I have read and accepted the <a href="{% url 'terms-of-use' %}">Terms of Use</a> for this service</span>
+    </label>
     {% if redirect_field_value %}
       <input type="hidden"
              name="{{ redirect_field_name }}"
              value="{{ redirect_field_value }}">
     {% endif %}
+
+    <label class="auth-page__invisible-check-label" for="checkbox-create">
+    <input name="invisible-check-protect" class="checkbox__input" id="checkbox-create" type="checkbox">
     {% include "v3/includes/_button.html" with label="Create Account" type="submit" style="primary" alpine_disabled="hasErrors" %}
+    </label>
+    <div class="auth-page__signup-divider">
+      <hr />
+      <span>
+      OR
+      </span>
+      <hr />
+    </div>
+    {% get_providers as socialaccount_providers %}
+    {% if socialaccount_providers %}
+    {% for provider in socialaccount_providers %}
+    <label class="auth-page__invisible-check-label" for="checkbox-{{provider.name}}">
+    {% provider_login_url provider process="login" scope=scope auth_params=auth_params as href %}
+    <input name="invisible-check-protect" class="checkbox__input" id="checkbox-{{provider.name}}" type="checkbox">
+    {% if provider.name == "GitHub" %}
+    {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="github" style="secondary" %}
+    {% elif provider.name == "Google" %}
+    {% include "v3/includes/_button.html" with label="Continue with "|add:provider.name url=href icon_name="google-colored" style="secondary" %}
+    {% endif %}
+    </label>
+    {% endfor %}
+    {% endif %}
   </form>
-  <p class="auth-page__divider">OR</p>
-  <div class="auth-page__social-card">
-    {% include "v3/includes/_button.html" with label="Continue with GitHub" url="#" icon_name="github" style="secondary" %}
-    {% include "v3/includes/_button.html" with label="Continue with Google" url="#" icon_name="google-colored" style="secondary" %}
-    {% include "v3/includes/_button.html" with label="Already have an account? Sign in →" url=login_url style="primary" %}
-  </div>
+  <p class="auth-page__sign-in-link">Already have an account? <a href="{{login_url}}">Sign in</a></p>
 {% endblock auth_content %}

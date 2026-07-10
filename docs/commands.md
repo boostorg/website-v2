@@ -14,9 +14,12 @@
   - [`import_beta_release`](#import_beta_release)
   - [`import_release_notes`](#import_release_notes)
   - [`generate_whats_new`](#generate_whats_new)
+  - [`refresh_popular_search_terms`](#refresh_popular_search_terms)
   - [`sync_mailinglist_stats`](#sync_mailinglist_stats)
   - [`update_library_version_dependencies`](#update_library_version_dependencies)
   - [`release_tasks`](#release_tasks)
+  - [`import_ml_counts`](#import_ml_counts)
+  - [`link_contributors_to_users`](#link_contributors_to_users)
   - [`refresh_users_github_photos`](#refresh_users_github_photos)
   - [`remove_unverified_users`](#remove_unverified_users)
   - [`clear_slack_activity`](#clear_slack_activity)
@@ -82,7 +85,7 @@ Import `VersionFile` objects from Artifactory.
 
 | Options    | Format | Description                                                                                                                  |
 |------------|--------|------------------------------------------------------------------------------------------------------------------------------|
-| `--new`    | bool   | Default: 'true'. If 'true', will import only the newest release data. Set to 'false' to import archive data for all releases |
+| `--new`    | bool   | Default: 'true'. If 'true', imports archive data for the most recent full release and (if one exists) the most recent beta release. Set to 'false' to import archive data for all releases |
 | `--release` | string   | Format: `boost-1.63.0`. If passed, will import Archive urls for only that release. Overrides --new                        |
 
 **More Information**
@@ -292,6 +295,29 @@ The LLM call is a Celery task; the worker must be running and `OPENROUTER_API_KE
 | `--dry-run`      | bool   | List the versions that would be queued without queuing them.                                               |
 | `--validate`     | bool   | Run the prompt synchronously against the latest `--limit` versions (that have release notes) and print the LLM output. No DB writes. Use to review prompt changes before sign-off. |
 | `--limit`        | int    | Number of versions to process when `--validate` is set. Default: 10.                                       |
+
+## `refresh_popular_search_terms`
+
+**Purpose**: Refresh the `PopularSearchTerm` rows backing the V3 homepage search-card keyword badges. Calls the same service the weekly Celery task uses: fetches the top searches from Algolia analytics, runs them through the LLM quality filter, and upserts the survivors. Use this to seed local data or to refresh on demand after editing the exclusion list / pinned rows. See [Popular Search Terms on the V3 Homepage](./popular_search_terms.md).
+
+By default the refresh runs **inline** (synchronous) so you see the result immediately; pass `--queue` to dispatch it to Celery instead (same as the admin "Refresh from Algolia" button).
+
+Requires `ALGOLIA_APP_ID`, `ALGOLIA_ANALYTICS_API_KEY` and `OPENROUTER_API_KEY` (see [Environment Variables](./env_vars.md)).
+
+**Example**
+
+```bash
+./manage.py refresh_popular_search_terms
+./manage.py refresh_popular_search_terms --dry-run
+./manage.py refresh_popular_search_terms --queue
+```
+
+**Options**
+
+| Options       | Format | Description                                                                                                |
+|---------------|--------|------------------------------------------------------------------------------------------------------------|
+| `--queue`     | bool   | Dispatch the refresh to Celery (matches the admin button and the weekly cron). Default is to run inline.   |
+| `--dry-run`   | bool   | Fetch from Algolia and run the LLM filter, but roll back any DB writes. Useful for previewing the next run. Incompatible with `--queue`. |
 
 ## `sync_mailinglist_stats`
 

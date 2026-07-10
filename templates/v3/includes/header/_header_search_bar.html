@@ -4,9 +4,10 @@
   The search modal is imported from static/js/boost-gecko/.
 
   When JavaScript is enabled, the button opens the Gecko search overlay (wired
-  in static/js/search-shortcut.js; Ctrl/Cmd+K shortcut). When JavaScript is
-  disabled, the button and keyboard hint are hidden via an inline <style> in
-  <noscript> and a fallback message is shown instead.
+  in gecko-search-helper.js; Ctrl/Cmd+K shortcut, plus search-card form
+  submit / popular-tag prefill). When JavaScript is disabled, the button and
+  keyboard hint are hidden via an inline <style> in <noscript> and a fallback
+  message is shown instead.
 
   Variables:
     current_version  (object, required) — current Boost release (from context processor)

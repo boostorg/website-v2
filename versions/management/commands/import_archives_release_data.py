@@ -46,7 +46,13 @@ def command(release: str, new: bool):
         name = f"boost-{release}" if release not in ["master", "develop"] else release
         versions = [Version.objects.with_partials().get(name=name)]
     elif new:
-        versions = [Version.objects.with_partials().most_recent()]
+        # Include both the most recent full release and the most recent beta
+        # (if one exists), so that a newly-imported beta is not silently
+        # skipped just because `most_recent()` filters out betas.
+        qs = Version.objects.with_partials()
+        versions = [
+            v for v in (qs.most_recent(), qs.most_recent_beta()) if v is not None
+        ]
     else:
         versions = Version.objects.with_partials().filter(name__gte=last_release)
     logger.info(f"import_archive_release_data {versions=}")
@@ -59,9 +65,16 @@ def command(release: str, new: bool):
             binaries_urls = get_binary_download_uris_for_release(version_num)
             file_urls = archives_urls + binaries_urls
         except requests.exceptions.HTTPError:
-            logger.info(f"Skipping {version_num}, error retrieving release data")
+            # Promoted from INFO to WARNING: an empty/missing archives listing
+            # leaves the version with zero downloads, which previously looked
+            # indistinguishable from a successful import in the logs.
+            logger.warning(
+                f"Skipping {version_num}, error retrieving release data "
+                f"(archives listing unavailable)"
+            )
             continue
 
+        stored_count = 0
         download_data = []
         checksums = dict()
         for url in file_urls:
@@ -79,4 +92,18 @@ def command(release: str, new: bool):
                 continue
             logger.info(f"Data for {v.name=} at {url=}: {download_data=}")
             store_release_downloads_for_version(v, download_data)
+            stored_count += 1
             logger.info(f"Stored download data from {url=} for {v.name}")
+
+        # Summary log so operators can tell at a glance whether anything was
+        # actually imported for this version vs. silently zero.
+        if stored_count == 0:
+            logger.warning(
+                f"import_archive_release_data {v.name=}: no download files "
+                f"stored (listing returned {len(file_urls)} candidate URLs)"
+            )
+        else:
+            logger.info(
+                f"import_archive_release_data {v.name=}: stored "
+                f"{stored_count} download file(s)"
+            )

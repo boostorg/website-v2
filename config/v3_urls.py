@@ -55,7 +55,6 @@ from users.views import (
     V3PasswordResetFromKeyDoneView,
     V3PasswordResetFromKeyView,
     V3PasswordResetView,
-    V3SignupView,
 )
 
 v3_urlpatterns = [
@@ -73,11 +72,6 @@ v3_urlpatterns = [
         "v3/news/add/",
         V3AllTypesCreateView.as_view(),
         name="v3-news-create",
-    ),
-    path(
-        "v3/accounts/signup/",
-        V3SignupView.as_view(),
-        name="v3-signup",
     ),
     path(
         "v3/accounts/login/",

@@ -6,7 +6,7 @@ import structlog
 from config.celery import app
 from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL, SUMMARIZATION_MODEL
 from news.constants import CONTENT_SUMMARIZATION_THRESHOLD
-from news.helpers import extract_content
+from news.helpers import UnsafeURLError, extract_article, safe_get
 from news.utils import set_video_thumbnail
 
 logger = structlog.get_logger(__name__)
@@ -123,8 +123,14 @@ def summarize_content(
 
 
 @app.task
-def save_entry_summary_value(summary: str, pk: int):
+def save_entry_summary_value(summary: str | None, pk: int):
     from news.models import Entry
+
+    # generate_summary returns None/"" on malformed or empty model output; saving
+    # that would clobber an existing Entry.summary, so treat it as "do not save".
+    if not summary:
+        logger.warning(f"Skipping summary save for {pk=}: empty/malformed model output")
+        return
 
     entry = Entry.objects.get(pk=pk)
     entry.summary = summary
@@ -172,14 +178,25 @@ def set_summary_for_link_entry(pk: int):
     entry = Entry.objects.get(pk=pk)
     try:
         logger.info(f"Fetching content from {entry.external_url=} for entry.{pk=}")
-        response = requests.get(entry.external_url, timeout=10)
+        response = safe_get(entry.external_url, timeout=10)
         response.raise_for_status()
         markup = response.text
         logger.debug(f"Fetched {len(markup)=} for entry.{pk=}...")
-        content = extract_content(markup)
-        logger.info(f"extracted content from {entry.external_url=}, {markup[:100]=}")
+        _title, content = extract_article(markup, url=entry.external_url)
+        logger.info(
+            f"extracted content from {entry.external_url=}, extracted_chars={len(content)}"
+        )
+    except UnsafeURLError:
+        logger.warning(f"Refusing to fetch unsafe {entry.external_url=} for {pk=}")
+        return
     except requests.RequestException as e:
         logger.error(f"Error fetching content from {entry.external_url=}: {e=}")
+        return
+
+    if not content:
+        logger.warning(
+            f"No content extracted from {entry.external_url=} for {pk=}, skipping."
+        )
         return
 
     logger.info(f"dispatching summarize task for {pk=} with {content[:40]=}...")

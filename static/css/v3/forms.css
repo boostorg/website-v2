@@ -670,6 +670,12 @@
   color: var(--color-text-primary, #050816);
 }
 
+.checkbox__label a {
+  text-decoration: underline;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-link-accent);
+}
+
 .checkbox--disabled {
   opacity: 0.5;
   cursor: not-allowed;

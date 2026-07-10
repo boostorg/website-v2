@@ -5,7 +5,8 @@
     description (required) — card body text
     icon_name   (optional) — icon name for includes/icon.html (e.g. "bullseye-arrow").
                  If omitted (and badge_count not set), card is rendered without icon and modifier --has-icon is not applied.
-    icon_size   (optional) - Size in pixels of icon, defaults to 24
+    icon_size   (optional) - Size in pixels of icon, defaults to 16px. Only used if icon_name is set.
+    icon_viewbox (optional) — icon viewBox; set "0 0 16 16" for 16-unit glyphs
     badge_count (optional) — when set (e.g. in carousel), shows a non-clickable count badge instead of icon.
     title_url   (optional) — if set, title is wrapped in a link
     cta_label   (optional) — if set with cta_href, renders a CTA link below description (or span if cta_as_span)
@@ -22,7 +23,7 @@
   </div>
   {% elif icon_name %}
   <div class="content-detail-icon__icon" aria-hidden="true">
-    {% include "includes/icon.html" with icon_name=icon_name icon_class="content-detail-icon__icon-svg" icon_size=icon_size|default:24 %}
+    {% include "includes/icon.html" with icon_name=icon_name icon_class="content-detail-icon__icon-svg" icon_size=icon_size|default:16 icon_viewbox=icon_viewbox %}
   </div>
   {% endif %}
   <h3 class="content-detail-icon__title">

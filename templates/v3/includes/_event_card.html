@@ -1,6 +1,8 @@
 {% extends "v3/includes/_card_group.html" %}
+{% load custom_static %}
 {% comment %}
   Event Card — extends _card_group.html to render event items.
+  This card has a built-in empty state design.
 
   Variables (passed to _card_group.html):
     heading             (string, optional)  — section heading text
@@ -8,8 +10,7 @@
     items               (list, optional)    — list of event objects with:
       - title           (string, required)  — event title
       - description     (string, optional)  — event description
-      - date            (string, required)  — human-readable date (e.g. "29/10/25")
-      - datetime        (string, optional)  — value for <time datetime="...">
+      - date            (date, required)    — event date object; rendered as "Feb 15, 2026"
       - card_url        (string, optional)  — if set, the card is wrapped in a link
       - card_aria_label (string, optional)  — aria-label for the link; defaults to title
     variant             (string, optional)  — "list" or "card", defaults to "list"
@@ -38,15 +39,16 @@
               {% if item.description %}
                 <p class="event-card__description">{{ item.description }}</p>
               {% endif %}
-              {% if item.datetime %}
-                <time class="event-card__date" datetime="{{ item.datetime }}">{{ item.date }}</time>
-              {% else %}
-                <span class="event-card__date">{{ item.date }}</span>
+              {% if item.date %}
+                <time class="event-card__date" datetime="{{ item.date|date:'Y-m-d' }}">{{ item.date|date:"M j, Y" }}</time>
               {% endif %}
           </article>
           {% if item.card_url %}</a>{% endif %}
           </li>
         {% endfor %}
     </ul>
+{% else %}
+  <p class="event-card__empty">Check back soon for updates on upcoming events.</p>
+  <img class="event-card__empty-image" src="{% large_static 'img/v3/solo-images/moose-deadline.png' %}" alt="" />
 {% endif %}
 {% endblock %}

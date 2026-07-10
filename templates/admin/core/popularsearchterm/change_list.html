@@ -1,0 +1,65 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  /* Refresh-from-Algolia POST form sits alongside <a class="addlink"> siblings
+     in the object-tools row. Use --object-tools-* (the addlink palette, which
+     is gray) rather than --button-* (form-button blue), and let the form be
+     a transparent passthrough so the button itself fills the floated <li>. */
+  .object-tools {
+    display: flex;
+  }
+  .object-tools li .ps-refresh-form {
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+  }
+  .object-tools .ps-refresh-button {
+    display: block;
+    padding: 6px 14px;
+    background: var(--object-tools-bg);
+    color: var(--object-tools-fg);
+    border: 0;
+    border-radius: 15px;
+    font: inherit;
+    font-size: 0.6875rem;
+    font-weight: 400;
+    line-height: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background-color 120ms ease-in-out;
+  }
+  .object-tools .ps-refresh-button:hover,
+  .object-tools .ps-refresh-button:focus {
+    background: var(--object-tools-hover-bg);
+    color: var(--object-tools-fg);
+    outline: none;
+  }
+  .object-tools .ps-refresh-icon {
+    display: inline-block;
+    margin-left: 6px;
+    font-weight: 700;
+  }
+</style>
+{% endblock %}
+
+{% block object-tools %}
+<ul class="object-tools">
+    {% block object-tools-items %}
+        {{ block.super }}
+        {% if has_refresh_button %}
+        <li>
+          <form method="post" action="{% url 'admin:core_popularsearchterm_refresh' %}" class="ps-refresh-form">
+            {% csrf_token %}
+            <button type="submit" class="ps-refresh-button">
+              {% trans "Refresh from Algolia" %}<span class="ps-refresh-icon" aria-hidden="true">↻</span>
+            </button>
+          </form>
+        </li>
+        {% endif %}
+    {% endblock %}
+</ul>
+{% endblock %}

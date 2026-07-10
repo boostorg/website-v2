@@ -90,9 +90,9 @@ def test_reset_request_unknown_email_sends_signup_email(tp, db, mailoutbox):
     msg = mailoutbox[0]
     assert msg.to == ["not-registered@example.com"]
     assert msg.subject == _subject("No account found for this email")
-    assert reverse("v3-signup") in msg.body
+    assert reverse("account_signup") in msg.body
     html = msg.alternatives[0][0]
-    assert reverse("v3-signup") in html
+    assert reverse("account_signup") in html
     assert "no Boost account registered" in html
 
 

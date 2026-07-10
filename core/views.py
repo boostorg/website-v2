@@ -31,6 +31,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
+from waffle import flag_is_active
 
 from core.templatetags.custom_static import large_static
 from config.settings import ENABLE_DB_CACHE
@@ -97,12 +98,13 @@ from .tasks import (
 
 from libraries.models import Category, Library, LibraryVersion, Tier
 from news.models import Entry
-from news.services import get_latest_post_cards, news_type_label
+from news.services import get_latest_post_cards
 from libraries.utils import (
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
 )
 
+from .install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from .mock_data import SharedResources  # noqa: F401
 
 logger = structlog.get_logger()
@@ -130,7 +132,6 @@ class CalendarView(V3Mixin, TemplateView):
 
     def get_v3_context_data(self, **kwargs):
         ctx = super().get_v3_context_data(**kwargs)
-        print(self.request.headers)
         ctx["timezone"] = "America/Chicago"
         return ctx
 
@@ -143,7 +144,11 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
     template_name = "community.html"
     v3_template_name = "v3/community.html"
 
-    def render_v3_response(self):
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        if not flag_is_active(request, "v3"):
+            return response
+
         version_slug = self.kwargs.get("version_slug")
         if not version_slug:
             version_data = context_processors.selected_version(self.request)
@@ -153,7 +158,6 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
                 else LATEST_RELEASE_URL_PATH_STR
             )
             return redirect("community-version", version_slug=target)
-        response = super().render_v3_response()
         if version_slug != LATEST_RELEASE_URL_PATH_STR:
             set_selected_boost_version(version_slug, response)
         return response
@@ -307,28 +311,14 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
             .select_related("author")
             .order_by("-publish_at")[:4]
         )
-        ctx["posts"] = [
-            {
-                "title": entry.title,
-                "url": self.request.build_absolute_uri(entry.get_absolute_url()),
-                "date": entry.publish_at,
-                "category": news_type_label(entry.tag) if entry.tag else "",
-                # TODO: populate from DB once entry tags are persisted
-                "tag": "",
-                "author": {
-                    "name": entry.author.display_name or entry.author.get_full_name(),
-                    "avatar_url": entry.author.get_avatar_url(),
-                    "role": "",
-                },
-            }
-            for entry in recent_entries
-        ]
+
+        ctx["posts"] = [entry.to_v3_post_card_dict() for entry in recent_entries]
         ctx["news_url"] = self.request.build_absolute_uri(reverse("news"))
         ctx["contribute_url"] = self.request.build_absolute_uri(
             "/doc/contributor-guide/contributors-faq.html"
         )
-        ctx["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
-        ctx["install_card_system_install"] = SharedResources.install_card_system_install
+        ctx["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS
+        ctx["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
         ctx["create_account_card_body_html"] = (
             "<p>Your contribution badges appear on your Boost profile with:</p>"
             "<ul>"
@@ -507,7 +497,7 @@ class LearnPageView(MailingListCardMixin, V3Mixin, TemplateView):
     v3_template_name = "v3/learn_page.html"
 
     def get_v3_context_data(self, **kwargs):
-        ctx = self.get_context_data(**kwargs)
+        ctx = super().get_v3_context_data(**kwargs)
         ctx["learn_card_data"] = [
             {
                 "title": "I want to learn:",
@@ -1499,10 +1489,8 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         context["install_card_title"] = (
             "Install Boost and get started in your terminal."
         )
-        context["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
-        context["install_card_system_install"] = (
-            SharedResources.install_card_system_install
-        )
+        context["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS
+        context["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
         context["popular_terms"] = SharedResources.popular_terms
         context["demo_libs"] = [
             ("asio", "Asio"),
