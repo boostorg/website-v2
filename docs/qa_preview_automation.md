@@ -1,185 +1,205 @@
-# QA Preview Deploy Automation — Proposal
+# QA Modernization Playbook
 
-## Purpose
+**Pilot project:** `boostorg/website-v2` · **Status:** discussion draft ·
+**Audience:** Product / QA
 
-Replace the manual, run-it-from-my-laptop QA preview process with a
-PR-triggered GitHub Actions workflow, so QA no longer has to be at a
-specific machine to spin up a staging preview of a pull request.
-
-This proposal keeps the **single shared QA slot** (`cppal-dev`) as-is. It
-automates *how a PR gets onto that slot*; it does not introduce per-PR
-isolated environments.
+The QA workflow on the Boost website is a chain of manual steps performed by
+one person. This document maps that chain, interprets what "automation"
+actually means here, and lays out a phased plan to remove the human from the
+mechanical links — shaped so the result becomes a QA practice Metalab can
+reuse on the next client, not a one-off fix.
 
 ---
 
-## Current process (how it works today)
+## The reframe
+
+When a PM says *"automation,"* they don't mean a specific tool — they mean an
+**outcome**: *"I shouldn't have to wait on one person clicking through every
+PR, and I want to see that a change works without asking someone."* The
+complaint is that **QA sits in the critical path as a human bottleneck**, and
+that the proof a change works is a person's hand-pasted screenshots — which
+don't scale, aren't repeatable, and stall the moment that person is out.
+
+With the context that **Metalab is continually improving QA for its clients —
+through new tools, AI, and automation** — this stops being a one-off fix and
+becomes a **capability**. The deliverable is a repeatable QA pattern the
+studio can demonstrate and reuse, piloted here because Boost already has most
+of the plumbing (a preview pipeline and Playwright already in the repo).
+
+At a glance:
+
+- **6 of 7** steps in the QA chain are done by hand.
+- **1** step is automated today — the Helm deploy.
+- **Playwright 1.58** already ships in `requirements.txt`, unused for QA.
+- **3** levers named by the team: tools · AI · automation.
+
+---
+
+## 1. The QA chain today
 
 QA previews a PR by putting its code onto the `cppal-dev` branch of the
-`cppalliance/website-v2-qa` fork, which triggers a GKE deploy into the
-`cppal-dev` namespace.
+`cppalliance/website-v2-qa` fork, which triggers a GKE deploy. Every link
+except the deploy engine itself is a person.
 
-### Step 1 — Manual, local script
+| # | Step | State |
+|---|------|-------|
+| 01 | **Decide a PR needs QA** — coordinated over Slack/verbally; nothing on the PR records it. | 👤 Manual |
+| 02 | **Get the PR onto staging** — QA runs `scripts/deploy-qa.sh <PR#>` locally, force-pushing the PR commit onto `cppal-dev`. | 👤 Manual |
+| 03 | **Build & deploy to the cluster** — the push triggers CI-GCP: build image, `helm upgrade` into the `cppal-dev` namespace, purge CDN. | ⚙ **Automated** |
+| 04 | **Verify the change** — a person opens `cppal-dev.boost.cppalliance.org` and clicks through the flow in light/dark/mobile. | 👤 Manual |
+| 05 | **Produce evidence** — screenshots captured by hand and pasted into the PR's `## Screenshots` grid (see PRs #2482, #2475, #2481). | 👤 Manual |
+| 06 | **Write test steps & sign off** — a numbered "peer-review testing" walkthrough is typed and the checklist ticked (sometimes skipped). | 👤 Manual |
+| 07 | **Release the shared slot** — one `cppal-dev` slot, no teardown; which PR "owns" staging lives out-of-band. | 👤 Manual |
 
-`scripts/deploy-qa.sh <PR_NUMBER>` is run **by hand on the QA engineer's
-machine**. For a given PR it:
+### How steps 02–03 work in detail
 
-1. Clones / updates the `cppalliance/website-v2-qa` fork under
-   `~/qa-automation/`.
-2. Adds `boostorg/website-v2` as the `upstream` remote.
-3. Fetches the PR (`refs/pull/<N>/head`) into a local `pr/<N>` branch.
-4. Checks out the fork's `cppal-dev` branch and either:
+`scripts/deploy-qa.sh <PR_NUMBER>` is run by hand on the QA engineer's
+machine. It:
+
+1. Clones/updates the `cppalliance/website-v2-qa` fork under
+   `~/qa-automation/` and adds `boostorg/website-v2` as the `upstream` remote.
+2. Fetches the PR (`refs/pull/<N>/head`) into a local `pr/<N>` branch.
+3. Checks out the fork's `cppal-dev` branch and either:
    - **default:** `git reset --hard` to the PR's commit, then
      `git push --force origin cppal-dev`, or
    - **`--merge`:** merges the PR branch and pushes normally.
-5. Prompts for confirmation before pushing (unless `--yes`).
+4. Prompts for confirmation before pushing (unless `--yes`).
 
-### Step 2 — CI/CD picks up the push
+`.github/workflows/actions-gcp.yaml` (`CI-GCP`) then runs its `build` job on
+the `cppal-dev` push (gated on
+`github.repository == 'cppalliance/website-v2-qa' && github.ref == 'refs/heads/cppal-dev'`):
+build the image, `helm upgrade --install -n cppal-dev -f values-cppal-dev-gke.yaml`
+(release `boost-cppal-dev`) on `boostorg-cluster1`, then purge Fastly. The
+preview is served at **`cppal-dev.boost.cppalliance.org`**.
 
-`.github/workflows/actions-gcp.yaml` (`CI-GCP`) has a `build` job that runs
-only when:
+### Why it hurts
 
-```
-github.repository == 'cppalliance/website-v2-qa'
-  && github.event_name == 'push'
-  && github.ref == 'refs/heads/cppal-dev'
-```
-
-When that push lands, the job:
-
-- Builds the Docker image tagged with the short SHA and pushes it to
-  Artifact Registry.
-- Runs `helm upgrade --install -n cppal-dev -f values-cppal-dev-gke.yaml`
-  (release `boost-cppal-dev`) against the `boostorg-cluster1` GKE cluster.
-- Waits for rollout, then purges the Fastly CDN cache.
-
-### Step 3 — QA reviews
-
-The preview is served at **`cppal-dev.boost.cppalliance.org`** (see
-`kube/boost/values-cppal-dev-gke.yaml`), where QA verifies the PR.
-
-### Pain points
-
-- **Machine-bound & manual.** Every PR requires the QA engineer to run a
-  local bash script; nothing is triggered from the PR itself.
-- **No feedback on the PR.** Reviewers can't see from the PR whether a
-  preview is live or where.
-- **Force-push on a shared branch.** `cppal-dev` is rewritten each time;
-  whoever ran the script last owns the slot, with no record on the PR.
-- **Serialized by nature.** Only one PR can occupy `cppal-dev` at a time —
-  acceptable, but coordination is entirely out-of-band (Slack/verbal).
+- **Machine-bound & manual** — nothing is triggered from the PR itself.
+- **No feedback on the PR** — reviewers can't see whether a preview is live.
+- **Force-push on a shared branch** — whoever ran the script last owns the
+  slot, with no record on the PR.
+- **Evidence is hand-made** — screenshots and test notes are assembled by a
+  person, and checklist items get skipped.
 
 ---
 
-## Proposed automation
+## 2. What "automation" most plausibly means
 
-Move the logic of `deploy-qa.sh` **server-side into a GitHub Actions
-workflow** that runs in `boostorg/website-v2`, triggered from the PR, and
-that reports the preview URL back onto the PR. The single shared
-`cppal-dev` slot and the existing deploy job are unchanged.
+The trap: an engineer hears "automation" and builds a clever test suite,
+while the PM's daily pain is waiting on a person to press a button. Ranked by
+how likely each is the real ask:
 
-### Trigger — recommendation: **label-based**
-
-Given the "not sure" on triggering, the recommended default is a
-**label** (`qa` or `deploy-preview`):
-
-- Visible in the PR UI; obvious who requested a preview and when.
-- Easy to gate — only maintainers/QA can add labels.
-- Natural teardown hook (label removed → optional reset).
-- No parsing of comment bodies, no bot-command surface area.
-
-Alternatives considered:
-
-| Trigger | Pros | Cons |
-|---|---|---|
-| **Label `qa`** *(recommended)* | Visible, permission-gated, teardown-friendly | Requires label to exist in repo |
-| Slash comment `/qa` | Chatops feel, works from mobile | Comment-parsing, needs author allowlist to avoid abuse |
-| Auto on every PR | Fully hands-off | Thrashes the single shared slot; wasteful builds |
-
-Because there is exactly **one** shared slot, auto-on-every-PR is a poor
-fit (PRs would constantly overwrite each other). Label or slash-comment
-both make "which PR owns the slot right now" an explicit, on-PR action.
-
-### Flow
-
-```
-PR labeled `qa`
-      │
-      ▼
-GitHub Actions (in boostorg/website-v2, `pull_request` / `labeled`)
-  1. Check permission (actor is maintainer/QA)
-  2. Check out PR head
-  3. Push PR head → cppalliance/website-v2-qa `cppal-dev`
-     (force-push, mirroring deploy-qa.sh default mode)
-      │
-      ▼
-Existing CI-GCP `build` job fires on the cppal-dev push
-  → build image, helm upgrade -n cppal-dev, purge Fastly
-      │
-      ▼
-Workflow comments on the PR:
-  "✅ QA preview deploying to https://cppal-dev.boost.cppalliance.org
-   (commit <sha>)"
-```
-
-### What needs to exist
-
-1. **New workflow file**, e.g. `.github/workflows/qa-preview.yml`, in
-   `boostorg/website-v2`, triggered on `pull_request` (`types: [labeled]`)
-   and gated on the label name.
-2. **A cross-repo push credential.** The workflow must push to
-   `cppalliance/website-v2-qa`. Today the QA engineer's local git
-   credentials do this; automated, it needs a secret — a
-   machine-user PAT or a GitHub App installation token with `contents:
-   write` on the QA fork — stored as a repo/organization secret. **This is
-   the main new secret to provision and the key decision to confirm with
-   whoever administers the `cppalliance` org.**
-3. **Permission gate** so only maintainers/QA can trigger a deploy
-   (label events from forks otherwise run with limited tokens; using
-   `pull_request_target` or a manual `workflow_dispatch` with the PR number
-   are the two standard ways to get a privileged token — each has security
-   tradeoffs called out below).
-4. **A PR comment step** (`actions/github-script` or the `gh` CLI) to post
-   the preview URL and status back.
-5. *(Optional)* **Teardown / release step** on label removal or PR close —
-   e.g. reset `cppal-dev` to `develop` so the slot returns to a known
-   baseline and it's clear no PR currently owns it.
-
-### Security considerations
-
-- Pushing to another repo and building/deploying from PR code is
-  privileged. Untrusted fork PRs must **not** get a deploy without an
-  explicit maintainer action (the label *is* that action, but the workflow
-  must verify the labeler's permission, not just the label's presence).
-- Prefer a scoped GitHub App token over a long-lived PAT for the
-  cross-repo push.
-- Keep the deploy code path (build + helm) exactly as it is in
-  `actions-gcp.yaml`; this proposal only changes *what puts code on
-  `cppal-dev`*, so the blast radius of the deploy itself is unchanged.
-
-### Explicitly out of scope
-
-- **Per-PR isolated previews** (own namespace/URL per PR). That would need
-  Helm value templating per PR, ingress/DNS wildcards, and teardown
-  lifecycle — a substantially larger change. This proposal deliberately
-  keeps the single shared `cppal-dev` slot.
+1. **Self-serve, PR-triggered previews** *(most likely).* A preview comes up
+   from the PR itself — a label or a button — with the URL posted back, no
+   named person running a laptop script. Removes steps 01–03 and takes QA out
+   of the gate.
+2. **Automated evidence instead of hand-pasted screenshots.** Screenshots
+   across light/dark/mobile generate themselves in CI and land on the PR.
+3. **An automated pass/fail signal.** A check that goes red when a change
+   breaks a page — the leap from "here's what it looks like" to "the system
+   says it's good."
+4. **The whole loop, hands-off.** Open PR → deploy → verify → post results →
+   set status → release the slot, human only for judgment calls.
 
 ---
 
-## Rollout
+## 3. Three levers: tools, AI, automation
 
-1. Confirm trigger mechanism (recommend: `qa` label).
-2. Provision the cross-repo push secret on `cppalliance/website-v2-qa`
-   (App token preferred).
-3. Add `.github/workflows/qa-preview.yml`, port `deploy-qa.sh` logic into
-   it, add the permission gate and PR-comment step.
-4. Keep `scripts/deploy-qa.sh` as the manual fallback during a trial
-   period.
-5. Optional follow-up: automatic teardown on label removal / PR close.
+The team named the categories themselves. What each realistically buys:
 
-## Open questions for the team
+### Automation *(deterministic — highest ROI, do first)*
+- PR-triggered preview deploy (removes the human-as-gate).
+- Auto-captured screenshots + visual-regression check posted to the PR.
+- Auto-run of the changed flows on the live preview.
 
-- Who administers `cppalliance/website-v2-qa`, and can they mint an App
-  token / machine-user PAT for the cross-repo push?
+### New tools *(enablers)*
+- **Playwright** — already in `requirements.txt` (1.58), Chromium already
+  wired in CI. E2E + built-in `toHaveScreenshot()` visual diffing.
+- Baseline snapshots so "did the UI change?" is a reviewable diff, not a human
+  comparison.
+
+### AI *(accelerant — keep it assisting the deterministic checks, not replacing them)*
+
+**Useful today:**
+- Draft the per-PR test plan from the diff + description (the "peer-review
+  testing steps" are already hand-written on every PR).
+- Vision-model review of screenshots (cut-off, contrast, overflow) — maps to
+  the "matches Figma / a11y" checklist items.
+- Triage a red run: real regression vs. flaky selector.
+
+**Handle with caution:**
+- Fully autonomous "self-healing" agents that decide pass/fail with no
+  baseline — flaky, and a sign-off nobody can reproduce is worse than a manual
+  one.
+
+The honest framing: **AI writes and triages the tests; automation runs them
+deterministically; the tools do the diffing and reporting.**
+
+---
+
+## 4. Phased pilot roadmap
+
+Sequence matters. Phases 1–2 remove the toil and each demos on its own; phase
+3 is the differentiator Metalab can market — but bolting AI on before the
+deterministic base exists just yields unreliable magic.
+
+### Phase 1 — Deploy automation *(removes steps 01–03)*
+
+A PR-triggered workflow does what `deploy-qa.sh` does, server-side, and
+comments the preview URL back on the PR. Keeps the single shared `cppal-dev`
+slot.
+
+- **Trigger — recommended: `qa` label.** Visible in the PR UI,
+  permission-gated, teardown-friendly, no comment-parsing. Auto-on-every-PR is
+  a poor fit given the single shared slot; a `/qa` comment is the alternative.
+- **What needs to exist:**
+  1. New workflow `.github/workflows/qa-preview.yml` in `boostorg/website-v2`,
+     on `pull_request` (`types: [labeled]`), gated on the label.
+  2. **A cross-repo push credential** to write to `cppalliance/website-v2-qa`
+     — a GitHub App installation token (preferred) or machine-user PAT with
+     `contents: write`. *This is the main new secret to provision and the key
+     decision to confirm with whoever administers the `cppalliance` org.*
+  3. **Permission gate** so only maintainers/QA trigger a deploy (verify the
+     labeler's permission, not just the label's presence).
+  4. **PR comment step** posting the preview URL + status.
+  5. *(Optional)* **teardown** on label removal / PR close — reset `cppal-dev`
+     to `develop` so it's clear no PR owns the slot.
+- **Security:** building/deploying from PR code is privileged; untrusted fork
+  PRs must not deploy without an explicit maintainer action. Keep the
+  build+helm path exactly as it is in `actions-gcp.yaml` — this phase only
+  changes *what puts code on `cppal-dev`*, so the deploy's blast radius is
+  unchanged.
+
+### Phase 2 — Verification automation *(removes steps 04–06)*
+
+Playwright drives the changed pages across light/dark/mobile, captures
+screenshots, diffs them against a committed baseline, and posts the images + a
+pass/fail check to the PR. The `## Screenshots` grid fills itself and the
+check becomes a real regression gate. Uses tooling already in the repo.
+
+### Phase 3 — AI layer *(assists steps 04–06)*
+
+An LLM drafts the test plan from the PR diff/description and triages failures;
+optional vision-model review covers the "matches Figma / a11y" checklist
+items. This is the differentiator for the Metalab QA offering.
+
+---
+
+## 5. Before we build — two things to confirm
+
+- **Where's the real pain?** Is it "it's too slow/manual to get a preview up"
+  (→ ship Phase 1 now) or "I don't trust hand-pasted screenshots as proof"
+  (→ lead with Phase 2/3)? Same components, different first deliverable — the
+  one ambiguity the code can't resolve.
+- **Boost fix, or Metalab offering?** A "make Boost's QA less painful" mandate
+  means ship Phases 1–2 as-is. A "build the studio's QA capability" mandate
+  means design Phases 2–3 for **portability** from day one, so it drops onto
+  the next client.
+
+### Operational open questions
+
+- Who administers `cppalliance/website-v2-qa`, and can they mint an App token /
+  machine-user PAT for the cross-repo push?
 - Label vs. `/qa` comment — final call?
 - Do we want automatic slot release (reset `cppal-dev` to `develop`) when a
   PR's label is removed or the PR is closed/merged?
