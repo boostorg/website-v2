@@ -49,17 +49,16 @@ def _fetch_boost_version_map():
         )
         response.raise_for_status()
         libraries = response.json()
-    except (requests.RequestException, ValueError):
+        for library in libraries:
+            if library.get("id") == "boost":
+                return {
+                    version["version"]: version["id"]
+                    for version in library.get("versions", [])
+                    if version.get("version") and version.get("id")
+                }
+    except (requests.RequestException, ValueError, AttributeError, TypeError, KeyError):
         logger.exception("godbolt_libraries_fetch_failed")
         return {}
-
-    for library in libraries:
-        if library.get("id") == "boost":
-            return {
-                version["version"]: version["id"]
-                for version in library.get("versions", [])
-                if version.get("version") and version.get("id")
-            }
     return {}
 
 
