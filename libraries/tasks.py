@@ -57,11 +57,10 @@ def update_library_version_documentation_urls_all_versions():
 def update_library_version_website_adoc():
     """Refresh parsed meta/website.adoc for the current release.
 
-    Scoped to the most recent version and fetched from `master` (mirroring
-    update_libraries) so maintainer edits between releases are picked up.
-    Historical versions keep the snapshot captured at their release import — a
-    tagged release's meta/website.adoc is immutable, so re-fetching every
-    version daily would be thousands of pointless requests.
+    Scoped to the most recent version and fetched from `master` so maintainer
+    edits between releases are picked up. Historical versions keep the snapshot
+    captured at their release import — a tagged release's meta/website.adoc is
+    immutable, so re-fetching every version daily would be redundant.
 
     Skipped while a newer release is in beta: `master` has already drifted toward
     that release, so refreshing the current stable from it would surface
@@ -74,7 +73,7 @@ def update_library_version_website_adoc():
     # During a beta cycle for the NEXT release, each library's `master` has
     # already drifted toward that release, so refreshing the current stable from
     # master would show it pre-release content. Hold until the beta is promoted
-    # to a full release (matches the newer-beta check used for the version dropdown).
+    # to a full release.
     beta = Version.objects.most_recent_beta()
     if beta and beta.cleaned_version_parts > version.cleaned_version_parts:
         return

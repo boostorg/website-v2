@@ -112,6 +112,38 @@ def _build_dependencies_list(current_dependencies, version_str):
     return result
 
 
+def _build_release_contributors(context):
+    """Build the "Contributors: This Release" profile list from the context
+    populated by ContributorMixin: authors + maintainers + new and returning
+    commit contributors, each tagged with its display role."""
+    return (
+        [u.to_v3_profile_dict("Author") for u in context.get("authors", [])]
+        + [u.to_v3_profile_dict("Maintainer") for u in context.get("maintainers", [])]
+        + [
+            a.to_v3_profile_dict("New Contributor")
+            for a in context.get("top_contributors_release_new", [])
+        ]
+        + [
+            a.to_v3_profile_dict("Contributor")
+            for a in context.get("top_contributors_release_old", [])
+        ]
+    )
+
+
+def _build_compiler_explorer_link(website_adoc, selected_version):
+    """Build the "Edit in Compiler Explorer" Quick Start link from website.adoc's
+    [#playground] code. Returns None when there's no playground code or godbolt
+    can't produce a URL."""
+    playground = website_adoc.get("playground")
+    if not (playground and playground.get("code")):
+        return None
+    boost_version = selected_version.display_name if selected_version else ""
+    url = build_compiler_explorer_url(playground["code"], boost_version)
+    if not url:
+        return None
+    return {"label": "Edit in Compiler Explorer", "url": url}
+
+
 class LibraryListDispatcher(View):
     def dispatch(self, request, *args, **kwargs):
         if view_str := request.GET.get("view", None):
@@ -543,11 +575,10 @@ class LibraryDetail(
 
     def get_v3_context_data(self, **kwargs):
         context = {**kwargs}
-        base_context = context
 
-        version_str = base_context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
+        version_str = context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
 
-        library_version = base_context.get("library_version")
+        library_version = context.get("library_version")
         context["website_adoc"] = getattr(library_version, "website_adoc", None) or {}
         context["designed_for_html"] = designed_for_html(
             context["website_adoc"].get("designed_for")
@@ -563,28 +594,16 @@ class LibraryDetail(
         ]
 
         context["quick_start_links"] = _build_quick_start_links(
-            base_context.get("documentation_url"),
+            context.get("documentation_url"),
             context["website_adoc"].get("links"),
         )
+        compiler_explorer_link = _build_compiler_explorer_link(
+            context["website_adoc"], context.get("selected_version")
+        )
+        if compiler_explorer_link:
+            context["quick_start_links"].append(compiler_explorer_link)
 
-        playground = context["website_adoc"].get("playground")
-        if playground and playground.get("code"):
-            selected_version = base_context.get("selected_version")
-            boost_version = (
-                selected_version.name.replace("boost-", "") if selected_version else ""
-            )
-            compiler_explorer_url = build_compiler_explorer_url(
-                playground["code"], boost_version
-            )
-            if compiler_explorer_url:
-                context["quick_start_links"].append(
-                    {
-                        "label": "Edit in Compiler Explorer",
-                        "url": compiler_explorer_url,
-                    }
-                )
-
-        dep_diff = base_context.get("dependency_diff", {})
+        dep_diff = context.get("dependency_diff", {})
         context["dependencies_list"] = _build_dependencies_list(
             dep_diff.get("current_dependencies") or [],
             version_str,
@@ -592,32 +611,17 @@ class LibraryDetail(
 
         context["library_posts"] = get_latest_post_cards(limit=3)
 
-        this_release = (
-            [u.to_v3_profile_dict("Author") for u in base_context.get("authors", [])]
-            + [
-                u.to_v3_profile_dict("Maintainer")
-                for u in base_context.get("maintainers", [])
-            ]
-            + [
-                a.to_v3_profile_dict("New Contributor")
-                for a in base_context.get("top_contributors_release_new", [])
-            ]
-            + [
-                a.to_v3_profile_dict("Contributor")
-                for a in base_context.get("top_contributors_release_old", [])
-            ]
-        )
+        this_release = _build_release_contributors(context)
         context["this_release_contributors"] = (
             apply_collective_author_overrides(this_release)
             or SharedResources.library_release_contributors
         )
 
-        library_version = base_context.get("library_version")
         all_time = (
             self.build_all_contributors(
                 library_version,
-                base_context.get("authors", []),
-                base_context.get("maintainers", []),
+                context.get("authors", []),
+                context.get("maintainers", []),
             )
             if library_version
             else []

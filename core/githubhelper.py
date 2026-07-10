@@ -334,11 +334,10 @@ class GithubAPIClient:
     def get_website_adoc(self, repo_slug: str, tag: str = "master"):
         """Retrieve a library's optional 'meta/website.adoc'.
 
-        Most libraries won't ship this file, so a 404 is expected and returns
-        None quietly (no traceback). See libraries/website_adoc.py for the
-        parser and the file's contract.
+        Many libraries might not ship this file, so it will returns None quietly if not found.
+        See libraries/website_adoc.py for the parser and the file's contract.
 
-        :param repo_slug: str, the repository slug
+        :param repo_slug: str, the repository slugs
         :param tag: str, the Git tag
         :return: bytes, the file content, or None if it doesn't exist
         """
