@@ -124,4 +124,4 @@ g++ app.cpp -lboost_<library>
 // rendered as-is into a single card on your library's page.
 // Keep the [#freeform] ID; change the heading text to whatever you like.
 
-<Your content here. Markdown formatting is supported.>
+<Your content here. AsciiDoc formatting is supported.>

@@ -45,8 +45,8 @@ def command(library_slug, version_slug, file_path, clear):
     """
     try:
         library = Library.objects.get(slug=library_slug)
-    except Library.DoesNotExist:
-        raise click.ClickException(f"No library with slug '{library_slug}'.")
+    except Library.DoesNotExist as err:
+        raise click.ClickException(f"No library with slug '{library_slug}'.") from err
 
     version = (
         Version.objects.filter(slug=version_slug).first()
@@ -58,10 +58,10 @@ def command(library_slug, version_slug, file_path, clear):
 
     try:
         library_version = LibraryVersion.objects.get(library=library, version=version)
-    except LibraryVersion.DoesNotExist:
+    except LibraryVersion.DoesNotExist as err:
         raise click.ClickException(
             f"'{library_slug}' has no LibraryVersion for {version.slug}."
-        )
+        ) from err
 
     if clear:
         LibraryVersion.objects.filter(pk=library_version.pk).update(
