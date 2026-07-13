@@ -28,7 +28,7 @@ def command(release: str, new: bool, min_version: str):
     """Fetch, parse, and store each library's meta/website.adoc for the targeted
     Boost versions.
 
-    The most recent version is fetched from `master` (freshest maintainer content,
+    The most recent version is fetched from `develop` (freshest maintainer content,
     matching the daily task); older versions are fetched from their release tag (the
     frozen snapshot, matching release import). A repo without the file is left
     untouched.
@@ -48,7 +48,7 @@ def command(release: str, new: bool, min_version: str):
         versions = list(version_qs.order_by("-name"))
 
     for version in versions:
-        ref = "master" if version == most_recent else version.name
+        ref = "develop" if version == most_recent else version.name
         click.secho(f"Processing {version.name} (ref={ref})...", fg="green")
         store_library_version_website_adoc(version, ref=ref)
 

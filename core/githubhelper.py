@@ -331,7 +331,7 @@ class GithubAPIClient:
         else:
             return response.json()
 
-    def get_website_adoc(self, repo_slug: str, tag: str = "master"):
+    def get_website_adoc(self, repo_slug: str, tag: str = "develop"):
         """Retrieve a library's optional 'meta/website.adoc'.
 
         Many libraries might not ship this file, so it will returns None quietly if not found.

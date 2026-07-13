@@ -127,8 +127,8 @@ def test_version_missing_docs(version, version_name, expected):
 def test_update_library_version_website_adoc_beta_guard(beta_name, expect_refresh):
     """The daily website.adoc refresh holds only while a NEWER release is in beta.
 
-    A newer beta means each library's `master` has drifted toward the next
-    release, so refreshing the current stable from `master` would surface
+    A newer beta means each library's `develop` has drifted toward the next
+    release, so refreshing the current stable from `develop` would surface
     pre-release content on the stable page.
     """
     stable = baker.make(
@@ -153,7 +153,7 @@ def test_update_library_version_website_adoc_beta_guard(beta_name, expect_refres
         update_library_version_website_adoc()
 
     if expect_refresh:
-        mock_store.assert_called_once_with(stable, ref="master")
+        mock_store.assert_called_once_with(stable, ref="develop")
     else:
         mock_store.assert_not_called()
 
