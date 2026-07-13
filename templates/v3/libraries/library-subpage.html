@@ -53,6 +53,12 @@
       </div>
       {% endif %}
 
+      {% if website_adoc.freeform %}
+        <div class="library-subpage__freeform">
+          {% include "v3/includes/_markdown_card.html" with title=website_adoc.freeform.heading html=website_adoc.freeform.html %}
+        </div>
+      {% endif %}
+
       {% if website_adoc.install %}
       <div class="item-c">
         {% include "v3/includes/_code_block_card.html" with heading="Install" description=website_adoc.install.blurb code=website_adoc.install.code.code language=website_adoc.install.code.language card_variant="teal" %}
@@ -62,12 +68,6 @@
       <div class="item-d">
         {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="release" contributors=this_release_contributors heading_level="2" %}
       </div>
-
-      {% if website_adoc.freeform %}
-        <div class="library-subpage__freeform">
-          {% include "v3/includes/_markdown_card.html" with title=website_adoc.freeform.heading html=website_adoc.freeform.html %}
-        </div>
-      {% endif %}
     </div>
 
     {% if description %}
