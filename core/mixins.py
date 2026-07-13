@@ -41,7 +41,7 @@ class V3Mixin:
         else:
             context = super().get_context_data(**kwargs)
         return context
-    
+
     def serve(self, request, *args, **kwargs):
         if not flag_is_active(request, "v3"):
             raise Http404
