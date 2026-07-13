@@ -105,8 +105,7 @@
                 </span>
                 {# Invisible input, toggles the edit box appearing #}
                 <input type="checkbox" id="user-profile__avatar-row-checkbox" name="avatar-row-checkbox" class="badge-button__radio" />
-                {# File input, shown in the empty state #}
-                {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name extra_class='user-profile__empty-avatar-input' accept='image/png,image/jpeg' only %}
+                {% include 'v3/includes/_field_file.html' with id="field-avatar-modal-new" name=user_profile_form.avatar.name extra_class='user-profile__empty-avatar-input' accept='image/png,image/jpeg' only %}
                 <div class="user-profile__default-space-col user-profile__default-avatar-buttons">
                   {# Delete and replace buttons, shown in filled state #}
                   <label id="user-profile__avatar-replace-button" for="user-profile__avatar-row-checkbox" class="btn btn-secondary">Replace Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
@@ -420,7 +419,8 @@
       const SLACK_PROFILE_URL_PREFIX = '{{ SLACK_PROFILE_URL_PREFIX|escapejs }}';
       const SLACK_MEMBER_ID_PATTERN = /^[A-Z0-9]{9,11}$/i;
 
-      const avatarInput = document.querySelector("input[name='{{user_profile_form.avatar.name}}']");
+      const avatarInput = document.querySelector("input[id='field-avatar-modal']")
+      const avatarInputNew = document.querySelector("input[id='field-avatar-modal-new']")
       const avatarDelete = document.querySelector('#user-profile__avatar-delete-checkbox')
       const avatarComponent = document.querySelector('#user-profile-editable-avatar')
       const avatarImg = avatarComponent.querySelector('img')
@@ -522,13 +522,14 @@
           if(avatarDelete.checked) {
             avatar = null;
           }
+
           if(avatarInput.files.length > 0) formData.append('profile_image', avatarInput.files[0])
+          else if(avatarInputNew.files.length > 0) formData.append('profile_image', avatarInputNew.files[0])
           formData.append('delete_profile_image', avatarDelete.checked)
           
           this.saving = true;
           this.saveStatus = '';
           this.saveError = '';
-
 
           try {
             const res = await fetch('/api/v1/users/me/', {
