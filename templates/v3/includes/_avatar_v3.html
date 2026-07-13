@@ -9,9 +9,10 @@
     - size     (optional)  Avatar size: sm | md | lg | xl | xxxl (default: md)
 
   Rendering priority:
-    1. Image   — when `src` is provided
-    2. Initials — when `name` is provided (falls back to "?" if initials can't be derived)
-    3. Placeholder — generic "?" icon when neither `src` nor `name` is given
+    1. Group icon — when `name` is a collective label (e.g. "Various Authors")
+    2. Image   — when `src` is provided
+    3. Initials — when `name` is provided (falls back to "?" if initials can't be derived)
+    4. Placeholder — generic "?" icon when none of the above are provided
 
   Accessibility:
     - When `name` is provided, the avatar is announced to screen readers via aria-label.
@@ -26,7 +27,11 @@
 {% endcomment %}
 {% load avatar_tags %}
 {% with size=size|default:"md" variant=variant|default:"yellow" %}
-  {% if src %}
+  {% if name|is_collective_author %}
+    <span class="avatar avatar--{{ size }} avatar--collective" role="img" aria-label="{{ name }}">
+      {% include "includes/icon.html" with icon_name="people-group" icon_class="avatar__icon" %}
+    </span>
+  {% elif src %}
     <span {% if id %}id="{{id}}"{% endif %} class="avatar avatar--{{ size }}"{% if name %} role="img" aria-label="{{ name }}"{% else %} aria-hidden="true"{% endif %}>
       <img src="{{ src }}" class="avatar avatar--{{ size }} avatar__img" alt="" loading="lazy" decoding="async">
     </span>
