@@ -162,6 +162,13 @@ class Entry(models.Model):
             result = None
         return result
 
+    @property
+    def image_url(self):
+        if not self.image:
+            return ""
+        else:
+            return self.image.url
+
     @cached_property
     def tag(self):
         return getattr(self, "_tag", self.news_type)
@@ -229,6 +236,9 @@ class Entry(models.Model):
         self.approved_at = now()
         if commit:
             self.save(update_fields=["moderator", "approved_at", "modified_at"])
+
+    def get_content(self):
+        return self.content
 
     @cached_property
     def use_summary(self):

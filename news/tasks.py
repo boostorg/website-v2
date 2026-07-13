@@ -6,7 +6,7 @@ import structlog
 from config.celery import app
 from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL, SUMMARIZATION_MODEL
 from news.constants import CONTENT_SUMMARIZATION_THRESHOLD
-from news.helpers import UnsafeURLError, extract_article, safe_get
+from news.helpers import UnsafeURLError, extract_article, safe_get, extract_content
 from news.utils import set_video_thumbnail
 
 logger = structlog.get_logger(__name__)
@@ -138,18 +138,52 @@ def save_entry_summary_value(summary: str | None, pk: int):
 
 
 @app.task
-def summary_dispatcher(pk: int):
-    from news.models import Entry
+def save_page_summary_value(summary: str, pk: int):
+    from pages.models import PostPage
 
-    entry = Entry.objects.get(pk=pk)
-    logger.info(f"Dispatching {pk=} with {entry.news_type=}")
-    handler = {
-        "news": set_summary_for_event_entry,
-        "blogpost": set_summary_for_event_entry,
-        "link": set_summary_for_link_entry,
-        "video": set_summary_for_video_entry,
-        "poll": set_summary_for_poll_entry,
-    }[entry.determined_news_type]
+    # generate_summary returns None/"" on malformed or empty model output; saving
+    # that would clobber an existing Entry.summary, so treat it as "do not save".
+    if not summary:
+        logger.warning(f"Skipping summary save for {pk=}: empty/malformed model output")
+        return
+
+    page = PostPage.objects.get(pk=pk)
+    page.summary = summary
+    page.save()
+
+
+@app.task
+def summary_dispatcher(pk: int, model_name: str = "Entry"):
+    from news.models import Entry
+    from pages.models import PostPage
+
+    if model_name == "PostPage":
+        model = PostPage
+    elif model_name == "Entry":
+        model = Entry
+    else:
+        logger.warning("Invalid Model Name passed to summary dispatcher")
+        return
+
+    entry = model.objects.get(pk=pk)
+    if model == Entry:
+        logger.info(f"Dispatching {pk=} with {entry.news_type=}")
+        handler = {
+            "news": set_summary_for_event_entry,
+            "blogpost": set_summary_for_event_entry,
+            "link": set_summary_for_link_entry,
+            "video": set_summary_for_video_entry,
+            "poll": set_summary_for_poll_entry,
+        }[entry.determined_news_type.lower()]
+    elif model == PostPage:
+        logger.info(f"Dispatching {pk=} with {entry.post_content_type=}")
+        handler = {
+            "news": set_summary_for_event_page,
+            "blogpost": set_summary_for_event_page,
+            "link": set_summary_for_link_page,
+            "video": set_summary_for_video_page,
+            "poll": set_summary_for_poll_page,
+        }[entry.determined_news_type.lower()]
     logger.info(f"Dispatching summary task for {pk=} to {handler.__name__=}")
     handler.delay(pk)
 
@@ -240,3 +274,68 @@ def sync_post_views_from_plausible():
 
     updated = update_page_views(slug_views)
     logger.info("sync_post_views.done", updated=updated)
+
+
+# These tasks emulate the functionality of setting the summmary, but for PostPages instead of Entry.
+# Once the Entry model has been depricated and removed, the above functions can be deleted and the selector logic
+# removed from the dispatcher.
+
+
+@app.task
+def set_summary_for_event_page(pk: int):
+    from pages.models import PostPage
+
+    page = PostPage.objects.get(pk=pk)
+    content = page.content[0].value
+    logger.info(f"dispatching summarize task for {pk=} with {content[:40]=}...")
+    if content and len(content) < CONTENT_SUMMARIZATION_THRESHOLD:
+        logger.warning(f"Content too short to summarize for {pk=}, skipping.")
+        return
+    logger.info(f"handing off {pk=} to summarize_content task")
+    summarize_content.apply_async(
+        (content, page.title, SUMMARIZATION_MODEL),
+        link=save_page_summary_value.s(pk),
+    )
+
+
+@app.task
+def set_summary_for_link_page(pk: int):
+    logger.info(f"Setting summary for link page {pk=}")
+    from pages.models import PostPage
+
+    page = PostPage.objects.get(pk=pk)
+    external_url = page.external_url
+    try:
+        logger.info(f"Fetching content from {external_url=} for entry.{pk=}")
+        response = requests.get(external_url, timeout=10)
+        response.raise_for_status()
+        markup = response.text
+        logger.debug(f"Fetched {len(markup)=} for entry.{pk=}...")
+        content = extract_content(markup)
+        logger.info(f"extracted content from {external_url=}, {markup[:100]=}")
+    except requests.RequestException as e:
+        logger.error(f"Error fetching content from {external_url=}: {e=}")
+        return
+
+    logger.info(f"dispatching summarize task for {pk=} with {content[:40]=}...")
+    summarize_content.apply_async(
+        (content, page.title, SUMMARIZATION_MODEL), link=save_page_summary_value.s(pk)
+    )
+
+
+@app.task
+def set_summary_for_video_page(pk: int):
+    logger.info("Summarization not implemented")
+
+
+@app.task
+def set_summary_for_poll_page(pk: int):
+    logger.info("Summarization not implemented")
+
+
+@app.task
+def set_thumbnail_for_video_page(pk: int):
+    from pages.models import PostPage
+
+    video = PostPage.objects.get(pk=pk)
+    set_video_thumbnail(video)
