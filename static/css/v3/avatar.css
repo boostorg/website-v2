@@ -150,3 +150,10 @@
   width: var(--avatar-size-xl);
   height: var(--avatar-size-xl);
 }
+
+/* Dark Mode */
+html.dark {
+  .avatar--collective .avatar__icon {
+    color: var(--color-icon-reverse);
+  }
+}
