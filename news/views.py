@@ -44,7 +44,6 @@ from core.mixins import V3Mixin
 from pages.blocks import NEWS_BLOCK, BLOG_BLOCK, LINK_BLOCK, VIDEO_BLOCK
 from pages.models import PostPage, PostIndexPage
 from pages.mixins import ContentTag
-from users.profile_cards import user_profile_card
 from .acl import can_approve
 from .constants import (
     NEWS_APPROVAL_SALT,
@@ -303,7 +302,7 @@ class EntryDetailView(V3Mixin, DetailView):
         if next_entry is not None:
             related_qs = related_qs.exclude(pk=next_entry.pk)
         v3_context = {
-            "post_author": user_profile_card(entry.author),
+            "post_author": entry.author.to_v3_profile_dict(),
             "post_tag": news_type_label(entry.tag),
             "next_post_items": (
                 [self._post_card_item(next_entry)] if next_entry else []
@@ -324,7 +323,7 @@ class EntryDetailView(V3Mixin, DetailView):
             "url": reverse("news-detail", args=[entry.slug]),
             "date": entry.publish_at,
             "category": news_type_label(entry.tag),
-            "author": user_profile_card(entry.author),
+            "author": entry.author.to_v3_profile_dict(),
         }
 
     def get_context_data(self, **kwargs):
