@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Metalab QA Playbook — Modernizing QA for Boost</title>
+<style>
+  :root {
+    --ground: #eef1f5;
+    --surface: #ffffff;
+    --surface-2: #f5f7fa;
+    --ink: #191c21;
+    --ink-2: #566069;
+    --ink-3: #8a939c;
+    --line: #d5dbe2;
+    --line-strong: #c2cad3;
+    --accent: #3f4fd1;
+    --accent-ink: #2f3bb0;
+    --accent-soft: rgba(63, 79, 209, 0.09);
+    --ok: #2c8a5b;
+    --ok-soft: rgba(44, 138, 91, 0.12);
+    --warn: #b7791f;
+    --warn-soft: rgba(183, 121, 31, 0.13);
+    --crit: #c34a3f;
+    --crit-soft: rgba(195, 74, 63, 0.11);
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --maxw: 960px;
+    --readw: 68ch;
+    --radius: 10px;
+    --shadow: 0 1px 2px rgba(20, 30, 50, 0.05), 0 8px 24px -16px rgba(20, 30, 50, 0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0e1116;
+      --surface: #161a20;
+      --surface-2: #1c212a;
+      --ink: #e8ecf1;
+      --ink-2: #9aa4af;
+      --ink-3: #6b7480;
+      --line: #2a313a;
+      --line-strong: #363f4a;
+      --accent: #7c88f0;
+      --accent-ink: #97a1f5;
+      --accent-soft: rgba(124, 136, 240, 0.14);
+      --ok: #4fb07d;
+      --ok-soft: rgba(79, 176, 125, 0.15);
+      --warn: #d69e3f;
+      --warn-soft: rgba(214, 158, 63, 0.15);
+      --crit: #e0685c;
+      --crit-soft: rgba(224, 104, 92, 0.14);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -18px rgba(0, 0, 0, 0.7);
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #eef1f5; --surface: #ffffff; --surface-2: #f5f7fa;
+    --ink: #191c21; --ink-2: #566069; --ink-3: #8a939c;
+    --line: #d5dbe2; --line-strong: #c2cad3;
+    --accent: #3f4fd1; --accent-ink: #2f3bb0; --accent-soft: rgba(63, 79, 209, 0.09);
+    --ok: #2c8a5b; --ok-soft: rgba(44, 138, 91, 0.12);
+    --warn: #b7791f; --warn-soft: rgba(183, 121, 31, 0.13);
+    --crit: #c34a3f; --crit-soft: rgba(195, 74, 63, 0.11);
+    --shadow: 0 1px 2px rgba(20, 30, 50, 0.05), 0 8px 24px -16px rgba(20, 30, 50, 0.18);
+  }
+  :root[data-theme="dark"] {
+    --ground: #0e1116; --surface: #161a20; --surface-2: #1c212a;
+    --ink: #e8ecf1; --ink-2: #9aa4af; --ink-3: #6b7480;
+    --line: #2a313a; --line-strong: #363f4a;
+    --accent: #7c88f0; --accent-ink: #97a1f5; --accent-soft: rgba(124, 136, 240, 0.14);
+    --ok: #4fb07d; --ok-soft: rgba(79, 176, 125, 0.15);
+    --warn: #d69e3f; --warn-soft: rgba(214, 158, 63, 0.15);
+    --crit: #e0685c; --crit-soft: rgba(224, 104, 92, 0.14);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -18px rgba(0, 0, 0, 0.7);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { max-width: 100%; overflow-x: hidden; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-wrap: break-word;
+  }
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: clamp(28px, 5vw, 72px) clamp(20px, 5vw, 40px) 96px;
+  }
+  .prose { max-width: var(--readw); }
+
+  /* Typography */
+  h1, h2, h3 { color: var(--ink); text-wrap: balance; line-height: 1.15; margin: 0; }
+  h1 { font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 680; letter-spacing: -0.022em; }
+  h2 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); font-weight: 640; letter-spacing: -0.014em; }
+  h3 { font-size: 1.06rem; font-weight: 640; letter-spacing: -0.006em; }
+  p { margin: 0 0 1em; color: var(--ink); }
+  .lede { font-size: 1.16rem; line-height: 1.55; color: var(--ink-2); }
+  strong { font-weight: 640; color: var(--ink); }
+  a { color: var(--accent-ink); text-decoration: none; border-bottom: 1px solid var(--accent-soft); }
+  a:hover { border-bottom-color: var(--accent); }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+  code, .mono { font-family: var(--mono); font-size: 0.86em; overflow-wrap: anywhere; word-break: break-word; }
+  code {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    padding: 0.08em 0.4em;
+    border-radius: 5px;
+    color: var(--ink);
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  /* Masthead */
+  .masthead { border-bottom: 1px solid var(--line-strong); padding-bottom: 30px; margin-bottom: 44px; }
+  .masthead .brandline {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-2); margin-bottom: 22px;
+  }
+  .brandline .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .brandline .sep { color: var(--ink-3); }
+  .masthead h1 { margin-bottom: 16px; }
+  .masthead .lede { max-width: 60ch; }
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 24px;
+    font-family: var(--mono); font-size: 0.76rem; color: var(--ink-2);
+  }
+  .meta-row span b { color: var(--ink); font-weight: 600; }
+
+  /* Section rhythm */
+  section { margin-top: 60px; }
+  .sec-head { margin-bottom: 26px; }
+  .sec-head .eyebrow { display: block; margin-bottom: 10px; }
+  .sec-head p { max-width: var(--readw); color: var(--ink-2); margin-top: 12px; margin-bottom: 0; }
+
+  /* Stat strip */
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin: 36px 0 8px;
+  }
+  .stat {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px 18px 16px;
+  }
+  .stat .num {
+    font-family: var(--mono); font-size: 2rem; font-weight: 600;
+    letter-spacing: -0.02em; line-height: 1; color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .num.warn { color: var(--warn); }
+  .stat .num.ok { color: var(--ok); }
+  .stat .num.accent { color: var(--accent-ink); }
+  .stat .lbl { margin-top: 10px; font-size: 0.82rem; line-height: 1.4; color: var(--ink-2); }
+
+  /* Thesis box */
+  .thesis {
+    background: var(--surface); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: var(--radius);
+    padding: 26px 28px; box-shadow: var(--shadow); margin-top: 12px;
+  }
+  .thesis h3 { margin-bottom: 12px; }
+  .thesis p:last-child { margin-bottom: 0; }
+
+  /* Pipeline */
+  .pipe { margin-top: 30px; display: flex; flex-direction: column; }
+  .stage {
+    position: relative; display: grid; grid-template-columns: 42px 1fr;
+    gap: 0; padding-bottom: 14px;
+  }
+  .stage .rail { position: relative; display: flex; justify-content: center; }
+  .stage .rail::before {
+    content: ""; position: absolute; top: 0; bottom: -14px; width: 2px;
+    left: 50%; transform: translateX(-50%);
+    background: var(--line-strong);
+  }
+  .stage:last-child .rail::before { display: none; }
+  .stage .node {
+    position: relative; z-index: 1; margin-top: 20px;
+    width: 15px; height: 15px; border-radius: 50%;
+    background: var(--warn); border: 3px solid var(--ground);
+    box-shadow: 0 0 0 1px var(--warn);
+  }
+  .stage.auto .node { background: var(--ok); box-shadow: 0 0 0 1px var(--ok); }
+  .stage .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 15px 18px; margin-left: 8px;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    min-width: 0;
+  }
+  .stage .card .body { min-width: 0; }
+  .stage .idx { font-family: var(--mono); font-size: 0.72rem; color: var(--ink-3); letter-spacing: 0.06em; }
+  .stage .title { font-weight: 640; margin: 2px 0 3px; }
+  .stage .desc { font-size: 0.88rem; color: var(--ink-2); line-height: 1.5; }
+  .chip {
+    flex-shrink: 0; font-family: var(--mono); font-size: 0.68rem; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 10px;
+    border-radius: 999px; white-space: nowrap;
+  }
+  .chip.manual { background: var(--warn-soft); color: var(--warn); }
+  .chip.auto { background: var(--ok-soft); color: var(--ok); }
+  .pipe-legend {
+    display: flex; gap: 20px; flex-wrap: wrap; margin-top: 6px;
+    font-family: var(--mono); font-size: 0.74rem; color: var(--ink-2);
+  }
+  .pipe-legend .k { display: inline-flex; align-items: center; gap: 7px; }
+  .pipe-legend .swatch { width: 11px; height: 11px; border-radius: 50%; }
+  .sw-manual { background: var(--warn); }
+  .sw-auto { background: var(--ok); }
+
+  /* Interpretations */
+  .ranks { display: flex; flex-direction: column; gap: 12px; margin-top: 26px; }
+  .rank {
+    display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px 20px;
+  }
+  .rank .badge {
+    font-family: var(--mono); font-size: 1rem; font-weight: 600;
+    color: var(--accent-ink); background: var(--accent-soft);
+    width: 40px; height: 40px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rank h3 { margin-bottom: 5px; }
+  .rank p { font-size: 0.92rem; color: var(--ink-2); margin: 0; }
+  .rank.lead { border-color: var(--accent); box-shadow: var(--shadow); }
+  .rank .tag {
+    display: inline-block; font-family: var(--mono); font-size: 0.64rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-ink);
+    margin-left: 8px; vertical-align: 1px;
+  }
+
+  /* Levers triad */
+  .lever, .rank, .rank > div, .phase, .phase .grid2 > div, .stat { min-width: 0; }
+  .levers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+  .lever {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 22px; display: flex; flex-direction: column;
+  }
+  .lever .tophead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+  .lever .num { font-family: var(--mono); font-size: 0.72rem; color: var(--ink-3); letter-spacing: 0.08em; }
+  .lever h3 { margin-bottom: 10px; }
+  .lever p { font-size: 0.9rem; color: var(--ink-2); }
+  .lever ul { margin: 0; padding-left: 1.05em; }
+  .lever li { font-size: 0.88rem; color: var(--ink-2); margin-bottom: 6px; line-height: 1.45; }
+  .split { margin-top: 6px; }
+  .split .h {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+    margin: 12px 0 6px; display: flex; align-items: center; gap: 7px;
+  }
+  .split .h.good { color: var(--ok); }
+  .split .h.hype { color: var(--crit); }
+  .split .h .tick { width: 8px; height: 8px; border-radius: 2px; }
+  .split .h.good .tick { background: var(--ok); }
+  .split .h.hype .tick { background: var(--crit); }
+
+  /* Roadmap */
+  .phases { display: flex; flex-direction: column; gap: 16px; margin-top: 28px; }
+  .phase {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--shadow);
+  }
+  .phase .top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+  .phase .pnum {
+    font-family: var(--mono); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.08em;
+    color: #fff; background: var(--accent); padding: 5px 11px; border-radius: 7px;
+  }
+  .phase h3 { flex: 1; min-width: 200px; }
+  .phase .removes {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.05em;
+    color: var(--ok); background: var(--ok-soft); padding: 5px 10px; border-radius: 999px;
+  }
+  .phase .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 6px; }
+  .phase .grid2 .kicker { display: block; margin-bottom: 7px; }
+  .phase .grid2 p { font-size: 0.9rem; color: var(--ink-2); margin: 0; }
+  .phase .grid2 p + p { margin-top: 6px; }
+
+  /* Decision callout */
+  .decision {
+    background: var(--surface-2); border: 1px dashed var(--line-strong);
+    border-radius: var(--radius); padding: 24px 26px; margin-top: 24px;
+  }
+  .decision h3 { margin-bottom: 12px; }
+  .decision ul { margin: 0; padding-left: 1.1em; }
+  .decision li { margin-bottom: 10px; color: var(--ink-2); font-size: 0.94rem; }
+  .decision li b { color: var(--ink); }
+
+  hr.rule { border: none; border-top: 1px solid var(--line); margin: 0; }
+
+  /* Surfaces / personas */
+  .surfaces { display: flex; flex-direction: column; gap: 30px; margin-top: 28px; }
+  .persona { display: grid; grid-template-columns: 34px 1fr; gap: 16px; }
+  .persona .mk {
+    font-family: var(--mono); font-size: 1.05rem; font-weight: 600;
+    color: var(--accent-ink); background: var(--accent-soft);
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .persona .pbody { min-width: 0; }
+  .persona h3 { margin-bottom: 5px; }
+  .persona h3 .role {
+    color: var(--ink-3); font-weight: 500; font-size: 0.8rem;
+    font-family: var(--mono); letter-spacing: 0.04em; margin-left: 8px;
+  }
+  .persona .pbody > p { font-size: 0.94rem; color: var(--ink-2); margin: 0 0 12px; max-width: 62ch; }
+  .persona .pbody > p:last-child { margin-bottom: 0; }
+  .gh-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden; margin: 12px 0;
+  }
+  .gh-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 16px; border-bottom: 1px solid var(--line);
+    background: var(--surface-2); font-family: var(--mono); font-size: 0.8rem;
+  }
+  .gh-head .t { font-weight: 600; color: var(--ink); }
+  .gh-head .u { color: var(--ink-3); font-size: 0.72rem; }
+  .gh-body {
+    margin: 0; padding: 14px 16px; font-family: var(--mono);
+    font-size: 0.8rem; line-height: 1.75; color: var(--ink-2);
+    white-space: pre; overflow-x: auto;
+  }
+  .gh-body b { color: var(--ink); font-weight: 600; }
+  .gh-body .ok { color: var(--ok); }
+  .gh-body .crit { color: var(--crit); }
+  .cmd {
+    font-family: var(--mono); font-size: 0.82rem; background: var(--surface-2);
+    border: 1px solid var(--line); border-radius: 6px; padding: 3px 9px;
+    color: var(--accent-ink);
+  }
+  .labels { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; margin: 4px 0; }
+  .lbl-pill {
+    font-family: var(--mono); padding: 4px 11px; border-radius: 999px;
+    font-weight: 600; font-size: 0.72rem; letter-spacing: 0.02em;
+  }
+  .lbl-pill.deploy { background: var(--warn-soft); color: var(--warn); }
+  .lbl-pill.live { background: var(--accent-soft); color: var(--accent-ink); }
+  .lbl-pill.pass { background: var(--ok-soft); color: var(--ok); }
+  .lbl-pill.fail { background: var(--crit-soft); color: var(--crit); }
+  .labels .arrow { color: var(--ink-3); font-family: var(--mono); }
+  .readers { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
+  .readers th, .readers td {
+    text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .readers th {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--ink-3); font-weight: 600;
+  }
+  .readers td b { color: var(--ink); }
+  .readers tr:last-child td { border-bottom: none; }
+  .readers .who { color: var(--accent-ink); font-weight: 600; white-space: nowrap; }
+  .readers-wrap { overflow-x: auto; }
+
+  footer {
+    margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--line-strong);
+    font-family: var(--mono); font-size: 0.74rem; color: var(--ink-3);
+    display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between;
+  }
+  .status-note {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--warn);
+  }
+  .status-note .d { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
+
+  @media (max-width: 760px) {
+    body { font-size: 16px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .levers { grid-template-columns: 1fr; }
+    .phase .grid2 { grid-template-columns: 1fr; gap: 14px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .stage .card, .lever, .phase, .rank, .stat { transition: transform 0.16s ease, border-color 0.16s ease; }
+    .lever:hover, .rank:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="brandline">
+      <span class="dot"></span> Metalab
+      <span class="sep">·</span> QA Practice
+      <span class="sep">·</span> Internal Proposal
+    </div>
+    <h1>Modernizing QA: from manual sign-off to an automated pipeline</h1>
+    <p class="lede">The QA workflow on the Boost website is a chain of manual steps performed by one person. This is a plan to remove the human from the mechanical links of that chain — and to shape the result into a QA practice Metalab can carry to the next client.</p>
+    <div class="meta-row">
+      <span><b>Pilot project:</b> boostorg/website-v2</span>
+      <span><b>Prepared for:</b> Product / QA</span>
+      <span><b>Date:</b> 2026-07-10</span>
+      <span><b>Status:</b> Discussion draft</span>
+    </div>
+  </header>
+
+  <!-- THESIS -->
+  <section style="margin-top:0;">
+    <div class="stats">
+      <div class="stat">
+        <div class="num warn">6</div>
+        <div class="lbl">of 7 steps in the QA chain are done by hand</div>
+      </div>
+      <div class="stat">
+        <div class="num ok">1</div>
+        <div class="lbl">step is automated today — the Helm deploy</div>
+      </div>
+      <div class="stat">
+        <div class="num accent">3</div>
+        <div class="lbl">levers named by the team: tools · AI · automation</div>
+      </div>
+      <div class="stat">
+        <div class="num">1.58</div>
+        <div class="lbl">Playwright already shipping in the repo, unused for QA</div>
+      </div>
+    </div>
+
+    <div class="thesis">
+      <h3>The reframe</h3>
+      <p>When a PM says <em>“automation,”</em> they don’t mean a specific tool — they mean an <strong>outcome</strong>: “I shouldn’t have to wait on one person clicking through every PR, and I want to <em>see</em> that a change works without asking someone.” The complaint is that <strong>QA sits in the critical path as a human bottleneck</strong>, and that the proof a change works is a person’s hand-pasted screenshots — which don’t scale, aren’t repeatable, and stall the moment that person is out.</p>
+      <p>With the added context that <strong>Metalab is continually improving QA for its clients — through new tools, AI, and automation</strong> — this stops being a one-off fix and becomes a <strong>capability</strong>. The deliverable is a repeatable QA pattern the studio can demonstrate and reuse, piloted here because Boost already has most of the plumbing.</p>
+    </div>
+  </section>
+
+  <!-- THE CHAIN -->
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">01 — Current state</span>
+      <h2>The QA chain today</h2>
+      <p>Every link except the deploy engine itself is a person. Mapping it end to end shows exactly where the toil lives — and why “it’s too manual” is a fair complaint.</p>
+    </div>
+
+    <div class="pipe">
+      <div class="stage">
+        <div class="rail"><div class="node"></div></div>
+        <div class="card"><div class="body">
+          <div class="idx">STEP 01</div>
+          <div class="title">Decide a PR needs QA</div>
+          <div class="desc">Coordinated over Slack or verbally. Nothing on the PR records that a preview was requested.</div>
+        </div><span class="chip manual">👤 Manual</span></div>
+      </div>
+      <div class="stage">
+        <div class="rail"><div class="node"></div></div>
+        <div class="card"><div class="body">
+          <div class="idx">STEP 02</div>
+          <div class="title">Get the PR onto staging</div>
+          <div class="desc">QA runs <code>scripts/deploy-qa.sh</code> locally, which force-pushes the PR’s commit onto the <code>cppal-dev</code> branch of the QA fork.</div>
+        </div><span class="chip manual">👤 Manual</span></div>
+      </div>
+      <div class="stage auto">
+        <div class="rail"><div class="node"></div></div>
+        <div class="card"><div class="body">
+          <div class="idx">STEP 03</div>
+          <div class="title">Build &amp; deploy to the cluster</div>
+          <div class="desc">The push triggers CI-GCP: build the image, <code>helm upgrade</code> into the <code>cppal-dev</code> namespace, purge the CDN. <strong>This is the one automated link.</strong></div>
+        </div><span class="chip auto">⚙ Automated</span></div>
+      </div>
+      <div class="stage">
+        <div class="rail"><div class="node"></div></div>
+        <div class="card"><div class="body">
+          <div class="idx">STEP 04</div>
+          <div class="title">Verify the change</div>
+          <div class="desc">A person opens <code>cppal-dev.boost.cppalliance.org</code> and clicks through the flow in light mode, dark mode, and mobile.</div>
+        </div><span class="chip manual">👤 Manual</span></div>
+      </div>
+      <div class="stage">
+        <div class="rail"><div class="node"></div></div>
+        <div class="card"><div class="body">
+          <div class="idx">STEP 05</div>
+          <div class="title">Produce evidence</div>
+          <div class="desc">Screenshots are captured by hand and pasted into the PR’s <code>## Screenshots</code> grid — the labor the team keeps seeing (PRs #2482, #2475, #2481).</div>
+        </div><span class="chip manual">👤 Manual</span></div>
+      </div>
+      <div class="stage">
+        <div class="rail"><div class="node"></div></div>
+        <div class="card"><div class="body">
+          <div class="idx">STEP 06</div>
+          <div class="title">Write test steps &amp; sign off</div>
+          <div class="desc">A numbered “peer-review testing” walkthrough is typed out and the self-review checklist is ticked — sometimes skipped (“Test without JS” went unchecked on real PRs).</div>
+        </div><span class="chip manual">👤 Manual</span></div>
+      </div>
+      <div class="stage">
+        <div class="rail"><div class="node"></div></div>
+        <div class="card"><div class="body">
+          <div class="idx">STEP 07</div>
+          <div class="title">Release the shared slot</div>
+          <div class="desc">There is only one <code>cppal-dev</code> slot and no teardown. Which PR “owns” staging right now lives entirely out-of-band.</div>
+        </div><span class="chip manual">👤 Manual</span></div>
+      </div>
+    </div>
+
+    <div class="pipe-legend">
+      <span class="k"><span class="swatch sw-manual"></span> Manual — a person in the loop</span>
+      <span class="k"><span class="swatch sw-auto"></span> Automated — runs on its own</span>
+    </div>
+  </section>
+
+  <!-- WHAT AUTOMATION MEANS -->
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">02 — Interpretation</span>
+      <h2>What “automation” most plausibly means</h2>
+      <p>The trap is that an engineer hears “automation” and builds a clever test suite, while the PM’s daily pain is waiting on a person to press a button. Ranked by how likely each is the real ask:</p>
+    </div>
+
+    <div class="ranks">
+      <div class="rank lead">
+        <div class="badge">1</div>
+        <div>
+          <h3>Self-serve, PR-triggered previews <span class="tag">most likely</span></h3>
+          <p>A preview comes up from the PR itself — a label or a button — with the URL posted back, no named person running a laptop script. Removes steps 01–03 and takes QA out of the gate. The biggest, most PM-shaped lever.</p>
+        </div>
+      </div>
+      <div class="rank">
+        <div class="badge">2</div>
+        <div>
+          <h3>Automated evidence instead of hand-pasted screenshots</h3>
+          <p>Screenshots across light/dark/mobile generate themselves in CI and land on the PR, so proof-of-working isn’t an artifact a human assembles by hand. This is the visible symptom the team keeps pointing at.</p>
+        </div>
+      </div>
+      <div class="rank">
+        <div class="badge">3</div>
+        <div>
+          <h3>An automated pass / fail signal</h3>
+          <p>Not just pictures — a check that goes red when a change breaks a page, so nobody has to interpret a screenshot. The leap from “here’s what it looks like” to “the system says it’s good.”</p>
+        </div>
+      </div>
+      <div class="rank">
+        <div class="badge">4</div>
+        <div>
+          <h3>The whole loop, hands-off</h3>
+          <p>Open PR → deploy → verify → post results → set status → release the slot, with a human only for judgment calls. The aspiration — steps 01–07 automated — even if #1 is the immediate ask.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THREE LEVERS -->
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">03 — The team’s own taxonomy</span>
+      <h2>Three levers: tools, AI, automation</h2>
+      <p>The team named the categories themselves. Here is what each realistically buys against the chain above — and, for AI, an honest split between what works today and what only demos well.</p>
+    </div>
+
+    <div class="levers">
+      <div class="lever">
+        <div class="tophead"><h3>Automation</h3><span class="num">DETERMINISTIC</span></div>
+        <p>The boring, reliable core. Highest ROI — do this first.</p>
+        <ul>
+          <li>PR-triggered preview deploy (removes the human-as-gate)</li>
+          <li>Auto-captured screenshots + visual-regression check posted to the PR</li>
+          <li>Auto-run of the changed flows on the live preview</li>
+        </ul>
+      </div>
+      <div class="lever">
+        <div class="tophead"><h3>New tools</h3><span class="num">ENABLERS</span></div>
+        <p>The layer that makes the automation possible — and gives the practice a name to point at.</p>
+        <ul>
+          <li><strong>Playwright</strong> — already in <code>requirements.txt</code> (1.58), Chromium already wired in CI. E2E + built-in <code>toHaveScreenshot()</code> visual diffing.</li>
+          <li>Baseline snapshots so “did the UI change?” is a reviewable diff, not a human comparison.</li>
+        </ul>
+      </div>
+      <div class="lever">
+        <div class="tophead"><h3>AI</h3><span class="num">ACCELERANT</span></div>
+        <p>New and marketable — but keep it assisting the deterministic checks, not replacing them.</p>
+        <div class="split">
+          <div class="h good"><span class="tick"></span> Useful today</div>
+          <ul>
+            <li>Draft the per-PR test plan from the diff + description</li>
+            <li>Vision-model review of screenshots (cut-off, contrast, overflow)</li>
+            <li>Triage a red run: real regression vs. flaky selector</li>
+          </ul>
+          <div class="h hype"><span class="tick"></span> Handle with caution</div>
+          <ul>
+            <li>Fully autonomous “self-healing” agents that decide pass/fail with no baseline — flaky, and a sign-off nobody can reproduce</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SURFACES -->
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">04 — Where people see it</span>
+      <h2>The GitHub-native experience</h2>
+      <p>No custom dashboard. The whole thing is one sticky comment, a couple of checks, and a small label set — each tuned to a different reader, in the team's priority order: QA operates it, the developer fixes from it, the PM glances at it.</p>
+    </div>
+
+    <div class="surfaces">
+
+      <div class="persona">
+        <div class="mk">①</div>
+        <div class="pbody">
+          <h3>QA Engineer <span class="role">the operator</span></h3>
+          <p>The entire interaction is <strong>adding the <code>qa</code> label</strong>. The automation owns the rest and reports into a single sticky comment that updates in place — no thread spam. She clicks the preview for human judgment, glances at the visual report, signs off.</p>
+          <div class="gh-card">
+            <div class="gh-head"><span class="t">🧪 QA Preview</span><span class="u">updated just now</span></div>
+<pre class="gh-body">Status       <b class="ok">✅ Live</b> · deployed 2m ago
+Preview      https://cppal-dev.boost.cppalliance.org
+Commit       abc1234  (PR head)
+
+Visual       <b class="ok">✅ 8 / 8 pages match baseline</b>
+Checked      desktop · mobile · light · dark
+Report       ↗ Playwright HTML report (screenshots + diffs)</pre>
+          </div>
+          <p>Intentional UI changes are resolved with a comment command that updates the stored baseline so the check goes green — QA owns this: <span class="cmd">/qa approve-baseline</span></p>
+        </div>
+      </div>
+
+      <div class="persona">
+        <div class="mk">②</div>
+        <div class="pbody">
+          <h3>Developer <span class="role">the fixer</span></h3>
+          <p>Failures arrive as <strong>checks</strong> right on the PR, each actionable, and the sticky comment flips to point at what and where. Click a diff, fix, push — checks re-run automatically on the new commit. They never leave the PR.</p>
+          <div class="gh-card">
+            <div class="gh-head"><span class="t">Checks</span><span class="u">on abc1234</span></div>
+<pre class="gh-body"><b class="ok">✅</b>  qa / deploy        Preview live
+<b class="crit">❌</b>  qa / visual        2 of 8 pages changed</pre>
+          </div>
+          <div class="gh-card">
+            <div class="gh-head"><span class="t">🧪 QA Preview</span><span class="u">visual regression</span></div>
+<pre class="gh-body">Visual       <b class="crit">❌ 2 / 8 pages changed</b>
+   • /accounts/signup   desktop · dark    ↗ diff
+   • /news              mobile            ↗ diff
+
+Review diffs → Playwright HTML report
+If intentional, ask QA to run /qa approve-baseline</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="persona">
+        <div class="mk">③</div>
+        <div class="pbody">
+          <h3>PM <span class="role">the observer</span></h3>
+          <p>The PM reads <strong>labels</strong>, driven by the automation as a tiny state machine. Scanning the PR list, they see <code>qa:passed</code> + a preview link — "verified, and I can look myself" — without pinging anyone.</p>
+          <div class="labels">
+            <span class="lbl-pill deploy">qa:deploying</span>
+            <span class="arrow">→</span>
+            <span class="lbl-pill live">qa:preview-live</span>
+            <span class="arrow">→</span>
+            <span class="lbl-pill pass">qa:passed</span>
+            <span class="arrow">/</span>
+            <span class="lbl-pill fail">qa:failed</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="readers-wrap">
+      <table class="readers">
+        <thead><tr><th>Reader</th><th>Surface</th><th>Job</th></tr></thead>
+        <tbody>
+          <tr><td class="who">QA</td><td>the <code>qa</code> label + sticky comment + <code>/qa</code> commands</td><td>operate it</td></tr>
+          <tr><td class="who">Dev</td><td>failed checks + inline diffs + report link</td><td>fix from it</td></tr>
+          <tr><td class="who">PM</td><td>the <code>qa:*</code> label + preview link</td><td>glance at it</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="prose" style="margin-top:18px; color:var(--ink-2); font-size:0.92rem;">All native GitHub — labels, checks, one comment, an artifact; nothing to host. <strong>Phase 1</strong> delivers the Status / Preview / Commit half of the comment plus the <code>qa:preview-live</code> label; the <strong>Visual ✅/❌</strong> half and <code>/qa approve-baseline</code> arrive with <strong>Phase 2</strong>.</p>
+  </section>
+
+  <!-- ROADMAP -->
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">05 — Phased pilot</span>
+      <h2>A roadmap that stays demonstrable at every step</h2>
+      <p>Sequence matters. Phases 1–2 remove the toil and each demos on its own; phase 3 is the differentiator Metalab can market — but bolting AI on before the deterministic base exists just yields unreliable magic.</p>
+    </div>
+
+    <div class="phases">
+      <div class="phase">
+        <div class="top">
+          <span class="pnum">PHASE 1</span>
+          <h3>Deploy automation</h3>
+          <span class="removes">removes steps 01–03</span>
+        </div>
+        <div class="grid2">
+          <div>
+            <span class="kicker">What</span>
+            <p>A PR-triggered workflow (a <code>qa</code> label is the recommended trigger) does what <code>deploy-qa.sh</code> does, server-side, and comments the preview URL back on the PR. Keeps the single shared <code>cppal-dev</code> slot.</p>
+          </div>
+          <div>
+            <span class="kicker">Why first</span>
+            <p>Immediate relief, smallest change, and it directly answers the “why does this depend on one person?” complaint. Needs one new thing: a cross-repo push credential.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="top">
+          <span class="pnum">PHASE 2</span>
+          <h3>Verification automation</h3>
+          <span class="removes">removes steps 04–06</span>
+        </div>
+        <div class="grid2">
+          <div>
+            <span class="kicker">What</span>
+            <p>Playwright drives the changed pages across light / dark / mobile, captures screenshots, diffs them against a committed baseline, and posts the images + a pass/fail check to the PR.</p>
+          </div>
+          <div>
+            <span class="kicker">Payoff</span>
+            <p>The <code>## Screenshots</code> grid fills itself and the check becomes a real regression gate — not a vibe check. Uses tooling already in the repo.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="top">
+          <span class="pnum">PHASE 3</span>
+          <h3>AI layer</h3>
+          <span class="removes">assists steps 04–06</span>
+        </div>
+        <div class="grid2">
+          <div>
+            <span class="kicker">What</span>
+            <p>An LLM drafts the test plan from the PR diff/description and triages failures; optional vision-model review covers the “matches Figma / a11y” checklist items.</p>
+          </div>
+          <div>
+            <span class="kicker">Positioning</span>
+            <p>The differentiator for the Metalab QA offering: <strong>AI writes and triages the tests; automation runs them deterministically; the tools do the diffing and reporting.</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DECISION -->
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">06 — Before we build</span>
+      <h2>Two things to confirm with the team</h2>
+    </div>
+    <div class="decision">
+      <ul>
+        <li><b>Where’s the real pain?</b> Is it “it’s too slow/manual to get a preview up” (→ ship Phase 1 now) or “I don’t trust hand-pasted screenshots as proof” (→ lead with Phase 2/3)? Same components, different first deliverable — the one ambiguity the code can’t resolve.</li>
+        <li><b>Boost fix, or Metalab offering?</b> A “make Boost’s QA less painful” mandate means ship Phases 1–2 as-is. A “build the studio’s QA capability” mandate means design Phases 2–3 for <b>portability</b> from day one, so it drops onto the next client.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span class="status-note"><span class="d"></span> Nothing built yet — this is a proposal for discussion.</span>
+    <span>Metalab · QA Practice · Pilot: boostorg/website-v2</span>
+  </footer>
+
+</div>
+
+</body>
+</html>

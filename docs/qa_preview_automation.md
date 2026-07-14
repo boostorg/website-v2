@@ -3,6 +3,10 @@
 **Pilot project:** `boostorg/website-v2` · **Status:** discussion draft ·
 **Audience:** Product / QA
 
+> 📄 A formatted, self-contained version of this playbook is available at
+> [`qa_preview_automation.html`](./qa_preview_automation.html) — open it in a
+> browser (no internet needed) to share with stakeholders.
+
 The QA workflow on the Boost website is a chain of manual steps performed by
 one person. This document maps that chain, interprets what "automation"
 actually means here, and lays out a phased plan to remove the human from the
