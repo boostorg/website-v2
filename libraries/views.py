@@ -1,9 +1,12 @@
 import datetime
+import uuid
 from urllib.parse import urlparse
 
 import structlog
 
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.db.models import Prefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -14,6 +17,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, FormView, TemplateView
+from waffle import flag_is_active
 
 from core.constants import SLACK_JOIN_URL
 from core.githubhelper import GithubAPIClient
@@ -25,7 +29,7 @@ from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
 from .constants import README_MISSING
-from .forms import CommitAuthorEmailForm
+from .forms import CommitAuthorEmailForm, V3CommitAuthorEmailForm
 from .godbolt import build_compiler_explorer_url
 from .mixins import VersionAlertMixin, BoostVersionMixin, ContributorMixin
 from .models import (
@@ -762,14 +766,57 @@ class CommitAuthorEmailCreateView(FormView):
 
 class VerifyCommitEmailView(TemplateView):
     """
-    View to verify commit email addresses.
-    This is used to ensure that commit authors have verified their email addresses.
+    Landing page for the commit email verification link.
+
+    Behind the v3 flag, the link is only usable inside the claimant's own
+    authenticated session: proving the claim takes both the token (inbox
+    access) and being logged in as the account that asked. Any other
+    visitor - anonymous, or a different account - gets the same generic
+    failure page as an invalid token, so nothing ever happens on the
+    claimant's behalf and tokens cannot be probed. GET never changes state
+    (mail scanners prefetch links); the claim completes on the explicit
+    POST from the confirm button.
+
+    With the flag off, the legacy behavior is preserved untouched: the GET
+    itself completes the verification and binds author.user to the visitor,
+    rendered with the legacy template.
     """
 
     template_name = "libraries/profile_confirm_email_address.html"
+    v3_template_name = "v3/libraries/commit_email_confirm.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_template_names(self):
+        if flag_is_active(self.request, "v3"):
+            return [self.v3_template_name]
+        return super().get_template_names()
+
+    def _parsed_token(self):
+        # the route accepts any string; a mangled link must land on the
+        # generic failure page, not 500 on the UUIDField lookup
+        try:
+            return uuid.UUID(str(self.kwargs.get("token")))
+        except (TypeError, ValueError):
+            return None
+
+    def _get_viewers_open_claim(self, for_update=False):
+        if not self.request.user.is_authenticated:
+            return None
+        token = self._parsed_token()
+        if token is None:
+            return None
+        queryset = CommitAuthorEmail.objects.filter(
+            claim_hash=token,
+            claim_hash_expiration__gt=timezone.now(),
+            claim_verified=False,
+            claimed_by=self.request.user,
+        ).select_related("author")
+        if for_update:
+            queryset = queryset.select_for_update(of=("self",))
+        return queryset.first()
+
+    def _legacy_verify_context(self, context):
+        # pre-v3 behavior, restored verbatim: the GET completes the
+        # verification and binds the author to whoever opened the link
         token = self.kwargs.get("token")
         commit_author_email = (
             CommitAuthorEmail.objects.filter(
@@ -796,6 +843,51 @@ class VerifyCommitEmailView(TemplateView):
 
         return context
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not flag_is_active(self.request, "v3"):
+            return self._legacy_verify_context(context)
+        context["home_url"] = "/"
+        commit_author_email = self._get_viewers_open_claim()
+        if commit_author_email:
+            context["commit_author_email"] = commit_author_email
+        elif (
+            self.request.user.is_authenticated
+            and self._parsed_token() is not None
+            and CommitAuthorEmail.objects.filter(
+                claim_hash=self._parsed_token(),
+                claim_verified=True,
+                claimed_by=self.request.user,
+            ).exists()
+        ):
+            context["already_verified"] = True
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            # the legacy view was GET-only
+            return self.http_method_not_allowed(request, *args, **kwargs)
+
+        # locked read: the token, claimant, expiry, and verification state
+        # are re-evaluated under the row lock, so a concurrent withdraw or
+        # resend can't slip between the check and verify_claim
+        with transaction.atomic():
+            commit_author_email = self._get_viewers_open_claim(for_update=True)
+            if commit_author_email:
+                attribution_bound = commit_author_email.verify_claim()
+
+        if not commit_author_email:
+            return self.get(request, *args, **kwargs)
+        return self.render_to_response(
+            {
+                "view": self,
+                "commit_email": commit_author_email.email,
+                "confirmed": attribution_bound,
+                "conflict": not attribution_bound,
+                "home_url": "/",
+            }
+        )
+
 
 class CommitEmailResendView(TemplateView):
     def post(self, request, *args, **kwargs):
@@ -811,3 +903,109 @@ class CommitEmailResendView(TemplateView):
         commit_author_email.trigger_verification_email(request)
 
         return HttpResponse('<i class="fa-solid fa-envelope-circle-check"></i>')
+
+
+def _is_htmx(request) -> bool:
+    return request.headers.get("HX-Request") == "true"
+
+
+class V3CommitAuthorEmailCardMixin:
+    """Shared rendering for the v3 profile page's commit-email card body, so
+    the create/delete/resend views below all hand back the same up-to-date
+    markup after making their change.
+    """
+
+    def _card_body(self, request, form=None):
+        return TemplateResponse(
+            request,
+            "v3/includes/_commit_email_card_body.html",
+            {
+                "commit_email_addresses": CommitAuthorEmail.claimed_by_user(
+                    request.user
+                ),
+                "commit_email_form": form or V3CommitAuthorEmailForm(),
+                # only ever called on the htmx path below, so the card's
+                # no-JS fallback must be left out (see the template)
+                "htmx_swap": True,
+            },
+        )
+
+    def _redirect_to_profile(self, request):
+        return redirect(f"{reverse('profile-account')}?edit=true")
+
+
+class V3CommitAuthorEmailCreateView(
+    LoginRequiredMixin, V3CommitAuthorEmailCardMixin, View
+):
+    def post(self, request, *args, **kwargs):
+        form = V3CommitAuthorEmailForm(request.POST, user=request.user)
+        if not form.is_valid():
+            if _is_htmx(request):
+                return self._card_body(request, form=form)
+            for error in form.errors.get("email", []):
+                messages.error(request, error)
+            return self._redirect_to_profile(request)
+
+        if form.commit_author_email.ask_to_claim(request) is None:
+            # the row was verified or claimed by someone else between the
+            # form's (unlocked) validation and the locked re-check
+            form.add_error("email", "This email address can no longer be claimed.")
+            if _is_htmx(request):
+                return self._card_body(request, form=form)
+            for error in form.errors.get("email", []):
+                messages.error(request, error)
+            return self._redirect_to_profile(request)
+
+        if _is_htmx(request):
+            return self._card_body(request)
+        return self._redirect_to_profile(request)
+
+
+class V3CommitAuthorEmailWithdrawView(
+    LoginRequiredMixin, V3CommitAuthorEmailCardMixin, View
+):
+    """Withdraw a pending (unverified) claim. The CommitAuthorEmail row
+    belongs to the commit importer and is never deleted; only the claim
+    fields on the row are cleared (see withdraw_claim). Verified claims
+    are historical record-keeping for contribution stats, so they are
+    refused even if the request is forged past a hidden button, as are
+    emails with no open ask.
+    """
+
+    def post(self, request, *args, **kwargs):
+        # locked read so the guards can't race a concurrent verify: whoever
+        # locks first wins and the loser re-evaluates (verified -> 404 here)
+        with transaction.atomic():
+            commit_author_email = get_object_or_404(
+                CommitAuthorEmail.objects.select_for_update(),
+                pk=kwargs["pk"],
+                claimed_by=request.user,
+                claim_verified=False,
+                claim_hash__isnull=False,
+            )
+            commit_author_email.withdraw_claim()
+
+        if _is_htmx(request):
+            return self._card_body(request)
+        return self._redirect_to_profile(request)
+
+
+class V3CommitAuthorEmailResendView(
+    LoginRequiredMixin, V3CommitAuthorEmailCardMixin, View
+):
+    def post(self, request, *args, **kwargs):
+        # no outer transaction: ask_to_claim re-checks its preconditions
+        # under its own row lock, and the verification email must be
+        # enqueued after that lock commits, not while it is held
+        commit_author_email = get_object_or_404(
+            CommitAuthorEmail,
+            pk=kwargs["pk"],
+            claimed_by=request.user,
+            claim_verified=False,
+            claim_hash__isnull=False,
+        )
+        commit_author_email.ask_to_claim(request)
+
+        if _is_htmx(request):
+            return self._card_body(request)
+        return self._redirect_to_profile(request)

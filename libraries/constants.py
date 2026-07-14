@@ -369,3 +369,6 @@ RELEASE_REPORT_SEARCH_TOP_COUNTRIES_LIMIT = 5
 DOCKER_CONTAINER_URL_WEB = "http://web:8000"
 
 RELEASE_REPORT_AUTHORS_PER_PAGE_THRESHOLD = 6
+
+# How long a commit email verification link stays valid (seconds).
+COMMIT_EMAIL_CLAIM_MAX_AGE = 24 * 60 * 60  # 24 hours

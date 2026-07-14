@@ -1,5 +1,9 @@
+import uuid
+from datetime import timedelta
+
 import pytest
 import waffle.testutils
+from django.utils import timezone
 from model_bakery import baker
 
 pytestmark = pytest.mark.django_db
@@ -63,6 +67,158 @@ def test_v3_edit_page_shows_current_values(user, tp):
         assert form.initial["username"] == user.display_name
         assert form.initial["hide_github"] is True
         assert form.initial["country"] == "US"
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_edit_page_shows_users_commit_emails(user, tp):
+    # created first and alphabetically first, so both insertion order and
+    # plain email order would wrongly put it ahead of the verified one
+    pending = baker.make(
+        "libraries.CommitAuthorEmail",
+        email="a-pending@example.com",
+        claim_verified=False,
+        claim_hash=uuid.uuid4(),
+        claim_hash_expiration=timezone.now() + timedelta(days=1),
+        claimed_by=user,
+    )
+    verified = baker.make(
+        "libraries.CommitAuthorEmail",
+        email="z-verified@example.com",
+        claim_verified=True,
+        claimed_by=user,
+    )
+    other_users_email = baker.make(
+        "libraries.CommitAuthorEmail",
+        claim_verified=True,
+        claimed_by=baker.make("users.User"),
+    )
+    # a withdrawn ask leaves no claim_hash; such a row is not a claim and
+    # must not render (its withdraw button would only 404)
+    withdrawn = baker.make(
+        "libraries.CommitAuthorEmail",
+        claim_verified=False,
+        claim_hash=None,
+        claimed_by=user,
+    )
+    # an expired ask is never cleared, just never shown; its address is
+    # simply claimable again
+    expired = baker.make(
+        "libraries.CommitAuthorEmail",
+        claim_verified=False,
+        claim_hash=uuid.uuid4(),
+        claim_hash_expiration=timezone.now() - timedelta(hours=1),
+        claimed_by=user,
+    )
+
+    with tp.login(user):
+        response = tp.get(f"{tp.reverse('profile-account')}?edit=true")
+        tp.response_200(response)
+        commit_email_addresses = response.context["commit_email_addresses"]
+
+    # verified emails always render before pending ones
+    assert list(commit_email_addresses) == [verified, pending]
+    assert other_users_email not in commit_email_addresses
+    assert withdrawn not in commit_email_addresses
+    assert expired not in commit_email_addresses
+
+
+@waffle.testutils.override_flag("v3", active=False)
+def test_legacy_profile_lists_author_bound_emails(user, tp):
+    """With the flag off the pre-v3 keying is intact: the profile lists
+    every email of authors bound to the user (the legacy ask flow binds
+    author.user at ask time), and claimed_by plays no part."""
+    bound = baker.make(
+        "libraries.CommitAuthorEmail",
+        email="bound@example.com",
+        claim_verified=False,
+        claim_hash=uuid.uuid4(),
+        claim_hash_expiration=timezone.now() + timedelta(days=1),
+    )
+    bound.author.user = user
+    bound.author.save()
+    sibling = baker.make(
+        "libraries.CommitAuthorEmail",
+        email="sibling@example.com",
+        author=bound.author,
+        claim_verified=True,
+    )
+    claimed_only = baker.make(
+        "libraries.CommitAuthorEmail",
+        email="claimed-only@example.com",
+        claim_verified=False,
+        claim_hash=uuid.uuid4(),
+        claim_hash_expiration=timezone.now() + timedelta(days=1),
+        claimed_by=user,
+    )
+
+    with tp.login(user):
+        response = tp.get(tp.reverse("profile-account"))
+        tp.response_200(response)
+        commit_email_addresses = response.context["commit_email_addresses"]
+
+    assert set(commit_email_addresses) == {bound, sibling}
+    assert claimed_only not in commit_email_addresses
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_edit_page_commit_email_forms_carry_csrf_token(user, tp):
+    """The card is included with `{% include ... only %}`, which drops the
+    page context; csrf_token must be forwarded explicitly or every form in
+    the card 403s on submit."""
+    baker.make(
+        "libraries.CommitAuthorEmail",
+        claim_verified=False,
+        claim_hash=uuid.uuid4(),
+        claim_hash_expiration=timezone.now() + timedelta(days=1),
+        claimed_by=user,
+    )
+
+    with tp.login(user):
+        response = tp.get(f"{tp.reverse('profile-account')}?edit=true")
+        tp.response_200(response)
+
+    content = response.content.decode()
+    card_body = content[content.find("commit-email-card-body") :]
+    card_body = card_body[: card_body.find("+ Add Another")]
+    # resend, delete, extra-row template, no-JS add row; each form must carry
+    # its own csrf token, not just contribute to a page-wide count (the base
+    # add row is only rendered when the user has no commit emails)
+    forms = card_body.split("<form")[1:]
+    assert len(forms) == 4
+    for form_markup in forms:
+        form_end = form_markup.find("</form>")
+        assert form_end != -1
+        assert "csrfmiddlewaretoken" in form_markup[:form_end]
+
+
+def _commit_email_noscript(response):
+    """The card body's <noscript> block - the only one inside the card."""
+    body = response.content.decode()
+    body = body[body.find("commit-email-card-body") :]
+    start = body.find("<noscript>")
+    return body[start : body.find("</noscript>", start)]
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_edit_page_commit_email_no_js_fallback(user, tp):
+    """ "+ Add Another" appends rows through Alpine, so with JS off it is
+    hidden and a plain add row stands in for it - but not when the
+    conditional base add row is already rendering one."""
+    with tp.login(user):
+        no_emails = tp.get(f"{tp.reverse('profile-account')}?edit=true")
+        baker.make("libraries.CommitAuthorEmail", claimed_by=user, claim_verified=True)
+        with_email = tp.get(f"{tp.reverse('profile-account')}?edit=true")
+    tp.response_200(no_emails)
+    tp.response_200(with_email)
+
+    for response in (no_emails, with_email):
+        assert ".commit-email__add-another { display: none; }" in (
+            _commit_email_noscript(response)
+        )
+
+    # the base add row already covers the empty case; no second field for it
+    assert "commit-email__add-row" not in _commit_email_noscript(no_emails)
+    assert _commit_email_noscript(with_email).count("commit-email__add-row") == 1
 
 
 @waffle.testutils.override_flag("v3", active=True)

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% comment %}
+  Landing page for the commit email verification link (VerifyCommitEmailView).
+  Reuses the mailing-list confirm-page component for visual consistency with
+  the mailing list confirmation pages.
+
+  The view only surfaces the non-failure states to the logged-in claimant
+  themselves, so the copy is always second person ("You asked...").
+
+  States (mutually exclusive):
+    confirmed           - the POST just completed the claim
+    conflict            - the POST verified the email but another account
+                          already holds a verified claim on the author, so
+                          the commit history was not linked
+    already_verified    - the token belongs to the viewer's verified claim
+    commit_author_email - the viewer's open claim: explicit Confirm button
+    (fallback)          - anything else: invalid, expired, logged out, or a
+                          different account (single generic message)
+{% endcomment %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/mailing-list-confirm.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+  <main class="mailing-list-confirm">
+    <div class="mailing-list-confirm__inner">
+
+      {% if confirmed %}
+        <div class="mailing-list-confirm__icon-wrap mailing-list-confirm__icon-wrap--success" aria-hidden="true">
+          <svg class="mailing-list-confirm__icon mailing-list-confirm__icon--success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6 9 17l-5-5"/>
+          </svg>
+        </div>
+
+        <div class="mailing-list-confirm__header">
+          <h1 class="mailing-list-confirm__title">Email confirmed</h1>
+          <p class="mailing-list-confirm__body">
+            <span class="mailing-list-confirm__email">{{ commit_email }}</span>
+            has been successfully confirmed and its commit history is now
+            associated with your account.
+          </p>
+        </div>
+
+        {% include "v3/includes/_button.html" with url=home_url label="Go to homepage" only %}
+
+      {% elif conflict %}
+        <div class="mailing-list-confirm__icon-wrap mailing-list-confirm__icon-wrap--error" aria-hidden="true">
+          <svg class="mailing-list-confirm__icon mailing-list-confirm__icon--error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+
+        <div class="mailing-list-confirm__header">
+          <h1 class="mailing-list-confirm__title">Commit history not linked</h1>
+          <p class="mailing-list-confirm__body">
+            <span class="mailing-list-confirm__email">{{ commit_email }}</span>
+            has been confirmed, but its commit history has already been
+            claimed by another user, so it was not linked to your account.
+            Report an issue if this is incorrect.
+          </p>
+        </div>
+
+        {% include "v3/includes/_button.html" with url=home_url label="Go to homepage" only %}
+
+      {% elif already_verified %}
+        <div class="mailing-list-confirm__icon-wrap mailing-list-confirm__icon-wrap--success" aria-hidden="true">
+          <svg class="mailing-list-confirm__icon mailing-list-confirm__icon--success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6 9 17l-5-5"/>
+          </svg>
+        </div>
+
+        <div class="mailing-list-confirm__header">
+          <h1 class="mailing-list-confirm__title">Already verified</h1>
+          <p class="mailing-list-confirm__body">
+            This email address has already been verified. No further action is needed.
+          </p>
+        </div>
+
+        {% include "v3/includes/_button.html" with url=home_url label="Go to homepage" only %}
+
+      {% elif commit_author_email %}
+        <div class="mailing-list-confirm__icon-wrap mailing-list-confirm__icon-wrap--success" aria-hidden="true">
+          <svg class="mailing-list-confirm__icon mailing-list-confirm__icon--success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="16" x="2" y="4" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </div>
+
+        <div class="mailing-list-confirm__header">
+          <h1 class="mailing-list-confirm__title">Confirm your commit email</h1>
+          <p class="mailing-list-confirm__body">
+            You asked to link
+            <span class="mailing-list-confirm__email">{{ commit_author_email.email }}</span>
+            and its commit history to your boost.org account.
+          </p>
+          <p class="mailing-list-confirm__body">
+            This link expires on {{ commit_author_email.claim_hash_expiration|date:"F j, Y, g:i A T" }}.
+          </p>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          {% include "v3/includes/_button.html" with label="Confirm and link this email" type="submit" only %}
+        </form>
+
+      {% else %}
+        <div class="mailing-list-confirm__icon-wrap mailing-list-confirm__icon-wrap--error" aria-hidden="true">
+          <svg class="mailing-list-confirm__icon mailing-list-confirm__icon--error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+
+        {# deliberately generic: identical for unknown, expired, logged-out, and wrong-account visits, so it reveals nothing about the token #}
+        <div class="mailing-list-confirm__header">
+          <h1 class="mailing-list-confirm__title">Invalid or expired link</h1>
+          <p class="mailing-list-confirm__body">
+            Your email address could not be confirmed. No valid commit author found or the token has expired. Please make sure you are signed in to the account that requested the link, or request a new verification email.
+          </p>
+        </div>
+
+        {% include "v3/includes/_button.html" with url=home_url label="Go to homepage" only %}
+      {% endif %}
+
+    </div>
+  </main>
+{% endblock %}

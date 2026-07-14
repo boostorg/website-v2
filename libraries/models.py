@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import uuid
@@ -7,7 +8,7 @@ from urllib.parse import urlencode, urlparse
 
 from django.core.cache import caches
 from django.db import models, transaction
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
@@ -31,13 +32,19 @@ from libraries.managers import (
 )
 from mailing_list.models import EmailData
 from versions.models import ReportConfiguration
-from .constants import LATEST_RELEASE_URL_PATH_STR, LIBRARY_GITHUB_URL_OVERRIDES
+from .constants import (
+    COMMIT_EMAIL_CLAIM_MAX_AGE,
+    LATEST_RELEASE_URL_PATH_STR,
+    LIBRARY_GITHUB_URL_OVERRIDES,
+)
 
 from .utils import (
     generate_random_string,
     write_content_to_tempfile,
     generate_release_report_filename,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Category(models.Model):
@@ -183,6 +190,35 @@ class CommitAuthorEmail(models.Model):
     claim_hash = models.UUIDField(null=True, blank=True)
     claim_hash_expiration = models.DateTimeField(default=timezone.now)
     claim_verified = models.BooleanField(default=False)
+    claimed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="commit_email_claims",
+        help_text="Who asked to claim this email. Public attribution "
+        "(author.user) is only bound at verification.",
+    )
+
+    @classmethod
+    def claimed_by_user(cls, user):
+        """Emails the user actually claimed: verified ones, or pending ones
+        with an open, unexpired ask, verified first. Expired asks are not
+        cleared anywhere - they are simply never shown, their token is dead,
+        and the next ask (by anyone) overwrites the claim fields. A bound
+        author's other imported emails are not the user's business.
+        """
+        return (
+            cls.objects.filter(claimed_by=user)
+            .filter(
+                Q(claim_verified=True)
+                | Q(
+                    claim_hash__isnull=False,
+                    claim_hash_expiration__gt=timezone.now(),
+                )
+            )
+            .order_by("-claim_verified", "email")
+        )
 
     def is_verification_email_expired(self):
         return timezone.now() > self.claim_hash_expiration
@@ -190,6 +226,10 @@ class CommitAuthorEmail(models.Model):
     def trigger_verification_email(self, request):
         self.author.user = request.user
         self.author.save(update_fields=["user"])
+        # the one delta from the pre-v3 flow: record the claimant so claims
+        # made while the v3 flag is off still show in the v3 card once it
+        # flips on
+        self.claimed_by = request.user
         self.claim_hash = uuid.uuid4()
         self.claim_hash_expiration = timezone.now() + timedelta(days=1)
         self.save()
@@ -206,6 +246,148 @@ class CommitAuthorEmail(models.Model):
         send_commit_author_email_verify_mail.delay(self.email, url)
 
         return CommitAuthorEmail.objects.filter(author__user=self.author.user)
+
+    def ask_to_claim(self, request):
+        """Ask to claim this email for request.user - the v3 flow. The legacy
+        flow is trigger_verification_email above, preserved untouched.
+
+        Side-effect-free beyond this row: records the claimant and a fresh
+        token and emails the address. author.user - the field driving public
+        attribution - is only bound once the inbox owner confirms
+        (see verify_claim).
+
+        Returns None without side effects if the row is no longer claimable
+        by request.user - the form validated an unlocked row, so a concurrent
+        request may have verified it or opened a competing claim since.
+        """
+        with transaction.atomic():
+            locked = type(self).objects.select_for_update().get(pk=self.pk)
+            claimed_by_other = (
+                locked.claimed_by_id is not None
+                and locked.claimed_by_id != request.user.pk
+                and locked.claim_hash is not None
+                and locked.claim_hash_expiration > timezone.now()
+            )
+            if locked.claim_verified or claimed_by_other:
+                return None
+
+            self.claimed_by = request.user
+            self.claim_hash = uuid.uuid4()
+            self.claim_hash_expiration = timezone.now() + timedelta(
+                seconds=COMMIT_EMAIL_CLAIM_MAX_AGE
+            )
+            # self predates the lock; a full-row save would clobber
+            # concurrent writes to unrelated fields with the stale snapshot
+            self.save(
+                update_fields=["claimed_by", "claim_hash", "claim_hash_expiration"]
+            )
+
+        url = request.build_absolute_uri(
+            reverse(
+                "commit-author-email-verify",
+                kwargs={"token": self.claim_hash},
+            )
+        )
+        # here to avoid circular import
+        from .tasks import send_commit_author_email_verify_mail
+
+        # may be blank - the email falls back to an anonymous variant rather
+        # than leaking the claimant's account email
+        send_commit_author_email_verify_mail.delay(
+            self.email,
+            url,
+            request.user.display_name,
+            v3=True,
+        )
+
+        return CommitAuthorEmail.objects.filter(claimed_by=request.user)
+
+    def verify_claim(self):
+        """Complete a claim: mark this row verified and bind public
+        attribution (author.user) to the claimant.
+
+        A verified claim outranks the email/github matching heuristics that
+        also set author.user (see tasks.update_commit_author_user), but it
+        never steals an author on which a different user holds another
+        verified claim - in that conflict the row is verified without
+        rebinding and the conflict is logged for admins.
+
+        Returns True when attribution was bound to the claimant, False
+        when a conflicting verified sibling claim left author.user alone.
+        """
+        with transaction.atomic():
+            # locking the author serializes sibling verifications, so two
+            # can't both pass the conflict check before either commits
+            author = CommitAuthor.objects.select_for_update().get(pk=self.author_id)
+            self.claim_verified = True
+            self.claim_hash_expiration = timezone.now()
+            self.save(update_fields=["claim_verified", "claim_hash_expiration"])
+
+            conflicting_claim = (
+                author.commitauthoremail_set.exclude(pk=self.pk)
+                .filter(claim_verified=True, claimed_by__isnull=False)
+                .exclude(claimed_by=self.claimed_by)
+                .exists()
+            )
+            if conflicting_claim:
+                logger.warning(
+                    "Verified commit email claim %s (user %s) conflicts with a "
+                    "verified sibling claim on author %s; author.user left as %s",
+                    self.pk,
+                    self.claimed_by_id,
+                    self.author_id,
+                    author.user_id,
+                )
+                return False
+            author.user = self.claimed_by
+            author.save(update_fields=["user"])
+            return True
+
+    def withdraw_claim(self):
+        """Undo a pending claim without touching the imported email record.
+
+        The commit importer owns CommitAuthorEmail rows, so withdrawing an
+        unverified claim must never delete one; it only clears the claim
+        fields on this row. Unbinding author.user remains solely as a
+        fallback for legacy rows claimed before the claimed_by field
+        existed, which bound the author at ask time.
+        """
+        with transaction.atomic():
+            claimant = self.claimed_by
+            self.claimed_by = None
+            self.claim_hash = None
+            self.claim_hash_expiration = timezone.now()
+            self.save(
+                update_fields=["claimed_by", "claim_hash", "claim_hash_expiration"]
+            )
+
+            if claimant is None:
+                return
+            # same author lock as verify_claim, so the sibling check below
+            # can't race a sibling verification into a stale unbind
+            author = CommitAuthor.objects.select_for_update().get(pk=self.author_id)
+            if author.user != claimant:
+                return
+            # only the claimant's own active claims justify keeping the
+            # binding: expired tokens are never cleared (so they must not
+            # count forever), and other users' asks never bound this author
+            # to this claimant
+            author_still_bound = (
+                author.commitauthoremail_set.exclude(pk=self.pk)
+                .filter(
+                    Q(claim_verified=True, claimed_by=claimant)
+                    | Q(
+                        claim_verified=False,
+                        claimed_by=claimant,
+                        claim_hash__isnull=False,
+                        claim_hash_expiration__gt=timezone.now(),
+                    )
+                )
+                .exists()
+            )
+            if not author_still_bound:
+                author.user = None
+                author.save(update_fields=["user"])
 
     def __str__(self):
         return f"{self.author.name}: {self.email}"

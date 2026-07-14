@@ -1,7 +1,8 @@
 from datetime import date, timedelta
 
 from celery import shared_task, chain
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, send_mail
+from django.template.loader import render_to_string
 from django.core.management import call_command
 import structlog
 from django.db.models.functions import ExtractWeek, ExtractIsoYear
@@ -32,12 +33,14 @@ from reports.generation import (
 from users.tasks import User
 from versions.models import Version
 from .constants import (
+    COMMIT_EMAIL_CLAIM_MAX_AGE,
     LIBRARY_DOCS_EXCEPTIONS,
     LIBRARY_DOCS_MISSING,
     VERSION_DOCS_MISSING,
     DOCKER_CONTAINER_URL_WEB,
 )
 from .utils import (
+    format_duration,
     version_within_range,
     update_base_tag,
     generate_release_report_filename,
@@ -566,29 +569,52 @@ def update_commit_author_user(author_id: int):
 
 
 @shared_task
-def send_commit_author_email_verify_mail(commit_author_email, url):
-    logger.info(f"Sending verification email to {commit_author_email} with {url=}")
-
-    text_content = (
-        "Please verify your email address by clicking the following link: \n"
-        f"\n\n {url}\n\n If you did not request a commit author verification "
-        "you can safely ignore this email.\n"
-    )
-    html_content = (
-        "<p>Please verify your email address at the following link:</p>"
-        f"<p><a href='{url}'>Verify Email</a></p>"
-        "<p>If you did not request a commit author verification you can safely ignore "
-        "this email.</p>"
-    )
-    msg = EmailMultiAlternatives(
-        subject="Please verify your email address",
-        body=text_content,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[commit_author_email],
-    )
-    msg.attach_alternative(html_content, "text/html")
-    msg.send()
-    logger.info(f"Verification email to {commit_author_email} sent")
+def send_commit_author_email_verify_mail(
+    commit_author_email, url, requester=None, v3=False
+):
+    if v3:
+        # unlike the legacy log line below, no address (PII) or url (which
+        # embeds the claim token) may end up in the logs
+        logger.info("Sending commit email verification message")
+        message = render_to_string(
+            "v3/libraries/email/verify_commit_email.txt",
+            {
+                "email": commit_author_email,
+                "requester": requester,
+                "confirm_url": url,
+                "expiry_label": format_duration(COMMIT_EMAIL_CLAIM_MAX_AGE),
+            },
+        )
+        send_mail(
+            subject="Confirm your commit email address",
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[commit_author_email],
+            fail_silently=False,
+        )
+    else:
+        # pre-v3 email, preserved verbatim
+        logger.info(f"Sending verification email to {commit_author_email} with {url=}")
+        text_content = (
+            "Please verify your email address by clicking the following link: \n"
+            f"\n\n {url}\n\n If you did not request a commit author verification "
+            "you can safely ignore this email.\n"
+        )
+        html_content = (
+            "<p>Please verify your email address at the following link:</p>"
+            f"<p><a href='{url}'>Verify Email</a></p>"
+            "<p>If you did not request a commit author verification you can safely "
+            "ignore this email.</p>"
+        )
+        msg = EmailMultiAlternatives(
+            subject="Please verify your email address",
+            body=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[commit_author_email],
+        )
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+        logger.info(f"Verification email to {commit_author_email} sent")
 
 
 @shared_task

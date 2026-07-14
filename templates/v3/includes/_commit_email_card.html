@@ -1,0 +1,26 @@
+{% comment %}
+  V3 Commit Email Card
+  Lets the user associate multiple commit-author email addresses with their
+  account so contribution history across those addresses aggregates onto
+  one profile. A pending (unverified) email can be removed or re-sent; a
+  verified email is permanent, since removing it would affect historical
+  contribution records.
+
+  Variables:
+    commit_email_addresses (queryset of CommitAuthorEmail) — the user's
+                              current commit emails, verified and pending
+    csrf_token             (required when included with `only` — the body's
+                              forms cannot post without it)
+
+  Usage:
+    {% include 'v3/includes/_commit_email_card.html' with commit_email_addresses=commit_email_addresses csrf_token=csrf_token only %}
+{% endcomment %}
+<div class="basic-card card user-profile__commit-email-card">
+  <div class="card__header">
+    <span class="card__title">Commit email addresses</span>
+  </div>
+  <hr class="card__hr" aria-hidden="true" />
+  <div class="card__column px-large">
+    {% include 'v3/includes/_commit_email_card_body.html' with commit_email_addresses=commit_email_addresses csrf_token=csrf_token only %}
+  </div>
+</div>

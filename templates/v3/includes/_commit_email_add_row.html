@@ -1,0 +1,29 @@
+{% comment %}
+  V3 commit email add row — the add-a-new-commit-email form: email field plus
+  Submit. Used twice by _commit_email_card_body.html: once server-rendered
+  below the list, once inside that card's <noscript> fallback.
+
+  One markup serves both because every JS-only attribute here degrades to
+  nothing: hx-* and x-* are inert without htmx/Alpine, `:disabled` is an
+  Alpine binding rather than the real `disabled` attribute so Submit stays
+  clickable, and the spinner only un-hides under the .htmx-request class htmx
+  puts on the form (see static/css/v3/commit-email-card.css). The card's
+  Alpine-appended extra rows are deliberately not this partial — they need a
+  per-row input id, htmx.process(), and a remove button.
+
+  Variables:
+    value       (optional — pre-fills the field, e.g. after a failed add)
+    error       (optional — validation message to show under the field)
+    aria_label  (optional — accessible name for the input; needed wherever the
+                  card's "Email" caption is not a <label> tied to this field)
+    csrf_token  (required when included with `only`)
+
+  Usage:
+    {% include 'v3/includes/_commit_email_add_row.html' with value=commit_email_form.email.value error=commit_email_form.email.errors.0 csrf_token=csrf_token only %}
+{% endcomment %}
+<form method="post" action="{% url 'v3-commit-author-email-create' %}" hx-post="{% url 'v3-commit-author-email-create' %}" hx-target="#commit-email-card-body" hx-swap="outerHTML" class="commit-email__add-row" x-data="{ empty: true }" x-init="empty = !$el.querySelector('input[name=email]').value.trim()" @input="empty = !$event.target.value.trim()">
+  {% csrf_token %}
+  {% include 'v3/includes/_field_text.html' with name='email' type='email' placeholder='Your email' value=value error=error aria_label=aria_label extra_class='commit-email__add-field' only %}
+  <button type="submit" class="btn btn-primary" :disabled="empty">Submit</button>
+  <span class="commit-email__spinner" aria-hidden="true"></span>
+</form>

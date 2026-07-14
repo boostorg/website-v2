@@ -1,0 +1,116 @@
+{% comment %}
+  V3 commit email card body — the list of the user's commit emails plus the
+  add-new-email rows. Returned wholesale by the create/withdraw/resend views
+  (see libraries/views.py) so every action re-renders from current DB state.
+
+  Row model (per Figma variants 6873:25111 / 6741:68235 / 6741:68469 /
+  7059:18111 / 6741:68703):
+    - verified email  → read-only field, no controls
+    - pending email   → read-only field with inline "Pending", resend (reload)
+                        and withdraw (close) icon buttons outside the field
+    - base add row    → _commit_email_add_row.html, server-rendered below the
+                        existing rows only when the user has no commit emails
+                        yet (or a failed add left the form bound with errors
+                        to surface); Submit is Alpine-disabled while empty
+    - extra add rows  → appended client-side via "+ Add Another" (Alpine),
+                        each removable with a close button before submitting;
+                        hand-rolled rather than the partial above because each
+                        needs its own input id and an htmx.process() call
+    - no-JS add row   → "+ Add Another" needs Alpine to append rows, so with
+                        JS off it is hidden and one _commit_email_add_row.html
+                        is rendered instead (unless the base add row above is
+                        already showing one)
+
+  Variables:
+    commit_email_addresses (queryset of CommitAuthorEmail, required)
+    commit_email_form      (CommitAuthorEmailForm, optional — bound with
+                             errors when re-rendering after a failed add)
+    htmx_swap              (bool, optional — true when this render is an htmx
+                             swap response, which must leave out the no-JS
+                             fallback: htmx parses responses with DOMParser,
+                             where scripting is off, so <noscript> children
+                             become live nodes instead of staying inert)
+    csrf_token             (required when included with `only`; provided by the
+                             request context when rendered from a view)
+
+  Usage:
+    {% include 'v3/includes/_commit_email_card_body.html' with commit_email_addresses=commit_email_addresses only %}
+{% endcomment %}
+<div id="commit-email-card-body" class="commit-email__body" x-data="{ rowSeq: 0, extraRows: [] }">
+  {% comment %} The caption sits above the list in every Figma variant, but only the base add row
+  below puts a real #field-email input in the DOM: the no-JS row is inert text while JS is on, and
+  htmx swaps drop it entirely. So it is a <label> only when that input is actually there. {% endcomment %}
+  {% if not commit_email_addresses or commit_email_form.errors %}
+    <label class="field__label" for="field-email">Email</label>
+  {% else %}
+    <span class="field__label">Email</span>
+  {% endif %}
+  {% if commit_email_addresses %}
+    <ul class="commit-email__items">
+      {% for cea in commit_email_addresses %}
+        <li class="commit-email__item">
+          <div class="commit-email__field">
+            <span class="commit-email__address">{{ cea.email }}</span>
+            {% if not cea.claim_verified %}
+              <span class="commit-email__status">Pending</span>
+            {% endif %}
+          </div>
+          {% if not cea.claim_verified %}
+            <form method="post" action="{% url 'v3-commit-author-email-resend' pk=cea.pk %}" hx-post="{% url 'v3-commit-author-email-resend' pk=cea.pk %}" hx-target="#commit-email-card-body" hx-swap="outerHTML" class="commit-email__action-form">
+              {% csrf_token %}
+              <button type="submit" class="commit-email__action-btn" aria-label="Resend verification email to {{ cea.email }}">
+                {% include "includes/icon.html" with icon_name="reload" icon_class="commit-email__action-icon" icon_size=16 icon_viewbox="0 0 16 16" %}
+              </button>
+            </form>
+            <form method="post" action="{% url 'v3-commit-author-email-withdraw' pk=cea.pk %}" hx-post="{% url 'v3-commit-author-email-withdraw' pk=cea.pk %}" hx-target="#commit-email-card-body" hx-swap="outerHTML" class="commit-email__action-form">
+              {% csrf_token %}
+              <button type="submit" class="commit-email__action-btn" aria-label="Remove {{ cea.email }}">
+                {% include "includes/icon.html" with icon_name="close" icon_class="commit-email__action-icon" icon_size=16 %}
+              </button>
+            </form>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% if not commit_email_addresses or commit_email_form.errors %}
+    {% include 'v3/includes/_commit_email_add_row.html' with value=commit_email_form.email.value error=commit_email_form.email.errors.0 csrf_token=csrf_token only %}
+  {% endif %}
+  <template x-for="row in extraRows" :key="row">
+    {# htmx only wires hx-* attributes on nodes it sees at load or swaps in itself; Alpine clones this row later, so it must be handed to htmx.process or the form falls back to a full-page POST (and the error banner) #}
+    <form method="post" action="{% url 'v3-commit-author-email-create' %}" hx-post="{% url 'v3-commit-author-email-create' %}" hx-target="#commit-email-card-body" hx-swap="outerHTML" class="commit-email__add-row" x-data="{ empty: true }" x-init="htmx.process($el)" @input="empty = !$event.target.value.trim()">
+      {% csrf_token %}
+      <div class="field commit-email__add-field">
+        <div class="field__control">
+          <input class="field__input" type="email" name="email" placeholder="Your email" aria-label="Email" :id="`field-email-extra-${row}`">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" :disabled="empty">Submit</button>
+      <span class="commit-email__spinner" aria-hidden="true"></span>
+      <button type="button" class="commit-email__action-btn" aria-label="Remove this email row" @click="extraRows = extraRows.filter((r) => r !== row)">
+        {% include "includes/icon.html" with icon_name="close" icon_class="commit-email__action-icon" icon_size=16 %}
+      </button>
+    </form>
+  </template>
+  {% comment %} No-JS fallback: "+ Add Another" appends rows through Alpine, so
+  without JS it is hidden and one plain add row takes its place — skipped when
+  the base add row above is already rendering one. Left out of htmx swaps
+  entirely: htmx parses responses with DOMParser, which has scripting off, so
+  a <noscript> in a swap would take effect even though JS is on. {% endcomment %}
+  {% if not htmx_swap %}
+    <noscript>
+      <style>
+        .commit-email__add-another { display: none; }
+        .commit-email__body > noscript { display: contents; }
+      </style>
+      {% if commit_email_addresses and not commit_email_form.errors %}
+        {# aria_label because the caption above is a plain <span> in this branch, not a <label> #}
+        {% include 'v3/includes/_commit_email_add_row.html' with value=commit_email_form.email.value error=commit_email_form.email.errors.0 aria_label='Email' csrf_token=csrf_token only %}
+      {% endif %}
+    </noscript>
+  {% endif %}
+  <div class="commit-email__add-another">
+    <button type="button" class="btn-underline" @click="extraRows.push(++rowSeq)">+ Add Another</button>
+  </div>
+  <div class="field__help">Add other email addresses you've used in commits to Boost libraries.</div>
+</div>

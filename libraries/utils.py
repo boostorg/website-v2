@@ -18,9 +18,11 @@ from django.conf import settings
 from django.db.models import Count, F, QuerySet
 from django.db.models.functions import Lower
 from django.urls import reverse
+from django.utils import timezone as django_timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
+from django.utils.timesince import timesince
 
 from libraries.constants import (
     DEFAULT_LIBRARIES_LANDING_VIEW,
@@ -127,6 +129,16 @@ def generate_random_string(length=4):
     characters = string.ascii_letters
     random_string = "".join(random.choice(characters) for _ in range(length))
     return random_string
+
+
+def format_duration(seconds: int) -> str:
+    """Human label for a duration, e.g. 86400 -> "1 day".
+
+    Mirrors the mailing-list confirm flow's formatting so expiry copy reads
+    the same across both email verification flows.
+    """
+    now = django_timezone.now()
+    return timesince(now - relativedelta(seconds=seconds), now, depth=1)
 
 
 def version_within_range(

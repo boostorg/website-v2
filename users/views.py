@@ -181,6 +181,10 @@ class CurrentUserProfileView(
             "saved_sections": {
                 key: key == saved_section for key in self.V3_EDIT_SECTIONS
             },
+            "profile_account_url": reverse("profile-account"),
+            "commit_email_addresses": CommitAuthorEmail.claimed_by_user(
+                self.request.user
+            ),
             "badge_tiers": [
                 {"tier": "1", "name": "Bronze"},
                 {"tier": "2", "name": "Silver"},
@@ -527,9 +531,18 @@ class CurrentUserProfileView(
                 instance=self.request.user.preferences
             )
             context["social_accounts"] = self.get_social_accounts()
-            context["commit_email_addresses"] = CommitAuthorEmail.objects.filter(
-                author__user=self.request.user
-            )
+            if flag_is_active(self.request, "v3"):
+                # NB: on v3 edit-profile renders this line runs after (and
+                # overwrites) the get_v3_edit_context value, because V3Mixin's
+                # get_context_data re-enters this method - so it must build
+                # the exact same queryset
+                context["commit_email_addresses"] = CommitAuthorEmail.claimed_by_user(
+                    self.request.user
+                )
+            else:
+                context["commit_email_addresses"] = CommitAuthorEmail.objects.filter(
+                    author__user=self.request.user
+                )
         return context
 
     def get_social_accounts(self):
