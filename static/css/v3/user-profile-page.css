@@ -125,6 +125,10 @@
     margin: var(--space-default) 0
 }
 
+.user-profile__edit-form {
+    display: contents;
+}
+
 .user-profile__badge-select {
     padding: 6px;
     display: flex;

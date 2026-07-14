@@ -50,7 +50,7 @@ from .forms import (
     CustomSignUpForm,
     SLACK_PROFILE_URL_PREFIX,
 )
-from .models import User
+from .models import ProfileRole, User, decode_role_option
 from .password_rules import build_password_rules
 from .permissions import CustomUserPermissions
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
@@ -148,6 +148,7 @@ class CurrentUserProfileView(
             "email": user.email,
             "tagline": user.tagline,
             "bio": user.biography,
+            "role": user.encoded_displayed_role,
             "country": user.country.code,
             "indicate_last_login_method": user.indicate_last_login_method,
             "override_commit_author_name": user.is_commit_author_name_overridden,
@@ -196,6 +197,7 @@ class CurrentUserProfileView(
             form = V3UserProfileForm(
                 user=self.request.user,
                 user_links=self.request.user.profile_links,
+                role_options=self.request.user.get_role_options(),
                 initial=self.get_v3_edit_initial(),
             )
         saved_section = self.request.GET.get("saved")
@@ -282,7 +284,7 @@ class CurrentUserProfileView(
                 "badge": BadgeToken.TIER_5,
             },
             "member_since": user.date_joined.year,
-            "role": "Contributor",
+            "role": user.role,
             "flag_emoji": user.flag_emoji,
         }
 
@@ -630,6 +632,9 @@ class CurrentUserProfileView(
             )
             self.update_preferences(profile_preferences_form, request)
 
+        if "update_profile_role" in request.POST:
+            self.update_profile_role(request)
+
         return HttpResponseRedirect(self.success_url)
 
     # Maps each section's submit-button name to the fields it owns and the
@@ -819,6 +824,41 @@ class CurrentUserProfileView(
         else:
             for error in form.errors.values():
                 messages.error(request, f"{error}")
+
+    def update_profile_role(self, request):
+        """Save the member's chosen displayed profile role and its library.
+
+        The submitted value encodes a (role, library) pair, re-validated against
+        the member's own options so they can never feature a role they don't
+        hold. Selecting their assigned C++ Alliance title clears the library-role
+        override so the role falls back to that title (stored in internal_role,
+        never in displayed_profile_role). An empty value likewise clears it.
+        """
+        user = request.user
+        value = request.POST.get("role", "")
+        role, library_id = decode_role_option(value)
+        if value:
+            eligible = {
+                (o["role"], o["library"].id if o["library"] else None)
+                for o in user.get_role_options()
+            }
+            if (role, library_id) not in eligible:
+                messages.error(request, "You cannot select that role.")
+                return
+        if role in ProfileRole.internal_roles():
+            # The title is the member's default; represent it as a cleared override.
+            user.displayed_profile_role = ""
+            user.displayed_profile_role_library = None
+        else:
+            user.displayed_profile_role = role
+            user.displayed_profile_role_library_id = library_id
+        user.save(
+            update_fields=[
+                "displayed_profile_role",
+                "displayed_profile_role_library",
+            ]
+        )
+        messages.success(request, "Your profile role was successfully updated.")
 
 
 # Custom Allauth Views

@@ -35,6 +35,7 @@ flushed rather than leaking onto the next page. {% endcomment %}
                 @submit="handleSubmit($event)"
                 @input="saved = false" @change="saved = false">
           {% csrf_token %}
+          <input type="hidden" name="update_profile_role" value="1" />
           <div class="card__header">
             <span class="card__title">Profile</span>
           </div>
@@ -108,7 +109,11 @@ flushed rather than leaking onto the next page. {% endcomment %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.role %}
+            {% if user_profile_form.role.field.disabled %}
+              {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.role %}
+            {% else %}
+              {% include 'v3/includes/_field_combo.html' with name=user_profile_form.role.name label=user_profile_form.role.label options=user_profile_form.role.field.choices selected=user_profile_form.role.value placeholder="Search roles..." only %}
+            {% endif %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="user-profile__xl-space-col px-large">

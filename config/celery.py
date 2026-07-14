@@ -150,3 +150,11 @@ def setup_periodic_tasks(sender, **kwargs):
         crontab(hour="*/1", minute=0),
         app.signature("news.tasks.publish_scheduled_pages"),
     )
+
+    # Daily safety refresh of the profile role-eligibility materialized view.
+    # Eligibility only changes during imports, which enqueue this refresh
+    # themselves; this is a backstop after the daily import window (7:05/8:05 AM).
+    sender.add_periodic_task(
+        crontab(hour=9, minute=0),
+        app.signature("users.tasks.refresh_profile_role_eligibility"),
+    )

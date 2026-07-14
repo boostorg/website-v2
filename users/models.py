@@ -11,6 +11,7 @@ from django.contrib.auth.models import (
 )
 from django.core.mail import send_mail
 from django.db import models, transaction
+from django.db.utils import OperationalError, ProgrammingError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -188,6 +189,113 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         return super().save(*args, **kwargs)
 
 
+class ProfileRole(models.TextChoices):
+    """Roles shown on profile surfaces.
+
+    Library-derived roles are self-selectable by members who hold them (stored in
+    `User.displayed_profile_role`); internal C++ Alliance titles are assignable
+    via the Django admin only (stored in `User.internal_role`).
+    """
+
+    # Library-derived (member-selectable)
+    AUTHOR = "Author", "Author"
+    MAINTAINER = "Maintainer", "Maintainer"
+    CONTRIBUTOR = "Contributor", "Contributor"
+
+    # Internal C++ Alliance titles (admin-only)
+    CHIEF_OF_STAFF = "chief_of_staff", "Chief of Staff, C++ Alliance"
+    CEO = "ceo", "CEO, C++ Alliance"
+    CTO = "cto", "CTO, C++ Alliance"
+    CFO_COO = "cfo_coo", "CFO/COO, C++ Alliance"
+    CMO = "cmo", "CMO, C++ Alliance"
+    BOARD_MEMBER = "board_member", "Board Member, C++ Alliance"
+    SENIOR_EXEC_ASSISTANT = (
+        "senior_exec_assistant",
+        "Senior Executive Assistant, C++ Alliance",
+    )
+    CREATIVE_PRODUCTION_COORDINATOR = (
+        "creative_production_coordinator",
+        "Creative Production Coordinator, C++ Alliance",
+    )
+    SOFTWARE_ENGINEER = "software_engineer", "Software Engineer, C++ Alliance"
+    SENIOR_TECHNICAL_WRITER = (
+        "senior_technical_writer",
+        "Senior Technical Writer, C++ Alliance",
+    )
+    EXECUTIVE_TEAM_ALUMNI = (
+        "executive_team_alumni",
+        "Executive Team, C++ Alliance Alumni",
+    )
+    TECHNICAL_COMMITTEE_ALUMNI = (
+        "technical_committee_alumni",
+        "Technical Committee, C++ Alliance Alumni",
+    )
+    SOFTWARE_ENGINEER_ALUMNI = (
+        "software_engineer_alumni",
+        "Software Engineer, C++ Alliance Alumni",
+    )
+    FISCAL_COMMITTEE_MEMBER = (
+        "fiscal_committee_member",
+        "Fiscal Committee Member, C++ Alliance",
+    )
+
+    @classmethod
+    def library_role_precedence(cls):
+        """Library roles high-to-low, used to pick a default when a member holds several."""
+        return [cls.AUTHOR.value, cls.MAINTAINER.value, cls.CONTRIBUTOR.value]
+
+    @classmethod
+    def library_roles(cls):
+        return frozenset(cls.library_role_precedence())
+
+    @classmethod
+    def internal_roles(cls):
+        return frozenset(cls.values) - cls.library_roles()
+
+    @classmethod
+    def singular_roles(cls):
+        """Internal titles that at most one user may hold.
+
+        Returns a sorted tuple so the migration constraint condition serializes
+        deterministically.
+        """
+        return (
+            cls.CEO.value,
+            cls.CFO_COO.value,
+            cls.CHIEF_OF_STAFF.value,
+            cls.CMO.value,
+            cls.CTO.value,
+        )
+
+
+def encode_role_option(role, library_id):
+    """Encode a (role, library) pair as a single dropdown option value.
+
+    A falsy `library_id` encodes a generic, library-less role (e.g. "Author:").
+    """
+    return f"{role}:{library_id or ''}"
+
+
+def decode_role_option(value):
+    """Decode an encoded option value into (role, library_id).
+
+    Returns (role, None) for an unscoped role and ("", None) for an empty value.
+    """
+    if not value:
+        return "", None
+    role, _, library_id = value.partition(":")
+    return role, (int(library_id) if library_id.isdigit() else None)
+
+
+def compose_role_label(role, library):
+    """Human label for a (role, library) pair, e.g. "Boost.Beast Author".
+
+    Without a library the plain role label is used (generic roles and titles).
+    """
+    label = ProfileRole(role).label
+    return f"{library.display_name} {label}" if library is not None else label
+
+
 class User(BaseUser):
     """
     Our custom user model.
@@ -251,6 +359,41 @@ class User(BaseUser):
         ),
     )
     display_name = models.CharField(max_length=255, blank=True, null=True)
+    displayed_profile_role = models.CharField(
+        max_length=64,
+        choices=ProfileRole,
+        blank=True,
+        default="",
+        help_text=_(
+            "Library role the member has chosen to feature (or blank to use their "
+            "default). Member-controlled; C++ Alliance titles live in internal_role."
+        ),
+    )
+    displayed_profile_role_library = models.ForeignKey(
+        "libraries.Library",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text=_(
+            "Optional library that scopes a library role, e.g. Beast -> "
+            '"Boost.Beast Author". Leave blank for a generic role.'
+        ),
+    )
+    internal_role = models.CharField(
+        max_length=64,
+        choices=[
+            (r.value, r.label)
+            for r in sorted(ProfileRole, key=lambda r: r.value)
+            if r.value in ProfileRole.internal_roles()
+        ],
+        blank=True,
+        default="",
+        help_text=_(
+            "C++ Alliance title, assigned by staff. This is the member's default "
+            "displayed role; they may instead feature a library role they hold."
+        ),
+    )
     can_update_image = models.BooleanField(
         _("can_update_image"),
         default=True,
@@ -306,6 +449,18 @@ class User(BaseUser):
     # so the grace-period task can apply the same extended PII scrub the V3
     # immediate delete uses. Legacy requests leave this False.
     deletion_extended_scrub = models.BooleanField(default=False, editable=False)
+
+    class Meta(BaseUser.Meta):
+        constraints = [
+            models.UniqueConstraint(
+                fields=["internal_role"],
+                condition=models.Q(internal_role__in=ProfileRole.singular_roles()),
+                name="unique_singular_profile_role",
+                violation_error_message=(
+                    "This C++ Alliance title is already assigned to another user."
+                ),
+            )
+        ]
 
     def _delete_cached_spec(self, source_field, spec_field):
         """Delete a cached ImageKit spec file so it regenerates on next access."""
@@ -418,12 +573,134 @@ class User(BaseUser):
         """
         return large_static("img/v3/badges/badge-gold-medal.png")
 
+    def _effective_role(self):
+        """The (role_type, library) currently displayed, or (None, None)."""
+        role_type = self.displayed_profile_role
+        if role_type in ProfileRole.library_roles():
+            return role_type, self.displayed_profile_role_library
+        if self.internal_role:
+            return self.internal_role, None
+        options = self.get_role_library_options()
+        if options:
+            return options[0]["role"], None
+        return None, None
+
     @cached_property
     def role(self):
+        """Display role shown on profile surfaces (single source of truth).
+
+        A library role is scoped to its library ("Boost.Beast Author") or generic
+        ("Author"); a C++ Alliance title renders as-is. See `_effective_role`.
         """
-        TODO: This is currently dummy data for testing
+        role_type, library = self._effective_role()
+        return compose_role_label(role_type, library) if role_type else ""
+
+    @property
+    def encoded_displayed_role(self):
+        """Encoded option value used to preselect the edit-page dropdown.
+
+        Empty when there is no role to show; library-less roles encode as "role:".
         """
-        return "Contributor"
+        role_type, library = self._effective_role()
+        if not role_type:
+            return ""
+        return encode_role_option(role_type, library.id if library else "")
+
+    def get_role_options(self):
+        """Selectable role options for the edit-page dropdown.
+
+        A generic, library-less option (e.g. "Author") is offered at the top for
+        each role the user holds in at least one library, in precedence order,
+        followed by the library-scoped options (e.g. "Boost.Beast Author"). A
+        generic option carries `library=None`.
+
+        Members can't assign internal C++ Alliance titles, but if an admin has
+        assigned one (internal_role) it is the member's default displayed role:
+        it is offered first and preselected. It is the only title a member may
+        (re-)select.
+        """
+        scoped = self.get_role_library_options()
+        generic, seen = [], set()
+        for option in scoped:  # already precedence-ordered
+            if option["role"] not in seen:
+                seen.add(option["role"])
+                generic.append({"role": option["role"], "library": None})
+        options = generic + scoped
+        if self.internal_role:
+            options.insert(0, {"role": self.internal_role, "library": None})
+        return options
+
+    def get_role_library_options(self):
+        """Eligible (role, library) pairs the user holds, ordered for selection.
+
+        Ordered by role precedence (Author > Maintainer > Contributor), then by
+        the user's commit count in that library (most active first), then library
+        name. Reads the `users_profile_role_eligibility` materialized view, with a
+        live fallback when the user has no rows yet (e.g. between refreshes/tests).
+        """
+        precedence = {
+            role: index
+            for index, role in enumerate(ProfileRole.library_role_precedence())
+        }
+        pairs = self._matview_role_library_pairs()
+        if pairs is None:
+            pairs = self._live_role_library_pairs()
+        pairs.sort(
+            key=lambda p: (
+                precedence.get(p[0], len(precedence)),
+                -p[2],
+                p[1].display_name,
+            )
+        )
+        return [{"role": role, "library": library} for role, library, _ in pairs]
+
+    def _matview_role_library_pairs(self):
+        """(role, library, commit_count) tuples from the materialized view.
+
+        Returns None when the view is unavailable (e.g. tests run with
+        --no-migrations) so the caller uses the live-query fallback. A missing
+        relation is isolated in a savepoint so it does not abort the outer
+        transaction.
+        """
+        try:
+            with transaction.atomic():
+                rows = list(
+                    ProfileRoleEligibility.objects.filter(
+                        user_id=self.pk
+                    ).select_related("library")
+                )
+        except (ProgrammingError, OperationalError):
+            return None
+        return [(row.role, row.library, row.commit_count) for row in rows]
+
+    def _live_role_library_pairs(self):
+        """Fallback (role, library, commit_count) tuples computed with live queries."""
+        from libraries.models import Library, Commit
+        from django.db.models import Count
+
+        commit_counts = dict(
+            Commit.objects.filter(author__user_id=self.pk)
+            .values_list("library_version__library_id")
+            .annotate(n=Count("id"))
+        )
+
+        def count_for(library_id):
+            return commit_counts.get(library_id, 0)
+
+        pairs = []
+        for library in Library.objects.filter(authors=self):
+            pairs.append((ProfileRole.AUTHOR.value, library, count_for(library.id)))
+        maintained = Library.objects.filter(
+            library_version__maintainers=self
+        ).distinct()
+        for library in maintained:
+            pairs.append((ProfileRole.MAINTAINER.value, library, count_for(library.id)))
+        contributed = Library.objects.filter(id__in=commit_counts.keys())
+        for library in contributed:
+            pairs.append(
+                (ProfileRole.CONTRIBUTOR.value, library, count_for(library.id))
+            )
+        return pairs
 
     @cached_property
     def flag_emoji(self):
@@ -504,6 +781,36 @@ class User(BaseUser):
 
     def __str__(self):
         return f"{self.display_name} <{self.email}>"
+
+
+class ProfileRoleEligibility(models.Model):
+    """Read-only mapping of a user to the (library, role) pairs they hold.
+
+    One row per (user, library, role); `commit_count` is the user's commits to
+    that library, used to rank the most significant library for a role. Backed by
+    the `users_profile_role_eligibility` materialized view (see the RunSQL
+    migration). Refreshed by `users.tasks.refresh_profile_role_eligibility`.
+    """
+
+    id = models.BigIntegerField(primary_key=True)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.DO_NOTHING,
+        db_column="user_id",
+        related_name="role_eligibilities",
+    )
+    library = models.ForeignKey(
+        "libraries.Library",
+        on_delete=models.DO_NOTHING,
+        db_column="library_id",
+        related_name="+",
+    )
+    role = models.CharField(max_length=32)
+    commit_count = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = "users_profile_role_eligibility"
 
 
 class LastSeen(models.Model):

@@ -5,6 +5,7 @@ import structlog
 
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives, send_mail
+from django.db import connection
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -163,3 +164,17 @@ def remove_unverified_users():
 
     except Exception as e:
         logger.exception(f"Error occurred processing unverified users for removal: {e}")
+
+
+@app.task
+def refresh_profile_role_eligibility():
+    """Refresh the user role-eligibility materialized view.
+
+    Enqueued after author/maintainer and commit imports, with a daily safety
+    refresh via beat.
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "REFRESH MATERIALIZED VIEW CONCURRENTLY users_profile_role_eligibility;"
+        )
+    logger.info("refresh_profile_role_eligibility finished.")

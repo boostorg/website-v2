@@ -8,7 +8,7 @@ from django import forms
 from allauth.account.forms import ResetPasswordKeyForm, SignupForm
 from django_countries import countries
 
-from .models import Preferences
+from .models import Preferences, compose_role_label, encode_role_option
 from core.validators import max_file_size_validator
 from news.models import NEWS_MODELS
 from news.acl import can_approve
@@ -235,8 +235,29 @@ class V3UserProfileForm(forms.Form):
     def __init__(self, *args, **kwargs):
         links = kwargs.pop("user_links", None)
         self._user = kwargs.pop("user", None)
+        role_options = kwargs.pop("role_options", None) or []
         super().__init__(*args, **kwargs)
         self.fields["country"].choices = [("", "No country")] + list(countries)
+
+        # Populate the role dropdown from the options this user holds. A generic
+        # library-less option (e.g. "Author") is offered per role at the top,
+        # followed by library-scoped ones (e.g. "Boost.Beast Author"). Each value
+        # encodes the role and library id as "role:library_id" ("role:" when
+        # generic). Internal C++ Alliance titles are never offered here - they
+        # are assigned via the Django admin only.
+        self.fields["role"].choices = [
+            (
+                encode_role_option(o["role"], o["library"].id if o["library"] else ""),
+                compose_role_label(o["role"], o["library"]),
+            )
+            for o in role_options
+        ]
+        if not role_options:
+            self.fields["role"].disabled = True
+            self.fields["role"].widget.attrs[
+                "placeholder"
+            ] = "Contribute to a library to unlock a role"
+
         if links:
             self.link_formset = V3ProfileLinkFormset(
                 initial=[
@@ -287,9 +308,7 @@ class V3UserProfileForm(forms.Form):
     avatar = forms.ImageField(required=False)
     delete_avatar = forms.BooleanField(required=False)
 
-    role = forms.ChoiceField(
-        choices=[(0, "C++ Alliance Board Member")], label="Your Role"
-    )
+    role = forms.ChoiceField(choices=[], required=False, label="Your Role")
     select_title = forms.ChoiceField(
         choices=[],
         disabled=True,
