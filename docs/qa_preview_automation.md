@@ -137,7 +137,94 @@ deterministically; the tools do the diffing and reporting.**
 
 ---
 
-## 4. Phased pilot roadmap
+## 4. Where people see it (the GitHub-native experience)
+
+No custom dashboard. The whole experience is **one sticky comment + a couple
+of checks + a small label set**, each tuned to a different reader — in the
+team's priority order: QA operates it, the developer fixes from it, the PM
+glances at it.
+
+### ① QA Engineer — the operator
+
+QA's entire interaction is **adding the `qa` label**. The automation owns the
+rest and reports into a single sticky comment that updates in place (no thread
+spam):
+
+```
+🧪  QA Preview                                    updated just now
+
+Status       ✅ Live · deployed 2m ago
+Preview      https://cppal-dev.boost.cppalliance.org
+Commit       abc1234  (PR head)
+
+Visual        ✅ 8 / 8 pages match baseline
+Checked       desktop · mobile · light · dark
+Report        ↗ Playwright HTML report (screenshots + diffs)
+```
+
+The manual chain collapses to: label → wait → the preview link and
+auto-captured screenshots come to her. She clicks the preview for human
+judgment, glances at the visual report, signs off.
+
+Intentional UI changes are resolved with a comment command that updates the
+stored baseline so the check goes green (QA owns this):
+
+```
+/qa approve-baseline
+```
+
+### ② Developer — the fixer
+
+Failures show up as **checks** in the PR, each actionable:
+
+```
+Checks
+  ✅  qa / deploy         Preview live
+  ❌  qa / visual         2 of 8 pages changed
+```
+
+…and the same sticky comment flips to point at what and where:
+
+```
+Visual        ❌ 2 / 8 pages changed
+   • /accounts/signup   desktop · dark    ↗ diff
+   • /news              mobile            ↗ diff
+
+Review diffs → Playwright HTML report
+If intentional, ask QA to run /qa approve-baseline
+```
+
+The dev clicks a diff (before/after side-by-side), fixes, pushes — and the
+checks re-run automatically on the new commit and the comment refreshes.
+They never leave the PR.
+
+### ③ PM — the observer
+
+The PM reads **labels**, which the automation drives as a tiny state machine:
+
+```
+qa:deploying   →   qa:preview-live   →   qa:passed   (or)   qa:failed
+```
+
+Scanning the PR list, the PM sees `qa:passed` + a preview link — "verified,
+and I can look myself" — without pinging anyone.
+
+### Same events, three depths of detail
+
+| Reader | Surface | Job |
+|--------|---------|-----|
+| **QA** | the `qa` label + sticky comment + `/qa` commands | operate it |
+| **Dev** | failed checks + inline diffs + report link | fix from it |
+| **PM** | the `qa:*` label + preview link | glance at it |
+
+All native GitHub — labels, checks, one comment, an artifact; nothing to host.
+**Phase 1** delivers the `Status / Preview / Commit` half of the comment plus
+the `qa:preview-live` label. The `Visual ✅/❌` half and `/qa approve-baseline`
+arrive with **Phase 2** (Playwright).
+
+---
+
+## 5. Phased pilot roadmap
 
 Sequence matters. Phases 1–2 remove the toil and each demos on its own; phase
 3 is the differentiator Metalab can market — but bolting AI on before the
@@ -185,7 +272,7 @@ items. This is the differentiator for the Metalab QA offering.
 
 ---
 
-## 5. Before we build — two things to confirm
+## 6. Before we build — two things to confirm
 
 - **Where's the real pain?** Is it "it's too slow/manual to get a preview up"
   (→ ship Phase 1 now) or "I don't trust hand-pasted screenshots as proof"
