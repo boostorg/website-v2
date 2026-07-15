@@ -1352,30 +1352,33 @@ html:not(.v3):has(.boostlook) {
    components, READMEs) that lack Antora's .paragraph wrapper, so the rule
    above never matches them. Scoped :not(:has(.doc)) so Antora doc content
    keeps its own structure-based spacing below. */
-.boostlook:not(:has(.doc)) p + p {
+/* The :not(...) guards are wrapped in :where() so they add no specificity:
+   this bare-markdown layer is a low baseline (.boostlook + element level) that
+   component rules (e.g. .boostlook.markdown-content ul) can override cleanly. */
+.boostlook:where(:not(:has(.doc))) p + p {
   margin-top: var(--padding-padding-md, 1rem);
 }
 
 /* Markdown lists — bare <ul>/<ol> from markdown (site components, READMEs)
    that lack Antora's .ulist/.olist wrappers. Tailwind's preflight strips the
    markers, indent and margins on the site, and boostlook's Antora list rules
-   never match these, so restore them here. Scoped :not(:has(.doc)) and
-   :not([class]) so only bare markdown lists are touched, never Antora or
-   classed nav/tab lists. */
-.boostlook:not(:has(.doc)) :is(ul, ol):not([class]) {
+   never match these, so restore them here. Scoped :where(:not(:has(.doc))) and
+   :where(:not([class])) so only bare markdown lists are touched, never Antora
+   or classed nav/tab lists, and with no added specificity. */
+.boostlook:where(:not(:has(.doc))) :is(ul, ol):where(:not([class])) {
   margin: var(--padding-padding-md, 1rem) 0;
   padding-left: var(--spacing-size-lg, 1.5rem);
 }
-.boostlook:not(:has(.doc)) ul:not([class]) {
+.boostlook:where(:not(:has(.doc))) ul:where(:not([class])) {
   list-style: disc;
 }
-.boostlook:not(:has(.doc)) ol:not([class]) {
+.boostlook:where(:not(:has(.doc))) ol:where(:not([class])) {
   list-style: decimal;
 }
-.boostlook:not(:has(.doc)) :is(ul, ol):not([class]) li + li {
+.boostlook:where(:not(:has(.doc))) :is(ul, ol):where(:not([class])) li + li {
   margin-top: var(--padding-padding-3xs, 0.25rem);
 }
-.boostlook:not(:has(.doc)) li > :is(ul, ol):not([class]) {
+.boostlook:where(:not(:has(.doc))) li > :is(ul, ol):where(:not([class])) {
   margin: var(--padding-padding-3xs, 0.25rem) 0 0;
 }
 
@@ -5569,11 +5572,41 @@ html.dark .boostlook#libraryReadMe {
    Note: these reference website-v2 design tokens by design.
    ============================================================ */
 
+/* v3 site: a .boostlook island sits on the host page's own surface, not
+   boostlook's doc surface, so clear the background boostlook sets on every
+   .boostlook element. Docs (iframe html has no .v3) keep their surface. */
+html.v3 .boostlook {
+  background: transparent;
+}
+
+/* Non-doc site components use v2's primary text color (near-black in light,
+   white in dark) rather than boostlook's lighter doc body grey. Paragraphs
+   inherit their container instead of boostlook's hardcoded `.boostlook p`
+   grey, so each component's own color flows through.
+   Font: boostlook's base container forces "Mona Sans" (!important) plus a
+   condensed font-variation-settings ("wght" 400, "wdth" 95). Non-doc site
+   components should render the site's own type instead, so inherit both the
+   family (!important to beat boostlook's base rule) and the variation settings
+   from the host page. Headings that set their own font-family (e.g.
+   --font-display) still win. */
+.boostlook:where(:not(:has(.doc))) {
+  color: var(--color-text-primary);
+  font-family: inherit !important;
+  font-variation-settings: inherit;
+}
+
+/* boostlook renders bold as a condensed variable-font axis
+   ("wght" 600, "wdth" 87.5); non-doc components should use the site's normal
+   bold weight, so drop the axis override and let font-weight take effect. */
+.boostlook:where(:not(:has(.doc))) :is(b, strong) {
+  font-variation-settings: inherit;
+}
+.boostlook:where(:not(:has(.doc))) p {
+  color: inherit;
+}
+
 /* Content modal (testimonials) — #2491 */
 .boostlook.content-modal__prose {
-  /* Sit on the modal surface; clear the white background the global
-     `.boostlook` rule applies. */
-  background: transparent;
   color: var(--color-text-secondary);
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
@@ -5612,4 +5645,103 @@ html.dark .boostlook#libraryReadMe {
   margin: var(--space-default) 0;
   padding: 0;
   line-height: var(--line-height-loose);
+}
+
+/* Markdown card + user-profile bio (shared .markdown-content) — #2491 */
+.boostlook.markdown-content {
+  gap: var(--space-medium);
+  padding: 0 var(--space-large);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-code);
+  letter-spacing: var(--letter-spacing-tight);
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.boostlook.markdown-content ul,
+.boostlook.markdown-content ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.boostlook.markdown-content li {
+  position: relative;
+  padding-left: var(--space-xlarge);
+  margin-top: var(--space-medium);
+}
+
+.boostlook.markdown-content ul > li::before {
+  content: "\2022";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--space-xlarge);
+  height: calc(var(--font-size-small) * 1.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+}
+
+.boostlook.markdown-content a {
+  color: var(--color-text-link-accent);
+  text-decoration: underline;
+  text-decoration-skip-ink: none;
+  text-underline-position: from-font;
+}
+
+.boostlook.markdown-content pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.boostlook.markdown-content h1,
+.boostlook.markdown-content h2,
+.boostlook.markdown-content h3,
+.boostlook.markdown-content h4,
+.boostlook.markdown-content h5,
+.boostlook.markdown-content h6 {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.boostlook.markdown-content h1 { font-size: var(--font-size-large); }
+.boostlook.markdown-content h2 { font-size: var(--font-size-medium); }
+.boostlook.markdown-content h3 { font-size: var(--font-size-base); }
+.boostlook.markdown-content h4,
+.boostlook.markdown-content h5,
+.boostlook.markdown-content h6 { font-size: var(--font-size-small); }
+
+.boostlook.markdown-content b,
+.boostlook.markdown-content strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.boostlook.markdown-content p {
+  /* Keep the card's paragraph size/spacing faithful to v2. Color comes from
+     the non-doc `color: inherit` rule above, so it follows the container
+     (v2's primary near-black) instead of boostlook's grey. */
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-code);
+  letter-spacing: var(--letter-spacing-tight);
+  padding: 0;
+  margin: 0;
+}
+
+.boostlook.markdown-content :is(code, tt, pre) {
+  display: inline;
+  font-family: var(--font-code);
+  font-size: 0.88em;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  background: transparent;
+  padding: 0;
+  border: none;
+  border-radius: 0;
 }
