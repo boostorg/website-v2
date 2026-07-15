@@ -579,13 +579,22 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
             cleaned_data = form.cleaned_data
             # Since the PostIndexPage is limited to one, we can just grab the first
             index_page = PostIndexPage.objects.first()
+            if not index_page:
+                messages.error(
+                    request,
+                    _(
+                        "An internal database error has occurred. Please contact an admin."
+                    ),
+                )
+                context = self.get_context_data()
+                return self.render_to_response(context)
 
             try:
                 page = PostPage()
                 page.owner = request.user
                 page.title = cleaned_data.get("title")
                 page.summary = cleaned_data.get("summary", "")
-                page.publish_at = cleaned_data.get("publish_at")
+                page.go_live_at = cleaned_data.get("publish_at")
                 page.content = [
                     (
                         block_name,
@@ -594,11 +603,9 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                 ]
                 page.live = False
                 if image := form.cleaned_data.get("image"):
-                    wagtail_image, created = Image.objects.get_or_create(
+                    wagtail_image = Image.objects.create(
                         title=image.name,
-                        defaults={
-                            "file": image,
-                        },
+                        file=image,
                     )
                     page.image = wagtail_image
                 tags = []
@@ -621,10 +628,10 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                             "name": lib.name,
                         },
                     )
-                    tags.append(tag.pk)
+                    tags.append(tag)
                 index_page.add_child(instance=page)
                 if tags:
-                    page.tags.add(tags)
+                    page.tags.add(*tags)
                 page.save_revision(user=request.user)
                 page.get_workflow().start(obj=page, user=request.user)
             except ValidationError as e:
