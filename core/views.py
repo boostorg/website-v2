@@ -481,6 +481,11 @@ class LegalPageView(V3Mixin, MarkdownTemplateView):
     MarkdownTemplateView.get() builds its own context and never calls
     get_context_data(), so it bypasses V3Mixin's v3 context injection. Route
     the v3-active path through the standard TemplateView pipeline instead.
+
+    SWITCHOVER TODO: this view is a temporary bridge. It manually fetches the
+    LegalPage by slug so we can keep the pre-v3 markdown fallback while the v3
+    flag rolls out. Once v3 is the default, delete this view and let Wagtail's
+    router serve the page directly (see config/urls.py legal routes).
     """
 
     v3_template_name = "v3/legal_page.html"
