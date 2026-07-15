@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("wagtailcore", "0096_referenceindex_referenceindex_source_object_and_more"),
-        ("pages", "0001_initial"),
+        ("pages", "0004_alter_postpage_content"),
     ]
 
     operations = [

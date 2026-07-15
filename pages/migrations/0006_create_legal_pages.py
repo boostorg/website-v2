@@ -138,7 +138,7 @@ def delete_legal_pages(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("pages", "0002_legalpage"),
+        ("pages", "0005_legalpage"),
         ("contenttypes", "0002_remove_content_type_name"),
     ]
 
