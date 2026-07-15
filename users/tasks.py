@@ -210,7 +210,7 @@ def recompute_displayed_profile_roles():
 
     # Clear explicit user choices the latest import has revoked, so `.role`
     # falls through instead of displaying a role the user no longer holds.
-    stale_ids = []
+    stale_rows = []  # (uid, role, lib_id) as read in this snapshot
     choosers = User.objects.exclude(displayed_profile_role="").values_list(
         "id", "displayed_profile_role", "displayed_profile_role_library_id"
     )
@@ -220,20 +220,25 @@ def recompute_displayed_profile_roles():
         else:
             ok = uid in held_any.get(role, set())
         if not ok:
-            stale_ids.append(uid)
+            stale_rows.append((uid, role, lib_id))
 
+    cleared_choices = 0
     with transaction.atomic():
         User.objects.exclude(id__in=top).exclude(resolved_profile_role="").update(
             resolved_profile_role=""
         )
         for role, ids in by_role.items():
             User.objects.filter(id__in=ids).update(resolved_profile_role=role)
-        if stale_ids:
-            User.objects.filter(id__in=stale_ids).update(
-                displayed_profile_role="", displayed_profile_role_library=None
-            )
+        # Compare-and-swap: only clear rows still matching the snapshot values,
+        # so a selection the user saved after the snapshot survives.
+        for uid, role, lib_id in stale_rows:
+            cleared_choices += User.objects.filter(
+                id=uid,
+                displayed_profile_role=role,
+                displayed_profile_role_library_id=lib_id,
+            ).update(displayed_profile_role="", displayed_profile_role_library=None)
     logger.info(
         "recompute_displayed_profile_roles finished",
         resolved=len(top),
-        cleared_choices=len(stale_ids),
+        cleared_choices=cleared_choices,
     )
