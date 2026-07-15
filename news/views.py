@@ -623,8 +623,8 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                     )
                     tags.append(tag.pk)
                 index_page.add_child(instance=page)
-                if tag:
-                    page.tags.add(tag)
+                if tags:
+                    page.tags.add(tags)
                 page.save_revision(user=request.user)
                 page.get_workflow().start(obj=page, user=request.user)
             except ValidationError as e:
@@ -652,7 +652,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                     "Your post has been submitted. It'll be reviewed before it goes live, you will receive updates via email."
                 ),
             )
-            return redirect(reverse_lazy("news"))
+            return redirect(index_page.url)
 
         context = self.get_context_data(form=form, post_type_selected=post_type)
         return self.render_to_response(context)
