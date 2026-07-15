@@ -127,7 +127,12 @@
  * 6. Responsive Design - Mobile-first breakpoint variables
  */
 
-:root:has(.boostlook) {
+/* Core design tokens. Scoped to the .boostlook subtree (not the page root) so a
+   component island on a v3 site page cannot redefine the host page's tokens
+   (which caused the hero heading to shift). The :root:not(.v3) branch keeps them
+   page-level for full-page docs, whose html has no .v3. */
+:root:not(.v3):has(.boostlook),
+.boostlook {
   /* General Variables - Core design tokens for all themes */
   --bl-primary-color: rgb(255, 159, 0); /* Boost's signature orange color */
 
@@ -426,7 +431,8 @@
 
 /*----------------- New Look Responsive Desktop Start -----------------*/
 @media (min-width: 768px) {
-  :root:has(.boostlook) {
+  :root:not(.v3):has(.boostlook),
+  .boostlook {
     /* Spacing — Metalab 2.0 (desktop) */
     --spacing-xs: 0.125rem;
     --spacing-s: 0.25rem;
@@ -497,7 +503,9 @@
 }
 
 @media (min-width: 990px) {
-  :root:has(.boostlook) {
+  /* Doc-layout widths, read by ancestors outside .boostlook, so they stay on
+     :root. Gated :not(.v3) so they don't land on a v3 site page. */
+  :root:not(.v3):has(.boostlook) {
     --main-max-width-leftbar: 21.25rem;
     --main-margin: 8.625rem;
   }
@@ -517,8 +525,12 @@
  * 2. Dark Theme (activated by html.dark class)
  */
 
-/* Light Theme (Default) Configuration */
-html:has(.boostlook) {
+/* Light Theme (Default) Configuration.
+   Defined on the .boostlook scope (not the page root) so a component island on
+   a v3 site page does not push these theme vars onto the host :root. The
+   :root:not(.v3) branch keeps them page-level for full-page docs. */
+:root:not(.v3):has(.boostlook),
+.boostlook {
   color-scheme: light;
   /*----------------- New Look Variables Start -----------------*/
   --icon-anchor: var(--icon-anchor-light);
@@ -654,8 +666,10 @@ html:has(.boostlook) {
   /*----------------- New Look Variables End -----------------*/
 }
 
-/* Dark Theme Configuration */
-html.dark:has(.boostlook) {
+/* Dark Theme Configuration. Scoped like the light theme above so dark theme
+   vars land on the .boostlook subtree, not the host :root, on v3 site pages. */
+html.dark:not(.v3):has(.boostlook),
+html.dark .boostlook {
   color-scheme: dark;
   /*----------------- New Look Variables Dark Mode Start -----------------*/
   --icon-anchor: var(--icon-anchor-dark);
@@ -792,8 +806,11 @@ html.dark:has(.boostlook) {
 
 /*----------------- HTML Variables - End -----------------*/
 
-/* Override for Antora default styles */
-html:has(.boostlook) {
+/* Override for Antora default styles.
+   Gated :not(.v3): page-level html props (root font-size, height, scroll) must
+   not apply when .boostlook is only a component island on a v3 site page. Docs
+   render in an iframe whose html has no .v3, so they keep this. */
+html:not(.v3):has(.boostlook) {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   font-size: 1rem;
@@ -1331,6 +1348,37 @@ html:has(.boostlook) {
   margin-top: var(--padding-padding-md, 1rem);
 }
 
+/* Markdown paragraphs — plain <p> siblings rendered by markdown (site
+   components, READMEs) that lack Antora's .paragraph wrapper, so the rule
+   above never matches them. Scoped :not(:has(.doc)) so Antora doc content
+   keeps its own structure-based spacing below. */
+.boostlook:not(:has(.doc)) p + p {
+  margin-top: var(--padding-padding-md, 1rem);
+}
+
+/* Markdown lists — bare <ul>/<ol> from markdown (site components, READMEs)
+   that lack Antora's .ulist/.olist wrappers. Tailwind's preflight strips the
+   markers, indent and margins on the site, and boostlook's Antora list rules
+   never match these, so restore them here. Scoped :not(:has(.doc)) and
+   :not([class]) so only bare markdown lists are touched, never Antora or
+   classed nav/tab lists. */
+.boostlook:not(:has(.doc)) :is(ul, ol):not([class]) {
+  margin: var(--padding-padding-md, 1rem) 0;
+  padding-left: var(--spacing-size-lg, 1.5rem);
+}
+.boostlook:not(:has(.doc)) ul:not([class]) {
+  list-style: disc;
+}
+.boostlook:not(:has(.doc)) ol:not([class]) {
+  list-style: decimal;
+}
+.boostlook:not(:has(.doc)) :is(ul, ol):not([class]) li + li {
+  margin-top: var(--padding-padding-3xs, 0.25rem);
+}
+.boostlook:not(:has(.doc)) li > :is(ul, ol):not([class]) {
+  margin: var(--padding-padding-3xs, 0.25rem) 0 0;
+}
+
 .boostlook:not(:has(.doc)) .section > p + p,
 .boostlook:not(:has(.doc)) .chapter > p + p,
 .boostlook div.blockquote blockquote p + p,
@@ -1595,7 +1643,6 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook .content:has(> pre),
 .boostlook .content:has(> pre.highlight) {
   border-radius: 0;
-  /*border: 1px solid var(--border-border-secondary, #d5d7d9);*/
   background: none;
 }
 
@@ -1678,8 +1725,6 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook#libraryReadMe > pre:not(:is(dd pre, td pre)),
 .boostlook#libraryReadMe .literalblock:has(pre):not(:is(dd pre, td pre)),
 .boostlook#libraryReadMe div.highlight:has(> pre):not(:is(dd pre, td pre)) {
-  /*margin-left: var(--spacing-size-xl);*/
-  /*border: 1px solid var(--border-border-secondary, #d5d7d9);*/
   background: var(--atom-one-light-bg, #fafafa);
   margin-top: var(--padding-padding-xs, 0.75rem);
 }
@@ -1724,10 +1769,6 @@ html.dark .boostlook .listingblock > .content > pre {
   border: 1px solid var(--border-border-primary, #e4e7ea);
   border-radius: 0.5rem; /* 8px — Figma 2.0 code block (#116-5) */
 }
-.boostlook .content:has(> pre):has(> .source-toolbox) pre {
-  /*border: 1px solid var(--border-border-secondary, #d5d7d9);*/
-  /*border-radius: var(--spacing-size-2xs, 0.5rem);*/
-}
 
 .boostlook .content:has(> pre):has(> .source-toolbox) .source-toolbox {
   position: static;
@@ -1740,12 +1781,10 @@ html.dark .boostlook .listingblock > .content > pre {
   font-family: inherit;
   z-index: 1;
   padding: var(--article-article-compressing-from-12-8--, 0.5rem) var(--spacing-size-sm, 1rem);
-  /*min-height: 2rem;*/
   height: 0;
   max-height: 0;
   min-height: 0;
   padding: 0;
-  /*margin-top: -1px;*/
 }
 
 .boostlook .content:has(> pre):has(> .source-toolbox):not(:has(.source-lang)) .source-toolbox  {
@@ -1880,7 +1919,6 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook .doc .colist > table code:not(:has(> code)) {
   border-radius: unset;
   padding: unset;
-  /* border: 1px solid var(--border-border-secondary, #d5d7d9); */
   background: transparent !important;
 }
 
@@ -1900,53 +1938,11 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook .doc p:not(:is(table p)) code:has(> a:only-child),
 .boostlook .doc .colist > table code:has(> a:first-child:last-child),
 .boostlook .doc .colist > table code:has(> a:only-child) {
-  /* transition: all 0.2s ease; */
   border-radius: unset;
   border: none;
   background: transparent !important;
   color: inherit;
 }
-
-/* Applies to links in code in case where only one link tag inside code */
-/* .boostlook code:not(.tableblock code, .table code):has(> a:first-child:last-child) a,
-.boostlook code:not(.tableblock code, .table code):has(> a:only-child) a,
-.boostlook p code:not(.tableblock code, .table code):has(> a:first-child:last-child) a,
-.boostlook p code:not(.tableblock code, .table code):has(> a:only-child) a,
-.boostlook li code:not(.tableblock code, .table code):has(> a:first-child:last-child) a,
-.boostlook li code:not(.tableblock code, .table code):has(> a:only-child) a,
-.boostlook .doc p code:not(.tableblock code, .table code):has(> a:first-child:last-child) a,
-.boostlook .doc p code:not(.tableblock code, .table code):has(> a:only-child) a,
-.boostlook .doc .colist > table code:has(> a:first-child:last-child) a,
-.boostlook .doc .colist > table code:has(> a:only-child) a {
-  text-decoration: none;
-  font: inherit;
-  color: inherit;
-} */
-
-/* .boostlook .doc table.tableblock code a,
-.boostlook:not(:has(.doc)) table.table code a { */
-/* text-decoration-color: transparent; */
-/* color: var(--text-code-blue, #329cd2); */
-/* line-height: var(--typography-line-height-lg, 1.5rem); */
-/* } */
-
-/* Code Link Hover States */
-/* .boostlook p:not(:is(table p)) a:hover code,
-.boostlook li a:hover code,
-.boostlook .doc p:not(:is(table p)) a:hover code,
-.boostlook .doc table a:hover code,
-.boostlook .doc .colist > table a:hover code,
-.boostlook p:not(:is(table p)) code:has(> a:first-child:last-child):hover,
-.boostlook p:not(:is(table p)) code:has(> a:only-child):hover,
-.boostlook li code:has(> a:first-child:last-child):hover,
-.boostlook li code:has(> a:only-child):hover,
-.boostlook .doc p:not(:is(table p)) code:has(> a:first-child:last-child):hover,
-.boostlook .doc p:not(:is(table p)) code:has(> a:only-child):hover,
-.boostlook .doc .colist > table code:has(> a:first-child:last-child):hover,
-.boostlook .doc .colist > table code:has(> a:only-child):hover {
-  border-color: var(--border-border-blue-hover, #329cd2);
-  background: var(--surface-background-main-surface-blue-tetriary, #c2e2f4) !important;
-} */
 
 .boostlook a:hover code {
   color: inherit;
@@ -2661,11 +2657,6 @@ html.dark .boostlook nav.pagination > span:hover a {
   border-color: var(--border-border-positive, #f8fefb);
   background-color: var(--surface-background-states-surface-positive-primary, #f6fafd);
 }
-/* .boostlook #content .admonitionblock.tip > table tr td.icon,
-.boostlook:not(:has(.doc)) div.tip > table tr:first-child th,
-.boostlook:not(:has(.doc)) .notices.tip .heading {
-  background: var(--border-border-positive, #bdeed6);
-} */
 .boostlook #content .admonitionblock.tip > table tr td.icon > *,
 .boostlook:not(:has(.doc)) div.tip > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices.tip .heading {
@@ -2681,13 +2672,6 @@ html.dark .boostlook nav.pagination > span:hover a {
   border-color: var(--border-border-brand-orange, #ffd897);
   background-color: var(--surface-background-states-surface-warning-primary, #fefcf9);
 }
-/* .boostlook #content .admonitionblock.important > table tr td.icon,
-.boostlook #content .admonitionblock.caution > table tr td.icon,
-.boostlook:not(:has(.doc)) div.important > table tr:first-child th,
-.boostlook:not(:has(.doc)) div.caution > table tr:first-child th,
-.boostlook:not(:has(.doc)) .notices.important {
-  background: var(--surface-background-states-surface-warning-tetriary, #ffd4b3);
-} */
 .boostlook #content .admonitionblock.important > table tr td.icon > *,
 .boostlook #content .admonitionblock.caution > table tr td.icon > *,
 .boostlook:not(:has(.doc)) div.important > table tr:first-child th,
@@ -2703,11 +2687,6 @@ html.dark .boostlook nav.pagination > span:hover a {
   border-color: var(--border-border-negative, #ffcad2);
   background-color: var(--surface-background-states-surface-negative-primary, #fdf1f3);
 }
-/* .boostlook #content .admonitionblock.warning > table tr td.icon,
-.boostlook:not(:has(.doc)) div.warning > table tr:first-child th,
-.boostlook:not(:has(.doc)) .notices.warning .heading {
-  background: var(--surface-background-states-surface-negative-tetriary, #ffcad2);
-} */
 .boostlook #content .admonitionblock.warning > table tr td.icon > *,
 .boostlook:not(:has(.doc)) div.warning > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices.warning .heading {
@@ -2775,7 +2754,6 @@ html.dark .boostlook nav.pagination > span:hover a {
   letter-spacing: var(--spacing-size-size-0, 0rem);
   font-weight: 600;
   color: var(--text-main-text-primary, #18191b) !important;
-  /*margin-bottom: var(--spacing-size-2xs, 0.5rem);*/
 }
 .boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) dd  a:hover {
   color: var(--text-states-text-warning, #FF9442);
@@ -2816,7 +2794,6 @@ html.dark .boostlook nav.pagination > span:hover a {
   padding: initial;
   border-radius: initial;
   border: initial;
-  /* border-bottom-left-radius: unset; */
   background: initial;
   color: var(--text-code-text, #050816);
   font-size: var(--typography-font-size-xs, 0.875rem);
@@ -3134,7 +3111,6 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   text-indent: unset;
   color: var(--text-main-text-primary, #18191b);
   text-align: center;
-  /*background: var(--surface-background-main-surface-secondary, #e4e7ea);*/
 }
 .boostlook .doc code .conum[data-value] {
   background: transparent;
@@ -3522,8 +3498,11 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
  */
 
 @supports (scrollbar-width: thin) {
-  /* HTML Matches its scroll background to content background */
-  html:has(.boostlook) {
+  /* HTML Matches its scroll background to content background.
+     Gated :not(.v3) so a component-level .boostlook island on a v3 site page
+     does not restyle (and resize) the whole page scrollbar. Docs render in an
+     iframe whose html has no .v3, so they keep this. */
+  html:not(.v3):has(.boostlook) {
     scrollbar-width: thin;
     scrollbar-color: var(--border-border-tetriary, #afb3b6) var(--surface-background-main-base-primary, #fff);
   }
@@ -3553,14 +3532,14 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   }
 }
 
-html:has(.boostlook)::-webkit-scrollbar,
+html:not(.v3):has(.boostlook)::-webkit-scrollbar,
 .boostlook::-webkit-scrollbar,
 .boostlook *::-webkit-scrollbar {
   width: 8px !important;
   height: 8px !important;
 }
 
-html:has(.boostlook)::-webkit-scrollbar-track {
+html:not(.v3):has(.boostlook)::-webkit-scrollbar-track {
   background: var(--surface-background-main-base-primary, #fff);
   border-radius: var(--spacing-size-2xs, 0.5rem);
 }
@@ -3575,7 +3554,7 @@ html:has(.boostlook)::-webkit-scrollbar-track {
   border-radius: var(--spacing-size-2xs, 0.5rem);
 }
 
-html:has(.boostlook)::-webkit-scrollbar-thumb,
+html:not(.v3):has(.boostlook)::-webkit-scrollbar-thumb,
 .boostlook::-webkit-scrollbar-thumb,
 .boostlook *::-webkit-scrollbar-thumb,
 .boostlook pre::-webkit-scrollbar-thumb,
@@ -5518,7 +5497,7 @@ html.dark .boostlook#libraryReadMe {
 
 /* Prevent header/content/footer padding from jumping at 990px breakpoint */
 @media (min-width: 990px) {
-  :root:has(.boostlook) {
+  :root:not(.v3):has(.boostlook) {
     --main-max-width-leftbar: 18.25rem;
     --main-margin: 0rem;
   }
@@ -5560,7 +5539,7 @@ html.dark .boostlook#libraryReadMe {
 
 /* === Wide Screens: Expanded Content Width (1536px+) === */
 @media screen and (min-width: 1536px) {
-  :root:has(.boostlook) {
+  :root:not(.v3):has(.boostlook) {
     --main-content-width: 1100px;
     --main-content-left-spacing: 2rem;
   }
@@ -5568,7 +5547,7 @@ html.dark .boostlook#libraryReadMe {
 
 /* === Ultra-Wide Screens: Maximum content width (1920px+) === */
 @media screen and (min-width: 1920px) {
-  :root:has(.boostlook) {
+  :root:not(.v3):has(.boostlook) {
     --main-content-width: 1300px;
     --main-content-left-spacing: 4rem;
   }
@@ -5581,3 +5560,56 @@ html.dark .boostlook#libraryReadMe {
 }
 
 /*----------------- AsciiDoctor-Specific Responsive TOC Layout end -----------------*/
+
+/* ============================================================
+   Site component refinements (website-v2), scoped under .boostlook.
+   These layer on the shared Boostlook typography for specific consumer
+   components. They only match where the component class is present (the
+   website-v2 site), so they are inert in Antora/standalone contexts.
+   Note: these reference website-v2 design tokens by design.
+   ============================================================ */
+
+/* Content modal (testimonials) — #2491 */
+.boostlook.content-modal__prose {
+  /* Sit on the modal surface; clear the white background the global
+     `.boostlook` rule applies. */
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.boostlook.content-modal__prose :is(h2, h3, h4, h5, h6) {
+  margin: var(--space-xlarge) 0 var(--space-large);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+}
+
+.boostlook.content-modal__prose h2 {
+  font-size: var(--font-size-large);
+}
+
+.boostlook.content-modal__prose h3 {
+  font-size: var(--font-size-base);
+}
+
+.boostlook.content-modal__prose :is(h4, h5, h6) {
+  font-size: var(--font-size-small);
+}
+
+/* Sit flush with the top, no leading margin on the first prose element. */
+.boostlook.content-modal__prose > :first-child {
+  margin-top: 0;
+}
+
+.boostlook.content-modal__prose p {
+  margin: var(--space-default) 0;
+  padding: 0;
+  line-height: var(--line-height-loose);
+}
