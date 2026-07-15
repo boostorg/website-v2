@@ -5,7 +5,7 @@ import requests
 import structlog
 
 from django.conf import settings
-from django.db import IntegrityError
+from django.forms import ValidationError
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -37,8 +37,13 @@ from django.views.generic import (
 from django.views.generic.detail import SingleObjectMixin
 from django.views.decorators.http import require_POST
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
+from wagtail.blocks import Block
+from wagtail.images.models import Image
 
 from core.mixins import V3Mixin
+from pages.blocks import NEWS_BLOCK, BLOG_BLOCK, LINK_BLOCK, VIDEO_BLOCK
+from pages.models import PostPage, PostIndexPage
+from pages.mixins import ContentTag
 from users.profile_cards import user_profile_card
 from .acl import can_approve
 from .constants import (
@@ -392,11 +397,13 @@ def _v3_create_context():
         ],
         "related_libraries_options": [
             ("", "Select"),
-            ("asio", "Asio"),
-            ("beast", "Beast"),
-            ("filesystem", "Filesystem"),
-            ("json", "JSON"),
-            ("spirit", "Spirit"),
+        ]
+        + [
+            (
+                library.slug,
+                library.name,
+            )
+            for library in Library.objects.all().order_by("name")
         ],
         "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
     }
@@ -514,11 +521,18 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
     v3_template_name = "news/v3/create.html"
     http_method_names = ["get", "post"]
 
+    _POST_BLOCK_MAP: dict[str, tuple[str, Block]] = {
+        "blog": BLOG_BLOCK,
+        "news": NEWS_BLOCK,
+        "link": LINK_BLOCK,
+        "video": VIDEO_BLOCK,
+    }
+
     _POST_TYPE_MAP = {
-        "blog": (BlogPost, V3BlogPostForm),
-        "news": (News, V3NewsForm),
-        "link": (Link, V3LinkForm),
-        "video": (Video, VideoForm),
+        "blog": V3BlogPostForm,
+        "news": V3NewsForm,
+        "link": V3LinkForm,
+        "video": VideoForm,
     }
 
     def dispatch(self, request, *args, **kwargs):
@@ -535,9 +549,10 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
     def post(self, request, *args, **kwargs):
         post_type = request.POST.get("post_type", "")
-        type_config = self._POST_TYPE_MAP.get(post_type)
+        block_config = self._POST_BLOCK_MAP.get(post_type, None)
+        form_class = self._POST_TYPE_MAP.get(post_type)
 
-        if type_config is None:
+        if block_config is None or form_class is None:
             messages.error(
                 request,
                 _("Invalid post type selected. Please choose a valid post type."),
@@ -545,7 +560,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
             context = self.get_context_data()
             return self.render_to_response(context)
 
-        model_class, form_class = type_config
+        block_name, block_class = block_config
 
         # The v3 create page has two Description textareas — `description` for
         # Blog/News and `link_description` for Link/Video — so the two don't
@@ -561,10 +576,58 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         form = form_class(post_data, request.FILES)
 
         if form.is_valid():
-            form.instance.author = request.user
+            cleaned_data = form.cleaned_data
+            # Since the PostIndexPage is limited to one, we can just grab the first
+            index_page = PostIndexPage.objects.first()
+
             try:
-                entry = form.save()
-            except IntegrityError as e:
+                page = PostPage()
+                page.owner = request.user
+                page.title = cleaned_data.get("title")
+                page.summary = cleaned_data.get("summary", "")
+                page.publish_at = cleaned_data.get("publish_at")
+                page.content = [
+                    (
+                        block_name,
+                        cleaned_data.get("content") or cleaned_data.get("external_url"),
+                    )
+                ]
+                page.live = False
+                if image := form.cleaned_data.get("image"):
+                    wagtail_image, created = Image.objects.get_or_create(
+                        title=image.name,
+                        defaults={
+                            "file": image,
+                        },
+                    )
+                    page.image = wagtail_image
+                tags = []
+                if related_library := post_data.get("related_libraries"):
+                    try:
+                        lib = Library.objects.get(slug=related_library)
+                    except Library.DoesNotExist:
+                        messages.error(
+                            request,
+                            _(
+                                "That related library does not exist, please select another."
+                            ),
+                        )
+                        context = self.get_context_data()
+                        return self.render_to_response(context)
+
+                    tag, created = ContentTag.objects.get_or_create(
+                        slug=lib.slug,
+                        defaults={
+                            "name": lib.name,
+                        },
+                    )
+                    tags.append(tag.pk)
+                index_page.add_child(instance=page)
+                if tag:
+                    page.tags.add(tag)
+                page.save_revision(user=request.user)
+                page.get_workflow().start(obj=page, user=request.user)
+            except ValidationError as e:
                 if "slug" in str(e):
                     form.add_error(
                         "title",
@@ -574,16 +637,22 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                     form.add_error(
                         None, "An unexpected error occurred. Please try again."
                     )
+                    messages.error(
+                        request,
+                        _(
+                            "Something went wrong — your draft is saved, so give it another try."
+                        ),
+                    )
                 context = self.get_context_data(form=form, post_type_selected=post_type)
                 return self.render_to_response(context)
 
-            if not entry.is_approved:
-                send_email_news_needs_moderation(request=request, entry=entry)
-            else:
-                send_email_news_posted(request=request, entry=entry)
-
-            messages.success(request, _("The news entry was successfully created."))
-            return redirect(entry)
+            messages.success(
+                request,
+                _(
+                    "Your post has been submitted. It'll be reviewed before it goes live, you will receive updates via email."
+                ),
+            )
+            return redirect(reverse_lazy("news"))
 
         context = self.get_context_data(form=form, post_type_selected=post_type)
         return self.render_to_response(context)
