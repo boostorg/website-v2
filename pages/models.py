@@ -345,6 +345,8 @@ class LegalPage(BasePage):
     so republishing in Wagtail auto-updates the visible date.
     """
 
+    template = "v3/legal_page.html"
+
     parent_page_types = ["pages.RoutableHomePage"]
     subpage_types = []
 
