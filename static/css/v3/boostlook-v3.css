@@ -127,7 +127,7 @@
  * 6. Responsive Design - Mobile-first breakpoint variables
  */
 
- :root {
+:root:has(.boostlook) {
   /* General Variables - Core design tokens for all themes */
   --bl-primary-color: rgb(255, 159, 0); /* Boost's signature orange color */
 
@@ -207,7 +207,7 @@
   --colors-secondary-950: #000d14;
 
   /* Atom One Dark Theme Colors */
-  --atom-one-dark-bg: #282c34;
+  --atom-one-dark-bg: #1A1C29; /* code block surface — Figma 2.0 dark (= primary-850) */
   --atom-one-dark-text: #FFFFFF;
   --atom-one-dark-keyword: #c678dd;
   --atom-one-dark-operator: #e06c75;
@@ -215,7 +215,7 @@
   --atom-one-dark-class: #e6c07b;
 
   /* Atom One Light Theme Colors */
-  --atom-one-light-bg: #fafafa;
+  --atom-one-light-bg: #ffffff; /* code block surface — Figma 2.0 (#116-5) */
   --atom-one-light-text: #050816;
   --atom-one-light-keyword: #a626a4;
   --atom-one-light-operator: #e45649;
@@ -426,7 +426,7 @@
 
 /*----------------- New Look Responsive Desktop Start -----------------*/
 @media (min-width: 768px) {
-  :root {
+  :root:has(.boostlook) {
     /* Spacing — Metalab 2.0 (desktop) */
     --spacing-xs: 0.125rem;
     --spacing-s: 0.25rem;
@@ -489,15 +489,15 @@
     --typography-line-height-4xl: var(--font-line-height-4xl);
 
     /* Heading — Metalab 2.0 (desktop) */
-    --typography-font-size-h1: var(--font-size-4xl);
-    --typography-font-size-h2: var(--font-size-lg);
-    --typography-font-size-h3: var(--font-size-md);
-    --typography-font-size-h4: var(--font-size-sm);
+    --typography-font-size-h1: 3rem; /* 48px — Figma Title / 2XL */
+    --typography-font-size-h2: var(--font-size-xl); /* 24px — Figma Large */
+    --typography-font-size-h3: var(--font-size-md); /* 18px */
+    --typography-font-size-h4: var(--font-size-sm); /* 16px */
   }
 }
 
 @media (min-width: 990px) {
-  :root {
+  :root:has(.boostlook) {
     --main-max-width-leftbar: 21.25rem;
     --main-margin: 8.625rem;
   }
@@ -518,7 +518,7 @@
  */
 
 /* Light Theme (Default) Configuration */
-html {
+html:has(.boostlook) {
   color-scheme: light;
   /*----------------- New Look Variables Start -----------------*/
   --icon-anchor: var(--icon-anchor-light);
@@ -633,7 +633,7 @@ html {
   --surface-icons-icon-blue: var(--colors-secondary-600);
   --surface-icons-icon-blue-light: var(--colors-secondary-200);
 
-  --border-border-primary: var(--colors-primary-100);
+  --border-border-primary: rgba(5, 8, 22, 0.1); /* Figma 2.0 standard 1px border (light) */
   --border-border-secondary: var(--colors-primary-150);
   --border-border-tetriary: var(--colors-primary-300);
   --border-border-quaternary: var(--colors-primary-600);
@@ -649,13 +649,13 @@ html {
   --surface-weak: var(--colors-primary-0);
   --stroke-strong: rgba(5 8 22 / 0.25);
   --stroke-mid: rgba(5 8 22 / 0.17);
-  --stroke-weak: rgba(13 14 15 / 0.1);
+  --stroke-weak: rgba(5 8 22 / 0.1); /* Figma 2.0 standard 1px stroke (light) */
 
   /*----------------- New Look Variables End -----------------*/
 }
 
 /* Dark Theme Configuration */
-html.dark {
+html.dark:has(.boostlook) {
   color-scheme: dark;
   /*----------------- New Look Variables Dark Mode Start -----------------*/
   --icon-anchor: var(--icon-anchor-dark);
@@ -769,7 +769,7 @@ html.dark {
   --surface-icons-icon-blue: var(--colors-secondary-400);
   --surface-icons-icon-blue-light: var(--colors-secondary-700);
 
-  --border-border-primary: var(--colors-primary-850);
+  --border-border-primary: rgba(247, 247, 248, 0.1); /* Figma 2.0 standard 1px border (dark) */
   --border-border-secondary: var(--colors-primary-800);
   --border-border-tetriary: var(--colors-primary-700);
   --border-border-quaternary: var(--colors-primary-500);
@@ -785,7 +785,7 @@ html.dark {
   --surface-weak: var(--colors-primary-850);
   --stroke-strong: rgba(247 247 248 / 0.21);
   --stroke-mid: rgba(247 247 248 / 0.17);
-  --stroke-weak: rgba(255 255 255 / 0.1);
+  --stroke-weak: rgba(247 247 248 / 0.1); /* Figma 2.0 standard 1px stroke (dark) */
 
   /*----------------- New Look Variables Dark Mode Start -----------------*/
 }
@@ -911,23 +911,24 @@ html:has(.boostlook) {
  */
 
 /* Box sizing rules */
-*,
-*::before,
-*::after {
+.boostlook,
+.boostlook *,
+.boostlook *::before,
+.boostlook *::after {
   box-sizing: border-box;
 }
 
 /* Remove default margin */
-* {
+.boostlook * {
   margin: 0;
 }
 
-html body {
+.boostlook {
   margin: 0;
 }
 
 /* Body defaults */
-body {
+.boostlook {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   margin: 0;
@@ -935,49 +936,42 @@ body {
 }
 
 /* Media elements */
-img,
-picture,
-video,
-canvas,
-svg {
+.boostlook img,
+.boostlook picture,
+.boostlook video,
+.boostlook canvas,
+.boostlook svg {
   display: block;
   max-width: 100%;
   /* Responsive media elements */
 }
 
 /* Form elements */
-input,
-button,
-textarea,
-select {
+.boostlook input,
+.boostlook button,
+.boostlook textarea,
+.boostlook select {
   font: inherit;
   /* Inherit typography */
 }
 
 /* Text elements */
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+.boostlook p,
+.boostlook h1,
+.boostlook h2,
+.boostlook h3,
+.boostlook h4,
+.boostlook h5,
+.boostlook h6 {
   overflow-wrap: break-word;
   /* Prevent text overflow */
 }
 
-body :not(pre):not([class^="L"]) > code {
+.boostlook :not(pre):not([class^="L"]) > code {
   /* overrides builtin colors */
   color: var(--text-code-text, #050816);
   border: 0;
   background-color: unset;
-}
-
-/* Stacking context */
-#root,
-#__next {
-  isolation: isolate;
-  /* Create new stacking context */
 }
 
 /* Reset Legacy Table and Next to Table Element Styles */
@@ -1054,11 +1048,18 @@ body :not(pre):not([class^="L"]) > code {
 }
 
 /* Heading Sizes — Metalab 2.0 */
-/* h1: Display/Desktop/Medium/3XL */
+/* h1: Title / 2XL (48px desktop) */
 .boostlook h1,
 .boostlook .doc h1 {
   font-size: var(--typography-font-size-h1, 2rem);
   letter-spacing: -0.01em;
+}
+
+/* Antora pins its page title via .doc>h1.page:first-child (0,3,1), which beats
+   .boostlook .doc h1 (0,2,1); restate the global h1 size at higher specificity
+   (0,4,1) so the title matches across Antora + AsciiDoctor. */
+.boostlook .doc > h1.page:first-child {
+  font-size: var(--typography-font-size-h1, 3rem);
 }
 
 /* h2: Display/Desktop/Medium/Large */
@@ -1244,12 +1245,12 @@ body :not(pre):not([class^="L"]) > code {
   transition: all 0.2s ease;
 }
 
-.doc h1:hover .anchor,
-.doc h2:hover .anchor,
-.doc h3:hover .anchor,
-.doc h4:hover .anchor,
-.doc h5:hover .anchor,
-.doc h6:hover .anchor,
+.boostlook .doc h1:hover .anchor,
+.boostlook .doc h2:hover .anchor,
+.boostlook .doc h3:hover .anchor,
+.boostlook .doc h4:hover .anchor,
+.boostlook .doc h5:hover .anchor,
+.boostlook .doc h6:hover .anchor,
 .boostlook :where(h1, h2, h3, h4, h5, h6):has(> a[id]):has(> a[href]):hover a[href]:before {
   opacity: 1;
   visibility: visible;
@@ -1438,11 +1439,14 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   transition: color 0.3s ease;
 }
 
-/* Content body links: underline per Figma (paragraphs and lists only) */
-.boostlook #content .doc .paragraph a:not(.anchor),
-.boostlook #content .doc .ulist a:not(.anchor),
-.boostlook #content .doc .olist a:not(.anchor),
-.boostlook #content .doc .dlist a:not(.anchor) {
+/* Content body links: underline per Figma. Scoped to content block classes so
+   it covers BOTH Antora (.doc) and standalone AsciiDoctor (#content, no .doc);
+   nav/TOC links (.nav-list / #toc .sectlevel*) are unaffected. Color comes from
+   the base .boostlook a rule (--text-main-text-link-blue = #0077B8). */
+.boostlook .paragraph a:not(.anchor),
+.boostlook .ulist a:not(.anchor),
+.boostlook .olist a:not(.anchor),
+.boostlook .dlist a:not(.anchor) {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -1554,7 +1558,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook .sidebarblock {
   padding: var(--spacing-size-xs, 0.75rem) var(--spacing-size-sm, 1rem);
   background: var(--atom-one-light-bg, #fafafa) !important;
-  border-radius: var(--radius-xxl, 1rem);
+  border-radius: 0.5rem; /* 8px — Figma 2.0 code block (#116-5) */
   border: 1px solid var(--border-border-primary, #e4e7ea);
   box-shadow: none;
   line-height: 130%;
@@ -1718,7 +1722,7 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook .content:has(> pre) pre.highlight,
 .boostlook .literalblock > .content > pre:not(.highlight) {
   border: 1px solid var(--border-border-primary, #e4e7ea);
-  border-radius: var(--radius-xxl, 1rem);
+  border-radius: 0.5rem; /* 8px — Figma 2.0 code block (#116-5) */
 }
 .boostlook .content:has(> pre):has(> .source-toolbox) pre {
   /*border: 1px solid var(--border-border-secondary, #d5d7d9);*/
@@ -2640,7 +2644,7 @@ html.dark .boostlook nav.pagination > span:hover a {
 .boostlook #content .admonitionblock.note,
 .boostlook:not(:has(.doc)) div.note,
 .boostlook:not(:has(.doc)) .notices.note {
-  border-color: var(--stroke-weak, rgba(13 14 15 / 0.1));
+  border-color: var(--stroke-weak, rgba(5 8 22 / 0.1));
   background-color: var(--surface-weak, #fff);
 }
 
@@ -2715,7 +2719,7 @@ html.dark .boostlook nav.pagination > span:hover a {
 .boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(dl > dt.hdlist1:only-of-type + dd:last-child) {
   padding: var(--spacing-large, 1rem);
   border-radius: var(--radius-xxl, 1rem);
-  border: 1px solid var(--stroke-weak, rgba(13 14 15 / 0.1));
+  border: 1px solid var(--stroke-weak, rgba(5 8 22 / 0.1));
   background-color: var(--surface-weak, #fff);
   margin-top: var(--padding-padding-sm, 1rem);
 }
@@ -3090,77 +3094,24 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   color: #c00;
 }
 
-/* Ordered Lists */
+/* Ordered Lists — native numbering (Metalab 2.0, #116-1) */
 .boostlook .olist.arabic > ol,
-.boostlook .olist.loweralpha > ol,
 .boostlook:not(:has(.doc)) .orderedlist > ol {
-  list-style: none;
-  counter-reset: list-counter;
-  padding-left: 0;
+  list-style: decimal;
+  padding-left: 2rem;
   padding-bottom: 1rem;
 }
 
-/* Arabic Ordered List */
+.boostlook .olist.loweralpha > ol {
+  list-style: lower-alpha;
+  padding-left: 2rem;
+  padding-bottom: 1rem;
+}
+
 .boostlook .olist.arabic > ol > li,
+.boostlook .olist.loweralpha > ol > li,
 .boostlook:not(:has(.doc)) .orderedlist > ol > li {
-  position: relative;
-  padding-left: 2rem;
-  counter-increment: list-counter;
   line-height: var(--typography-line-height-lg, 1.5rem);
-}
-
-.boostlook .olist.arabic > ol > li::before,
-.boostlook:not(:has(.doc)) .orderedlist > ol > li::before {
-  content: counter(list-counter)".";
-  position: absolute;
-  left: 0;
-  top: -4px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-main-text-primary, #18191b);
-  font-size: var(--typography-font-size-sm, 1rem);
-  line-height: var(--typography-line-height-sm, 1rem); /* 133.333% */
-}
-
-.boostlook .olist.arabic > ol > li::after,
-.boostlook:not(:has(.doc)) .orderedlist > ol > li::after {
-  content: "";
-  position: absolute;
-  left: 1px;
-  top: 0px;
-  width: 30px;
-  height: 24px;
-  /*border: 1px solid var(--border-border-tetriary);*/
-  /* Mask to make square brackets for marker to make it look like [ 01 ] */
-  /*clip-path: polygon(0 0, 3px 0, 3px 3px, 27px 3px, 27px 0, 30px 0, 30px 24px, 27px 24px, 27px 21px, 3px 21px, 3px 24px, 0 24px);*/
-}
-
-/* LowerAlfa Ordered List */
-.boostlook .olist.loweralpha > ol > li {
-  position: relative;
-  padding-left: 2rem;
-  counter-increment: list-counter;
-  line-height: var(--typography-line-height-lg, 1.5rem);
-}
-
-.boostlook .olist.loweralpha > ol > li::before {
-  content: counter(list-counter, lower-alpha) ". ";
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-main-text-primary, #18191b);
-  font-size: var(--typography-font-size-xs, 0.875rem);
-  font-variation-settings: "wght" 500, "wdth" 87.5;
-  line-height: var(--Typography-line-height-lg, 1.5rem); /* 171.429% */
-  letter-spacing: var(--spacing-size-size-0, 0rem);
 }
 
 /* Conum */
@@ -3531,7 +3482,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   line-height: 0;
 }
 
-.doc ul.checklist p>i.fa-check-square-o:first-child, .doc ul.checklist p>i.fa-square-o:first-child {
+.boostlook .doc ul.checklist p>i.fa-check-square-o:first-child, .boostlook .doc ul.checklist p>i.fa-square-o:first-child {
   display: none;
 }
 
@@ -3572,7 +3523,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 
 @supports (scrollbar-width: thin) {
   /* HTML Matches its scroll background to content background */
-  html {
+  html:has(.boostlook) {
     scrollbar-width: thin;
     scrollbar-color: var(--border-border-tetriary, #afb3b6) var(--surface-background-main-base-primary, #fff);
   }
@@ -3602,14 +3553,14 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   }
 }
 
-html::-webkit-scrollbar,
+html:has(.boostlook)::-webkit-scrollbar,
 .boostlook::-webkit-scrollbar,
 .boostlook *::-webkit-scrollbar {
   width: 8px !important;
   height: 8px !important;
 }
 
-html::-webkit-scrollbar-track {
+html:has(.boostlook)::-webkit-scrollbar-track {
   background: var(--surface-background-main-base-primary, #fff);
   border-radius: var(--spacing-size-2xs, 0.5rem);
 }
@@ -3624,7 +3575,7 @@ html::-webkit-scrollbar-track {
   border-radius: var(--spacing-size-2xs, 0.5rem);
 }
 
-html::-webkit-scrollbar-thumb,
+html:has(.boostlook)::-webkit-scrollbar-thumb,
 .boostlook::-webkit-scrollbar-thumb,
 .boostlook *::-webkit-scrollbar-thumb,
 .boostlook pre::-webkit-scrollbar-thumb,
@@ -3684,12 +3635,12 @@ html:has(.article > .boostlook) {
 }
 
 /* Iframe container scrollbar handling */
-html:has(#docsiframe) {
+html:has(.boostlook):has(#docsiframe) {
   overflow-y: hidden;
 }
 
 /* Chrome/Edge scrollbar for iframe container */
-html:has(#docsiframe)::-webkit-scrollbar {
+html:has(.boostlook):has(#docsiframe)::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
@@ -3722,7 +3673,7 @@ html:has(#docsiframe)::-webkit-scrollbar {
 }
 
 /* Article Layout */
-.article.toc2.toc-left {
+.article.toc2.toc-left:has(.boostlook) {
   height: 100vh;
   height: 100dvh;
   /* Simplified: always use offset behavior, never center */
@@ -3747,8 +3698,8 @@ html:has(#docsiframe)::-webkit-scrollbar {
 }
 /* TOC Positioning */
 .boostlook #toc.toc2,
-#boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2.is-active,
-#antora-template-wrapper:not(:has(article.doc)) #toc.toc2.is-active,
+.boostlook#boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2.is-active,
+.boostlook#antora-template-wrapper:not(:has(article.doc)) #toc.toc2.is-active,
 div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) #toc.toc2.is-active {
   position: static;
 }
@@ -3938,7 +3889,7 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
 
 /* Responsive Design */
 @media screen and (min-width: 768px) {
-  .article.toc2.toc-left {
+  .article.toc2.toc-left:has(.boostlook) {
     padding: 0 1rem 0 1rem;
   }
 
@@ -4015,7 +3966,7 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
     visibility: hidden;
   }
 
-  html.toc-visible #toc.toc2 {
+  html.toc-visible .boostlook #toc.toc2 {
     opacity: 1;
     visibility: visible;
     /* width: 250px;
@@ -4023,12 +3974,12 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
   }
 
   /* TOC Shadow States */
-  html.toc-visible:not(.toc-pinned) #toc.toc2 {
+  html.toc-visible:not(.toc-pinned) .boostlook #toc.toc2 {
     box-shadow: 4px 0 12px 0px rgba(0, 0, 0, 0.1);
   }
 
   /* TOC Pin States */
-  html.toc-visible.toc-pinned #toggle-toc {
+  html.toc-visible.toc-pinned .boostlook #toggle-toc {
     background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2224px%22%20viewBox%3D%220%20-960%20960%20960%22%20width%3D%2224px%22%20fill%3D%22%235f6368%22%3E%3Cpath%20d%3D%22M560-240%20320-480l240-240%2056%2056-184%20184%20184%20184-56%2056Z%22%2F%3E%3C%2Fsvg%3E");
   }
 
@@ -4197,6 +4148,63 @@ html.dark .boostlook #toctitle .theme-toggle:hover {
 .boostlook #toctitle .theme-toggle .theme-icon-light { display: none; }
 html.dark .boostlook #toctitle .theme-toggle .theme-icon-light { display: inline; }
 html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
+
+/* Collapsible TOC tree — matches the Antora nav-tree caret (see 13-antora.css):
+   parent items become flex rows with a right-aligned dotted chevron that flips
+   from down to up on expand; branches collapse by default (.is-active expands
+   them). A consumer script adds .nav-item + .nav-item-toggle, toggles .is-active. */
+.boostlook #toc ul[class^="sectlevel"] {
+  list-style: none;
+}
+.boostlook #toc .nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  cursor: pointer; /* the row collapses on click */
+}
+/* the link keeps normal link behavior; clicking it navigates, not collapses */
+.boostlook #toc .nav-item > a {
+  order: 0;
+  cursor: pointer;
+}
+/* nested list wraps to full width below the row; reset cursor so leaf/child
+   rows aren't falsely marked as collapsible (nested .nav-item rows re-apply it) */
+.boostlook #toc .nav-item > ul {
+  flex-basis: 100%;
+  order: 2;
+  cursor: default;
+}
+.boostlook #toc .nav-item-toggle {
+  order: 1;
+  background: none;
+  border: none;
+  outline: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.boostlook #toc .nav-item-toggle::after {
+  content: "";
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--text-main-text-body-secondary, #494d50);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M13 16h-2v-2h2v2Zm-2-2H9v-2h2v2Zm4 0h-2v-2h2v2Zm-6-2H7v-2h2v2Zm8 0h-2v-2h2v2ZM7 10H5V8h2v2Zm12 0h-2V8h2v2Z'/%3E%3C/svg%3E") no-repeat center / contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M13 16h-2v-2h2v2Zm-2-2H9v-2h2v2Zm4 0h-2v-2h2v2Zm-6-2H7v-2h2v2Zm8 0h-2v-2h2v2ZM7 10H5V8h2v2Zm12 0h-2V8h2v2Z'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+.boostlook #toc .nav-item.is-active > .nav-item-toggle::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M13 10h-2V8h2v2ZM11 12H9v-2h2v2Zm4 0h-2v-2h2v2ZM9 14H7v-2h2v2Zm8 0h-2v-2h2v2ZM7 16H5v-2h2v2Zm12 0h-2v-2h2v2Z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M13 10h-2V8h2v2ZM11 12H9v-2h2v2Zm4 0h-2v-2h2v2ZM9 14H7v-2h2v2Zm8 0h-2v-2h2v2ZM7 16H5v-2h2v2Zm12 0h-2v-2h2v2Z'/%3E%3C/svg%3E");
+}
+/* collapsed by default; expanded when active (Antora parity) */
+.boostlook #toc .nav-item:not(.is-active) > ul {
+  display: none;
+}
 
 /*----------------- Styles specific to AsciiDoctor content end -----------------*/
 
@@ -4395,6 +4403,11 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
 
 .boostlook #content:has(.toc.sidebar) {
   display: flex;
+}
+
+/* Hide the Antora on-page TOC sidebar; the article reclaims the width */
+.boostlook .toc.sidebar {
+  display: none;
 }
 
 .boostlook #footer:has(> script):not(:has(> div)) {
@@ -4712,13 +4725,13 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
 }
 
 /* Search Field Container */
-#search-field {
+.boostlook #search-field {
   display: flex;
   position: relative;
 }
 
 /* Search Input */
-#search-input {
+.boostlook #search-input {
   padding: 0.15rem 0.75rem 0.15rem 1.75rem !important;
   border: 1px solid var(--border-border-secondary);
   border-radius: var(--radius-m, 0.375rem);
@@ -4733,24 +4746,24 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-#search-input::placeholder {
+.boostlook #search-input::placeholder {
   color: var(--text-main-text-body-tetriary);
 }
 
-#search-input:focus {
+.boostlook #search-input:focus {
   outline: none;
   border-color: var(--border-border-blue-primary);
   box-shadow: 0 0 0 3px var(--colors-secondary-50);
 }
 
-#search-input:disabled {
+.boostlook #search-input:disabled {
   background: var(--colors-primary-100);
   color: var(--text-main-text-body-tetriary);
   cursor: not-allowed;
 }
 
 /* Results Dropdown */
-.search-result-dropdown-menu {
+.boostlook .search-result-dropdown-menu {
   position: absolute;
   z-index: 100;
   top: 100%;
@@ -4762,7 +4775,7 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
-.search-result-dataset {
+.boostlook .search-result-dataset {
   padding: 0.5rem;
   border: 1px solid var(--border-border-secondary);
   border-radius: var(--radius-l, 0.5rem);
@@ -4773,7 +4786,7 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
 }
 
 /* Result Component Header */
-.search-result-component-header {
+.boostlook .search-result-component-header {
   padding: 0.5rem 0.75rem;
   margin: 0.25rem 0;
   border-bottom: 1px solid var(--border-border-secondary);
@@ -4785,24 +4798,24 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
 }
 
 /* Result Item */
-.search-result-item {
+.boostlook .search-result-item {
   display: flex;
   margin: 0.25rem 0;
   border-radius: var(--radius-m, 0.375rem);
 }
 
-.search-result-item:hover {
+.boostlook .search-result-item:hover {
   background: var(--colors-primary-50);
 }
 
-.search-result-item .no-result {
+.boostlook .search-result-item .no-result {
   padding: 1rem;
   color: var(--text-main-text-body-tetriary);
   text-align: center;
 }
 
 /* Result Document Title (Left Column) */
-.search-result-document-title {
+.boostlook .search-result-document-title {
   width: 25%;
   padding: 0.625rem 0.75rem;
   border-right: 1px solid var(--border-border-secondary);
@@ -4812,31 +4825,31 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
 }
 
 /* Result Document Hit (Right Column) */
-.search-result-document-hit {
+.boostlook .search-result-document-hit {
   flex: 1;
   color: var(--text-main-text-body-secondary);
   font-size: 0.8125rem;
 }
 
-.search-result-document-hit > a {
+.boostlook .search-result-document-hit > a {
   display: block;
   padding: 0.5rem 0.75rem;
   color: inherit;
   text-decoration: none;
 }
 
-.search-result-document-hit > a:hover {
+.boostlook .search-result-document-hit > a:hover {
   background: transparent;
 }
 
-.search-result-document-hit .search-result-section-title {
+.boostlook .search-result-document-hit .search-result-section-title {
   margin-bottom: 0.25rem;
   color: var(--text-main-text-body-primary);
   font-size: 0.875rem;
   font-weight: 500;
 }
 
-.search-result-document-hit .search-result-highlight {
+.boostlook .search-result-document-hit .search-result-highlight {
   padding: 0.1em 0.2em;
   border-radius: var(--radius-xs, 0.125rem);
   background: var(--colors-secondary-50);
@@ -4855,18 +4868,18 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
     margin-right: 0;
   }
 
-  .search-container {
+  .boostlook .search-container {
     order: 99;
     flex: 1 0 100%;
   }
 
-  #search-input {
+  .boostlook #search-input {
     width: 100% !important;
     min-width: unset;
     font-size: 1rem !important; /* Prevents iOS zoom on focus */
   }
 
-  .search-result-dropdown-menu {
+  .boostlook .search-result-dropdown-menu {
     position: fixed;
     top: 6rem;
     left: 1rem;
@@ -4876,19 +4889,19 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
     width: auto;
   }
 
-  .search-result-dataset {
+  .boostlook .search-result-dataset {
     min-width: unset;
   }
 }
 
 /* Search Responsive: Tablet (768px - 1023px) */
 @media screen and (min-width: 768px) {
-  #search-input {
+  .boostlook #search-input {
     width: unset !important;
     min-width: unset !important;
   }
 
-  .search-result-dropdown-menu {
+  .boostlook .search-result-dropdown-menu {
     position: fixed;
     top: 4rem;
     left: calc(var(--main-max-width-leftbar) + 1rem);
@@ -4898,19 +4911,19 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
     width: auto;
   }
 
-  .search-result-dataset {
+  .boostlook .search-result-dataset {
     min-width: unset;
   }
 }
 
 /* Search Responsive: Desktop (1024px+) */
 @media screen and (min-width: 1024px) {
-  #search-input {
+  .boostlook #search-input {
     min-width: 200px !important;
     z-index: 1001;
   }
 
-  .search-result-dropdown-menu {
+  .boostlook .search-result-dropdown-menu {
     position: absolute;
     top: 100%;
     left: auto;
@@ -5505,7 +5518,7 @@ html.dark .boostlook#libraryReadMe {
 
 /* Prevent header/content/footer padding from jumping at 990px breakpoint */
 @media (min-width: 990px) {
-  :root {
+  :root:has(.boostlook) {
     --main-max-width-leftbar: 18.25rem;
     --main-margin: 0rem;
   }
@@ -5536,18 +5549,18 @@ html.dark .boostlook#libraryReadMe {
     margin-left: 0 !important;
   }
 
-  .article.toc2.toc-left {
+  .article.toc2.toc-left:has(.boostlook) {
     max-width: none !important;
   }
-  html:not(.toc-hidden, .toc-visible) .article.toc2.toc-left,
-  .toc-visible.toc-pinned .article.toc2.toc-left {
+  html:not(.toc-hidden, .toc-visible) .article.toc2.toc-left:has(.boostlook),
+  .toc-visible.toc-pinned .article.toc2.toc-left:has(.boostlook) {
     margin-left: var(--main-max-width-leftbar) !important;
   }
 }
 
 /* === Wide Screens: Expanded Content Width (1536px+) === */
 @media screen and (min-width: 1536px) {
-  :root {
+  :root:has(.boostlook) {
     --main-content-width: 1100px;
     --main-content-left-spacing: 2rem;
   }
@@ -5555,7 +5568,7 @@ html.dark .boostlook#libraryReadMe {
 
 /* === Ultra-Wide Screens: Maximum content width (1920px+) === */
 @media screen and (min-width: 1920px) {
-  :root {
+  :root:has(.boostlook) {
     --main-content-width: 1300px;
     --main-content-left-spacing: 4rem;
   }
