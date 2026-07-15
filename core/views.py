@@ -499,7 +499,9 @@ class LegalPageView(V3Mixin, MarkdownTemplateView):
     def get_v3_context_data(self, **kwargs):
         from pages.models import LegalPage
 
-        return {"page": LegalPage.objects.live().filter(slug=self.legal_slug).first()}
+        context = super().get_v3_context_data(**kwargs)
+        context["page"] = LegalPage.objects.live().filter(slug=self.legal_slug).first()
+        return context
 
 
 class TermsOfUseView(LegalPageView):
