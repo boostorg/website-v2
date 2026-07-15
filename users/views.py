@@ -826,10 +826,10 @@ class CurrentUserProfileView(
                 messages.error(request, f"{error}")
 
     def update_profile_role(self, request):
-        """Save the member's chosen displayed profile role and its library.
+        """Save the user's chosen displayed profile role and its library.
 
         The submitted value encodes a (role, library) pair, re-validated against
-        the member's own options so they can never feature a role they don't
+        the user's own options so they can never feature a role they don't
         hold. Selecting their assigned C++ Alliance title clears the library-role
         override so the role falls back to that title (stored in internal_role,
         never in displayed_profile_role). An empty value likewise clears it.
@@ -846,7 +846,7 @@ class CurrentUserProfileView(
                 messages.error(request, "You cannot select that role.")
                 return
         if role in ProfileRole.internal_roles():
-            # The title is the member's default; represent it as a cleared override.
+            # The title is the user's default; represent it as a cleared override.
             user.displayed_profile_role = ""
             user.displayed_profile_role_library = None
         else:
@@ -858,7 +858,6 @@ class CurrentUserProfileView(
                 "displayed_profile_role_library",
             ]
         )
-        messages.success(request, "Your profile role was successfully updated.")
 
 
 # Custom Allauth Views

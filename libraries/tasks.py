@@ -279,7 +279,7 @@ def update_authors_and_maintainers():
     call_command("update_authors")
     call_command("update_maintainers")
     call_command("update_library_version_authors", "--clean")
-    app.signature("users.tasks.refresh_profile_role_eligibility").apply_async()
+    app.signature("users.tasks.recompute_displayed_profile_roles").apply_async()
 
 
 @app.task
@@ -295,7 +295,7 @@ def update_commits(token=None, clean=False, min_version=""):
             library=library, clean=clean, min_version=min_version
         )
     logger.info("update_commits finished.")
-    app.signature("users.tasks.refresh_profile_role_eligibility").apply_async()
+    app.signature("users.tasks.recompute_displayed_profile_roles").apply_async()
     return commits_handled
 
 

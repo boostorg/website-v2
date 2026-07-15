@@ -239,12 +239,8 @@ class V3UserProfileForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["country"].choices = [("", "No country")] + list(countries)
 
-        # Populate the role dropdown from the options this user holds. A generic
-        # library-less option (e.g. "Author") is offered per role at the top,
-        # followed by library-scoped ones (e.g. "Boost.Beast Author"). Each value
-        # encodes the role and library id as "role:library_id" ("role:" when
-        # generic). Internal C++ Alliance titles are never offered here - they
-        # are assigned via the Django admin only.
+        # Choices are the roles this user holds, encoded via encode_role_option;
+        # internal C++ Alliance titles are admin-only and never offered here.
         self.fields["role"].choices = [
             (
                 encode_role_option(o["role"], o["library"].id if o["library"] else ""),

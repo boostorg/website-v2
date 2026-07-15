@@ -168,14 +168,14 @@ class EntryListView(V3Mixin, ListView):
         if self.request.GET.get("sort") == "popular":
             result = (
                 self.model.objects.ranked()
-                .select_related("author")
+                .select_related("author", "author__displayed_profile_role_library")
                 .filter(published=True, deleted_at__isnull=True)
             )
         else:
             result = (
                 super()
                 .get_queryset()
-                .select_related("author")
+                .select_related("author", "author__displayed_profile_role_library")
                 .filter(published=True, deleted_at__isnull=True)
             )
         right_now = now()
@@ -264,7 +264,9 @@ class EntryDetailView(V3Mixin, DetailView):
     def get_queryset(self):
         qs = super().get_queryset()
         if getattr(self, "_v3_active", False):
-            qs = qs.select_related("author").prefetch_related(*self.AUTHOR_PREFETCH)
+            qs = qs.select_related(
+                "author", "author__displayed_profile_role_library"
+            ).prefetch_related(*self.AUTHOR_PREFETCH)
         return qs
 
     def get_object(self, *args, **kwargs):
@@ -281,7 +283,7 @@ class EntryDetailView(V3Mixin, DetailView):
         entry = self.object
         next_entry = (
             Entry.objects.published()
-            .select_related("author")
+            .select_related("author", "author__displayed_profile_role_library")
             .prefetch_related(*self.AUTHOR_PREFETCH)
             .filter(publish_at__gt=entry.publish_at, deleted_at__isnull=True)
             .exclude(pk=entry.pk)
@@ -294,7 +296,7 @@ class EntryDetailView(V3Mixin, DetailView):
         # relation exists.
         related_qs = (
             Entry.objects.published()
-            .select_related("author")
+            .select_related("author", "author__displayed_profile_role_library")
             .prefetch_related(*self.AUTHOR_PREFETCH)
             .filter(deleted_at__isnull=True)
             .exclude(pk=entry.pk)

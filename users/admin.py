@@ -14,8 +14,8 @@ class EmailUserAdminForm(UserChangeForm):
     """Admin change form for User.
 
     Staff assign the internal C++ Alliance title here (internal_role). Library
-    roles (Author/Maintainer/Contributor) and the member's featured selection are
-    derived from repo data / chosen by the member and shown read-only below.
+    roles (Author/Maintainer/Contributor) and the user's featured selection are
+    derived from repo data / chosen by the user and shown read-only below.
     """
 
     class Meta(UserChangeForm.Meta):
@@ -114,9 +114,8 @@ class EmailUserAdmin(UserAdmin):
     def role_eligibility_display(self, obj):
         """Read-only summary of the library roles the user holds.
 
-        Sourced from the `users_profile_role_eligibility` materialized view via
-        `User.get_role_library_options()`. This is what the member may feature;
-        it is not editable here.
+        Sourced live from `User.get_role_library_options()`. This is what the
+        user may feature; it is not editable here.
         """
         if obj is None or obj.pk is None:
             return "—"

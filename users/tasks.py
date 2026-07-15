@@ -5,7 +5,7 @@ import structlog
 
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives, send_mail
-from django.db import connection
+from django.db import transaction
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -167,14 +167,73 @@ def remove_unverified_users():
 
 
 @app.task
-def refresh_profile_role_eligibility():
-    """Refresh the user role-eligibility materialized view.
+def recompute_displayed_profile_roles():
+    """Recompute every user's auto-derived top library role.
 
-    Enqueued after author/maintainer and commit imports, with a daily safety
-    refresh via beat.
+    Writes `User.resolved_profile_role` (the fallback shown when a user has
+    chosen neither a library role nor holds an internal title) and clears any
+    user-selected `displayed_profile_role` that is no longer valid. Enqueued
+    after author/maintainer and commit imports, with a daily safety run via beat.
     """
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "REFRESH MATERIALIZED VIEW CONCURRENTLY users_profile_role_eligibility;"
+    from collections import defaultdict
+
+    from libraries.models import Commit, Library, LibraryVersion
+    from users.models import ProfileRole
+
+    # (user_id, library_id) pairs per role: author / maintainer / contributor.
+    valid = {
+        ProfileRole.AUTHOR.value: set(
+            Library.authors.through.objects.values_list("user_id", "library_id")
+        ),
+        ProfileRole.MAINTAINER.value: set(
+            LibraryVersion.maintainers.through.objects.values_list(
+                "user_id", "libraryversion__library_id"
+            ).distinct()
+        ),
+        ProfileRole.CONTRIBUTOR.value: set(
+            Commit.objects.filter(author__user_id__isnull=False)
+            .values_list("author__user_id", "library_version__library_id")
+            .distinct()
+        ),
+    }
+    held_any = {role: {uid for uid, _ in pairs} for role, pairs in valid.items()}
+
+    # Each user's highest-precedence role. Iterating high-to-low, setdefault
+    # keeps the first (highest) seen.
+    top = {}
+    for role in ProfileRole.library_role_precedence():
+        for uid in held_any[role]:
+            top.setdefault(uid, role)
+    by_role = defaultdict(list)
+    for uid, role in top.items():
+        by_role[role].append(uid)
+
+    # Clear explicit user choices the latest import has revoked, so `.role`
+    # falls through instead of displaying a role the user no longer holds.
+    stale_ids = []
+    choosers = User.objects.exclude(displayed_profile_role="").values_list(
+        "id", "displayed_profile_role", "displayed_profile_role_library_id"
+    )
+    for uid, role, lib_id in choosers:
+        if lib_id:
+            ok = (uid, lib_id) in valid.get(role, set())
+        else:
+            ok = uid in held_any.get(role, set())
+        if not ok:
+            stale_ids.append(uid)
+
+    with transaction.atomic():
+        User.objects.exclude(id__in=top).exclude(resolved_profile_role="").update(
+            resolved_profile_role=""
         )
-    logger.info("refresh_profile_role_eligibility finished.")
+        for role, ids in by_role.items():
+            User.objects.filter(id__in=ids).update(resolved_profile_role=role)
+        if stale_ids:
+            User.objects.filter(id__in=stale_ids).update(
+                displayed_profile_role="", displayed_profile_role_library=None
+            )
+    logger.info(
+        "recompute_displayed_profile_roles finished",
+        resolved=len(top),
+        cleared_choices=len(stale_ids),
+    )

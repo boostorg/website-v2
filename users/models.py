@@ -11,7 +11,6 @@ from django.contrib.auth.models import (
 )
 from django.core.mail import send_mail
 from django.db import models, transaction
-from django.db.utils import OperationalError, ProgrammingError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -192,12 +191,12 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 class ProfileRole(models.TextChoices):
     """Roles shown on profile surfaces.
 
-    Library-derived roles are self-selectable by members who hold them (stored in
+    Library-derived roles are self-selectable by users who hold them (stored in
     `User.displayed_profile_role`); internal C++ Alliance titles are assignable
     via the Django admin only (stored in `User.internal_role`).
     """
 
-    # Library-derived (member-selectable)
+    # Library-derived (user-selectable)
     AUTHOR = "Author", "Author"
     MAINTAINER = "Maintainer", "Maintainer"
     CONTRIBUTOR = "Contributor", "Contributor"
@@ -241,7 +240,7 @@ class ProfileRole(models.TextChoices):
 
     @classmethod
     def library_role_precedence(cls):
-        """Library roles high-to-low, used to pick a default when a member holds several."""
+        """Library roles high-to-low, used to pick a default when a user holds several."""
         return [cls.AUTHOR.value, cls.MAINTAINER.value, cls.CONTRIBUTOR.value]
 
     @classmethod
@@ -365,8 +364,8 @@ class User(BaseUser):
         blank=True,
         default="",
         help_text=_(
-            "Library role the member has chosen to feature (or blank to use their "
-            "default). Member-controlled; C++ Alliance titles live in internal_role."
+            "Library role the user has chosen to feature (or blank to use their "
+            "default). User-controlled; C++ Alliance titles live in internal_role."
         ),
     )
     displayed_profile_role_library = models.ForeignKey(
@@ -390,8 +389,18 @@ class User(BaseUser):
         blank=True,
         default="",
         help_text=_(
-            "C++ Alliance title, assigned by staff. This is the member's default "
+            "C++ Alliance title, assigned by staff. This is the user's default "
             "displayed role; they may instead feature a library role they hold."
+        ),
+    )
+    resolved_profile_role = models.CharField(
+        max_length=64,
+        blank=True,
+        default="",
+        editable=False,
+        help_text=_(
+            "Auto-derived top library role, recomputed on import. Used only when "
+            "the user has set neither displayed_profile_role nor internal_role."
         ),
     )
     can_update_image = models.BooleanField(
@@ -574,15 +583,18 @@ class User(BaseUser):
         return large_static("img/v3/badges/badge-gold-medal.png")
 
     def _effective_role(self):
-        """The (role_type, library) currently displayed, or (None, None)."""
-        role_type = self.displayed_profile_role
-        if role_type in ProfileRole.library_roles():
-            return role_type, self.displayed_profile_role_library
+        """The (role_type, library) currently displayed, or (None, None).
+
+        Reads only columns (no queries): user's chosen library role → internal
+        C++ Alliance title → auto-derived top library role (`resolved_profile_role`,
+        maintained by `recompute_displayed_profile_roles`).
+        """
+        if self.displayed_profile_role in ProfileRole.library_roles():
+            return self.displayed_profile_role, self.displayed_profile_role_library
         if self.internal_role:
             return self.internal_role, None
-        options = self.get_role_library_options()
-        if options:
-            return options[0]["role"], None
+        if self.resolved_profile_role:
+            return self.resolved_profile_role, None
         return None, None
 
     @cached_property
@@ -614,9 +626,9 @@ class User(BaseUser):
         followed by the library-scoped options (e.g. "Boost.Beast Author"). A
         generic option carries `library=None`.
 
-        Members can't assign internal C++ Alliance titles, but if an admin has
-        assigned one (internal_role) it is the member's default displayed role:
-        it is offered first and preselected. It is the only title a member may
+        Users can't assign internal C++ Alliance titles, but if an admin has
+        assigned one (internal_role) it is the user's default displayed role:
+        it is offered first and preselected. It is the only title a user may
         (re-)select.
         """
         scoped = self.get_role_library_options()
@@ -633,48 +645,28 @@ class User(BaseUser):
     def get_role_library_options(self):
         """Eligible (role, library) pairs the user holds, ordered for selection.
 
-        Ordered by role precedence (Author > Maintainer > Contributor), then by
-        the user's commit count in that library (most active first), then library
-        name. Reads the `users_profile_role_eligibility` materialized view, with a
-        live fallback when the user has no rows yet (e.g. between refreshes/tests).
+        Sorted by role precedence (Author > Maintainer > Contributor), then
+        commit count (most active first), then library name. Computed live
+        per-user; consumed by the edit dropdown, admin display, and profile page.
         """
         precedence = {
             role: index
             for index, role in enumerate(ProfileRole.library_role_precedence())
         }
-        pairs = self._matview_role_library_pairs()
-        if pairs is None:
-            pairs = self._live_role_library_pairs()
-        pairs.sort(
-            key=lambda p: (
-                precedence.get(p[0], len(precedence)),
-                -p[2],
-                p[1].display_name,
+
+        def sort_key(pair):
+            role, library, commit_count = pair
+            return (
+                precedence.get(role, len(precedence)),
+                -commit_count,
+                library.display_name,
             )
-        )
+
+        pairs = sorted(self._role_library_pairs(), key=sort_key)
         return [{"role": role, "library": library} for role, library, _ in pairs]
 
-    def _matview_role_library_pairs(self):
-        """(role, library, commit_count) tuples from the materialized view.
-
-        Returns None when the view is unavailable (e.g. tests run with
-        --no-migrations) so the caller uses the live-query fallback. A missing
-        relation is isolated in a savepoint so it does not abort the outer
-        transaction.
-        """
-        try:
-            with transaction.atomic():
-                rows = list(
-                    ProfileRoleEligibility.objects.filter(
-                        user_id=self.pk
-                    ).select_related("library")
-                )
-        except (ProgrammingError, OperationalError):
-            return None
-        return [(row.role, row.library, row.commit_count) for row in rows]
-
-    def _live_role_library_pairs(self):
-        """Fallback (role, library, commit_count) tuples computed with live queries."""
+    def _role_library_pairs(self):
+        """(role, library, commit_count) tuples the user holds, computed live."""
         from libraries.models import Library, Commit
         from django.db.models import Count
 
@@ -781,36 +773,6 @@ class User(BaseUser):
 
     def __str__(self):
         return f"{self.display_name} <{self.email}>"
-
-
-class ProfileRoleEligibility(models.Model):
-    """Read-only mapping of a user to the (library, role) pairs they hold.
-
-    One row per (user, library, role); `commit_count` is the user's commits to
-    that library, used to rank the most significant library for a role. Backed by
-    the `users_profile_role_eligibility` materialized view (see the RunSQL
-    migration). Refreshed by `users.tasks.refresh_profile_role_eligibility`.
-    """
-
-    id = models.BigIntegerField(primary_key=True)
-    user = models.ForeignKey(
-        User,
-        on_delete=models.DO_NOTHING,
-        db_column="user_id",
-        related_name="role_eligibilities",
-    )
-    library = models.ForeignKey(
-        "libraries.Library",
-        on_delete=models.DO_NOTHING,
-        db_column="library_id",
-        related_name="+",
-    )
-    role = models.CharField(max_length=32)
-    commit_count = models.IntegerField()
-
-    class Meta:
-        managed = False
-        db_table = "users_profile_role_eligibility"
 
 
 class LastSeen(models.Model):

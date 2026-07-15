@@ -40,6 +40,17 @@ def _add_commits(user, library, n):
     baker.make("libraries.Commit", author=author, library_version=lv, _quantity=n)
 
 
+def _recompute():
+    """Run the import-time recompute that populates resolved_profile_role.
+
+    The auto-derived role is a snapshot maintained by this task, so tests that
+    assert it must simulate the import having run.
+    """
+    from users.tasks import recompute_displayed_profile_roles
+
+    recompute_displayed_profile_roles()
+
+
 # --- option encoding helpers -------------------------------------------------
 
 
@@ -62,7 +73,7 @@ def test_role_groups_are_disjoint():
     assert not (ProfileRole.library_roles() & ProfileRole.internal_roles())
 
 
-# --- eligibility (live fallback path) ---------------------------------------
+# --- eligibility (live per-user queries) ------------------------------------
 
 
 def test_options_empty_for_user_without_contributions(user):
@@ -75,7 +86,8 @@ def test_author_option_and_scoped_label(user, library):
     options = user.get_role_library_options()
     assert [(o["role"], o["library"].id) for o in options] == [("Author", library.id)]
     # No explicit choice -> default is the generic label for the top role.
-    assert user.role == "Author"
+    _recompute()
+    assert User.objects.get(pk=user.pk).role == "Author"
 
 
 def test_precedence_orders_author_before_maintainer(user, library, other_library):
@@ -83,7 +95,8 @@ def test_precedence_orders_author_before_maintainer(user, library, other_library
     _make_version(other_library).maintainers.add(user)
     roles = [o["role"] for o in user.get_role_library_options()]
     assert roles.index("Author") < roles.index("Maintainer")
-    assert user.role == "Author"
+    _recompute()
+    assert User.objects.get(pk=user.pk).role == "Author"
 
 
 def test_top_library_ranked_by_commit_count(user, library, other_library):
@@ -95,14 +108,16 @@ def test_top_library_ranked_by_commit_count(user, library, other_library):
     libs = [o["library"].display_name for o in user.get_role_library_options()]
     assert libs.index("Boost.Math") < libs.index("Boost.Beast")
     # The default itself is the generic label.
-    assert user.role == "Author"
+    _recompute()
+    assert User.objects.get(pk=user.pk).role == "Author"
 
 
 def test_contributor_role_from_commits_only(user, library):
     _add_commits(user, library, 3)
     roles = [o["role"] for o in user.get_role_library_options()]
     assert roles == ["Contributor"]
-    assert user.role == "Contributor"
+    _recompute()
+    assert User.objects.get(pk=user.pk).role == "Contributor"
 
 
 # --- display composition -----------------------------------------------------
@@ -123,8 +138,8 @@ def test_internal_title_renders_without_library(user):
     assert user.role == "CEO, C++ Alliance"
 
 
-def test_member_library_choice_wins_over_assigned_title(user, library):
-    """A member's featured library role takes display precedence; the title
+def test_user_library_choice_wins_over_assigned_title(user, library):
+    """A user's featured library role takes display precedence; the title
     (internal_role) is preserved as their default, not lost."""
     library.authors.add(user)
     user.internal_role = ProfileRole.CEO.value
@@ -138,8 +153,11 @@ def test_member_library_choice_wins_over_assigned_title(user, library):
 
 def test_encoded_displayed_role_preselects_top_option(user, library):
     library.authors.add(user)
+    _recompute()
     # Default preselects the generic option for the top role.
-    assert user.encoded_displayed_role == encode_role_option("Author", "")
+    assert User.objects.get(pk=user.pk).encoded_displayed_role == encode_role_option(
+        "Author", ""
+    )
 
 
 def test_encoded_displayed_role_preselects_internal_title(user):
@@ -155,7 +173,7 @@ def test_internal_title_is_first_and_default_option(user, library):
     user.save()
     options = user.get_role_options()
     assert options[0] == {"role": ProfileRole.CEO.value, "library": None}
-    # And it's the preselected value (no member library choice yet).
+    # And it's the preselected value (no user library choice yet).
     assert user.encoded_displayed_role == encode_role_option(ProfileRole.CEO.value, "")
 
 
@@ -179,7 +197,7 @@ def test_dropdown_order_is_internal_then_generic_then_specific(
 
 
 def test_selecting_title_clears_library_override(user, library, tp):
-    """Selecting the assigned title clears the member's library-role override so
+    """Selecting the assigned title clears the user's library-role override so
     the role falls back to the title (stored only in internal_role)."""
     library.authors.add(user)
     user.internal_role = ProfileRole.CEO.value
@@ -216,7 +234,7 @@ def test_switching_to_library_role_keeps_title(user, library, tp):
     assert user.displayed_profile_role == ProfileRole.AUTHOR.value
     assert user.internal_role == ProfileRole.CEO.value  # preserved
     assert user.role == "Boost.Beast Author"
-    # The title is still offered first so the member can switch back.
+    # The title is still offered first so the user can switch back.
     assert user.get_role_options()[0] == {
         "role": ProfileRole.CEO.value,
         "library": None,
@@ -306,7 +324,7 @@ def test_post_rejects_role_for_unheld_library(user, library, other_library, tp):
     assert user.displayed_profile_role_library_id is None
 
 
-def test_post_rejects_internal_title_from_member(user, library, tp):
+def test_post_rejects_internal_title_from_user(user, library, tp):
     library.authors.add(user)
     with tp.login(user):
         tp.post(
@@ -320,6 +338,8 @@ def test_post_rejects_internal_title_from_member(user, library, tp):
 
 def test_post_empty_value_clears_selection(user, library, tp):
     library.authors.add(user)
+    _recompute()  # populate the auto-derived fallback
+    user.refresh_from_db()  # avoid clobbering resolved_profile_role on save
     user.displayed_profile_role = ProfileRole.AUTHOR.value
     user.displayed_profile_role_library = library
     user.save()
@@ -415,9 +435,69 @@ def test_admin_form_offers_only_internal_titles(user):
     assert "" in values
 
 
-def test_admin_derived_roles_display_reads_matview(user, library):
+def test_admin_derived_roles_display(user, library):
     library.authors.add(user)
     admin_obj = EmailUserAdmin(User, site)
     html = str(admin_obj.role_eligibility_display(user))
     assert "Author" in html
     assert "Beast" in html
+
+
+# --- recompute task (auto-derived role snapshot) -----------------------------
+
+
+def test_recompute_sets_highest_precedence_role(user, library, other_library):
+    library.authors.add(user)  # Author
+    _make_version(other_library).maintainers.add(user)  # + Maintainer
+    _recompute()
+    user.refresh_from_db()
+    assert user.resolved_profile_role == ProfileRole.AUTHOR.value
+    assert user.role == "Author"
+
+
+def test_recompute_clears_role_when_no_longer_held(user, library):
+    library.authors.add(user)
+    _recompute()
+    user.refresh_from_db()
+    assert user.resolved_profile_role == ProfileRole.AUTHOR.value
+    # Contribution revoked; the next import recompute blanks the derived role.
+    library.authors.remove(user)
+    _recompute()
+    user.refresh_from_db()
+    assert user.resolved_profile_role == ""
+    assert user.role == ""
+
+
+def test_recompute_clears_revoked_scoped_choice(user, library, other_library):
+    """A user's explicit scoped choice is cleared once eligibility is revoked,
+    so .role falls through instead of showing a role they no longer hold."""
+    library.authors.add(user)
+    other_library.authors.add(user)
+    user.displayed_profile_role = ProfileRole.AUTHOR.value
+    user.displayed_profile_role_library = library
+    user.save()
+    # Still an author of Beast -> choice survives the recompute.
+    _recompute()
+    user.refresh_from_db()
+    assert user.displayed_profile_role == ProfileRole.AUTHOR.value
+    # Remove Beast authorship: the specific choice is now invalid.
+    library.authors.remove(user)
+    _recompute()
+    user.refresh_from_db()
+    assert user.displayed_profile_role == ""
+    assert user.displayed_profile_role_library_id is None
+    # Falls through to the derived role (still an author of Math).
+    assert user.role == "Author"
+
+
+def test_recompute_clears_revoked_generic_choice(user, library):
+    """A generic choice (no library) is cleared when the role is held nowhere."""
+    library.authors.add(user)
+    user.displayed_profile_role = ProfileRole.AUTHOR.value
+    user.displayed_profile_role_library = None
+    user.save()
+    library.authors.remove(user)  # no longer an author of any library
+    _recompute()
+    user.refresh_from_db()
+    assert user.displayed_profile_role == ""
+    assert user.role == ""
