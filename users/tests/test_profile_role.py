@@ -312,6 +312,11 @@ def test_post_persists_scoped_role(user, library, tp):
 
 def test_post_rejects_role_for_unheld_library(user, library, other_library, tp):
     library.authors.add(user)  # eligible for Beast only
+    _recompute()  # populate the auto-derived fallback
+    user.refresh_from_db()  # avoid clobbering resolved_profile_role on save
+    user.displayed_profile_role = ProfileRole.AUTHOR.value
+    user.displayed_profile_role_library = library
+    user.save()
     tampered = encode_role_option(ProfileRole.AUTHOR.value, other_library.id)
     with tp.login(user):
         tp.post(
@@ -320,12 +325,17 @@ def test_post_rejects_role_for_unheld_library(user, library, other_library, tp):
             follow=True,
         )
     user.refresh_from_db()
-    assert user.displayed_profile_role == ""
-    assert user.displayed_profile_role_library_id is None
+    assert user.displayed_profile_role == ProfileRole.AUTHOR.value
+    assert user.displayed_profile_role_library_id == library.id
 
 
 def test_post_rejects_internal_title_from_user(user, library, tp):
     library.authors.add(user)
+    _recompute()  # populate the auto-derived fallback
+    user.refresh_from_db()  # avoid clobbering resolved_profile_role on save
+    user.displayed_profile_role = ProfileRole.AUTHOR.value
+    user.displayed_profile_role_library = library
+    user.save()
     with tp.login(user):
         tp.post(
             tp.reverse("profile-account"),
@@ -333,7 +343,8 @@ def test_post_rejects_internal_title_from_user(user, library, tp):
             follow=True,
         )
     user.refresh_from_db()
-    assert user.displayed_profile_role == ""
+    assert user.displayed_profile_role == ProfileRole.AUTHOR.value
+    assert user.displayed_profile_role_library_id == library.id
 
 
 def test_post_empty_value_clears_selection(user, library, tp):
