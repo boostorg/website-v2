@@ -308,7 +308,7 @@ jsoncomment==0.4.2
     # via -r ./requirements.in
 justext==3.0.2
     # via trafilatura
-jwcrypto==1.5.6
+jwcrypto==1.5.8
     # via django-oauth-toolkit
 kiwisolver==1.4.9
     # via matplotlib
