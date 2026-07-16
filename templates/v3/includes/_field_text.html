@@ -48,7 +48,7 @@
     {% if validate_type == "email" %}
     data-validate
     x-data="{
-      value: '',
+      value: '{{ value|default:''|escapejs }}',
       touched: false,
       get isInvalid() {
         return this.touched && this.value.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value);

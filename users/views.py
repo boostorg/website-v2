@@ -15,7 +15,13 @@ from django.conf import settings
 from django import forms
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
-from allauth.account.views import LoginView, SignupView, EmailVerificationSentView
+from allauth.account.views import (
+    LoginView,
+    SignupView,
+    EmailVerificationSentView,
+    PasswordResetView,
+    PasswordResetFromKeyView,
+)
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.views import SignupView as SocialSignupView
 
@@ -646,9 +652,13 @@ class V3LoginView(V3AuthContextMixin, TemplateView):
     page_title = "Login"
 
 
-class V3PasswordResetView(V3AuthContextMixin, TemplateView):
+class V3PasswordResetView(V3AuthContextMixin, PasswordResetView):
+    # Drop allauth's legacy template_name so V3AuthContextMixin 404s this
+    # v3-only route when the flag is off (instead of falling back to it).
+    template_name = None
     v3_template_name = "v3/accounts/password_reset.html"
     page_title = "Reset Password"
+    success_url = reverse_lazy("v3-password-reset-done")
 
 
 class V3PasswordResetDoneView(V3AuthContextMixin, TemplateView):
@@ -656,9 +666,12 @@ class V3PasswordResetDoneView(V3AuthContextMixin, TemplateView):
     page_title = "Check Your Email"
 
 
-class V3PasswordResetFromKeyView(V3AuthContextMixin, TemplateView):
+class V3PasswordResetFromKeyView(V3AuthContextMixin, PasswordResetFromKeyView):
+    # See V3PasswordResetView: null template_name keeps this route v3-only.
+    template_name = None
     v3_template_name = "v3/accounts/password_reset_from_key.html"
     page_title = "Change Password"
+    success_url = reverse_lazy("v3-password-reset-from-key-done")
 
     def get_v3_context_data(self, **kwargs):
         context = super().get_v3_context_data(**kwargs)
