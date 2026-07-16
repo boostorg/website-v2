@@ -146,7 +146,12 @@ def test_v3_update_details_blank_country_clears_it(user, tp):
 
 @waffle.testutils.override_flag("v3", active=True)
 def test_v3_update_details_duplicate_username_shows_inline_error(user, tp):
+    """Only the details section is submitted, so hide_github (owned by a
+    different section's form) is absent from the POST. A validation failure
+    here must not blank out that other section's displayed state."""
     baker.make("users.User", display_name="taken-name")
+    user.hide_github_activity = True
+    user.save()
     with tp.login(user):
         response = tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
@@ -159,6 +164,7 @@ def test_v3_update_details_duplicate_username_shows_inline_error(user, tp):
         tp.response_200(response)
         form = response.context["user_profile_form"]
         assert "This username is already taken" in form.errors["username"]
+        assert form["hide_github"].value() is True
     user.refresh_from_db()
     assert user.display_name != "taken-name"
 

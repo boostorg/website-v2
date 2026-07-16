@@ -587,11 +587,39 @@ class CurrentUserProfileView(
             return HttpResponseRedirect(edit_url)
         section_fields, save_method_name = self.V3_EDIT_SECTIONS[section_key]
 
+        # Each section is submitted independently, so request.POST only
+        # carries this section's fields; every other field on the shared
+        # form would otherwise be treated as blank/unchecked when
+        # re-rendering after a validation error. Fill those in from the
+        # user's current values so a failed save on one section doesn't
+        # wipe the displayed state of the others.
+        initial = self.get_v3_edit_initial()
+        data = request.POST.copy()
+        for field_name, value in initial.items():
+            if field_name in data or field_name in section_fields:
+                continue
+            if value is True:
+                data[field_name] = "on"
+            elif value in (False, None):
+                continue
+            elif isinstance(value, (list, tuple)):
+                valid_choices = {
+                    choice
+                    for choice, _ in getattr(
+                        V3UserProfileForm.base_fields.get(field_name), "choices", []
+                    )
+                }
+                values = [v for v in value if v in valid_choices]
+                if values:
+                    data.setlist(field_name, values)
+            else:
+                data[field_name] = value
+
         form = V3UserProfileForm(
-            request.POST,
+            data,
             user=request.user,
             user_links=request.user.profile_links,
-            initial=self.get_v3_edit_initial(),
+            initial=initial,
         )
         # Only the submitted section's fields are validated; the other fields
         # share this form but have no save handler yet, so neither their
