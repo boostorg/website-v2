@@ -35,5 +35,5 @@ def inline_markdown(value):
     if not value:
         return ""
     html = _INLINE_RE.sub(_replace_span, escape(value))
-    cleaned = nh3.clean(html, tags=_ALLOWED_TAGS, attributes={}, strip=True)
+    cleaned = nh3.clean(html, tags=set(_ALLOWED_TAGS), attributes={})
     return mark_safe(cleaned)
