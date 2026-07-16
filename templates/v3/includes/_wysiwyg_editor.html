@@ -21,8 +21,9 @@
 <div class="wysiwyg-v3-container">
   <div class="wysiwyg-v3" data-wysiwyg="v3" data-wysiwyg-preset="{{ preset|default:'full' }}" {% if maxlength %}data-wysiwyg-maxlength="{{ maxlength }}"{% endif %} x-data="{ jsReady: false }" x-init="
       $nextTick(() => {
-        autoInit('{{textarea_id}}');
-        jsReady = true;
+        const mount = () => { window.autoInit('{{textarea_id}}'); jsReady = true; };
+        if (window.autoInit) mount();
+        else window.addEventListener('wysiwyg-editor-ready', mount, { once: true });
       })"
     >
     <textarea

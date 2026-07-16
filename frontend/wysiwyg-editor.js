@@ -1051,4 +1051,8 @@ const autoInit = (elId) => {
 
 if (typeof document !== "undefined") {
   window.autoInit = autoInit
+  // Handshake for pages whose Alpine components initialize before this module
+  // finishes loading (deferred script, cold cache): they wait for this event
+  // instead of calling window.autoInit directly.
+  window.dispatchEvent(new CustomEvent("wysiwyg-editor-ready"))
 }
