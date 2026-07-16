@@ -28,7 +28,6 @@ from waffle import flag_is_active
 from core.constants import BadgeToken
 from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin, V3AuthContextMixin
-from core.templatetags.custom_static import large_static
 from libraries.models import CommitAuthorEmail
 from .forms import (
     PreferencesForm,
