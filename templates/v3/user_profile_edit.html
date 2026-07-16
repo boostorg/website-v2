@@ -282,6 +282,11 @@
 
 
   document.addEventListener('alpine:init', () => {
+    // Draft keys are scoped to the logged-in user so drafts never leak across
+    // accounts sharing the same browser.
+    const TAGLINE_DRAFT_KEY = 'boost:editUser:taglineDraft:{{ request.user.pk }}';
+    const BIO_DRAFT_KEY = 'boost:editUser:bioDraft:{{ request.user.pk }}';
+
     window.createTagline = function () {
       const taglineInput = document.querySelector("input[name='{{user_profile_form.tagline.name}}']")
 
@@ -297,7 +302,7 @@
         },
 
         taglineDraftKey() {
-          return 'boost:editUser:taglineDraft';
+          return TAGLINE_DRAFT_KEY;
         },
 
         onTaglineEdited() {
@@ -347,14 +352,9 @@
         contentLength: 0,
         contentSaveStatus: '',       // same states, for the Content field
         _contentSaveTimer: null,
+        _draftRestored: false,
         errors: {
           content:      '{{ user_profile_form.bio.errors.0|default:""|escapejs }}',
-        },
-
-
-        async init() {
-          await Alpine.nextTick()
-          this.restoreContentDraft();
         },
 
         // Bridge from the WYSIWYG editor: keep the counter, indicator, and draft
@@ -364,6 +364,12 @@
           if (e.detail.id !== 'field-content') return;
           this.contentLength = e.detail.markdownCharacters;
           this.content = e.detail.value;
+          // The first (programmatic) update signals the editor is mounted —
+          // restoring any sooner would dispatch into a not-yet-created editor.
+          if (!this._draftRestored) {
+            this._draftRestored = true;
+            this.restoreContentDraft();
+          }
           if (!e.detail.programmatic) {
             this.onContentEdited();
           }
@@ -376,9 +382,9 @@
           }));
         },
 
-        // ── Content draft: localStorage, keyed per post type (mirrors Description) ──
+        // ── Content draft: localStorage, keyed per user (mirrors Tagline) ──
         contentDraftKey() {
-          return 'boost:userEdit:bioDraft:' + (this.postType || '');
+          return BIO_DRAFT_KEY;
         },
 
         onContentEdited(e) {
@@ -567,6 +573,12 @@
               throw new Error(fieldErrors.length ? fieldErrors.join(' ') : `Save failed (${res.status})`);
             }
             this.saveStatus = 'saved';
+            // The server now holds these values; drop the drafts so they can't
+            // shadow the saved data on the next visit.
+            try {
+              localStorage.removeItem(TAGLINE_DRAFT_KEY);
+              localStorage.removeItem(BIO_DRAFT_KEY);
+            } catch (_) {}
           } catch (err) {
             console.error('Profile save failed:', err);
             this.saveStatus = 'error';
