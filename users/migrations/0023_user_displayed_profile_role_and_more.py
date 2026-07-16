@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("auth", "0012_alter_user_first_name_max_length"),
         ("libraries", "0041_category_short_description"),
-        ("users", "0021_add_v3_testers_group"),
+        ("users", "0022_user_profile_links"),
     ]
 
     operations = [
