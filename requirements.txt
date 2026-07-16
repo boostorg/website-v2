@@ -449,7 +449,7 @@ pyjwt[crypto]==2.13.0
     #   redis
 pyparsing==3.3.2
     # via matplotlib
-pytest==9.0.2
+pytest==9.1.1
     # via
     #   -r ./requirements.in
     #   pytest-cov
@@ -470,7 +470,7 @@ python-dateutil==2.9.0.post0
     #   dateparser
     #   htmldate
     #   matplotlib
-python-dotenv==1.2.1
+python-dotenv==1.2.2
     # via environs
 python-frontmatter==1.1.0
     # via -r ./requirements.in
