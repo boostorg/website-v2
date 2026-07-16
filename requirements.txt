@@ -443,7 +443,7 @@ pygments==2.19.2
     #   ipython
     #   ipython-pygments-lexers
     #   pytest
-pyjwt[crypto]==2.11.0
+pyjwt[crypto]==2.13.0
     # via
     #   django-allauth
     #   redis
