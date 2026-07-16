@@ -5668,9 +5668,19 @@ html.v3 .boostlook {
 }
 
 .boostlook.markdown-content li {
+  margin-top: var(--space-medium);
+}
+
+/* The container's flex `gap` already spaces the list from a preceding block,
+   so the first item shouldn't add its own top margin on top of it. */
+.boostlook.markdown-content li:first-child {
+  margin-top: 0;
+}
+
+/* Unordered lists: custom bullet centered in a fixed gutter. */
+.boostlook.markdown-content ul > li {
   position: relative;
   padding-left: var(--space-xlarge);
-  margin-top: var(--space-medium);
 }
 
 .boostlook.markdown-content ul > li::before {
@@ -5686,6 +5696,18 @@ html.v3 .boostlook {
   color: var(--color-text-primary);
 }
 
+/* Ordered lists: native decimal numbering (a custom ::before counter only
+   suits the single bullet char and misaligns; browsers render numbers
+   cleanly and follow the item's font size). */
+.boostlook.markdown-content ol {
+  list-style: decimal;
+  padding-left: var(--space-xl);
+}
+
+.boostlook.markdown-content ol > li {
+  padding-left: var(--space-s);
+}
+
 .boostlook.markdown-content a {
   color: var(--color-text-link-accent);
   text-decoration: underline;
@@ -5693,9 +5715,20 @@ html.v3 .boostlook {
   text-underline-position: from-font;
 }
 
+/* Code blocks: defer to boostlook's own code styling (the boxed .boostlook pre
+   with its light/dark background, border and radius, and .boostlook pre code
+   for the monospace body). Only add horizontal-scroll safety so a wide line
+   scrolls inside the narrow card instead of overflowing it. */
 .boostlook.markdown-content pre {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  overflow-x: auto;
+}
+
+/* boostlook's bare-markdown layer adds a margin-top to a pre that follows a
+   paragraph (with !important); the card spaces blocks with the container's
+   flex gap, so cancel it to avoid doubled spacing above code blocks. Matches
+   that rule's (0,2,2) specificity and wins on source order. */
+.boostlook.markdown-content p + pre {
+  margin-top: 0 !important;
 }
 
 .boostlook.markdown-content h1,
@@ -5734,17 +5767,9 @@ html.v3 .boostlook {
   margin: 0;
 }
 
-.boostlook.markdown-content :is(code, tt, pre) {
-  display: inline;
-  font-family: var(--font-code);
-  font-size: 0.88em;
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  background: transparent;
-  padding: 0;
-  border: none;
-  border-radius: 0;
-}
+/* Inline code + code blocks intentionally have no card-specific override:
+   they inherit boostlook's code styling so the card matches the doc/site code
+   treatment (monospace inline code, boxed pre blocks with syntax colors). */
 
 /* Post detail (news article body) — #2491. The container keeps its layout
    (flex/gap/border) in post-detail.css; the rich-text typography lives here.
