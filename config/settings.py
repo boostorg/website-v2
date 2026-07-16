@@ -104,6 +104,7 @@ INSTALLED_APPS += [
     "wagtail.images",
     "wagtail.search",
     "wagtail.admin",
+    "wagtail.contrib.routable_page",
     "wagtail",
     "wagtailmarkdown",
     "modelcluster",
@@ -124,6 +125,7 @@ INSTALLED_APPS += [
     "slack",
     "testimonials",
     "patches",
+    "pages",
     "asciidoctor_sandbox",
 ]
 
@@ -238,7 +240,7 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
         "OPTIONS": {"min_length": 9},
     },
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "users.validators.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 

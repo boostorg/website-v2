@@ -1,0 +1,22 @@
+{% load custom_static %}
+{% comment %}
+  Red "didn't ask for this?" note shown below the email card.
+  Variables:
+    text (required) — the note's message
+{% endcomment %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 0 0;">
+  <tr>
+    <td style="background-color:#fef7f7;border:1px solid #f2c9c9;border-radius:8px;padding:12px 14px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td valign="top" style="padding:2px 12px 0 0;">
+            <img src="{% large_static 'img/emails/email-warning.png' %}" width="16" height="16" alt="" style="display:block;width:16px;height:16px;">
+          </td>
+          <td valign="top" style="font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:12px;line-height:1.45;color:#050816;">
+            {{ text }}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

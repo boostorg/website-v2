@@ -1,0 +1,18 @@
+No account found
+
+Hi there,
+
+We received a request to reset the password for {{ email }}, but there is
+no Boost account registered with this email address.
+
+If this was you, you may have signed up with a different address - or you
+can create a new account using the link below.
+
+Create an account:
+{{ action_url }}
+
+Didn't ask for this? Maybe someone typed your email by accident. You can
+ignore this email safely.
+
+--
+Boost.org is supported by grants from The C++ Alliance.

@@ -2008,6 +2008,16 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "badge": BadgeToken.BOOST_DAY,
                 "bio": "Boost Day contributor.",
             },
+            {
+                # Collective author: group icon, no link or role (as produced by
+                # build_library_intro_context for e.g. "Various").
+                "name": "Various Authors",
+                "profile_url": None,
+                "role": None,
+                "avatar_url": "",
+                "badge": "",
+                "bio": "",
+            },
         ]
 
         context["contributor_data"] = 10 * [

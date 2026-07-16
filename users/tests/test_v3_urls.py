@@ -24,9 +24,10 @@ def test_v3_password_reset_done_url_404_when_flag_off(tp, db):
 @waffle.testutils.override_flag("v3", active=False)
 def test_v3_password_reset_from_key_url_404_when_flag_off(tp, db):
     """
-    GET /v3/accounts/password/reset/key/ with the v3 flag off returns 404.
+    GET /v3/accounts/password/reset/key/<uidb36>-<key>/ with the v3 flag off
+    returns 404.
     """
-    res = tp.get("v3-password-reset-from-key")
+    res = tp.get("v3-password-reset-from-key", uidb36="1a", key="some-key")
     tp.response_404(res)
 
 

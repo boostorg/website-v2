@@ -127,38 +127,30 @@ class EntryListView(V3Mixin, ListView):
     def get_v3_context_data(self, **kwargs):
         return {
             "filter_terms": [
-                {
-                    "label": "All",
-                    "value": "all",
-                },
-                {
-                    "label": "News",
-                    "value": "news",
-                },
+                {"label": "All", "value": "all", "url": reverse("news")},
+                {"label": "News", "value": "news", "url": reverse("news-news-list")},
                 {
                     "label": "Blogs",
                     "value": "blogpost",
+                    "url": reverse("news-blogpost-list"),
                 },
-                {
-                    "label": "Links",
-                    "value": "link",
-                },
+                {"label": "Links", "value": "link", "url": reverse("news-link-list")},
                 {
                     "label": "Videos",
                     "value": "video",
+                    "url": reverse("news-video-list"),
                 },
                 {
                     "label": "Discussions",
                     "value": "discussions",
+                    "url": reverse("news"),
                 },
                 {
                     "label": "Achievements",
                     "value": "achievements",
+                    "url": reverse("news"),
                 },
-                {
-                    "label": "Issues",
-                    "value": "issues",
-                },
+                {"label": "Issues", "value": "issues", "url": reverse("news")},
             ],
             "libraries": self.libary_values,
             "header_text": self.header_text,

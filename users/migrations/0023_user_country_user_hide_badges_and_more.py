@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("users", "0021_add_v3_testers_group"),
+        ("users", "0022_user_profile_links"),
     ]
 
     operations = [

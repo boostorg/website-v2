@@ -41,21 +41,7 @@ from django.contrib.staticfiles import finders
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
 
-
-def _humanize_link_lifetime(delta):
-    """Return a short phrase for a link lifetime, e.g. "3 days" or "1 hour".
-
-    Picks the largest whole unit so the copy reads naturally for whole-day or
-    whole-hour settings, and pluralizes correctly (so a one-day or one-hour
-    timeout never renders as "1 days" / "0 days").
-    """
-    seconds = int(delta.total_seconds())
-    for unit_seconds, name in ((86400, "day"), (3600, "hour"), (60, "minute")):
-        count = seconds // unit_seconds
-        if count:
-            return f"{count} {name}{'' if count == 1 else 's'}"
-    return f"{seconds} second{'' if seconds == 1 else 's'}"
-
+from users.utils import humanize_link_lifetime
 
 # Available templates: key -> subject / text / html templates + a sample link.
 TEMPLATES = {
@@ -70,6 +56,12 @@ TEMPLATES = {
         "text": "emails/password_reset.txt",
         "html": "emails/password_reset.html",
         "action_url": "https://www.boost.org/auth/reset?token=test-reset-token-xyz789",
+    },
+    "unknown_account": {
+        "subject": "emails/unknown_account_subject.txt",
+        "text": "emails/unknown_account.txt",
+        "html": "emails/unknown_account.html",
+        "action_url": "https://www.boost.org/v3/accounts/signup/",
     },
 }
 
@@ -160,7 +152,7 @@ def _send_inline(connection, subject, text_body, html_body, from_email, recipien
 @click.option(
     "--template",
     "which",
-    type=click.Choice(["confirm", "password_reset", "all"]),
+    type=click.Choice([*TEMPLATES, "all"]),
     default="all",
     show_default=True,
     help="Which template(s) to send.",
@@ -229,7 +221,7 @@ def command(
         else settings.EMAIL_BACKEND
     )
 
-    keys = ["confirm", "password_reset"] if which == "all" else [which]
+    keys = list(TEMPLATES) if which == "all" else [which]
     click.secho(f"Sending via {target} -> {recipient}", fg="green")
 
     for index, key in enumerate(keys):
@@ -241,16 +233,17 @@ def command(
             "host": host,
             "first_name": first_name,
             "user_email": user_email or recipient,
+            "email": user_email or recipient,
             "action_url": spec["action_url"],
             "preferences_url": f"{base_url}/account/preferences",
             "unsubscribe_url": f"{base_url}/account/unsubscribe",
             # Link lifetimes shown in the email bodies, sourced from the same
             # settings the real flows enforce (allauth email confirmation in
             # days, Django's password reset token timeout in seconds).
-            "confirmation_link_lifetime": _humanize_link_lifetime(
+            "confirmation_link_lifetime": humanize_link_lifetime(
                 timedelta(days=allauth_account_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS)
             ),
-            "password_reset_link_lifetime": _humanize_link_lifetime(
+            "password_reset_link_lifetime": humanize_link_lifetime(
                 timedelta(seconds=settings.PASSWORD_RESET_TIMEOUT)
             ),
         }

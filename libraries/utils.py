@@ -470,6 +470,25 @@ def patch_commit_authors(users):
     return users
 
 
+def apply_collective_author_overrides(author_dicts):
+    """Normalize collective authors (e.g. "Various Authors") in V3 profile dicts.
+
+    A collective author renders as a single labelled group icon with no profile
+    link or role. Mutates each dict in place and returns the same list.
+    """
+    from users.templatetags.avatar_tags import (
+        collective_author_label,
+        is_collective_author,
+    )
+
+    for author in author_dicts:
+        if is_collective_author(author["name"]):
+            author["name"] = collective_author_label(author["name"])
+            author["profile_url"] = None
+            author["role"] = None
+    return author_dicts
+
+
 def build_library_intro_context(
     library_version, *, max_authors=None, include_contributors=False
 ):
@@ -519,6 +538,8 @@ def build_library_intro_context(
         contributor.to_v3_profile_dict("Contributor")
         for contributor in top_contributors
     )
+
+    apply_collective_author_overrides(author_dicts)
 
     return {
         "library_name": library.display_name,

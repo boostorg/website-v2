@@ -42,6 +42,11 @@ class V3Mixin:
             context = super().get_context_data(**kwargs)
         return context
 
+    def serve(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            raise Http404
+        return super().serve(request, *args, **kwargs)
+
     def get_v3_context_data(self, **kwargs):
         """Override in subclasses to provide v3-specific context."""
         return {**kwargs}
@@ -91,7 +96,9 @@ class V3AuthContextMixin(V3Mixin):
         context["background_image_url"] = large_static(
             "img/v3/auth-page/auth-page-background.png"
         )
-        context["login_url"] = reverse_lazy("v3-login")
+        # account_login is the real login page (CustomLoginView renders the
+        # v3 login template); v3-login is only a design-preview route.
+        context["login_url"] = reverse_lazy("account_login")
         context["signup_url"] = reverse_lazy("account_signup")
         context["password_reset_url"] = reverse_lazy("v3-password-reset")
         return context

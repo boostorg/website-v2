@@ -275,6 +275,17 @@ class User(BaseUser):
         default=False,
         help_text="Hide badges from the public profile.",
     )
+    profile_links = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text=(
+            "Public profile links keyed by type (github, website, email, slack). "
+            "Slack stores the full canonical CPPLang Slack profile URL "
+            "(https://cpplang.slack.com/team/<Member ID>) built from the "
+            "user's Slack Member ID. The Member ID is derived for display in "
+            "the edit form."
+        ),
+    )
     # If non-null, the user has requested deletion but the grace period has not
     # elapsed.
     delete_permanently_at = models.DateTimeField(null=True, editable=False)

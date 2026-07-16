@@ -1,8 +1,24 @@
+import re
 from typing import Literal
 from django import template
 from django.template.loader import render_to_string
 
 register = template.Library()
+
+_COLLECTIVE_AUTHOR_RE = re.compile(r"^\s*various\b", re.IGNORECASE)
+COLLECTIVE_AUTHOR_LABEL = "Various Authors"
+
+
+@register.filter
+def is_collective_author(value):
+    """True when `value` is a collective author label (e.g. "Various Authors")."""
+    return isinstance(value, str) and bool(_COLLECTIVE_AUTHOR_RE.match(value))
+
+
+@register.filter
+def collective_author_label(value):
+    """Canonical display label for a collective author, else `value` unchanged."""
+    return COLLECTIVE_AUTHOR_LABEL if is_collective_author(value) else value
 
 
 @register.filter(is_safe=True)

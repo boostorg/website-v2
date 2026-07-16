@@ -4,6 +4,7 @@
 
 .contributors-list .card__column {
     gap: var(--space-medium);
+    overflow-y: auto;
 }
 
 .contributors-list.all-contributors {

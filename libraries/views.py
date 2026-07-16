@@ -34,6 +34,7 @@ from .models import (
     Tier,
 )
 from .utils import (
+    apply_collective_author_overrides,
     get_view_from_cookie,
     set_view_in_cookie,
     get_prioritized_library_view,
@@ -572,7 +573,8 @@ class LibraryDetail(
             ]
         )
         context["this_release_contributors"] = (
-            this_release or SharedResources.library_release_contributors
+            apply_collective_author_overrides(this_release)
+            or SharedResources.library_release_contributors
         )
 
         all_time = [
@@ -580,7 +582,8 @@ class LibraryDetail(
             for a in base_context.get("previous_contributors", [])
         ]
         context["all_time_contributors"] = (
-            all_time or SharedResources.library_all_contributors
+            apply_collective_author_overrides(all_time)
+            or SharedResources.library_all_contributors
         )
 
         context["is_flagship_lib"] = self.object.tier == Tier.FLAGSHIP

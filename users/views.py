@@ -15,7 +15,13 @@ from django.conf import settings
 from django import forms
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
-from allauth.account.views import LoginView, SignupView, EmailVerificationSentView
+from allauth.account.views import (
+    LoginView,
+    SignupView,
+    EmailVerificationSentView,
+    PasswordResetView,
+    PasswordResetFromKeyView,
+)
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.views import SignupView as SocialSignupView
 
@@ -26,6 +32,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from waffle import flag_is_active
 
 from core.constants import BadgeToken
+from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin, V3AuthContextMixin
 from libraries.models import CommitAuthorEmail
 from .forms import (
@@ -35,6 +42,7 @@ from .forms import (
     DeleteAccountForm,
     V3UserProfileForm,
     CustomSignUpForm,
+    SLACK_PROFILE_URL_PREFIX,
 )
 from .models import User
 from .password_rules import build_password_rules
@@ -145,12 +153,13 @@ class CurrentUserProfileView(
         if form is None:
             form = V3UserProfileForm(
                 user=self.request.user,
-                user_links={"website": "www.example.com"},
+                user_links=self.request.user.profile_links,
                 initial=self.get_v3_edit_initial(),
             )
         saved_section = self.request.GET.get("saved")
         return {
             "user_profile_form": form,
+            "SLACK_PROFILE_URL_PREFIX": SLACK_PROFILE_URL_PREFIX,
             "country_options": form.fields["country"].choices,
             "profile_account_edit_url": self.get_v3_edit_url(),
             "saved_sections": {
@@ -448,7 +457,7 @@ class CurrentUserProfileView(
 
         ctx["top_links"] = ctx["social_media_links"] + [
             {
-                "url": "#",
+                "url": edit_profile_url(),
                 "label": "Edit Profile",
                 "icon": "pixel-pencil",
             },
@@ -581,7 +590,7 @@ class CurrentUserProfileView(
         form = V3UserProfileForm(
             request.POST,
             user=request.user,
-            user_links={"website": "www.example.com"},
+            user_links=request.user.profile_links,
             initial=self.get_v3_edit_initial(),
         )
         # Only the submitted section's fields are validated; the other fields
@@ -814,9 +823,13 @@ class V3LoginView(V3AuthContextMixin, TemplateView):
     page_title = "Login"
 
 
-class V3PasswordResetView(V3AuthContextMixin, TemplateView):
+class V3PasswordResetView(V3AuthContextMixin, PasswordResetView):
+    # Drop allauth's legacy template_name so V3AuthContextMixin 404s this
+    # v3-only route when the flag is off (instead of falling back to it).
+    template_name = None
     v3_template_name = "v3/accounts/password_reset.html"
     page_title = "Reset Password"
+    success_url = reverse_lazy("v3-password-reset-done")
 
 
 class V3PasswordResetDoneView(V3AuthContextMixin, TemplateView):
@@ -824,9 +837,12 @@ class V3PasswordResetDoneView(V3AuthContextMixin, TemplateView):
     page_title = "Check Your Email"
 
 
-class V3PasswordResetFromKeyView(V3AuthContextMixin, TemplateView):
+class V3PasswordResetFromKeyView(V3AuthContextMixin, PasswordResetFromKeyView):
+    # See V3PasswordResetView: null template_name keeps this route v3-only.
+    template_name = None
     v3_template_name = "v3/accounts/password_reset_from_key.html"
     page_title = "Change Password"
+    success_url = reverse_lazy("v3-password-reset-from-key-done")
 
     def get_v3_context_data(self, **kwargs):
         context = super().get_v3_context_data(**kwargs)
