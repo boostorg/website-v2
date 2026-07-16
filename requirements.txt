@@ -279,7 +279,7 @@ httpx==0.28.1
     # via openai
 identify==2.6.16
     # via pre-commit
-idna==3.11
+idna==3.18
     # via
     #   anyio
     #   django-anymail
