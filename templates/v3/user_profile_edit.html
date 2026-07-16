@@ -11,6 +11,15 @@
   <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
 {% endblock %}
 
+{% comment %} Section save state is shown on each submit button (see saved_sections)
+instead of the legacy toast; still iterate `messages` so any queued message is
+flushed rather than leaking onto the next page. {% endcomment %}
+{% block messages %}
+  <div id="messages" class="w-full text-center transition-opacity" x-data="{show: true}">
+    {% for message in messages %}{% endfor %}
+  </div>
+{% endblock messages %}
+
 {% block content %}
   <div class="user-profile__container">
     <div class="user-profile__profile-content-area">
@@ -19,7 +28,11 @@
           {% comment %} novalidate: this form still contains required fields (tagline, bio, links) with
           no save handler yet; native constraint validation would silently block "Save changes" for
           sections that are otherwise ready. Server-side validation is authoritative. {% endcomment %}
-          <form method="post" action="{% url 'profile-account' %}?edit=true" class="card__form" enctype="multipart/form-data" novalidate>
+          <form method="post" action="{{ profile_account_edit_url }}" class="card__form" enctype="multipart/form-data" novalidate
+                x-data="createSectionForm({{ saved_sections.v3_update_profile|yesno:'true,false' }})"
+                @submit="handleSubmit($event)"
+                @input="saved = false" @change="saved = false"
+                @reset="saved = {{ saved_sections.v3_update_profile|yesno:'true,false' }}">
           {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Profile</span>
@@ -144,8 +157,8 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_profile' label='Save changes' only %}
-            {% include 'v3/includes/_button.html' with style='secondary' url=profile_account_url label='Cancel' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_profile' label='Save changes' label_x_text="saved ? 'Changes Saved' : 'Save changes'" alpine_disabled='saved' only %}
+            {% include 'v3/includes/_button.html' with style='secondary' type='reset' label='Cancel' only %}
           </div>
           </form>
         </div>
@@ -168,7 +181,10 @@
       </div>
       <div class="user-profile__col">
         <div class="basic-card card user-profile__update-details">
-          <form method="post" action="{% url 'profile-account' %}?edit=true" class="card__form">
+          <form method="post" action="{{ profile_account_edit_url }}" class="card__form"
+                x-data="createSectionForm({{ saved_sections.v3_update_details|yesno:'true,false' }})"
+                @submit="handleSubmit($event)"
+                @input="saved = false" @change="saved = false">
           {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Update Details</span>
@@ -184,7 +200,7 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_details' label='Save details' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_details' label='Save details' label_x_text="saved ? 'Changes Saved' : 'Save details'" alpine_disabled='saved' only %}
           </div>
           </form>
         </div>
@@ -209,7 +225,10 @@
           </div>
         </div>
         <div class="basic-card card user-profile__email-preferences-card">
-          <form method="post" action="{% url 'profile-account' %}?edit=true" class="card__form">
+          <form method="post" action="{{ profile_account_edit_url }}" class="card__form"
+                x-data="createSectionForm({{ saved_sections.v3_update_email_preferences|yesno:'true,false' }})"
+                @submit="handleSubmit($event)"
+                @input="saved = false" @change="saved = false">
           {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Email Preferences</span>
@@ -229,7 +248,7 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_email_preferences' label='Update' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_email_preferences' label='Update' label_x_text="saved ? 'Changes Saved' : 'Update'" alpine_disabled='saved' only %}
           </div>
           </form>
         </div>
@@ -283,6 +302,44 @@
 
 
   document.addEventListener('alpine:init', () => {
+    // Submits a section's form via fetch so a successful save can flip its
+    // button to "Changes Saved" without a full-page navigation. On any
+    // non-success outcome (validation error, network failure, JS/fetch
+    // unsupported) it falls back to a real form submission, which the
+    // server renders/redirects exactly as it did before this existed.
+    window.createSectionForm = function (initialSaved) {
+      return {
+        saved: initialSaved,
+        _bypassFetch: false,
+        async handleSubmit(event) {
+          if (this._bypassFetch) {
+            this._bypassFetch = false
+            return
+          }
+          event.preventDefault()
+          const form = event.target
+          const submitter = event.submitter
+          let succeeded = false
+          try {
+            const response = await fetch(form.action, {
+              method: 'POST',
+              body: new FormData(form, submitter),
+              headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+            const contentType = response.headers.get('content-type') || ''
+            if (response.ok && contentType.includes('application/json')) {
+              this.saved = true
+              succeeded = true
+            }
+          } catch (_) {}
+          if (!succeeded) {
+            this._bypassFetch = true
+            form.requestSubmit(submitter)
+          }
+        },
+      }
+    }
+
     window.createTagline = function () {
       const taglineInput = document.querySelector("input[name='{{user_profile_form.tagline.name}}']")
 

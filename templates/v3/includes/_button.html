@@ -23,6 +23,9 @@
         - icon-library (uses btn-icon-library styles; ignores btn + btn-* classes)
     - disabled (optional): if truthy, adds disabled attribute to button
     - alpine_disabled (optional): Alpine.js expression for dynamic disabled binding (e.g. "hasErrors")
+    - label_x_text (optional): Alpine.js expression that dynamically overrides the button's visible
+        label (e.g. "saved ? 'Changes Saved' : 'Save changes'"). Requires an ancestor x-data scope.
+        Not compatible with icon_html/icon_name (x-text replaces the button's children).
     - extra_classes (optional) : Any extra classes that the button should have, as a string
     - aria_label (optional): An optional label for assistive technology. Defaults to the button label
     - js_disabled (optional, boolean): If this value is true, the button is hidden unless Javascript is disabled on the page
@@ -67,6 +70,7 @@
           {% if name %}name="{{ name }}" value="true"{% endif %}
           {% if disabled %}disabled{% endif %}
           {% if alpine_disabled %}:disabled="{{ alpine_disabled }}"{% endif %}
+          {% if label_x_text %}x-text="{{ label_x_text }}"{% endif %}
         >
     {% if icon_position|default:'left' == 'left' %}
       {% if icon_html %}

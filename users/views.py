@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, FormView
 from django.views.generic.base import TemplateView
@@ -135,6 +135,9 @@ class CurrentUserProfileView(
             ),
         }
 
+    def get_v3_edit_url(self):
+        return f"{reverse('profile-account')}?edit=true"
+
     def get_v3_edit_context(self, form=None):
         """Context for the v3 edit-profile template. `form` is a bound form
         (with errors) when re-rendering after a failed POST; otherwise a
@@ -145,10 +148,14 @@ class CurrentUserProfileView(
                 user_links={"website": "www.example.com"},
                 initial=self.get_v3_edit_initial(),
             )
+        saved_section = self.request.GET.get("saved")
         return {
             "user_profile_form": form,
             "country_options": form.fields["country"].choices,
-            "profile_account_url": reverse("profile-account"),
+            "profile_account_edit_url": self.get_v3_edit_url(),
+            "saved_sections": {
+                key: key == saved_section for key in self.V3_EDIT_SECTIONS
+            },
             "badge_tiers": [
                 {"tier": "1", "name": "Bronze"},
                 {"tier": "2", "name": "Silver"},
@@ -561,15 +568,15 @@ class CurrentUserProfileView(
         """Handle the v3 edit-profile page's independently-submitted section
         forms. Each section has its own <form>/submit button; only the
         fields owned by that section are validated and persisted."""
-        edit_url = f"{reverse('profile-account')}?edit=true"
+        edit_url = self.get_v3_edit_url()
 
-        section = next(
-            (v for key, v in self.V3_EDIT_SECTIONS.items() if key in request.POST),
+        section_key = next(
+            (key for key in self.V3_EDIT_SECTIONS if key in request.POST),
             None,
         )
-        if section is None:
+        if section_key is None:
             return HttpResponseRedirect(edit_url)
-        section_fields, save_method_name = section
+        section_fields, save_method_name = self.V3_EDIT_SECTIONS[section_key]
 
         form = V3UserProfileForm(
             request.POST,
@@ -592,8 +599,16 @@ class CurrentUserProfileView(
 
         getattr(self, save_method_name)(request.user, form)
 
-        messages.success(request, self.success_message)
-        return HttpResponseRedirect(edit_url)
+        # The saved section's submit button shows a "Changes Saved" state
+        # instead (see get_v3_edit_context's saved_sections); the legacy
+        # toast is suppressed on this page. JS submits this fetch-style (see
+        # createSectionForm in user_profile_edit.html) so a successful save
+        # can flip the button state without a full-page navigation; a plain
+        # HTML form post (no JS) still gets the redirect it needs to see the
+        # saved state on reload.
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse({"saved": section_key})
+        return HttpResponseRedirect(f"{edit_url}&saved={section_key}")
 
     def _save_v3_visibility_section(self, user, form):
         user.hide_github_activity = form.cleaned_data["hide_github"]

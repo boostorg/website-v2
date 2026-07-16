@@ -232,7 +232,7 @@ class V3UserProfileForm(forms.Form):
         commit_emails = kwargs.pop("commit_emails", None)
         self._user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
-        self.fields["country"].choices = list(countries)
+        self.fields["country"].choices = [("", "No country")] + list(countries)
         if links:
             self.link_formset = V3ProfileLinkFormset(
                 initial=[

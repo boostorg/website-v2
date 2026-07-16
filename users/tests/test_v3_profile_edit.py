@@ -164,6 +164,61 @@ def test_v3_update_details_duplicate_username_shows_inline_error(user, tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
+def test_v3_update_profile_redirect_flags_saved_section(user, tp):
+    """The redirect after a successful save carries which section was saved,
+    so that section's submit button can render a "Changes Saved" state
+    instead of the legacy toast."""
+    with tp.login(user):
+        response = tp.post(
+            f"{tp.reverse('profile-account')}?edit=true",
+            data={"v3_update_profile": "true", "hide_github": "on"},
+        )
+        assert response.status_code == 302
+        assert response.url == (
+            f"{tp.reverse('profile-account')}?edit=true&saved=v3_update_profile"
+        )
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_update_profile_ajax_save_returns_json_without_redirect(user, tp):
+    """A fetch-based submit (see createSectionForm in user_profile_edit.html)
+    gets a JSON response instead of a redirect, so the button can flip to
+    "Changes Saved" without a full-page navigation."""
+    with tp.login(user):
+        response = tp.post(
+            f"{tp.reverse('profile-account')}?edit=true",
+            data={"v3_update_profile": "true", "hide_github": "on"},
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
+        )
+        assert response.status_code == 200
+        assert response["Content-Type"] == "application/json"
+        assert response.json() == {"saved": "v3_update_profile"}
+    user.refresh_from_db()
+    assert user.hide_github_activity is True
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_edit_page_marks_only_the_saved_section(user, tp):
+    with tp.login(user):
+        response = tp.get(
+            f"{tp.reverse('profile-account')}?edit=true&saved=v3_update_details"
+        )
+        tp.response_200(response)
+        saved_sections = response.context["saved_sections"]
+        assert saved_sections["v3_update_details"] is True
+        assert saved_sections["v3_update_profile"] is False
+        assert saved_sections["v3_update_email_preferences"] is False
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_edit_page_no_section_saved_by_default(user, tp):
+    with tp.login(user):
+        response = tp.get(f"{tp.reverse('profile-account')}?edit=true")
+        tp.response_200(response)
+        assert not any(response.context["saved_sections"].values())
+
+
+@waffle.testutils.override_flag("v3", active=True)
 def test_v3_update_email_preferences_saves(user, tp):
     with tp.login(user):
         response = tp.post(
