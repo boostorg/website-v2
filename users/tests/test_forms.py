@@ -11,6 +11,8 @@ from ..forms import (
     PreferencesForm,
     UserProfileForm,
     UserProfilePhotoForm,
+    V3ProfileLinkChoices,
+    V3UserProfileForm,
 )
 from ..models import Preferences
 from news.models import NEWS_MODELS
@@ -207,3 +209,20 @@ def test_user_profile_photo_form_save(user):
     updated_user = form.save()
     updated_user.refresh_from_db()
     assert str(user.pk) in updated_user.profile_image.path
+
+
+def test_link_formset_initial_shows_stored_slack_url_verbatim():
+    url = "https://cpplang.slack.com/team/U012AB3CDE"
+    form = V3UserProfileForm(user_links={"slack": url})
+    slack_form = next(
+        f for f in form.link_formset if f.initial["type"] == V3ProfileLinkChoices.SLACK
+    )
+    assert slack_form.initial["value"] == url
+
+
+def test_link_formset_initial_defaults_to_empty_string():
+    form = V3UserProfileForm(user_links={})
+    slack_form = next(
+        f for f in form.link_formset if f.initial["type"] == V3ProfileLinkChoices.SLACK
+    )
+    assert slack_form.initial["value"] == ""

@@ -21,6 +21,7 @@
         - icon-library (uses btn-icon-library styles; ignores btn + btn-* classes)
     - disabled (optional): if truthy, adds disabled attribute to button
     - alpine_disabled (optional): Alpine.js expression for dynamic disabled binding (e.g. "hasErrors")
+    - alpine_click (optional): Alpine.js expression run on click (e.g. "save()")
     - extra_classes (optional) : Any extra classes that the button should have, as a string
     - aria_label (optional): An optional label for assistive technology. Defaults to the button label
     - js_disabled (optional, boolean): If this value is true, the button is hidden unless Javascript is disabled on the page
@@ -64,6 +65,7 @@
           aria-label="{{aria_label|default:label}}"
           {% if disabled %}disabled{% endif %}
           {% if alpine_disabled %}:disabled="{{ alpine_disabled }}"{% endif %}
+          {% if alpine_click %}@click="{{ alpine_click }}"{% endif %}
         >
     {% if icon_position|default:'left' == 'left' %}
       {% if icon_html %}

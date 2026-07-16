@@ -15,7 +15,7 @@
   <div class="user-profile__container">
     <div class="user-profile__profile-content-area">
       <div class="user-profile__col">
-        <div class="basic-card card user-profile__profile-edit-card">
+        <div class="basic-card card user-profile__profile-edit-card" x-data="profileForm">
           <div class="card__header">
             <span class="card__title">Profile</span>
           </div>
@@ -77,9 +77,11 @@
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
             <span class="user-profile__link-section-heading">Profile Links</span>
-            <div class="user-profile__two-column-inputs">
+            {% comment %} Link rows: locked label (type) + value input. Inline validation (HTTPS for GitHub/Website, email format, Slack Member ID) is driven by profileForm; errors is keyed by link type. {% endcomment %}
+            <div class="user-profile__two-column-inputs" @input="clearLinkError($event)">
               {% for form in user_profile_form.link_formset %}
-                {% include 'v3/includes/_form_include.html' with form=form only %}
+                {% include 'v3/includes/_field_include.html' with bound_field=form.type only %}
+                {% include 'v3/includes/_field_text.html' with name=form.value.html_name value=form.value.value placeholder=form.value.field.widget.attrs.placeholder aria_label=form.type.value|capfirst|add:" link" alpine_error="errors."|add:form.type.value data_link_type=form.type.value only %}
               {% endfor %}
             </div>
             <div class="field__help">All links will be displayed publicly on your profile for other users to see.</div>
@@ -138,8 +140,16 @@
             </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
+          {% comment %} Persists the Profile links to the current user via PATCH /api/v1/users/me/. {% endcomment %}
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save Changes' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='button' label='Save Changes' alpine_disabled="saving" alpine_click="save()" only %}
+            <span class="user-profile__save-indicator" role="status" aria-live="polite">
+              <span class="user-profile__save-state" x-show="saveStatus === 'saved'" x-cloak>
+                <span class="user-profile__save-text">Saved</span>
+                {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
+              </span>
+              <span class="field__error" x-show="saveStatus === 'error'" x-text="saveError" x-cloak></span>
+            </span>
           </div>
         </div>
         <div class="basic-card card user-profile__delete-account">
@@ -397,6 +407,148 @@
 
         clearContentDraft() {
           try { localStorage.removeItem(this.contentDraftKey()); } catch (_) {}
+        },
+      };
+    };
+
+    window.profileForm = function () {
+      // Link value inputs each carry a data-link-type attribute (rendered from
+      // V3ProfileLinkChoices), so lookups key off that instead of DOM position.
+      const LINK_TYPES = ['github', 'website', 'email', 'slack'];
+      const linkInput = (type) => document.querySelector(`[data-link-type='${type}']`);
+      const SLACK_PROFILE_URL_PREFIX = '{{ SLACK_PROFILE_URL_PREFIX|escapejs }}';
+      const SLACK_MEMBER_ID_PATTERN = /^[A-Z0-9]{9,11}$/i;
+
+      return {
+        saving: false,
+        saveStatus: '',   // '' | 'saved' | 'error' (button shows "saving" via :disabled)
+        saveError: '',
+        errors: { github: '', website: '', email: '', slack: '' },  // inline per-link errors, keyed by type
+
+        // Clear a link's inline error as soon as the user edits that field.
+        clearLinkError(e) {
+          const type = e.target.dataset.linkType;
+          if (type) this.errors[type] = '';
+          this.saveStatus = '';
+          this.saveError = '';
+        },
+
+        isSecureUrl(value) {
+          try {
+            const url = new URL(value);
+            return url.protocol === 'https:' && Boolean(url.hostname);
+          } catch {
+            return false;
+          }
+        },
+
+        isUrl(value) {
+          try {
+            new URL(value);
+            return true;
+          } catch {
+            return false;
+          }
+        },
+
+        // '' when valid, otherwise the inline error message. Empty is allowed
+        // (the link is simply unset).
+        validateLink(type, value) {
+          if (!value) return '';
+          if (value.length > 200) return 'Must be 200 characters or fewer';
+          if (type === 'github' || type === 'website') {
+            return this.isSecureUrl(value) ? '' : 'Please add a secure link';
+          }
+          if (type === 'email') {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Please enter a valid email address';
+          }
+          if (type === 'slack') {
+            // A pasted link must be our canonical CPPLang Slack profile URL;
+            // anything else that isn't a URL is checked against the Member ID shape.
+            if (this.isUrl(value)) {
+              return value.toLowerCase().startsWith(SLACK_PROFILE_URL_PREFIX.toLowerCase())
+                ? ''
+                : 'Please enter a valid CPPLang profile URL or Member ID';
+            }
+            return SLACK_MEMBER_ID_PATTERN.test(value) ? '' : 'Please enter a valid CPPLang Member ID';
+          }
+          return '';
+        },
+
+        // Build the profile_links payload, dropping empties. Slack takes a
+        // Member ID; store the canonical profile URL built from it (kept in
+        // sync with SLACK_PROFILE_URL_PREFIX in users/forms.py, which
+        // reverses it for prefill).
+        collectLinks() {
+          const links = {};
+          LINK_TYPES.forEach((type) => {
+            let value = (linkInput(type)?.value || '').trim();
+            if (!value) return;
+            if (type === 'slack') {
+              // Accept a bare Member ID or a pasted full profile URL — store one canonical URL.
+              let memberId = value;
+              if (memberId.toLowerCase().startsWith(SLACK_PROFILE_URL_PREFIX.toLowerCase())) {
+                memberId = memberId.slice(SLACK_PROFILE_URL_PREFIX.length);
+              }
+              value = SLACK_PROFILE_URL_PREFIX + memberId;
+            }
+            links[type] = value;
+          });
+          return links;
+        },
+
+        async save() {
+          if (this.saving) return;
+
+          // Validate all links up front; block the save if any fail.
+          let hasError = false;
+          LINK_TYPES.forEach((type) => {
+            const msg = this.validateLink(type, (linkInput(type)?.value || '').trim());
+            this.errors[type] = msg;
+            if (msg) hasError = true;
+          });
+          if (hasError) return;
+
+          this.saving = true;
+          this.saveStatus = '';
+          this.saveError = '';
+          try {
+            const res = await fetch('/api/v1/users/me/', {
+              method: 'PATCH',
+              headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ profile_links: this.collectLinks() }),
+            });
+            if (!res.ok) {
+              let data = {};
+              try {
+                data = await res.json();
+              } catch (_) {}
+
+              // Per-link validation errors (e.g. the backend secure-URL/Slack
+              // checks) come back keyed by link type; route them to their own
+              // field instead of the banner next to the Save button.
+              const linkErrors = data.profile_links;
+              if (linkErrors && typeof linkErrors === 'object' && !Array.isArray(linkErrors)) {
+                Object.entries(linkErrors).forEach(([type, msg]) => {
+                  this.errors[type] = Array.isArray(msg) ? msg[0] : msg;
+                });
+                return;
+              }
+
+              const fieldErrors = Object.values(data).flat().filter(Boolean);
+              throw new Error(fieldErrors.length ? fieldErrors.join(' ') : `Save failed (${res.status})`);
+            }
+            this.saveStatus = 'saved';
+          } catch (err) {
+            console.error('Profile save failed:', err);
+            this.saveStatus = 'error';
+            this.saveError = err.message || 'Could not save. Please try again.';
+          } finally {
+            this.saving = false;
+          }
         },
       };
     };

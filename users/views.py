@@ -32,6 +32,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from waffle import flag_is_active
 
 from core.constants import BadgeToken
+from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin, V3AuthContextMixin
 from libraries.models import CommitAuthorEmail
 from .forms import (
@@ -41,6 +42,7 @@ from .forms import (
     DeleteAccountForm,
     V3UserProfileForm,
     CustomSignUpForm,
+    SLACK_PROFILE_URL_PREFIX,
 )
 from .models import User
 from .password_rules import build_password_rules
@@ -114,9 +116,10 @@ class CurrentUserProfileView(
 
         if self.request.GET.get("edit", "").lower() == "true":
             ctx["user_profile_form"] = V3UserProfileForm(
-                user_links={"website": "www.example.com"},
+                user_links=user.profile_links,
                 initial={"avatar": self.request.user.avatar_url},
             )
+            ctx["SLACK_PROFILE_URL_PREFIX"] = SLACK_PROFILE_URL_PREFIX
             ctx["badge_tiers"] = [
                 {"tier": "1", "name": "Bronze"},
                 {"tier": "2", "name": "Silver"},
@@ -402,7 +405,7 @@ class CurrentUserProfileView(
 
         ctx["top_links"] = ctx["social_media_links"] + [
             {
-                "url": "#",
+                "url": edit_profile_url(),
                 "label": "Edit Profile",
                 "icon": "pixel-pencil",
             },
