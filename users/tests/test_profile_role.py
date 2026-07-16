@@ -15,8 +15,22 @@ from users.models import (
     decode_role_option,
     encode_role_option,
 )
+from users.serializers import CurrentUserSerializer
 
 User = get_user_model()
+
+
+def _apply_role(user, value):
+    """Apply a role selection through the serializer used by the AJAX save.
+
+    Saves when valid; returns the serializer so callers can assert on errors.
+    """
+    serializer = CurrentUserSerializer(
+        instance=user, data={"role": value}, partial=True
+    )
+    if serializer.is_valid():
+        serializer.save()
+    return serializer
 
 
 @pytest.fixture
@@ -196,7 +210,7 @@ def test_dropdown_order_is_internal_then_generic_then_specific(
     assert all(o["library"] is None for o in options[:first_specific])
 
 
-def test_selecting_title_clears_library_override(user, library, tp):
+def test_selecting_title_clears_library_override(user, library):
     """Selecting the assigned title clears the user's library-role override so
     the role falls back to the title (stored only in internal_role)."""
     library.authors.add(user)
@@ -204,13 +218,7 @@ def test_selecting_title_clears_library_override(user, library, tp):
     user.displayed_profile_role = ProfileRole.AUTHOR.value
     user.displayed_profile_role_library = library
     user.save()
-    value = encode_role_option(ProfileRole.CEO.value, "")
-    with tp.login(user):
-        tp.post(
-            tp.reverse("profile-account"),
-            data={"update_profile_role": "1", "role": value},
-            follow=True,
-        )
+    _apply_role(user, encode_role_option(ProfileRole.CEO.value, ""))
     user.refresh_from_db()
     assert user.displayed_profile_role == ""  # override cleared, not overwritten
     assert user.displayed_profile_role_library_id is None
@@ -218,18 +226,12 @@ def test_selecting_title_clears_library_override(user, library, tp):
     assert user.role == "CEO, C++ Alliance"
 
 
-def test_switching_to_library_role_keeps_title(user, library, tp):
+def test_switching_to_library_role_keeps_title(user, library):
     """The core of the split: featuring a library role never loses the title."""
     library.authors.add(user)
     user.internal_role = ProfileRole.CEO.value
     user.save()
-    value = encode_role_option(ProfileRole.AUTHOR.value, library.id)
-    with tp.login(user):
-        tp.post(
-            tp.reverse("profile-account"),
-            data={"update_profile_role": "1", "role": value},
-            follow=True,
-        )
+    _apply_role(user, encode_role_option(ProfileRole.AUTHOR.value, library.id))
     user.refresh_from_db()
     assert user.displayed_profile_role == ProfileRole.AUTHOR.value
     assert user.internal_role == ProfileRole.CEO.value  # preserved
@@ -277,40 +279,68 @@ def test_encoded_displayed_role_for_generic_selection(user, library):
     assert user.encoded_displayed_role == encode_role_option("Author", "")
 
 
-def test_post_persists_generic_role(user, library, tp):
+def test_post_persists_generic_role(user, library):
     library.authors.add(user)
-    value = encode_role_option(ProfileRole.AUTHOR.value, "")
-    with tp.login(user):
-        tp.post(
-            tp.reverse("profile-account"),
-            data={"update_profile_role": "1", "role": value},
-            follow=True,
-        )
+    _apply_role(user, encode_role_option(ProfileRole.AUTHOR.value, ""))
     user.refresh_from_db()
     assert user.displayed_profile_role == ProfileRole.AUTHOR.value
     assert user.displayed_profile_role_library_id is None
     assert user.role == "Author"
 
 
-# --- edit-page POST handler --------------------------------------------------
+# --- edit-page role save (AJAX serializer path) ------------------------------
 
 
-def test_post_persists_scoped_role(user, library, tp):
+def test_post_persists_scoped_role(user, library):
     library.authors.add(user)
-    value = encode_role_option(ProfileRole.AUTHOR.value, library.id)
-    with tp.login(user):
-        tp.post(
-            tp.reverse("profile-account"),
-            data={"update_profile_role": "1", "role": value},
-            follow=True,
-        )
+    _apply_role(user, encode_role_option(ProfileRole.AUTHOR.value, library.id))
     user.refresh_from_db()
     assert user.displayed_profile_role == ProfileRole.AUTHOR.value
     assert user.displayed_profile_role_library_id == library.id
     assert user.role == "Boost.Beast Author"
 
 
-def test_post_rejects_role_for_unheld_library(user, library, other_library, tp):
+def test_api_patch_saves_role_and_links(user, library):
+    """End-to-end AJAX path: PATCH /api/v1/users/me/ persists role and links."""
+    from rest_framework.test import APIClient
+
+    library.authors.add(user)
+    client = APIClient()
+    client.force_authenticate(user=user)
+    resp = client.patch(
+        "/api/v1/users/me/",
+        {
+            "role": encode_role_option(ProfileRole.AUTHOR.value, library.id),
+            "profile_links": {"github": "https://github.com/janedoe"},
+        },
+        format="json",
+    )
+    assert resp.status_code == 200, resp.content
+    user.refresh_from_db()
+    assert user.displayed_profile_role == ProfileRole.AUTHOR.value
+    assert user.displayed_profile_role_library_id == library.id
+    assert user.profile_links == {"github": "https://github.com/janedoe"}
+
+
+def test_api_patch_rejects_ineligible_role(user, library, other_library):
+    """A tampered role the user doesn't hold is rejected without persisting."""
+    from rest_framework.test import APIClient
+
+    library.authors.add(user)  # eligible for Beast only
+    client = APIClient()
+    client.force_authenticate(user=user)
+    resp = client.patch(
+        "/api/v1/users/me/",
+        {"role": encode_role_option(ProfileRole.AUTHOR.value, other_library.id)},
+        format="json",
+    )
+    assert resp.status_code == 400
+    assert "role" in resp.data
+    user.refresh_from_db()
+    assert user.displayed_profile_role == ""
+
+
+def test_post_rejects_role_for_unheld_library(user, library, other_library):
     library.authors.add(user)  # eligible for Beast only
     _recompute()  # populate the auto-derived fallback
     user.refresh_from_db()  # avoid clobbering resolved_profile_role on save
@@ -318,48 +348,35 @@ def test_post_rejects_role_for_unheld_library(user, library, other_library, tp):
     user.displayed_profile_role_library = library
     user.save()
     tampered = encode_role_option(ProfileRole.AUTHOR.value, other_library.id)
-    with tp.login(user):
-        tp.post(
-            tp.reverse("profile-account"),
-            data={"update_profile_role": "1", "role": tampered},
-            follow=True,
-        )
+    serializer = _apply_role(user, tampered)
+    assert "role" in serializer.errors
     user.refresh_from_db()
     assert user.displayed_profile_role == ProfileRole.AUTHOR.value
     assert user.displayed_profile_role_library_id == library.id
 
 
-def test_post_rejects_internal_title_from_user(user, library, tp):
+def test_post_rejects_internal_title_from_user(user, library):
     library.authors.add(user)
     _recompute()  # populate the auto-derived fallback
     user.refresh_from_db()  # avoid clobbering resolved_profile_role on save
     user.displayed_profile_role = ProfileRole.AUTHOR.value
     user.displayed_profile_role_library = library
     user.save()
-    with tp.login(user):
-        tp.post(
-            tp.reverse("profile-account"),
-            data={"update_profile_role": "1", "role": "ceo:"},
-            follow=True,
-        )
+    serializer = _apply_role(user, "ceo:")
+    assert "role" in serializer.errors
     user.refresh_from_db()
     assert user.displayed_profile_role == ProfileRole.AUTHOR.value
     assert user.displayed_profile_role_library_id == library.id
 
 
-def test_post_empty_value_clears_selection(user, library, tp):
+def test_post_empty_value_clears_selection(user, library):
     library.authors.add(user)
     _recompute()  # populate the auto-derived fallback
     user.refresh_from_db()  # avoid clobbering resolved_profile_role on save
     user.displayed_profile_role = ProfileRole.AUTHOR.value
     user.displayed_profile_role_library = library
     user.save()
-    with tp.login(user):
-        tp.post(
-            tp.reverse("profile-account"),
-            data={"update_profile_role": "1", "role": ""},
-            follow=True,
-        )
+    _apply_role(user, "")
     user.refresh_from_db()
     assert user.displayed_profile_role == ""
     assert user.displayed_profile_role_library_id is None

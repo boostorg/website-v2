@@ -11,7 +11,7 @@ from core.validators import downscale_image_file_size_validator
 from news.utils import downsize_uploaded_image
 
 from .forms import SLACK_PROFILE_URL_PREFIX, V3ProfileLinkChoices
-from .models import User
+from .models import ProfileRole, User, decode_role_option
 
 SECURE_LINK_TYPES = {V3ProfileLinkChoices.GITHUB, V3ProfileLinkChoices.WEBSITE}
 SLACK_MEMBER_ID_PATTERN = re.compile(r"^[A-Z0-9]{9,11}$", re.IGNORECASE)
@@ -96,6 +96,22 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(field_errors)
         return value
 
+    # Encoded role:library selection; write-only, applied in update().
+    role = serializers.CharField(write_only=True, required=False, allow_blank=True)
+
+    def validate_role(self, value):
+        """Re-validate the encoded (role, library) against the user's own options
+        so they can never feature a role they don't hold."""
+        if value and self.instance:
+            role, library_id = decode_role_option(value)
+            eligible = {
+                (o["role"], o["library"].id if o["library"] else None)
+                for o in self.instance.get_role_options()
+            }
+            if (role, library_id) not in eligible:
+                raise serializers.ValidationError("You cannot select that role.")
+        return value
+
     def validate_profile_image(self, value):
         file_name = value.name
         root, ext = os.path.splitext(file_name)
@@ -114,6 +130,16 @@ class CurrentUserSerializer(serializers.ModelSerializer):
         return super().validate(data)
 
     def update(self, instance: User, validated_data):
+        if "role" in validated_data:
+            role, library_id = decode_role_option(validated_data.pop("role"))
+            if role in ProfileRole.internal_roles():
+                # The title is the user's default; store it as a cleared override.
+                instance.displayed_profile_role = ""
+                instance.displayed_profile_role_library = None
+            else:
+                instance.displayed_profile_role = role
+                instance.displayed_profile_role_library_id = library_id
+
         # Pop the image and apply the file-lifecycle steps ourselves. If we left
         # it in validated_data, the parent update() would assign and save it a
         # second time, writing a duplicate file to storage and orphaning one.
@@ -163,6 +189,7 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             "profile_links",
             "tagline",
             "biography",
+            "role",
         )
         read_only_fields = (
             "id",

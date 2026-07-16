@@ -35,7 +35,6 @@ flushed rather than leaking onto the next page. {% endcomment %}
                 @submit="handleSubmit($event)"
                 @input="saved = false" @change="saved = false">
           {% csrf_token %}
-          <input type="hidden" name="update_profile_role" value="1" />
           <div class="card__header">
             <span class="card__title">Profile</span>
           </div>
@@ -605,6 +604,15 @@ flushed rather than leaking onto the next page. {% endcomment %}
           return el && window.Alpine ? (Alpine.$data(el).content || '') : '';
         },
 
+        // The role dropdown's value: the combo's hidden input once Alpine is
+        // ready (a sibling x-data scope, so read it from the DOM). null when the
+        // field is absent (the user holds no roles) so the payload omits role
+        // and leaves the stored value untouched.
+        roleValue() {
+          const el = [...document.querySelectorAll('[name="role"]')].find((e) => !e.disabled);
+          return el ? el.value : null;
+        },
+
         // Validates and persists the profile links, tagline, and biography via
         // PATCH before the section form submit proceeds (see handleSubmit in
         // createSectionForm). Returns true when it's safe to continue with the
@@ -642,6 +650,9 @@ flushed rather than leaking onto the next page. {% endcomment %}
             else if(avatarInputNew.files.length > 0) formData.append('profile_image', avatarInputNew.files[0])
           }
           formData.append('delete_profile_image', avatarDelete.checked)
+
+          const role = this.roleValue();
+          if (role !== null) formData.append('role', role);
 
           this.saving = true;
           this.saveError = '';
