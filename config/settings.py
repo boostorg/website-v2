@@ -51,6 +51,10 @@ SECRET_KEY = env("SECRET_KEY")
 host_list = env.list("ALLOWED_HOSTS", default="localhost")
 ALLOWED_HOSTS = [el.strip() for el in host_list]
 
+# Add 'web' for Docker container-to-container communication (Storybook -> Django)
+if "web" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("web")
+
 
 INSTALLED_APPS = [
     "django_admin_env_notice",  # Third-party
@@ -111,6 +115,23 @@ INSTALLED_APPS += [
     "taggit",
 ]
 
+# Pattern Library (for Storybook) — only when installed AND explicitly enabled.
+# Defaults to True in DEBUG mode; set ENABLE_PATTERN_LIBRARY=false in production
+# unless you intentionally want to expose the endpoint.
+ENABLE_PATTERN_LIBRARY = env.bool("ENABLE_PATTERN_LIBRARY", default=DEBUG)
+
+try:
+    if ENABLE_PATTERN_LIBRARY:
+        import pattern_library  # noqa: F401
+
+        INSTALLED_APPS += ["pattern_library"]
+except ImportError:
+    pass
+
+# Pre-built Storybook static bundle (output of `yarn build-storybook`).
+# Served at /storybook/ by StorybookView, staff-only.
+STORYBOOK_ROOT = BASE_DIR / "var" / "storybook"
+
 # Our Apps
 INSTALLED_APPS += [
     "ak",
@@ -129,6 +150,18 @@ INSTALLED_APPS += [
     "asciidoctor_sandbox",
 ]
 
+# django-pattern-library settings (used by storybook-django)
+PATTERN_LIBRARY = {
+    "SECTIONS": (
+        ("v3/includes", ["v3/includes"]),
+        ("v3/examples", ["v3/examples"]),
+        ("includes", ["includes"]),
+    ),
+    "TEMPLATE_SUFFIX": ".html",
+    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
+    "BASE_TEMPLATE_NAMES": ["patterns/base.html"],
+}
+
 AUTH_USER_MODEL = "users.User"
 CSRF_COOKIE_HTTPONLY = True
 # See https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins
@@ -145,6 +178,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "core.middleware.PatternLibraryStaffMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
