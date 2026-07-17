@@ -4,6 +4,7 @@ import uuid
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.core.files.uploadedfile import UploadedFile
 from rest_framework import serializers
 
 from core.validators import downscale_image_file_size_validator
@@ -110,6 +111,37 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             )
 
         return super().validate(data)
+
+    def update(self, instance: User, validated_data):
+        if validated_data.get("profile_image"):
+            # If the user is uploading a new image file, we need to do a few special steps
+            # 1. We need to set the image_uploaded flag correctly, to prevent automatic overwrites.
+            # 2. We need to delete the old image from file storage, since it is not stored in memory.
+            # 3. We need to delete their thumbnail to regenerate a new one.
+            old_image = instance.profile_image
+            old_image_name = old_image.name if old_image else None
+            new_image_data = validated_data.get("profile_image")
+            has_new_upload = isinstance(new_image_data, UploadedFile)
+
+            # Save the new image
+            if not old_image:
+                # reset image on image delete checked
+                instance.image_uploaded = False
+            elif has_new_upload and old_image_name:
+                # Delete the old file directly from storage (not via FieldFile.delete(),
+                # which closes file handles and interferes with the pending upload)
+                old_image.storage.delete(old_image_name)
+
+            if has_new_upload:
+                instance.profile_image = new_image_data
+                instance.image_uploaded = True
+
+            instance.save()
+            # Invalidate the cached thumbnail so ImageKit regenerates it
+            if has_new_upload:
+                instance.delete_cached_thumbnail()
+
+        return super().update(instance, validated_data)
 
     class Meta:
         model = User
