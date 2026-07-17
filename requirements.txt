@@ -437,7 +437,7 @@ pydantic-core==2.41.5
     # via pydantic
 pyee==13.0.0
     # via playwright
-pygments==2.19.2
+pygments==2.20.0
     # via
     #   ipython
     #   ipython-pygments-lexers
@@ -579,7 +579,7 @@ urllib3==2.7.0
     #   requests
     #   responses
     #   trafilatura
-uv==0.9.29
+uv==0.11.29
     # via -r ./requirements.in
 vine==5.1.0
     # via
