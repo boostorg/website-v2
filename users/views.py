@@ -80,8 +80,12 @@ class CurrentUserAPIView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_update(self, serializer: CurrentUserSerializer):
-        instance = serializer.save()
-        if self.request.POST.get("delete_profile_image", "").lower() == "true":
+        instance: User = serializer.save()
+        # Only allow for image deletion if the user is allowed to update their image.
+        if (
+            self.request.POST.get("delete_profile_image", "").lower() == "true"
+            and instance.can_update_image
+        ):
             instance.profile_image.delete()
 
     def get_object(self):
