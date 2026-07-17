@@ -79,7 +79,7 @@ class CurrentUserAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = CurrentUserSerializer
     permission_classes = [IsAuthenticated]
 
-    def perform_update(self, serializer):
+    def perform_update(self, serializer: CurrentUserSerializer):
         instance = serializer.save()
         if self.request.POST.get("delete_profile_image", "").lower() == "true":
             instance.profile_image.delete()
@@ -549,9 +549,7 @@ class CurrentUserProfileView(
                 messages.error(request, f"{error}")
 
     def dispatch(self, request, *args, **kwargs):
-        if request.GET.get("edit", "").lower() == "true" and isinstance(
-            request.user, AnonymousUser
-        ):
+        if isinstance(request.user, AnonymousUser):
             return HttpResponseRedirect(reverse_lazy("account_login"))
         return super().dispatch(request, *args, **kwargs)
 

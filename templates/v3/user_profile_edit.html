@@ -523,8 +523,10 @@
             avatar = null;
           }
 
-          if(avatarInput.files.length > 0) formData.append('profile_image', avatarInput.files[0])
-          else if(avatarInputNew.files.length > 0) formData.append('profile_image', avatarInputNew.files[0])
+          if(!avatarDelete.checked) {
+            if(avatarInput.files.length > 0) formData.append('profile_image', avatarInput.files[0])
+            else if(avatarInputNew.files.length > 0) formData.append('profile_image', avatarInputNew.files[0])
+          }
           formData.append('delete_profile_image', avatarDelete.checked)
           
           this.saving = true;

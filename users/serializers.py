@@ -1,7 +1,13 @@
 import re
+import os
+import uuid
 from urllib.parse import urlparse
 
+from django.conf import settings
 from rest_framework import serializers
+
+from core.validators import downscale_image_file_size_validator
+from news.utils import downsize_uploaded_image
 
 from .forms import SLACK_PROFILE_URL_PREFIX, V3ProfileLinkChoices
 from .models import User
@@ -56,6 +62,9 @@ class CurrentUserSerializer(serializers.ModelSerializer):
     """
     User serializer for the currently logged in user
     """
+    profile_image = serializers.ImageField(
+        validators=[downscale_image_file_size_validator]
+    )
 
     def validate_profile_links(self, value):
         if not isinstance(value, dict):
@@ -84,6 +93,23 @@ class CurrentUserSerializer(serializers.ModelSerializer):
         if field_errors:
             raise serializers.ValidationError(field_errors)
         return value
+
+    def validate_profile_image(self, value):
+        file_name = value.name
+        root, ext = os.path.splitext(file_name)
+        value.name = str(uuid.uuid4()) + ext
+        if value.size > settings.DOWNSCALE_IMAGE_THRESHOLD:
+            return downsize_uploaded_image(value)
+        return value
+
+    def validate(self, data):
+        user = self.instance
+        if not user.can_update_image and "profile_image" in data:
+            raise serializers.ValidationError(
+                "You do not have permission to update your profile photo."
+            )
+
+        return super().validate(data)
 
     class Meta:
         model = User
