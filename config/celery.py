@@ -141,6 +141,6 @@ def setup_periodic_tasks(sender, **kwargs):
     # Publish approved Wagtail pages whose go_live_at has passed.
     # Executes once an hour.
     sender.add_periodic_task(
-        crontab(hour="*/1"),
+        crontab(hour="*/1", minute=0),
         app.signature("news.tasks.publish_scheduled_pages"),
     )
