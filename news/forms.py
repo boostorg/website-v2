@@ -1,9 +1,13 @@
 from django import forms
+
+from core.validators import downscale_image_file_size_validator, max_file_size_validator
+
 from .models import BlogPost, Entry, Link, News, Poll, Video
 
 
 class EntryForm(forms.ModelForm):
     title = forms.CharField(widget=forms.TextInput(attrs={"size": 100}))
+    image = forms.ImageField(validators=[max_file_size_validator])
 
     class Meta:
         model = Entry
@@ -48,16 +52,22 @@ class NewsForm(EntryForm):
 
 # v3-only forms: the v3 create page also captures the AI-assisted `summary`.
 class V3BlogPostForm(BlogPostForm):
+    image = forms.ImageField(validators=[downscale_image_file_size_validator])
+
     class Meta(BlogPostForm.Meta):
         fields = ["title", "publish_at", "content", "summary", "image"]
 
 
 class V3NewsForm(NewsForm):
+    image = forms.ImageField(validators=[downscale_image_file_size_validator])
+
     class Meta(NewsForm.Meta):
         fields = ["title", "publish_at", "content", "summary", "image"]
 
 
 class V3LinkForm(LinkForm):
+    image = forms.ImageField(validators=[downscale_image_file_size_validator])
+
     class Meta(LinkForm.Meta):
         fields = ["title", "publish_at", "external_url", "summary", "image"]
 
@@ -72,3 +82,11 @@ class VideoForm(EntryForm):
     class Meta:
         model = Video
         fields = ["title", "publish_at", "external_url", "image"]
+
+
+class V3VideoForm(EntryForm):
+    image = forms.ImageField(validators=[downscale_image_file_size_validator])
+
+    class Meta:
+        model = Video
+        fields = ["title", "publish_at", "external_url", "summary", "image"]

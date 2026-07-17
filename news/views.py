@@ -58,10 +58,11 @@ from .forms import (
     LinkForm,
     NewsForm,
     PollForm,
+    VideoForm,
     V3BlogPostForm,
     V3LinkForm,
     V3NewsForm,
-    VideoForm,
+    V3VideoForm,
 )
 from .models import BlogPost, Entry, Link, News, Poll, Video
 from .services import news_type_label
@@ -533,7 +534,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         "blog": V3BlogPostForm,
         "news": V3NewsForm,
         "link": V3LinkForm,
-        "video": VideoForm,
+        "video": V3VideoForm,
     }
 
     def dispatch(self, request, *args, **kwargs):

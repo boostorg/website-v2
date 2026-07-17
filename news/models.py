@@ -15,7 +15,6 @@ from django.utils.translation import gettext_lazy as _
 from core.validators import (
     attachment_validator,
     image_validator,
-    max_file_size_validator,
     large_file_max_size_validator,
 )
 
@@ -112,7 +111,7 @@ class Entry(models.Model):
         upload_to="news/%Y/%m/",
         null=True,
         blank=True,
-        validators=[image_validator, max_file_size_validator],
+        validators=[image_validator],
     )
     created_at = models.DateTimeField(default=now)
     approved_at = models.DateTimeField(null=True, blank=True)

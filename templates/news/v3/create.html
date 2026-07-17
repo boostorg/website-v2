@@ -182,7 +182,7 @@
             <p class="field__error" id="field-link-description-error" role="alert" x-show="isLink && linkError" x-text="linkError" x-cloak aria-live="polite"></p>
           </div>
 
-          {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 1MB" extra_class="field--file-narrow create-post-page__field-image" %}
+          {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no larger than 5MB" extra_class="field--file-narrow create-post-page__field-image" %}
 
           {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" selected=form.data.related_libraries %}
 
@@ -615,7 +615,7 @@
           if (file) {
             const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
             if (!validTypes.includes(file.type)) this.errors.image = 'Please choose a PNG or JPEG image.';
-            else if (file.size > 1024 * 1024) this.errors.image = 'Image must be 1MB or smaller.';
+            else if (file.size > 5 * 1024 * 1024) this.errors.image = 'Image must be 5MB or smaller.';
           }
 
           if (Object.values(this.errors).some(v => v)) {
