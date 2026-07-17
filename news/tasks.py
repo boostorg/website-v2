@@ -1,7 +1,10 @@
+from celery import shared_task
 from textwrap import dedent
 from openai import OpenAI, OpenAIError
 import requests
 import structlog
+
+from django.core.management import call_command
 
 from config.celery import app
 from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL, SUMMARIZATION_MODEL
@@ -106,6 +109,15 @@ def generate_summary(
     summary = _truncate_to_length(summary, max_length)
     logger.info(f"Final summary length after truncation: {len(summary)=}")
     return summary
+
+
+@shared_task
+def publish_scheduled_pages():
+    """
+    Publish Wagtail pages whose approved go_live_at has passed
+    (and unpublish pages past their expire_at).
+    """
+    call_command("publish_scheduled")
 
 
 @app.task(bind=True, max_retries=3, autoretry_for=(OpenAIError,))

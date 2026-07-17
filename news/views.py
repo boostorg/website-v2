@@ -72,6 +72,7 @@ from .notifications import (
     send_email_news_needs_moderation,
     send_email_news_posted,
 )
+from news.utils import downsize_uploaded_image
 
 from libraries.models import Library
 
@@ -603,6 +604,8 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                 ]
                 page.live = False
                 if image := form.cleaned_data.get("image"):
+                    if image.size >= settings.DOWNSCALE_IMAGE_THRESHOLD:
+                        image = downsize_uploaded_image(image)
                     wagtail_image = Image.objects.create(
                         title=image.name,
                         file=image,
