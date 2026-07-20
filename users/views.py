@@ -87,6 +87,8 @@ class CurrentUserAPIView(generics.RetrieveUpdateAPIView):
             and instance.can_update_image
         ):
             instance.profile_image.delete()
+            instance.image_uploaded = False
+            instance.save()
 
     def get_object(self):
         return self.request.user
