@@ -50,7 +50,7 @@ from .forms import (
     CustomSignUpForm,
     SLACK_PROFILE_URL_PREFIX,
 )
-from .models import User
+from .models import User, encode_role_option
 from .password_rules import build_password_rules
 from .permissions import CustomUserPermissions
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
@@ -140,15 +140,32 @@ class CurrentUserProfileView(
             return self.post(request, *args, **kwargs)
         return super().dispatch(request, *args, **kwargs)
 
+    def get_v3_role_options(self):
+        """Role options offered by the edit-page dropdown, cached per request
+        so seeding the initial data and building the field agree on one list."""
+        if not hasattr(self, "_v3_role_options"):
+            self._v3_role_options = self.request.user.get_role_options()
+        return self._v3_role_options
+
     def get_v3_edit_initial(self):
         user = self.request.user
+        # Preselect the stored role only if it's still an offered option:
+        # `encoded_displayed_role` resolves via the `resolved_profile_role`
+        # cache, which can lag the live eligibility that builds the choices
+        # (and the save-time validation). Seeding a stale value would render
+        # an un-saveable selection.
+        offered = {
+            encode_role_option(o["role"], o["library"].id if o["library"] else "")
+            for o in self.get_v3_role_options()
+        }
+        encoded_role = user.encoded_displayed_role
         return {
             "avatar": user.avatar_url,
             "username": user.display_name,
             "email": user.email,
             "tagline": user.tagline,
             "bio": user.biography,
-            "role": user.encoded_displayed_role,
+            "role": encoded_role if encoded_role in offered else "",
             "country": user.country.code,
             "indicate_last_login_method": user.indicate_last_login_method,
             "override_commit_author_name": user.is_commit_author_name_overridden,
@@ -197,7 +214,7 @@ class CurrentUserProfileView(
             form = V3UserProfileForm(
                 user=self.request.user,
                 user_links=self.request.user.profile_links,
-                role_options=self.request.user.get_role_options(),
+                role_options=self.get_v3_role_options(),
                 initial=self.get_v3_edit_initial(),
             )
         saved_section = self.request.GET.get("saved")
@@ -707,6 +724,7 @@ class CurrentUserProfileView(
             data,
             user=request.user,
             user_links=request.user.profile_links,
+            role_options=self.get_v3_role_options(),
             initial=initial,
         )
         # Only the submitted section's fields are validated; the other fields

@@ -529,3 +529,57 @@ def test_recompute_clears_revoked_generic_choice(user, library):
     user.refresh_from_db()
     assert user.displayed_profile_role == ""
     assert user.role == ""
+
+
+# --- edit-page role seeding (stale-cache guard) ------------------------------
+
+
+def _edit_form(user, rf):
+    """Build the edit-page context's role form via the real view code path."""
+    from users.views import CurrentUserProfileView
+
+    request = rf.get("/users/me/", {"edit": "true"})
+    request.user = user
+    view = CurrentUserProfileView()
+    view.request = request
+    return view.get_v3_context_data()["user_profile_form"]
+
+
+def test_edit_seed_empty_when_cached_role_no_longer_held(user, rf):
+    """A stale resolved_profile_role isn't preselected when no live role exists."""
+    user.resolved_profile_role = ProfileRole.CONTRIBUTOR.value
+    user.save()
+    # The cache alone would surface a role...
+    assert user.encoded_displayed_role == encode_role_option(
+        ProfileRole.CONTRIBUTOR.value, ""
+    )
+    form = _edit_form(user, rf)
+    # ...but with no live eligibility the field is locked and seeds nothing.
+    assert form.initial["role"] == ""
+    assert form.fields["role"].disabled is True
+
+
+def test_edit_seed_empty_when_choice_points_to_unheld_library(
+    user, library, other_library, rf
+):
+    """A displayed choice for a now-unheld library isn't preselected even when
+    the user still has other valid options."""
+    library.authors.add(user)  # eligible for Beast only
+    user.displayed_profile_role = ProfileRole.AUTHOR.value
+    user.displayed_profile_role_library = other_library  # not held
+    user.save()
+    form = _edit_form(user, rf)
+    assert form.initial["role"] == ""
+    assert form.fields["role"].choices  # options exist; field is not disabled
+
+
+def test_edit_seed_preselects_held_role(user, library, rf):
+    """A role the user genuinely holds is still preselected (regression guard)."""
+    library.authors.add(user)
+    user.displayed_profile_role = ProfileRole.AUTHOR.value
+    user.displayed_profile_role_library = library
+    user.save()
+    form = _edit_form(user, rf)
+    assert form.initial["role"] == encode_role_option(
+        ProfileRole.AUTHOR.value, library.id
+    )
