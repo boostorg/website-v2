@@ -1,0 +1,95 @@
+/**
+ * Delete-account modal
+ *
+ * Destructive variation of the shared Dialog Modal (dialog.css). It reuses the
+ * .dialog-modal overlay / container / header / buttons shell and adds an
+ * error-tinted header, a red warning line, and a summary card listing what a
+ * deletion removes plus the confirmation field.
+ *
+ * All colours go through semantic tokens, so light/dark are handled by
+ * semantics.css + themes.css.
+ */
+
+/* The form is the container's single child, so it owns the vertical stack. */
+.delete-account-modal__form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Error-tinted header, overriding the neutral dialog header background. */
+.delete-account-modal__header {
+  background-color: var(--color-surface-error-weak);
+}
+
+.delete-account-modal__warning {
+  margin: 0;
+  padding: var(--space-default) var(--space-large) 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  color: var(--color-text-error);
+}
+
+.delete-account-modal__body {
+  padding: var(--space-large);
+}
+
+.delete-account-modal__summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  padding: var(--space-large);
+  background-color: var(--color-surface-weak);
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-l);
+}
+
+.delete-account-modal__summary-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  color: var(--color-text-primary);
+}
+
+.delete-account-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding-left: var(--space-large);
+  list-style: disc;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  color: var(--color-text-secondary);
+}
+
+.delete-account-modal__list li {
+  padding: 0;
+}
+
+.delete-account-modal__divider {
+  width: 100%;
+  height: 1px;
+  margin: var(--space-xs) 0;
+  border: 0;
+  background-color: var(--color-stroke-weak);
+}
+
+/* Delete-account card actions: cancel / delete-now sit side by side. */
+.user-profile__delete-account-actions {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-default);
+  align-items: center;
+}
+
+.user-profile__delete-inline-form {
+  margin: 0;
+  display: contents;
+}

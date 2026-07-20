@@ -1,0 +1,55 @@
+{% comment %}
+  Delete-account dialog (V3).
+
+  A :target-driven modal (no JavaScript required) reusing the shared
+  .dialog-modal shell. It wraps a real POST form so the flow degrades
+  gracefully: the trigger <a href="#{{ dialog_id }}"> opens it, the server
+  validates the confirmation phrase, and on failure the view redirects back
+  with #{{ dialog_id }} so the modal reopens with the error message.
+
+  Variables:
+    dialog_id     (required): unique id / :target anchor for this dialog.
+    title         (required): heading text.
+    warning       (required): red warning line shown under the header.
+    action_url    (required): POST target (schedule or immediate deletion).
+    submit_label  (required): label for the destructive submit button.
+    delete_form   (required): DeleteAccountForm providing the `verify` field.
+{% endcomment %}
+<div class="dialog-modal delete-account-modal" id="{{ dialog_id }}">
+  <a class="dialog-modal__backdrop" href="#_" tabindex="-1" aria-label="Close dialog"></a>
+  <div class="dialog-modal__container"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="{{ dialog_id }}-title"
+       aria-describedby="{{ dialog_id }}-desc">
+    <form method="post" action="{{ action_url }}" class="delete-account-modal__form">
+      {% csrf_token %}
+      <div class="dialog-modal__header delete-account-modal__header">
+        <h2 class="dialog-modal__title" id="{{ dialog_id }}-title">{{ title }}</h2>
+        <a class="dialog-modal__close"
+           role="button"
+           href="#_"
+           aria-label="Close dialog">
+          {% include "includes/icon.html" with icon_name="close" icon_class="dialog-modal__close-icon" icon_size=24 %}
+        </a>
+      </div>
+      <p class="delete-account-modal__warning" id="{{ dialog_id }}-desc">{{ warning }}</p>
+      <div class="delete-account-modal__body">
+        <div class="delete-account-modal__summary">
+          <p class="delete-account-modal__summary-title">Deleting your account will permanently remove:</p>
+          <ul class="delete-account-modal__list">
+            <li>Your profile and contributor history</li>
+            <li>All mailing list subscriptions</li>
+            <li>Saved libraries and notification preferences</li>
+          </ul>
+          <hr class="delete-account-modal__divider" aria-hidden="true" />
+          {% include "v3/includes/_field_text.html" with name="verify" type="text" label='To confirm, type "delete my account"' placeholder="delete my account" aria_label="Type delete my account to confirm" only %}
+        </div>
+      </div>
+      <div class="dialog-modal__buttons">
+        <a href="#_" class="btn btn-secondary btn-flex">Cancel</a>
+        <button type="submit" class="btn btn-error btn-flex">{{ submit_label }}</button>
+      </div>
+    </form>
+  </div>
+</div>

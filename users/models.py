@@ -431,24 +431,71 @@ class User(BaseUser):
 
     @transaction.atomic
     def delete_account(self):
+        from mailing_list.client import MailmanAPIError, MailmanClient
+        from mailing_list.models import SubscriptionStatus
+
         from . import tasks
 
         email = self.email
         transaction.on_commit(lambda: tasks.send_account_deleted_email.delay(email))
+
+        # Unsubscribe from the external Boost (Mailman) lists, then drop the
+        # local subscription records. The external calls are deferred to
+        # on_commit so a Mailman outage can't roll back the deletion, and the
+        # whole thing only runs at actual-deletion time - a cancelled scheduled
+        # deletion never touches the user's subscriptions.
+        active_subscriptions = [
+            (sub.email, sub.list_id)
+            for sub in self.mailing_list_subscriptions.all()
+            if sub.status == SubscriptionStatus.ACTIVE
+        ]
+        self.mailing_list_subscriptions.all().delete()
+        if active_subscriptions:
+
+            def _unsubscribe_external():
+                client = MailmanClient()
+                for sub_email, list_id in active_subscriptions:
+                    try:
+                        client.unsubscribe(sub_email, list_id)
+                    except MailmanAPIError:
+                        logger.exception(
+                            "Mailman unsubscribe failed for list %s during "
+                            "account deletion",
+                            list_id,
+                        )
+
+            transaction.on_commit(_unsubscribe_external)
+
+        # Remove linked auth + preference records. Manager-level deletes are
+        # idempotent, so a second run (immediate delete racing the scheduled
+        # task) is a harmless no-op.
         self.socialaccount_set.all().delete()
-        self.preferences.delete()
         self.emailaddress_set.all().delete()
+        Preferences.objects.filter(user=self).delete()
+        LastSeen.objects.filter(user=self).delete()
+
+        # Scrub credentials, profile identity and public PII.
         self.is_active = False
         self.set_unusable_password()
-        self.display_name = "John Doe"
         self.first_name = "John"
         self.last_name = "Doe"
         self.display_name = "John Doe"
         self.email = "deleted-{}@example.com".format(uuid.uuid4())
+        self.github_username = ""
+        self.profile_links = {}
+        self.indicate_last_login_method = False
+        self.image_uploaded = False
+        self.badges.clear()
+
+        # Remove the avatar/HQ images and the cached thumbnail. File deletes are
+        # deferred to on_commit so a rolled-back transaction leaves them intact.
         self.delete_cached_thumbnail()
-        image = self.profile_image
-        transaction.on_commit(lambda: image.delete())
-        self.profile_image = None
+        for field_name in ("profile_image", "hq_image"):
+            image = getattr(self, field_name)
+            if image:
+                transaction.on_commit(lambda img=image: img.delete(save=False))
+            setattr(self, field_name, None)
+
         self.delete_permanently_at = None
         self.save()
 
