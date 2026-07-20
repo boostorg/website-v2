@@ -102,7 +102,7 @@ def test_entry_model_image_file_size(tp):
     # This should not raise any errors
     entry.full_clean()
 
-    # This should fail (just over 1MB)
+    # This should fail (just over 5MB)
     invalid_image = SimpleUploadedFile(
         "too_large.jpg", b"a" * (5 * 1024 * 1024 + 1), content_type="image/jpeg"
     )
