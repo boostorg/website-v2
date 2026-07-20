@@ -73,6 +73,15 @@
   padding: 0;
 }
 
+.delete-account-modal__note {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  color: var(--color-text-tertiary);
+}
+
 .delete-account-modal__divider {
   width: 100%;
   height: 1px;

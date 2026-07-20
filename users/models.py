@@ -431,40 +431,16 @@ class User(BaseUser):
 
     @transaction.atomic
     def delete_account(self):
-        from mailing_list.client import MailmanAPIError, MailmanClient
-        from mailing_list.models import SubscriptionStatus
-
         from . import tasks
 
         email = self.email
         transaction.on_commit(lambda: tasks.send_account_deleted_email.delay(email))
 
-        # Unsubscribe from the external Boost (Mailman) lists, then drop the
-        # local subscription records. The external calls are deferred to
-        # on_commit so a Mailman outage can't roll back the deletion, and the
-        # whole thing only runs at actual-deletion time - a cancelled scheduled
-        # deletion never touches the user's subscriptions.
-        active_subscriptions = [
-            (sub.email, sub.list_id)
-            for sub in self.mailing_list_subscriptions.all()
-            if sub.status == SubscriptionStatus.ACTIVE
-        ]
+        # Delete the local mailing-list subscription rows to remove the stored
+        # email PII. We deliberately do NOT call the Mailman/Postorius API to
+        # unsubscribe - list membership is left for the user to manage in
+        # Postorius.
         self.mailing_list_subscriptions.all().delete()
-        if active_subscriptions:
-
-            def _unsubscribe_external():
-                client = MailmanClient()
-                for sub_email, list_id in active_subscriptions:
-                    try:
-                        client.unsubscribe(sub_email, list_id)
-                    except MailmanAPIError:
-                        logger.exception(
-                            "Mailman unsubscribe failed for list %s during "
-                            "account deletion",
-                            list_id,
-                        )
-
-            transaction.on_commit(_unsubscribe_external)
 
         # Remove linked auth + preference records. Manager-level deletes are
         # idempotent, so a second run (immediate delete racing the scheduled

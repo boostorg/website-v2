@@ -36,12 +36,13 @@
       <p class="delete-account-modal__warning" id="{{ dialog_id }}-desc">{{ warning }}</p>
       <div class="delete-account-modal__body">
         <div class="delete-account-modal__summary">
-          <p class="delete-account-modal__summary-title">Deleting your account will permanently remove:</p>
+          <p class="delete-account-modal__summary-title">Deleting your account will:</p>
           <ul class="delete-account-modal__list">
-            <li>Your profile and contributor history</li>
-            <li>All mailing list subscriptions</li>
-            <li>Saved libraries and notification preferences</li>
+            <li>Anonymize your profile (name, email, photo, GitHub username, and links)</li>
+            <li>Disconnect your GitHub/Google sign-ins and remove your saved email addresses</li>
+            <li>Remove your mailing list subscriptions and notification preferences</li>
           </ul>
+          <p class="delete-account-modal__note">Posts and contributions you've made will remain on the site but will no longer be linked to you.</p>
           <hr class="delete-account-modal__divider" aria-hidden="true" />
           {% include "v3/includes/_field_text.html" with name="verify" type="text" label='To confirm, type "delete my account"' placeholder="delete my account" aria_label="Type delete my account to confirm" only %}
         </div>

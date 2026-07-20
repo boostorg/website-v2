@@ -1,0 +1,33 @@
+{% comment %}
+  V3 site-wide "account scheduled for deletion" banner.
+
+  Rendered from base.html (behind the v3 flag) whenever the logged-in user has a
+  pending scheduled deletion. It is sticky at the very top of the page so it
+  sits above the navbar and, being in normal flow, pushes page content down.
+
+  Only "Cancel deletion" is offered - immediate deletion is intentionally not
+  exposed in V3. Cancel is a POST form (CancelDeletionView redirects V3 users
+  to their profile edit page). The dismiss (x) is a JS enhancement; with JS off
+  the banner simply stays visible.
+{% endcomment %}
+<div class="deletion-banner"
+     role="region"
+     aria-label="Account deletion notice"
+     x-data="{ show: true }"
+     x-show="show">
+  <div class="deletion-banner__body">
+    <span class="deletion-banner__message">
+      Your account is scheduled for deletion on {{ request.user.delete_permanently_at|date:'N j, Y, P e' }}.
+    </span>
+    <form method="post" action="{% url 'profile-cancel-delete' %}" class="deletion-banner__form">
+      {% csrf_token %}
+      <button type="submit" class="deletion-banner__cancel">Cancel deletion</button>
+    </form>
+  </div>
+  <button type="button"
+          class="deletion-banner__close"
+          aria-label="Dismiss"
+          x-on:click="show = false">
+    {% include "includes/icon.html" with icon_name="close" icon_class="deletion-banner__close-icon" icon_size=16 %}
+  </button>
+</div>

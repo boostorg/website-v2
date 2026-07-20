@@ -208,7 +208,6 @@ class CurrentUserProfileView(
         )
         ctx["profile_delete_url"] = reverse("profile-delete")
         ctx["profile_cancel_delete_url"] = reverse("profile-cancel-delete")
-        ctx["profile_delete_immediately_url"] = reverse("profile-delete-immediately")
         return ctx
 
     def get_v3_context_data(self, **kwargs):
@@ -1039,12 +1038,6 @@ class DeleteImmediatelyView(LoginRequiredMixin, SuccessMessageMixin, FormView):
         user.delete_account()
         auth.logout(self.request)
         return super().form_valid(form)
-
-    def form_invalid(self, form):
-        if flag_is_active(self.request, "v3"):
-            messages.error(self.request, _verify_error(form))
-            return HttpResponseRedirect(_v3_profile_edit_url("#delete-now-dialog"))
-        return super().form_invalid(form)
 
 
 def _verify_error(form):

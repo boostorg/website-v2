@@ -178,7 +178,7 @@ flushed rather than leaking onto the next page. {% endcomment %}
             {% if delete_permanently_at %}
               <div>
                 <div class="user-profile__small-section-heading">Account scheduled for deletion</div>
-                <div class="user-profile__small-section-subheading">Your account is scheduled for deletion on {{ delete_permanently_at|date:'N j, Y, P e' }}. You can cancel before then, or delete your account now.</div>
+                <div class="user-profile__small-section-subheading">Your account is scheduled for deletion on {{ delete_permanently_at|date:'N j, Y, P e' }}. You can cancel the deletion before then.</div>
               </div>
             {% else %}
               <div>
@@ -194,15 +194,12 @@ flushed rather than leaking onto the next page. {% endcomment %}
                 {% csrf_token %}
                 <button type="submit" class="btn btn-secondary btn-flex">Cancel deletion</button>
               </form>
-              <a href="#delete-now-dialog" class="btn btn-error btn-flex" role="button">Delete now</a>
             {% else %}
               <a href="#delete-account-dialog" class="btn btn-error btn-flex" role="button">Delete Account</a>
             {% endif %}
           </div>
         </div>
-        {% if delete_permanently_at %}
-          {% include "v3/users/_delete_account_modal.html" with dialog_id="delete-now-dialog" title="Delete your account" warning="This will permanently delete your account now. This action cannot be undone." action_url=profile_delete_immediately_url submit_label="Delete my account" delete_form=delete_account_form %}
-        {% else %}
+        {% if not delete_permanently_at %}
           {% include "v3/users/_delete_account_modal.html" with dialog_id="delete-account-dialog" title="Delete your account" warning=delete_schedule_warning action_url=profile_delete_url submit_label="Delete my account" delete_form=delete_account_form %}
         {% endif %}
       </div>

@@ -71,10 +71,13 @@ def test_delete_account_removes_linked_records(
 
 
 @pytest.mark.django_db
-def test_delete_account_unsubscribes_and_removes_mailing_lists(
+def test_delete_account_deletes_mailing_list_rows_without_api_call(
     user, django_capture_on_commit_callbacks
 ):
-    """Active external subscriptions are unsubscribed; all local rows dropped."""
+    """Local subscription rows are deleted (PII removed); Mailman is not called.
+
+    List membership is left to Postorius - we only drop our stored rows.
+    """
     baker.make(
         UserMailingListSubscription,
         user=user,
@@ -93,10 +96,7 @@ def test_delete_account_unsubscribes_and_removes_mailing_lists(
     with patch("mailing_list.client.MailmanClient") as MockClient:
         with django_capture_on_commit_callbacks(execute=True):
             user.delete_account()
-        # Only the ACTIVE subscription hits the external unsubscribe API.
-        MockClient.return_value.unsubscribe.assert_called_once_with(
-            "active@example.com", "dev.boost.org"
-        )
+        MockClient.assert_not_called()
 
     assert not UserMailingListSubscription.objects.filter(user=user).exists()
 
@@ -150,23 +150,3 @@ def test_v3_cancel_deletion_clears_schedule(user, tp):
     assert user.delete_permanently_at is None
     assert res.status_code == 302
     assert "edit=true" in res.url
-
-
-@pytest.mark.django_db
-@waffle.testutils.override_flag("v3", active=True)
-def test_v3_delete_immediately_anonymizes_and_logs_out(
-    user, tp, django_capture_on_commit_callbacks
-):
-    user.delete_permanently_at = timezone.now() + datetime.timedelta(days=10)
-    user.save()
-
-    with tp.login(user):
-        with django_capture_on_commit_callbacks(execute=True):
-            res = tp.post(
-                "profile-delete-immediately", data={"verify": "delete my account"}
-            )
-
-    user.refresh_from_db()
-    assert user.is_active is False
-    assert user.email.startswith("deleted-")
-    assert res.status_code == 302
