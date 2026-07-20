@@ -104,7 +104,7 @@ def test_entry_model_image_file_size(tp):
 
     # This should fail (just over 1MB)
     invalid_image = SimpleUploadedFile(
-        "too_large.jpg", b"a" * (1 * 1024 * 1024 + 1), content_type="image/jpeg"
+        "too_large.jpg", b"a" * (5 * 1024 * 1024 + 1), content_type="image/jpeg"
     )
     entry.image = invalid_image
     # This should raise a ValidationError for file size

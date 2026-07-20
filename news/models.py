@@ -16,6 +16,7 @@ from core.validators import (
     attachment_validator,
     image_validator,
     large_file_max_size_validator,
+    downscale_image_file_size_validator,
 )
 
 from . import acl
@@ -111,7 +112,7 @@ class Entry(models.Model):
         upload_to="news/%Y/%m/",
         null=True,
         blank=True,
-        validators=[image_validator],
+        validators=[image_validator, downscale_image_file_size_validator],
     )
     created_at = models.DateTimeField(default=now)
     approved_at = models.DateTimeField(null=True, blank=True)

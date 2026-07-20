@@ -7,7 +7,7 @@ from .models import BlogPost, Entry, Link, News, Poll, Video
 
 class EntryForm(forms.ModelForm):
     title = forms.CharField(widget=forms.TextInput(attrs={"size": 100}))
-    image = forms.ImageField(validators=[max_file_size_validator])
+    image = forms.ImageField(validators=[max_file_size_validator], required=False)
 
     class Meta:
         model = Entry
