@@ -158,18 +158,13 @@ flushed rather than leaking onto the next page. {% endcomment %}
             </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
-          {% comment %} Persists the Profile links to the current user via PATCH /api/v1/users/me/. {% endcomment %}
+          {% comment %} Save changes: links are validated and persisted via PATCH /api/v1/users/me/
+          (see saveLinks in profileForm) before the section form submits, so one click covers both;
+          a link validation/save failure blocks the section submit and the button stays "Save changes". {% endcomment %}
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_profile' label='Save changes' label_x_text="saved ? 'Changes Saved' : 'Save changes'" alpine_disabled='saved' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_profile' label='Save changes' label_x_text="saved ? 'Changes Saved' : 'Save changes'" alpine_disabled='saved || saving' only %}
             {% include 'v3/includes/_button.html' with style='secondary' type='reset' label='Cancel' only %}
-            {% include 'v3/includes/_button.html' with style='primary' type='button' label='Save Changes' alpine_disabled="saving" alpine_click="save()" only %}
-            <span class="user-profile__save-indicator" role="status" aria-live="polite">
-              <span class="user-profile__save-state" x-show="saveStatus === 'saved'" x-cloak>
-                <span class="user-profile__save-text">Saved</span>
-                {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
-              </span>
-              <span class="field__error" x-show="saveStatus === 'error'" x-text="saveError" x-cloak></span>
-            </span>
+            <span class="field__error" x-show="saveError" x-text="saveError" x-cloak></span>
           </div>
           </form>
         </div>
@@ -328,6 +323,13 @@ flushed rather than leaking onto the next page. {% endcomment %}
             return
           }
           event.preventDefault()
+          // Only the Profile form mixes in profileForm(); other sections
+          // (Update Details, Email Preferences) have no saveLinks and skip
+          // straight to their own submit.
+          if (typeof this.saveLinks === 'function') {
+            const linksSaved = await this.saveLinks()
+            if (!linksSaved) return
+          }
           const form = event.target
           const submitter = event.submitter
           let succeeded = false
@@ -491,8 +493,7 @@ flushed rather than leaking onto the next page. {% endcomment %}
       const SLACK_MEMBER_ID_PATTERN = /^[A-Z0-9]{9,11}$/i;
 
       return {
-        saving: false,
-        saveStatus: '',   // '' | 'saved' | 'error' (button shows "saving" via :disabled)
+        saving: false,   // true while the links PATCH is in flight; disables the Save changes button
         saveError: '',
         errors: { github: '', website: '', email: '', slack: '' },  // inline per-link errors, keyed by type
 
@@ -500,7 +501,6 @@ flushed rather than leaking onto the next page. {% endcomment %}
         clearLinkError(e) {
           const type = e.target.dataset.linkType;
           if (type) this.errors[type] = '';
-          this.saveStatus = '';
           this.saveError = '';
         },
 
@@ -568,8 +568,12 @@ flushed rather than leaking onto the next page. {% endcomment %}
           return links;
         },
 
-        async save() {
-          if (this.saving) return;
+        // Validates and persists the profile links via PATCH before the section
+        // form submit proceeds (see handleSubmit in createSectionForm). Returns
+        // true when it's safe to continue with the section submit, false to
+        // abort it (validation or save failure) and leave the button as-is.
+        async saveLinks() {
+          if (this.saving) return false;
 
           // Validate all links up front; block the save if any fail.
           let hasError = false;
@@ -578,10 +582,9 @@ flushed rather than leaking onto the next page. {% endcomment %}
             this.errors[type] = msg;
             if (msg) hasError = true;
           });
-          if (hasError) return;
+          if (hasError) return false;
 
           this.saving = true;
-          this.saveStatus = '';
           this.saveError = '';
           try {
             const res = await fetch('/api/v1/users/me/', {
@@ -606,17 +609,17 @@ flushed rather than leaking onto the next page. {% endcomment %}
                 Object.entries(linkErrors).forEach(([type, msg]) => {
                   this.errors[type] = Array.isArray(msg) ? msg[0] : msg;
                 });
-                return;
+                return false;
               }
 
               const fieldErrors = Object.values(data).flat().filter(Boolean);
               throw new Error(fieldErrors.length ? fieldErrors.join(' ') : `Save failed (${res.status})`);
             }
-            this.saveStatus = 'saved';
+            return true;
           } catch (err) {
-            console.error('Profile save failed:', err);
-            this.saveStatus = 'error';
+            console.error('Profile links save failed:', err);
             this.saveError = err.message || 'Could not save. Please try again.';
+            return false;
           } finally {
             this.saving = false;
           }
