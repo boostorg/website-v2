@@ -96,7 +96,7 @@ def test_entry_model_image_file_size(tp):
     entry = Entry.objects.create(title="😀 Foo Bar Baz!@! +", author=author)
 
     valid_image = SimpleUploadedFile(
-        "test.jpg", b"a" * (1 * 1024 * 1024 - 1), content_type="image/jpeg"
+        "test.jpg", b"a" * (5 * 1024 * 1024 - 1), content_type="image/jpeg"
     )
     entry.image = valid_image
     # This should not raise any errors
