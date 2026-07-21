@@ -200,7 +200,7 @@ flushed rather than leaking onto the next page. {% endcomment %}
           </div>
         </div>
         {% if not delete_permanently_at %}
-          {% include "v3/users/_delete_account_modal.html" with dialog_id="delete-account-dialog" title="Delete your account" warning=delete_schedule_warning action_url=profile_delete_url submit_label="Delete my account" delete_form=delete_account_form postorius_url=postorius_url %}
+          {% include "v3/users/_delete_account_modal.html" with dialog_id="delete-account-dialog" title="Delete your account" warning=delete_schedule_warning action_url=profile_delete_url submit_label="Delete my account" delete_form=delete_account_form postorius_url=postorius_url error=delete_account_error %}
         {% endif %}
       </div>
       <div class="user-profile__col">

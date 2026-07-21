@@ -198,6 +198,10 @@ class CurrentUserProfileView(
         # Delete-account card: the modal schedules deletion, and once
         # scheduled the card swaps to cancel / delete-now controls.
         ctx["delete_account_form"] = DeleteAccountForm()
+        # A failed confirmation redirects back here with ?delete_error=1 and
+        # reopens the modal, which renders this inline on the verify field.
+        if self.request.GET.get("delete_error"):
+            ctx["delete_account_error"] = DELETE_CONFIRM_ERROR
         ctx["delete_permanently_at"] = user.delete_permanently_at
         grace_days = settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS
         ctx["ACCOUNT_DELETION_GRACE_PERIOD_DAYS"] = grace_days
@@ -960,13 +964,21 @@ class UserAvatar(TemplateView):
         return response
 
 
-def _v3_profile_edit_url(fragment=""):
+# Confirmation-phrase error shown inline in the delete modal; mirrors the
+# DeleteAccountForm.clean_verify message so JS and no-JS paths read the same.
+DELETE_CONFIRM_ERROR = 'Please enter "delete my account"'
+
+
+def _v3_profile_edit_url(fragment="", error=False):
     """Edit-profile URL used as the V3 return target for the delete flow.
 
     The optional fragment reopens the relevant :target modal after a redirect
     (e.g. when confirmation fails), so the flow works without JavaScript.
+    ``error=True`` flags a failed confirmation so the reopened modal can render
+    the error inline instead of relying on a global message banner.
     """
-    return f"{reverse('profile-account')}?edit=true{fragment}"
+    query = "?edit=true&delete_error=1" if error else "?edit=true"
+    return f"{reverse('profile-account')}{query}{fragment}"
 
 
 class DeleteUserView(LoginRequiredMixin, FormView):
@@ -997,8 +1009,9 @@ class DeleteUserView(LoginRequiredMixin, FormView):
 
     def form_invalid(self, form):
         if flag_is_active(self.request, "v3"):
-            messages.error(self.request, _verify_error(form))
-            return HttpResponseRedirect(_v3_profile_edit_url("#delete-account-dialog"))
+            return HttpResponseRedirect(
+                _v3_profile_edit_url("#delete-account-dialog", error=True)
+            )
         return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
@@ -1051,11 +1064,3 @@ class DeleteImmediatelyView(LoginRequiredMixin, SuccessMessageMixin, FormView):
         user.delete_account()
         auth.logout(self.request)
         return super().form_valid(form)
-
-
-def _verify_error(form):
-    """Human-readable confirmation error for the delete forms."""
-    errors = form.errors.get("verify")
-    if errors:
-        return errors[0]
-    return "Please confirm to delete your account."

@@ -170,6 +170,24 @@ def test_v3_delete_invalid_confirmation_reopens_modal(user, tp):
     assert user.delete_permanently_at is None
     assert res.status_code == 302
     assert "#delete-account-dialog" in res.url
+    assert "delete_error=1" in res.url
+
+
+@pytest.mark.django_db
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_delete_invalid_confirmation_renders_inline_error(user, tp):
+    """The error is shown inline in the modal, not as a global message banner."""
+    with tp.login(user):
+        tp.post("profile-delete", data={"verify": "wrong"})
+        res = tp.get("profile-account", data={"edit": "true", "delete_error": "1"})
+
+    html = res.content.decode()
+    # Inline field error rendered inside the modal (quotes are HTML-escaped).
+    assert "Please enter" in html
+    assert "field--error" in html
+    assert 'class="field__error"' in html
+    # No message was queued for the global (legacy) banner.
+    assert list(res.context["messages"]) == []
 
 
 @pytest.mark.django_db

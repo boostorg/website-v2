@@ -22,6 +22,8 @@
     submit_label  (required): label for the destructive submit button.
     delete_form   (required): DeleteAccountForm providing the `verify` field.
     postorius_url (required): external Postorius URL for managing subscriptions.
+    error         (optional): confirmation error rendered inline on the field
+                              (set after a failed no-JS submission).
 {% endcomment %}
 <div class="dialog-modal delete-account-modal" id="{{ dialog_id }}">
   <a class="dialog-modal__backdrop" href="#_" tabindex="-1" aria-label="Close dialog"></a>
@@ -60,7 +62,7 @@
           </div>
           <hr class="delete-account-modal__divider" aria-hidden="true" />
           <div class="delete-account-modal__section" @input="confirmText = $event.target.value">
-            {% include "v3/includes/_field_text.html" with name="verify" type="text" label='To confirm, type "delete my account"' placeholder="delete my account" aria_label="Type delete my account to confirm" only %}
+            {% include "v3/includes/_field_text.html" with name="verify" type="text" label='To confirm, type "delete my account"' placeholder="delete my account" aria_label="Type delete my account to confirm" error=error only %}
           </div>
         </div>
       </div>
