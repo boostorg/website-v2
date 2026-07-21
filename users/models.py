@@ -272,7 +272,7 @@ class ProfileRole(models.TextChoices):
 # from an empty selection, which falls through to the auto-derived role.
 NO_PUBLIC_ROLE_OPTION = "__no_public_role__"
 NO_PUBLIC_ROLE_LABEL = (
-    "No Public Role – Your role won't be linked to your name elsewhere on the site."
+    "No Public Role - Your role won't be linked to your name elsewhere on the site."
 )
 
 
