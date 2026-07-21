@@ -984,11 +984,6 @@ class DeleteUserView(LoginRequiredMixin, FormView):
         )
         user.save()
         if flag_is_active(self.request, "v3"):
-            messages.success(
-                self.request,
-                "Your account is scheduled for deletion. You can cancel any "
-                "time before then.",
-            )
             return HttpResponseRedirect(_v3_profile_edit_url())
         return super().form_valid(form)
 
