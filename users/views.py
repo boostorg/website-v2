@@ -1023,6 +1023,13 @@ class CancelDeletionView(LoginRequiredMixin, SuccessMessageMixin, FormView):
             return _v3_profile_edit_url()
         return super().get_success_url()
 
+    def get_success_message(self, cleaned_data):
+        # V3 relies on the edit-page state (the scheduled banner disappears) for
+        # feedback, so suppress the legacy success banner. Legacy is unchanged.
+        if flag_is_active(self.request, "v3"):
+            return ""
+        return super().get_success_message(cleaned_data)
+
     def form_valid(self, form):
         user = self.get_object()
         user.delete_permanently_at = None

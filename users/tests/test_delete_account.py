@@ -185,3 +185,30 @@ def test_v3_cancel_deletion_clears_schedule(user, tp):
     assert user.delete_permanently_at is None
     assert res.status_code == 302
     assert "edit=true" in res.url
+
+
+@pytest.mark.django_db
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_cancel_deletion_shows_no_success_banner(user, tp):
+    """V3 relies on the edit-page state, so no legacy success banner is added."""
+    user.delete_permanently_at = timezone.now() + datetime.timedelta(days=10)
+    user.save()
+
+    with tp.login(user):
+        res = tp.post("profile-cancel-delete", data={}, follow=True)
+
+    banners = [str(m) for m in res.context["messages"]]
+    assert "Your account is no longer scheduled for deletion." not in banners
+
+
+@pytest.mark.django_db
+def test_legacy_cancel_deletion_keeps_success_banner(user, tp):
+    """Legacy behaviour is unchanged: the success banner still fires."""
+    user.delete_permanently_at = timezone.now() + datetime.timedelta(days=10)
+    user.save()
+
+    with tp.login(user):
+        res = tp.post("profile-cancel-delete", data={}, follow=True)
+
+    banners = [str(m) for m in res.context["messages"]]
+    assert "Your account is no longer scheduled for deletion." in banners
