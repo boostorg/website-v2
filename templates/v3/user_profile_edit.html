@@ -515,9 +515,9 @@
             if (msg) hasError = true;
           });
           if (hasError) return;
-          formData.append('profile_links', this.collectLinks())
+          formData.append('profile_links', JSON.stringify(this.collectLinks()))
 
-          
+
           let avatar = avatarInput.value
           if(avatarDelete.checked) {
             avatar = null;
@@ -528,7 +528,7 @@
             else if(avatarInputNew.files.length > 0) formData.append('profile_image', avatarInputNew.files[0])
           }
           formData.append('delete_profile_image', avatarDelete.checked)
-          
+
           this.saving = true;
           this.saveStatus = '';
           this.saveError = '';
