@@ -2,13 +2,21 @@
  * Delete-account modal
  *
  * Destructive variation of the shared Dialog Modal (dialog.css). It reuses the
- * .dialog-modal overlay / container / header / buttons shell and adds an
- * error-tinted header, a red warning line, and a summary card listing what a
- * deletion removes plus the confirmation field.
+ * .dialog-modal overlay / container / header / buttons shell.
+ *
+ * Layout mirrors the Figma spec (node 6635:25490): the whole container is a
+ * light-red canvas holding a white, rounded inner card. The card's sections
+ * (summary / confirmation) are separated by full-bleed dividers that touch
+ * both card edges, and a full-bleed rule sits between the warning and the card.
  *
  * All colours go through semantic tokens, so light/dark are handled by
  * semantics.css + themes.css.
  */
+
+/* The whole dialog is a light-red canvas (Figma container fill #fdf2f2). */
+.delete-account-modal .dialog-modal__container {
+  background-color: var(--color-surface-error-weak);
+}
 
 /* The form is the container's single child, so it owns the vertical stack. */
 .delete-account-modal__form {
@@ -17,14 +25,17 @@
   width: 100%;
 }
 
-/* Error-tinted header, overriding the neutral dialog header background. */
+/* Header sits directly on the light-red canvas; drop the shared divider so the
+   only rule between header/warning and the card is our full-bleed one. */
 .delete-account-modal__header {
-  background-color: var(--color-surface-error-weak);
+  background-color: transparent;
+  border-bottom: 0;
+  padding-bottom: 0;
 }
 
 .delete-account-modal__warning {
   margin: 0;
-  padding: var(--space-default) var(--space-large) 0;
+  padding: var(--space-default) var(--space-large) var(--space-large);
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-regular);
@@ -32,18 +43,41 @@
   color: var(--color-text-error);
 }
 
+/* Full-bleed rule between the warning and the white card (Figma "Line 161"). */
+.delete-account-modal__rule {
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background-color: var(--color-stroke-weak);
+}
+
 .delete-account-modal__body {
   padding: var(--space-large);
 }
 
-.delete-account-modal__summary {
+/* White, rounded inner card sitting on the light-red canvas. */
+.delete-account-modal__card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface-weak);
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+}
+
+/* Fixed, consistent spacing for every card section. */
+.delete-account-modal__section {
   display: flex;
   flex-direction: column;
   gap: var(--space-default);
   padding: var(--space-large);
-  background-color: var(--color-surface-weak);
-  border: 1px solid var(--color-stroke-weak);
-  border-radius: var(--border-radius-l);
+}
+
+/* Reset the global `p { py-5 }` base rule so section spacing stays fixed. */
+.delete-account-modal__summary-title,
+.delete-account-modal__note {
+  padding: 0;
 }
 
 .delete-account-modal__summary-title {
@@ -88,10 +122,12 @@
   text-underline-offset: 2px;
 }
 
+/* Full-bleed divider between card sections: touches both card edges (the
+   sections carry the padding, this rule spans the card's full width). */
 .delete-account-modal__divider {
   width: 100%;
   height: 1px;
-  margin: var(--space-xs) 0;
+  margin: 0;
   border: 0;
   background-color: var(--color-stroke-weak);
 }
