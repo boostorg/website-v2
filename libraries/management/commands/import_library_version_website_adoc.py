@@ -33,19 +33,29 @@ def command(release: str, new: bool, min_version: str):
     frozen snapshot, matching release import). A repo without the file is left
     untouched.
     """
+    # Order/compare on the numeric version_array so boost-1.100.0 > boost-1.71.0
+    # (plain name ordering is lexicographic and breaks once minor/patch hits 100).
+    min_version_parts = [int(part) for part in min_version.split(".")]
     version_qs = (
         Version.objects.with_partials()
         .active()
-        .filter(name__gte=f"boost-{min_version}")
+        .with_version_split()
+        .filter(version_array__gte=min_version_parts)
     )
-    most_recent = version_qs.most_recent()
+    most_recent = (
+        version_qs.filter(beta=False, full_release=True)
+        .order_by("-version_array")
+        .first()
+    )
 
     if release:
-        versions = list(version_qs.filter(name__icontains=release).order_by("-name"))
+        versions = list(
+            version_qs.filter(name__icontains=release).order_by("-version_array")
+        )
     elif new:
         versions = [most_recent] if most_recent else []
     else:
-        versions = list(version_qs.order_by("-name"))
+        versions = list(version_qs.order_by("-version_array"))
 
     for version in versions:
         ref = "develop" if version == most_recent else version.name
