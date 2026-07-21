@@ -59,7 +59,7 @@ def test_user_model_image_file_size(user):
     Test that the `image` field rejects files larger than a specific size.
     """
     valid_image = SimpleUploadedFile(
-        "test.jpg", b"a" * (1 * 1024 * 1024 - 1), content_type="image/jpeg"
+        "test.jpg", b"a" * (5 * 1024 * 1024 - 1), content_type="image/jpeg"
     )
     user.profile_image = valid_image
     # This should not raise any errors
@@ -67,7 +67,7 @@ def test_user_model_image_file_size(user):
 
     # This should fail (just over 1MB)
     invalid_image = SimpleUploadedFile(
-        "too_large.jpg", b"a" * (1 * 1024 * 1024 + 1), content_type="image/jpeg"
+        "too_large.jpg", b"a" * (5 * 1024 * 1024 + 1), content_type="image/jpeg"
     )
     user.profile_image = invalid_image
     # This should raise a ValidationError for file size
