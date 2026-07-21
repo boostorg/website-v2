@@ -267,6 +267,15 @@ class ProfileRole(models.TextChoices):
         )
 
 
+# Sentinel dropdown value for "No Public Role": an explicit opt-out that hides
+# the user's role on every profile surface (see `hide_public_role`). Distinct
+# from an empty selection, which falls through to the auto-derived role.
+NO_PUBLIC_ROLE_OPTION = "__no_public_role__"
+NO_PUBLIC_ROLE_LABEL = (
+    "No Public Role – Your role won't be linked to your name elsewhere on the site."
+)
+
+
 def encode_role_option(role, library_id):
     """Encode a (role, library) pair as a single dropdown option value.
 
@@ -401,6 +410,14 @@ class User(BaseUser):
         help_text=_(
             "Auto-derived top library role, recomputed on import. Used only when "
             "the user has set neither displayed_profile_role nor internal_role."
+        ),
+    )
+    hide_public_role = models.BooleanField(
+        default=False,
+        help_text=_(
+            "When set, the user has opted out of showing a role: it is hidden on "
+            "every profile surface except their own public profile page, which "
+            "still shows their best available role."
         ),
     )
     can_update_image = models.BooleanField(
@@ -582,13 +599,18 @@ class User(BaseUser):
         """
         return large_static("img/v3/badges/badge-gold-medal.png")
 
-    def _effective_role(self):
+    def _effective_role(self, ignore_hidden=False):
         """The (role_type, library) currently displayed, or (None, None).
 
         Reads only columns (no queries): user's chosen library role → internal
         C++ Alliance title → auto-derived top library role (`resolved_profile_role`,
         maintained by `recompute_displayed_profile_roles`).
+
+        Returns (None, None) when the user has opted out via `hide_public_role`,
+        unless `ignore_hidden` is set (the public profile page still shows a role).
         """
+        if self.hide_public_role and not ignore_hidden:
+            return None, None
         if self.displayed_profile_role in ProfileRole.library_roles():
             return self.displayed_profile_role, self.displayed_profile_role_library
         if self.internal_role:
@@ -602,17 +624,31 @@ class User(BaseUser):
         """Display role shown on profile surfaces (single source of truth).
 
         A library role is scoped to its library ("Boost.Beast Author") or generic
-        ("Author"); a C++ Alliance title renders as-is. See `_effective_role`.
+        ("Author"); a C++ Alliance title renders as-is. Empty when the user opted
+        out via `hide_public_role`. See `_effective_role`.
         """
         role_type, library = self._effective_role()
+        return compose_role_label(role_type, library) if role_type else ""
+
+    @property
+    def public_role(self):
+        """Best available role for the user's own public profile page.
+
+        Like `role`, but ignores `hide_public_role`: the opt-out hides the role
+        everywhere else, while the profile page still shows the best available one.
+        """
+        role_type, library = self._effective_role(ignore_hidden=True)
         return compose_role_label(role_type, library) if role_type else ""
 
     @property
     def encoded_displayed_role(self):
         """Encoded option value used to preselect the edit-page dropdown.
 
-        Empty when there is no role to show; library-less roles encode as "role:".
+        `NO_PUBLIC_ROLE_OPTION` when the user opted out; empty when there is no
+        role to show; library-less roles encode as "role:".
         """
+        if self.hide_public_role:
+            return NO_PUBLIC_ROLE_OPTION
         role_type, library = self._effective_role()
         if not role_type:
             return ""

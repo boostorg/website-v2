@@ -127,6 +127,14 @@ class Migration(migrations.Migration):
                 max_length=64,
             ),
         ),
+        migrations.AddField(
+            model_name="user",
+            name="hide_public_role",
+            field=models.BooleanField(
+                default=False,
+                help_text="When set, the user has opted out of showing a role: it is hidden on every profile surface except their own public profile page, which still shows their best available role.",
+            ),
+        ),
         migrations.AddConstraint(
             model_name="user",
             constraint=models.UniqueConstraint(

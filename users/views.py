@@ -50,7 +50,7 @@ from .forms import (
     CustomSignUpForm,
     SLACK_PROFILE_URL_PREFIX,
 )
-from .models import User, encode_role_option
+from .models import NO_PUBLIC_ROLE_OPTION, User, encode_role_option
 from .password_rules import build_password_rules
 from .permissions import CustomUserPermissions
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
@@ -154,10 +154,14 @@ class CurrentUserProfileView(
         # cache, which can lag the live eligibility that builds the choices
         # (and the save-time validation). Seeding a stale value would render
         # an un-saveable selection.
+        role_options = self.get_v3_role_options()
         offered = {
             encode_role_option(o["role"], o["library"].id if o["library"] else "")
-            for o in self.get_v3_role_options()
+            for o in role_options
         }
+        if role_options:
+            # The form offers the opt-out only when the user holds roles.
+            offered.add(NO_PUBLIC_ROLE_OPTION)
         encoded_role = user.encoded_displayed_role
         return {
             "avatar": user.avatar_url,
@@ -301,7 +305,7 @@ class CurrentUserProfileView(
                 "badge": BadgeToken.TIER_5,
             },
             "member_since": user.date_joined.year,
-            "role": user.role,
+            "role": user.public_role,
             "flag_emoji": user.flag_emoji,
         }
 

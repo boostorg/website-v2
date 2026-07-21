@@ -8,7 +8,13 @@ from django import forms
 from allauth.account.forms import ResetPasswordKeyForm, SignupForm
 from django_countries import countries
 
-from .models import Preferences, compose_role_label, encode_role_option
+from .models import (
+    NO_PUBLIC_ROLE_LABEL,
+    NO_PUBLIC_ROLE_OPTION,
+    Preferences,
+    compose_role_label,
+    encode_role_option,
+)
 from core.validators import max_file_size_validator
 from news.models import NEWS_MODELS
 from news.acl import can_approve
@@ -248,7 +254,12 @@ class V3UserProfileForm(forms.Form):
             )
             for o in role_options
         ]
-        if not role_options:
+        if role_options:
+            # Explicit opt-out: hide the role everywhere but the profile page.
+            self.fields["role"].choices.append(
+                (NO_PUBLIC_ROLE_OPTION, NO_PUBLIC_ROLE_LABEL)
+            )
+        else:
             self.fields["role"].disabled = True
             self.fields["role"].widget.attrs[
                 "placeholder"

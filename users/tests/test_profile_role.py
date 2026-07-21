@@ -11,6 +11,7 @@ from django.contrib.admin.sites import site
 
 from users.admin import EmailUserAdmin, EmailUserAdminForm
 from users.models import (
+    NO_PUBLIC_ROLE_OPTION,
     ProfileRole,
     decode_role_option,
     encode_role_option,
@@ -583,3 +584,79 @@ def test_edit_seed_preselects_held_role(user, library, rf):
     assert form.initial["role"] == encode_role_option(
         ProfileRole.AUTHOR.value, library.id
     )
+
+
+# --- "No Public Role" opt-out ------------------------------------------------
+
+
+def test_opt_out_hides_role_everywhere_but_keeps_best_available(user, library):
+    """Selecting the opt-out hides `.role` everywhere; `.public_role` (the
+    profile page) still shows the best available role."""
+    library.authors.add(user)
+    _recompute()  # populate the auto-derived fallback
+    user.refresh_from_db()  # avoid clobbering resolved_profile_role on save
+    _apply_role(user, NO_PUBLIC_ROLE_OPTION)
+    user.refresh_from_db()
+    assert user.hide_public_role is True
+    assert user.displayed_profile_role == ""  # explicit choice cleared
+    assert user.displayed_profile_role_library_id is None
+    assert user.role == ""  # hidden on every component surface
+    assert user.public_role == "Author"  # best available, shown on profile page
+
+
+def test_opt_out_keeps_internal_title_on_public_page(user):
+    """Opting out hides the title everywhere but the profile page."""
+    user.internal_role = ProfileRole.CEO.value
+    user.save()
+    _apply_role(user, NO_PUBLIC_ROLE_OPTION)
+    user.refresh_from_db()
+    assert user.hide_public_role is True
+    assert user.role == ""
+    assert user.public_role == "CEO, C++ Alliance"
+
+
+def test_selecting_role_reenables_after_opt_out(user, library):
+    """Choosing a real role clears the opt-out so the role shows again."""
+    library.authors.add(user)
+    user.hide_public_role = True
+    user.save()
+    _apply_role(user, encode_role_option(ProfileRole.AUTHOR.value, library.id))
+    user.refresh_from_db()
+    assert user.hide_public_role is False
+    assert user.role == "Boost.Beast Author"
+
+
+def test_encoded_displayed_role_is_sentinel_when_opted_out(user, library):
+    """The dropdown preselects the opt-out option for an opted-out user."""
+    library.authors.add(user)
+    user.hide_public_role = True
+    user.save()
+    assert user.encoded_displayed_role == NO_PUBLIC_ROLE_OPTION
+
+
+def test_form_offers_opt_out_when_user_holds_roles(user, library):
+    from users.forms import V3UserProfileForm
+
+    library.authors.add(user)
+    form = V3UserProfileForm(role_options=user.get_role_options(), user_links={})
+    values = [c[0] for c in form.fields["role"].choices]
+    assert NO_PUBLIC_ROLE_OPTION in values
+    assert form.fields["role"].disabled is False
+
+
+def test_form_omits_opt_out_when_user_holds_no_roles(user):
+    from users.forms import V3UserProfileForm
+
+    form = V3UserProfileForm(role_options=[], user_links={})
+    values = [c[0] for c in form.fields["role"].choices]
+    assert NO_PUBLIC_ROLE_OPTION not in values
+    assert form.fields["role"].disabled is True
+
+
+def test_edit_seed_preselects_opt_out(user, library, rf):
+    """An opted-out user's edit form preselects the opt-out option."""
+    library.authors.add(user)
+    user.hide_public_role = True
+    user.save()
+    form = _edit_form(user, rf)
+    assert form.initial["role"] == NO_PUBLIC_ROLE_OPTION

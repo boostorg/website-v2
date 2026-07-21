@@ -11,7 +11,7 @@ from core.validators import downscale_image_file_size_validator
 from news.utils import downsize_uploaded_image
 
 from .forms import SLACK_PROFILE_URL_PREFIX, V3ProfileLinkChoices
-from .models import ProfileRole, User, decode_role_option
+from .models import NO_PUBLIC_ROLE_OPTION, ProfileRole, User, decode_role_option
 
 SECURE_LINK_TYPES = {V3ProfileLinkChoices.GITHUB, V3ProfileLinkChoices.WEBSITE}
 SLACK_MEMBER_ID_PATTERN = re.compile(r"^[A-Z0-9]{9,11}$", re.IGNORECASE)
@@ -102,6 +102,8 @@ class CurrentUserSerializer(serializers.ModelSerializer):
     def validate_role(self, value):
         """Re-validate the encoded (role, library) against the user's own options
         so they can never feature a role they don't hold."""
+        if value == NO_PUBLIC_ROLE_OPTION:
+            return value
         if value and self.instance:
             role, library_id = decode_role_option(value)
             eligible = {
@@ -131,14 +133,23 @@ class CurrentUserSerializer(serializers.ModelSerializer):
 
     def update(self, instance: User, validated_data):
         if "role" in validated_data:
-            role, library_id = decode_role_option(validated_data.pop("role"))
-            if role in ProfileRole.internal_roles():
-                # The title is the user's default; store it as a cleared override.
+            value = validated_data.pop("role")
+            if value == NO_PUBLIC_ROLE_OPTION:
+                # Explicit opt-out: hide the role everywhere but the profile page.
+                instance.hide_public_role = True
                 instance.displayed_profile_role = ""
                 instance.displayed_profile_role_library = None
             else:
-                instance.displayed_profile_role = role
-                instance.displayed_profile_role_library_id = library_id
+                # Any real selection re-enables the public role.
+                instance.hide_public_role = False
+                role, library_id = decode_role_option(value)
+                if role in ProfileRole.internal_roles():
+                    # The title is the user's default; store it as a cleared override.
+                    instance.displayed_profile_role = ""
+                    instance.displayed_profile_role_library = None
+                else:
+                    instance.displayed_profile_role = role
+                    instance.displayed_profile_role_library_id = library_id
 
         # Pop the image and apply the file-lifecycle steps ourselves. If we left
         # it in validated_data, the parent update() would assign and save it a
