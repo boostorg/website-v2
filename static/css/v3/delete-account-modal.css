@@ -82,6 +82,12 @@
   color: var(--color-text-tertiary);
 }
 
+.delete-account-modal__link {
+  color: var(--color-text-link-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .delete-account-modal__divider {
   width: 100%;
   height: 1px;

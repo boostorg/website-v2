@@ -40,9 +40,10 @@
           <ul class="delete-account-modal__list">
             <li>Anonymize your profile (name, email, photo, GitHub username, and links)</li>
             <li>Disconnect your GitHub/Google sign-ins and remove your saved email addresses</li>
-            <li>Remove your mailing list subscriptions and notification preferences</li>
+            <li>Remove your notification preferences</li>
           </ul>
           <p class="delete-account-modal__note">Posts and contributions you've made will remain on the site but will no longer be linked to you.</p>
+          <p class="delete-account-modal__note">You'll still be able to manage your mailing list subscriptions through <a class="delete-account-modal__link" href="{{ postorius_url }}" target="_blank" rel="noopener noreferrer">Postorius</a>.</p>
           <hr class="delete-account-modal__divider" aria-hidden="true" />
           {% include "v3/includes/_field_text.html" with name="verify" type="text" label='To confirm, type "delete my account"' placeholder="delete my account" aria_label="Type delete my account to confirm" only %}
         </div>
