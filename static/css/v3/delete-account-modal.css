@@ -13,9 +13,16 @@
  * semantics.css + themes.css.
  */
 
-/* The whole dialog is a light-red canvas (Figma container fill #fdf2f2). */
+/* The whole dialog is a light-red canvas (Figma container fill #fdf2f2).
+   Layer the error tint over an opaque page surface so the modal stays fully
+   opaque in dark mode, where --color-surface-error-weak is a translucent tint
+   (in light mode the tint is fully opaque and covers the base entirely). */
 .delete-account-modal .dialog-modal__container {
-  background-color: var(--color-surface-error-weak);
+  background-color: var(--color-surface-page);
+  background-image: linear-gradient(
+    var(--color-surface-error-weak),
+    var(--color-surface-error-weak)
+  );
 }
 
 /* The form is the container's single child, so it owns the vertical stack. */
