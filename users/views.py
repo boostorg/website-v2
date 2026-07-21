@@ -39,6 +39,7 @@ from libraries.constants import (
 )
 from libraries.forms import V3CommitAuthorEmailForm
 from libraries.models import CommitAuthorEmail
+from mailing_list.mixins import MailingListCardMixin
 from .forms import (
     PreferencesForm,
     UserProfileForm,
@@ -121,6 +122,7 @@ class PublicUserProfileView(V3UserProfileContextMixin, V3Mixin, DetailView):
 
 class CurrentUserProfileView(
     V3UserProfileContextMixin,
+    MailingListCardMixin,
     V3Mixin,
     LoginRequiredMixin,
     SuccessMessageMixin,

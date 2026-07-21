@@ -182,6 +182,7 @@ flushed rather than leaking onto the next page. {% endcomment %}
           </div>
           </form>
         </div>
+        {% include "v3/includes/_mailing_list_card.html" with subscribe_url=mailing_list_card_subscribe_url modal_subscribe_url=mailing_list_card_modal_subscribe_url list_id=mailing_list_card_list_id state=mailing_list_card_state user_email=mailing_list_card_user_email manage_url=mailing_list_card_manage_url subscription_count=mailing_list_card_subscription_count error_message=mailing_list_card_error_message mailing_lists=mailing_list_card_lists subscribed_ids=mailing_list_card_subscribed_ids %}
         <div class="basic-card card user-profile__delete-account">
           <div class="card__header">
             <span class="card__title">Delete account</span>
@@ -271,6 +272,22 @@ flushed rather than leaking onto the next page. {% endcomment %}
         </div>
         <div class="user-profile-edit__connections-card">
           {% include 'v3/includes/_account_connections_card.html' with connections=account_connections_mixed %}
+        </div>
+        <div class="basic-card card user-profile__delete-account">
+          <div class="card__header">
+            <span class="card__title">Delete account</span>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            <div>
+              <div class="user-profile__small-section-heading">Remove your account from our system</div>
+              <div class="user-profile__small-section-subheading">This will remove your information and account from Boost completely and is not reversible.</div>
+            </div>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__cta_section">
+            {% include 'v3/includes/_button.html' with style='error' type='submit' label='Delete Account' only %}
+          </div>
         </div>
       </div>
     </div>
