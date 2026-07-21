@@ -45,6 +45,7 @@
          this.query = '';
          this.activeIndex = -1;
          this.open = false;
+         this.$dispatch('input');
          setTimeout(() => this.$refs.chevronBtn.focus());
        },
        toggle() {

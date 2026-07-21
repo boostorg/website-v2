@@ -31,8 +31,7 @@ flushed rather than leaking onto the next page. {% endcomment %}
           <form method="post" action="{{ profile_account_edit_url }}" class="card__form" enctype="multipart/form-data" novalidate
                 x-data="{...createSectionForm({{ saved_sections.v3_update_profile|yesno:'true,false' }}), ...profileForm()}"
                 @submit="handleSubmit($event)"
-                @input="saved = false" @change="saved = false"
-                @reset="saved = {{ saved_sections.v3_update_profile|yesno:'true,false' }}">
+                @input="saved = false" @change="saved = false">
           {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Profile</span>
@@ -163,7 +162,6 @@ flushed rather than leaking onto the next page. {% endcomment %}
           a link validation/save failure blocks the section submit and the button stays "Save changes". {% endcomment %}
           <div class="card__cta_section">
             {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_profile' label='Save changes' label_x_text="saved ? 'Changes Saved' : 'Save changes'" alpine_disabled='saved || saving' only %}
-            {% include 'v3/includes/_button.html' with style='secondary' type='reset' label='Cancel' only %}
             <span class="field__error" x-show="saveError" x-text="saveError" x-cloak></span>
           </div>
           </form>
