@@ -18,9 +18,13 @@ from core.asciidoc import convert_adoc_to_html
 
 logger = structlog.get_logger()
 
+# Section anchor, e.g. "[#about]" -> "about"
 _ANCHOR_RE = re.compile(r"^\[#([a-z0-9-]+)\]\s*$")
+# Attribute line, e.g. ":library-key: beast" -> ("library-key", "beast")
 _ATTR_RE = re.compile(r"^:([a-z0-9-]+):\s*(.*)$")
+# Source block header, e.g. "[source,cpp]" or "[source%linenums,c++]" -> "cpp" / "c++"
 _SOURCE_RE = re.compile(r"^\[source(?:%[^\],]*)?(?:,\s*([a-z0-9+#-]+))?.*\]\s*$")
+# Section heading, e.g. "== Description" -> "Description"
 _HEADING_RE = re.compile(r"^=+\s+(.*\S)\s*$")
 
 
