@@ -5838,3 +5838,14 @@ html.v3 .boostlook {
   color: var(--color-text-primary);
   font-weight: var(--font-weight-medium);
 }
+
+/* Release highlights card (what's-new descriptions via inline_markdown) — #2491.
+   The description's layout and base type (secondary color, size, spacing) stay in
+   release-highlights-card.css; the only rich-text spans inline_markdown can emit
+   are <strong> and <code>. Bold uses the site's medium weight (the non-doc rule
+   above already drops boostlook's condensed axis). Inline code has no override, so
+   it inherits boostlook's code treatment — matching the release notes markdown card
+   on the same page. */
+.boostlook.release-highlight__description strong {
+  font-weight: var(--font-weight-medium);
+}
