@@ -63,6 +63,7 @@ class CurrentUserSerializer(serializers.ModelSerializer):
     """
     User serializer for the currently logged in user
     """
+
     profile_image = serializers.ImageField(
         validators=[downscale_image_file_size_validator]
     )
