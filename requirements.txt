@@ -162,7 +162,7 @@ django==6.0.7
     #   wagtail
 django-admin-env-notice==1.0.1
     # via -r ./requirements.in
-django-allauth[socialaccount]==65.18.0
+django-allauth[socialaccount]==65.14.1
     # via -r ./requirements.in
 django-anymail[mailgun]==14.0
     # via -r ./requirements.in
