@@ -251,6 +251,12 @@ def recompute_displayed_profile_roles():
                 displayed_profile_role=role,
                 displayed_profile_role_library_id=lib_id,
             ).update(displayed_profile_role="", displayed_profile_role_library=None)
+    # Roles just changed, so drop every user's cached profile contribution data.
+    from django.core.cache import cache
+    from users.models import CONTRIBUTOR_DATA_CACHE_PREFIX
+
+    cache.delete_pattern(f"{CONTRIBUTOR_DATA_CACHE_PREFIX}*")
+
     logger.info(
         "recompute_displayed_profile_roles finished",
         resolved=len(top),

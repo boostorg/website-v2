@@ -4,6 +4,7 @@ import pytest
 from model_bakery import baker
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 
@@ -11,14 +12,28 @@ from django.contrib.admin.sites import site
 
 from users.admin import EmailUserAdmin, EmailUserAdminForm
 from users.models import (
+    CONTRIBUTOR_DATA_CACHE_PREFIX,
     NO_PUBLIC_ROLE_OPTION,
     ProfileRole,
+    contributor_data_cache_key,
     decode_role_option,
     encode_role_option,
 )
 from users.serializers import CurrentUserSerializer
 
 User = get_user_model()
+
+
+@pytest.fixture(autouse=True)
+def _clear_contributor_cache():
+    """Keep the per-user contribution cache from leaking across tests.
+
+    The default cache is real Redis in this suite, so entries persist between
+    tests; scrub our namespace before and after each one.
+    """
+    cache.delete_pattern(f"{CONTRIBUTOR_DATA_CACHE_PREFIX}*")
+    yield
+    cache.delete_pattern(f"{CONTRIBUTOR_DATA_CACHE_PREFIX}*")
 
 
 def _apply_role(user, value):
@@ -133,6 +148,51 @@ def test_contributor_role_from_commits_only(user, library):
     assert roles == ["Contributor"]
     _recompute()
     assert User.objects.get(pk=user.pk).role == "Contributor"
+
+
+# --- contributor data (profile bio card) ------------------------------------
+
+
+def test_contributor_data_caches_empty(user):
+    """No contributions -> empty dict, and the empty dict is cached (not a miss)."""
+    assert user.get_contributor_data() == {}
+    assert cache.get(contributor_data_cache_key(user.pk)) == {}
+
+
+def test_contributor_data_groups_by_role_and_omits_empty(user, library, other_library):
+    library.authors.add(user)  # Author of Beast
+    _make_version(other_library).maintainers.add(user)  # Maintainer of Math
+    data = user.get_contributor_data()
+    # Author and Maintainer present, in precedence order; Contributor omitted.
+    assert list(data) == ["Author", "Maintainer"]
+    assert data["Author"] == ["Beast"]
+    assert data["Maintainer"] == ["Math"]
+
+
+def test_contributor_data_lists_libraries_by_commit_count(user, library, other_library):
+    library.authors.add(user)
+    other_library.authors.add(user)
+    _add_commits(user, other_library, 5)
+    _add_commits(user, library, 1)
+    # Busier library ranks first within the role group.
+    assert user.get_contributor_data()["Author"] == ["Math", "Beast"]
+
+
+def test_contributor_data_served_from_cache(user, library, other_library):
+    library.authors.add(user)
+    assert user.get_contributor_data() == {"Author": ["Beast"]}  # now cached
+    # Add a second author link. Only the import-time recompute invalidates the
+    # cache, so until then the prior result is still served.
+    other_library.authors.add(user)
+    assert user.get_contributor_data() == {"Author": ["Beast"]}
+
+
+def test_recompute_task_clears_cache(user, library):
+    library.authors.add(user)
+    user.get_contributor_data()  # populate cache
+    assert cache.get(contributor_data_cache_key(user.pk)) is not None
+    _recompute()
+    assert cache.get(contributor_data_cache_key(user.pk)) is None
 
 
 # --- display composition -----------------------------------------------------

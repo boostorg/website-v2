@@ -366,6 +366,13 @@ CACHES = {
 
 ENABLE_DB_CACHE = env.bool("ENABLE_DB_CACHE", default=False)
 
+# Per-user profile contribution data cache. Invalidated on library imports via
+# recompute_displayed_profile_roles; this TTL is only a safety net, sized to the
+# daily recompute cadence (24 hours).
+CONTRIBUTOR_DATA_CACHE_TIMEOUT = env.int(
+    "CONTRIBUTOR_DATA_CACHE_TIMEOUT", default=60 * 60 * 24
+)
+
 # Default interval by which to clear the static content cache
 # New method: "never" clear, just overwrite, so that the id
 # field doesn't expand without bounds.
