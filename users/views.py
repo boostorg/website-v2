@@ -984,6 +984,14 @@ class DeleteUserView(LoginRequiredMixin, FormView):
         )
         user.save()
         if flag_is_active(self.request, "v3"):
+            tasks.send_account_deletion_scheduled_email.delay(
+                email=user.email,
+                first_name=user.first_name,
+                grace_days=settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS,
+                login_url=self.request.build_absolute_uri(reverse("account_login")),
+                scheme=self.request.scheme,
+                host=self.request.get_host(),
+            )
             return HttpResponseRedirect(_v3_profile_edit_url())
         return super().form_valid(form)
 

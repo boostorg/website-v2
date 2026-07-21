@@ -127,6 +127,41 @@ def test_v3_delete_schedules_and_redirects_to_edit(user, tp):
 
 @pytest.mark.django_db
 @waffle.testutils.override_flag("v3", active=True)
+def test_v3_delete_sends_scheduled_email(user, tp, settings, mailoutbox):
+    user.first_name = "Vinnie"
+    user.save()
+
+    with tp.login(user):
+        tp.post("profile-delete", data={"verify": "delete my account"})
+
+    assert len(mailoutbox) == 1
+    email = mailoutbox[0]
+    assert email.subject == "Your account is scheduled for deletion"
+    assert email.to == [user.email]
+    grace = settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS
+    assert f"deletion in {grace} day" in email.body
+    assert "Vinnie" in email.body
+    # HTML alternative is attached and links out to Postorius.
+    html_body, mimetype = email.alternatives[0]
+    assert mimetype == "text/html"
+    assert "Postorius" in html_body
+
+
+@pytest.mark.django_db
+def test_legacy_delete_does_not_send_scheduled_email(user, tp, mailoutbox):
+    """The scheduling email is a V3-only addition; legacy behaviour is unchanged."""
+    with tp.login(user):
+        tp.post("profile-delete", data={"verify": "delete my account"})
+
+    user.refresh_from_db()
+    assert user.delete_permanently_at is not None
+    assert not any(
+        m.subject == "Your account is scheduled for deletion" for m in mailoutbox
+    )
+
+
+@pytest.mark.django_db
+@waffle.testutils.override_flag("v3", active=True)
 def test_v3_delete_invalid_confirmation_reopens_modal(user, tp):
     with tp.login(user):
         res = tp.post("profile-delete", data={"verify": "wrong"})

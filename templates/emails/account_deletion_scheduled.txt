@@ -1,0 +1,35 @@
+Your account is scheduled for deletion
+
+Hi {{ first_name|default:"there" }},
+
+We've received your request to delete your account. It's now scheduled for
+deletion in {{ grace_days }} day{{ grace_days|pluralize }}.
+
+You can cancel this anytime before then by logging back in.
+
+What happens when deletion completes:
+
+- Your profile (name, email, photo, GitHub username, and links) will be
+  anonymized
+- Your GitHub/Google sign-ins will be disconnected and saved email addresses
+  removed
+- Your notification preferences will be removed
+
+Posts and contributions you've made will remain on the site but will no longer
+be linked to you.
+
+If you have mailing list subscriptions, you can still manage those through
+Postorius ({{ postorius_url }}).
+
+If you didn't request this, log in and cancel the deletion before the
+{{ grace_days }} day{{ grace_days|pluralize }} are up:
+{{ action_url }}
+
+Thanks,
+The Boost Team
+
+--
+Boost.org is supported by grants from The C++ Alliance.
+
+Want to change how you receive these emails?
+You can update your preferences or unsubscribe from this list.

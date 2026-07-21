@@ -4,8 +4,9 @@ from datetime import timedelta
 import structlog
 
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives, send_mail
 from django.db.models import Q
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.conf import settings
 
@@ -93,6 +94,43 @@ def send_account_deleted_email(email):
         settings.DEFAULT_FROM_EMAIL,
         [email],
     )
+
+
+# External Postorius (Mailman) instance where users manage their own mailing
+# list subscriptions - kept in sync with the delete modal / profile view copy.
+POSTORIUS_URL = "https://lists.boost.org/mailman3/lists/"
+
+
+@shared_task
+def send_account_deletion_scheduled_email(
+    email, first_name, grace_days, login_url, scheme, host
+):
+    """Confirm a scheduled deletion and explain how to cancel it.
+
+    Absolute URLs (login CTA, logo link) are built in the view where the
+    request is available and passed in, since a Celery task has no request.
+    """
+    context = {
+        "first_name": first_name,
+        "grace_days": grace_days,
+        "action_url": login_url,
+        "postorius_url": POSTORIUS_URL,
+        "scheme": scheme,
+        "host": host,
+    }
+    subject = render_to_string(
+        "emails/account_deletion_scheduled_subject.txt", context
+    ).strip()
+    text_body = render_to_string("emails/account_deletion_scheduled.txt", context)
+    html_body = render_to_string("emails/account_deletion_scheduled.html", context)
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=text_body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[email],
+    )
+    msg.attach_alternative(html_body, "text/html")
+    msg.send()
 
 
 @shared_task
