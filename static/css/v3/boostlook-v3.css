@@ -2593,8 +2593,8 @@ html.dark .boostlook nav.pagination > span:hover a {
 .boostlook:not(:has(.doc)) div.caution > table tr:not(:first-child) td p,
 .boostlook:not(:has(.doc)) div.warning > table tr:not(:first-child) td,
 .boostlook:not(:has(.doc)) div.warning > table tr:not(:first-child) td p,
-.boostlook:not(:has(.doc)) div.blurp > table tr:not(:first-child) td,
-.boostlook:not(:has(.doc)) div.blurp > table tr:not(:first-child) td p,
+.boostlook:not(:has(.doc)) div.blurb > table tr:not(:first-child) td,
+.boostlook:not(:has(.doc)) div.blurb > table tr:not(:first-child) td p,
 .boostlook:not(:has(.doc)) p.blurb > table tr:not(:first-child) td,
 .boostlook:not(:has(.doc)) p.blurb > table tr:not(:first-child) td p,
   /* Antora Template Correction*/
