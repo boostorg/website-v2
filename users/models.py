@@ -701,6 +701,20 @@ class User(BaseUser):
         pairs = sorted(self._role_library_pairs(), key=sort_key)
         return [{"role": role, "library": library} for role, library, _ in pairs]
 
+    def get_contributor_data(self):
+        """Library contributions grouped by role for the profile bio card.
+
+        Returns an ordered dict {role_label: [library_short_name, ...]} in role
+        precedence order; a role the user holds in no library is omitted, and an
+        empty dict means no contributions at all. Backed by the same source of
+        truth as the edit-page role dropdown (`get_role_library_options`).
+        """
+        data = {}
+        for option in self.get_role_library_options():
+            label = ProfileRole(option["role"]).label
+            data.setdefault(label, []).append(option["library"].display_name_short)
+        return data
+
     def _role_library_pairs(self):
         """(role, library, commit_count) tuples the user holds, computed live."""
         from libraries.models import Library, Commit
