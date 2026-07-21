@@ -35,7 +35,11 @@
     <form method="post"
           action="{{ action_url }}"
           class="delete-account-modal__form"
-          x-data="{ confirmText: '' }">
+          x-data="{
+                  confirmText: '',
+                  get confirmed() { return this.confirmText.trim() === 'delete my account'; }
+                  }"
+          @submit="if (!confirmed) $event.preventDefault()">
       {% csrf_token %}
       <div class="dialog-modal__header delete-account-modal__header">
         <h2 class="dialog-modal__title" id="{{ dialog_id }}-title">{{ title }}</h2>
@@ -70,7 +74,7 @@
         <a href="#_" class="btn btn-secondary btn-flex">Cancel</a>
         <button type="submit"
                 class="btn btn-error btn-flex"
-                :disabled="confirmText !== 'delete my account'">{{ submit_label }}</button>
+                :disabled="!confirmed">{{ submit_label }}</button>
       </div>
     </form>
   </div>
