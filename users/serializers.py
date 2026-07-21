@@ -114,15 +114,19 @@ class CurrentUserSerializer(serializers.ModelSerializer):
         return super().validate(data)
 
     def update(self, instance: User, validated_data):
-        if validated_data.get("profile_image"):
+        # Pop the image and apply the file-lifecycle steps ourselves. If we left
+        # it in validated_data, the parent update() would assign and save it a
+        # second time, writing a duplicate file to storage and orphaning one.
+        new_image_data = validated_data.pop("profile_image", None)
+        has_new_upload = isinstance(new_image_data, UploadedFile)
+
+        if new_image_data:
             # If the user is uploading a new image file, we need to do a few special steps
             # 1. We need to set the image_uploaded flag correctly, to prevent automatic overwrites.
             # 2. We need to delete the old image from file storage, since it is not stored in memory.
             # 3. We need to delete their thumbnail to regenerate a new one.
             old_image = instance.profile_image
             old_image_name = old_image.name if old_image else None
-            new_image_data = validated_data.get("profile_image")
-            has_new_upload = isinstance(new_image_data, UploadedFile)
 
             # Save the new image
             if not old_image:
@@ -137,12 +141,15 @@ class CurrentUserSerializer(serializers.ModelSerializer):
                 instance.profile_image = new_image_data
                 instance.image_uploaded = True
 
-            instance.save()
-            # Invalidate the cached thumbnail so ImageKit regenerates it
-            if has_new_upload:
-                instance.delete_cached_thumbnail()
+        # Applies the remaining fields and persists everything set above
+        # (image + flags) in a single save.
+        instance = super().update(instance, validated_data)
 
-        return super().update(instance, validated_data)
+        # Invalidate the cached thumbnail so ImageKit regenerates it
+        if has_new_upload:
+            instance.delete_cached_thumbnail()
+
+        return instance
 
     class Meta:
         model = User
