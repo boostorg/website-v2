@@ -1678,34 +1678,12 @@ html.dark .boostlook .listingblock > .content > pre {
  * Applies only if codeblock has child with class .toolbox
  * and it`s title doesn`t includes any other elems as children
 */
+/* Filename title intentionally hidden in the 2.0 toolbox design (only the copy
+   button shows). Collapsed to display:none; the former flex/layout declarations
+   were dead because the element never renders. */
 .boostlook .doc .listingblock:has(.source-toolbox) .title:not(:has(a, span, p, code, pre)),
 .boostlook .listingblock:has(.source-toolbox) .title:not(:has(a, span, p, code, pre)) {
-  position: absolute;
-  top: 1px;
-  height: 2rem;
-  max-width: calc(100% - 5rem);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0;
-  padding-left: var(--spacing-size-sm);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-size-2xs, 0.5rem);
-  color: var(--text-main-text-body-tetriary, #62676b);
-  font-family: "Mona Sans";
-  font-size: var(--typography-font-size-2xs, 0.75rem);
-  font-style: normal;
-  line-height: var(--typography-line-height-sm, 1rem);
-  letter-spacing: var(--spacing-size-size-0, 0rem);
-  z-index: 1;
   display: none;
-}
-
-.boostlook .doc .listingblock:has(.source-toolbox) .title:not(:has(a, span, p, code, pre))::before,
-.boostlook .listingblock:has(.source-toolbox) .title:not(:has(a, span, p, code, pre))::before {
-  content: var(--icon-file);
-  line-height: 0;
 }
 
 /* Code Block Margins */
@@ -1835,7 +1813,6 @@ html.dark .boostlook .listingblock > .content > pre {
   border: 1px solid var(--border-border-primary, #e4e7ea);
   background: var(--surface-background-main-surface-primary, #f5f6f8);
   opacity: 0;
-  visibility: hidden;
   transition: all 0.2s ease;
 }
 
@@ -1843,9 +1820,16 @@ html.dark .boostlook .listingblock > .content > pre {
   border: 1px solid var(--border-border-blue, #92cbe9);
 }
 
-.boostlook .content:has(> pre):has(> .source-toolbox):hover .copy-button {
+.boostlook .content:has(> pre):has(> .source-toolbox):hover .copy-button,
+.boostlook .content:has(> pre):has(> .source-toolbox) .copy-button:focus-visible {
   opacity: 1;
-  visibility: visible;
+}
+
+/* Keyboard users can tab to the copy button (kept in the tab order via opacity
+   rather than visibility:hidden) and get a visible focus ring. */
+.boostlook .content:has(> pre):has(> .source-toolbox) .copy-button:focus-visible {
+  outline: 2px solid var(--border-border-blue, #92cbe9);
+  outline-offset: 2px;
 }
 
 /* Mobile: hide copy button (clipboard API requires HTTPS) */
@@ -3514,7 +3498,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   .boostlook *,
   .boostlook pre,
   .boostlook code,
-  .boostlook:has(:not(.doc)) div.table .table-contents {
+  .boostlook:not(:has(.doc)) div.table .table-contents {
     scrollbar-width: thin;
     scrollbar-color: var(--border-border-tetriary, #afb3b6) transparent;
   }
@@ -3522,14 +3506,14 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   @media screen and (min-width: 768px) {
     .boostlook pre,
     .boostlook code,
-    .boostlook:has(:not(.doc)) div.table .table-contents {
+    .boostlook:not(:has(.doc)) div.table .table-contents {
       scrollbar-width: thin;
       scrollbar-color: transparent transparent;
     }
 
     .boostlook pre:hover,
     .boostlook code:hover,
-    .boostlook:has(:not(.doc)) div.table .table-contents:hover {
+    .boostlook:not(:has(.doc)) div.table .table-contents:hover {
       scrollbar-color: var(--border-border-tetriary, #afb3b6) transparent;
     }
   }
@@ -3551,7 +3535,7 @@ html:not(.v3):has(.boostlook)::-webkit-scrollbar-track {
 .boostlook *::-webkit-scrollbar-track,
 .boostlook pre::-webkit-scrollbar-track,
 .boostlook code::-webkit-scrollbar-track,
-.boostlook:has(:not(.doc)) div.table .table-contents::-webkit-scrollbar-track {
+.boostlook:not(:has(.doc)) div.table .table-contents::-webkit-scrollbar-track {
   width: 6px;
   background: transparent;
   border-radius: var(--spacing-size-2xs, 0.5rem);
@@ -3562,7 +3546,7 @@ html:not(.v3):has(.boostlook)::-webkit-scrollbar-thumb,
 .boostlook *::-webkit-scrollbar-thumb,
 .boostlook pre::-webkit-scrollbar-thumb,
 .boostlook code::-webkit-scrollbar-thumb,
-.boostlook:has(:not(.doc)) div.table .table-contents::-webkit-scrollbar-thumb {
+.boostlook:not(:has(.doc)) div.table .table-contents::-webkit-scrollbar-thumb {
   width: 6px;
   background: var(--border-border-tetriary, #afb3b6);
 }
@@ -3570,13 +3554,13 @@ html:not(.v3):has(.boostlook)::-webkit-scrollbar-thumb,
 @media screen and (min-width: 768px) {
   .boostlook pre::-webkit-scrollbar-thumb,
   .boostlook code::-webkit-scrollbar-thumb,
-  .boostlook:has(:not(.doc)) div.table .table-contents::-webkit-scrollbar-thumb {
+  .boostlook:not(:has(.doc)) div.table .table-contents::-webkit-scrollbar-thumb {
     background: transparent;
   }
 
   .boostlook pre:hover::-webkit-scrollbar-thumb,
   .boostlook code:hover::-webkit-scrollbar-thumb,
-  .boostlook:has(:not(.doc)) div.table .table-contents:hover:-webkit-scrollbar-thumb {
+  .boostlook:not(:has(.doc)) div.table .table-contents:hover::-webkit-scrollbar-thumb {
     background-color: var(--border-border-tetriary, #afb3b6);
   }
 }
@@ -4018,6 +4002,13 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
   justify-content: center;
   order: 1;
   transform: none;
+}
+
+/* Restore a visible focus ring for keyboard users (the rule above clears the
+   default outline). */
+.boostlook #toc .nav-item-toggle:focus-visible {
+  outline: 2px solid var(--border-border-blue, #92cbe9);
+  outline-offset: 2px;
 }
 
 /* Down-pointing caret (collapsed) */
@@ -4787,7 +4778,7 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
 }
 
 .boostlook .search-result-item:hover {
-  background: var(--colors-primary-50);
+  background: var(--surface-background-main-surface-primary);
 }
 
 .boostlook .search-result-item .no-result {
@@ -4834,7 +4825,7 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
 .boostlook .search-result-document-hit .search-result-highlight {
   padding: 0.1em 0.2em;
   border-radius: var(--radius-xs, 0.125rem);
-  background: var(--colors-secondary-50);
+  background: var(--surface-background-main-surface-blue-secondary);
   color: var(--text-main-text-link-blue);
   font-weight: 500;
 }
@@ -5237,19 +5228,19 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) div.spi
 
 /* Tables */
 /* Make div with Table display block */
-.boostlook:has(:not(.doc)) div.table {
+.boostlook:not(:has(.doc)) div.table {
   display: block;
 }
 
 /* Enable Horizontal Scroll */
-.boostlook:has(:not(.doc)) div.table .table-contents,
-.boostlook:has(:not(.doc)) .informaltable:has(> .table) {
+.boostlook:not(:has(.doc)) div.table .table-contents,
+.boostlook:not(:has(.doc)) .informaltable:has(> .table) {
   overflow: auto;
 }
 
 /* References Table */
 /* This is specific selector for refences tables which containes many tables and only tables as direct children */
-.boostlook:has(:not(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) {
+.boostlook:not(:has(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) {
   display: flex;
   flex-direction: column;
   gap: var(--padding-padding-md, 1.125rem);
@@ -5257,12 +5248,12 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) div.spi
 }
 
 /* Disable margins for all Headings inside table */
-.boostlook:has(:not(.doc)) .informaltable:has(> .table) :is(h1, h2, h3, h4, h5, h6) {
+.boostlook:not(:has(.doc)) .informaltable:has(> .table) :is(h1, h2, h3, h4, h5, h6) {
   margin: 0;
 }
 
 /* Table has inner table th  */
-.boostlook:has(:not(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) .table:has(.simplelist) th {
+.boostlook:not(:has(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) .table:has(.simplelist) th {
   border: none;
   padding: 0 0 var(--padding-padding-xs, 0.75rem) 0;
   background: none;
@@ -5275,24 +5266,24 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) div.spi
 }
 
 /* Disable global cell paddings */
-.boostlook:has(:not(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) .table:has(.simplelist) > tbody > tr > td {
+.boostlook:not(:has(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) .table:has(.simplelist) > tbody > tr > td {
   padding: 0;
 }
 
 /* Add border radius to tbody first row */
-.boostlook:has(:not(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) .table:has(.simplelist) tr:last-child td:first-child {
+.boostlook:not(:has(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) .table:has(.simplelist) tr:last-child td:first-child {
   border-top-left-radius: var(--spacing-size-2xs, 0.5rem);
   overflow: hidden;
 }
 
 /* Add border radius to tbody first row */
-.boostlook:has(:not(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) .table:has(.simplelist) tr:last-child td:last-child {
+.boostlook:not(:has(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) .table:has(.simplelist) tr:last-child td:last-child {
   border-top-right-radius: var(--spacing-size-2xs, 0.5rem);
   overflow: hidden;
 }
 
 /* Select Inner Headings and make it look as table head */
-.boostlook:has(:not(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) .table:has(.simplelist) tbody :is(h1, h2, h3, h4, h5, h6) {
+.boostlook:not(:has(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) .table:has(.simplelist) tbody :is(h1, h2, h3, h4, h5, h6) {
   padding: var(--padding-padding-3xs, 0.25rem) var(--padding-padding-2xs, 0.5rem);
   gap: var(--spacing-size-xs, 0.75rem);
   background: var(--surface-background-main-surface-primary, #f5f6f8);
@@ -5305,22 +5296,22 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) div.spi
 }
 
 /* Inner table styles */
-.boostlook:has(:not(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) table.simplelist {
+.boostlook:not(:has(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) table.simplelist {
   width: 100%;
 }
 
-.boostlook:has(:not(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) table.simplelist td {
+.boostlook:not(:has(.doc)) .informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))) table.simplelist td {
   border: none;
   padding: var(--padding-padding-3xs, 0.25rem) var(--padding-padding-2xs, 0.5rem);
 }
 
 /* Footnotes */
-.boostlook:has(:not(.doc)) .footnotes {
+.boostlook:not(:has(.doc)) .footnotes {
   margin-top: var(--padding-padding-lg);
   border-top: 1px solid var(--border-border-primary);
 }
 
-.boostlook:has(:not(.doc)) .footnotes hr {
+.boostlook:not(:has(.doc)) .footnotes hr {
   display: none;
 }
 
@@ -5579,16 +5570,10 @@ html.v3 .boostlook {
   background: transparent;
 }
 
-/* Non-doc site components use v2's primary text color (near-black in light,
-   white in dark) rather than boostlook's lighter doc body grey. Paragraphs
-   inherit their container instead of boostlook's hardcoded `.boostlook p`
-   grey, so each component's own color flows through.
-   Font: boostlook's base container forces "Mona Sans" (!important) plus a
-   condensed font-variation-settings ("wght" 400, "wdth" 95). Non-doc site
-   components should render the site's own type instead, so inherit both the
-   family (!important to beat boostlook's base rule) and the variation settings
-   from the host page. Headings that set their own font-family (e.g.
-   --font-display) still win. */
+/* Non-doc site components use v2's own text color and type, not boostlook's doc
+   grey and forced condensed "Mona Sans". Inherit family (!important to beat
+   boostlook's base rule) and variation settings from the host page; headings
+   with their own font-family (e.g. --font-display) still win. */
 .boostlook:where(:not(:has(.doc))) {
   color: var(--color-text-primary);
   font-family: inherit !important;
@@ -5636,7 +5621,6 @@ html.v3 .boostlook {
   font-size: var(--font-size-small);
 }
 
-/* Sit flush with the top, no leading margin on the first prose element. */
 .boostlook.content-modal__prose > :first-child {
   margin-top: 0;
 }
@@ -5696,9 +5680,8 @@ html.v3 .boostlook {
   color: var(--color-text-primary);
 }
 
-/* Ordered lists: native decimal numbering (a custom ::before counter only
-   suits the single bullet char and misaligns; browsers render numbers
-   cleanly and follow the item's font size). */
+/* Ordered lists: native decimal numbering (a custom ::before counter
+   misaligns; native numbers follow the item's font size cleanly). */
 .boostlook.markdown-content ol {
   list-style: decimal;
   padding-left: var(--space-xl);
@@ -5715,10 +5698,8 @@ html.v3 .boostlook {
   text-underline-position: from-font;
 }
 
-/* Code blocks: defer to boostlook's own code styling (the boxed .boostlook pre
-   with its light/dark background, border and radius, and .boostlook pre code
-   for the monospace body). Only add horizontal-scroll safety so a wide line
-   scrolls inside the narrow card instead of overflowing it. */
+/* Code blocks defer to boostlook's own code styling; only add horizontal-scroll
+   safety so a wide line scrolls inside the narrow card instead of overflowing. */
 .boostlook.markdown-content pre {
   overflow-x: auto;
 }
@@ -5756,20 +5737,14 @@ html.v3 .boostlook {
   font-weight: var(--font-weight-medium);
 }
 
+/* Color comes from the non-doc `color: inherit` rule above; this just keeps v2's size/spacing. */
 .boostlook.markdown-content p {
-  /* Keep the card's paragraph size/spacing faithful to v2. Color comes from
-     the non-doc `color: inherit` rule above, so it follows the container
-     (v2's primary near-black) instead of boostlook's grey. */
   font-size: var(--font-size-small);
   line-height: var(--line-height-code);
   letter-spacing: var(--letter-spacing-tight);
   padding: 0;
   margin: 0;
 }
-
-/* Inline code + code blocks intentionally have no card-specific override:
-   they inherit boostlook's code styling so the card matches the doc/site code
-   treatment (monospace inline code, boxed pre blocks with syntax colors). */
 
 /* Post detail (news article body) — #2491. The container keeps its layout
    (flex/gap/border) in post-detail.css; the rich-text typography lives here.
@@ -5839,13 +5814,9 @@ html.v3 .boostlook {
   font-weight: var(--font-weight-medium);
 }
 
-/* Release highlights card (what's-new descriptions via inline_markdown) — #2491.
-   The description's layout and base type (secondary color, size, spacing) stay in
-   release-highlights-card.css; the only rich-text spans inline_markdown can emit
-   are <strong> and <code>. Bold uses the site's medium weight (the non-doc rule
-   above already drops boostlook's condensed axis). Inline code has no override, so
-   it inherits boostlook's code treatment — matching the release notes markdown card
-   on the same page. */
+/* Release highlights card (what's-new via inline_markdown) — #2491. inline_markdown
+   emits only <strong> and <code>; layout/base type stays in release-highlights-card.css.
+   Bold uses the site's medium weight; inline code inherits boostlook's treatment. */
 .boostlook.release-highlight__description strong {
   font-weight: var(--font-weight-medium);
 }
