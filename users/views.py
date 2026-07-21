@@ -5,7 +5,6 @@ from allauth.account import app_settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
-from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -549,11 +548,6 @@ class CurrentUserProfileView(
         else:
             for error in form.errors.values():
                 messages.error(request, f"{error}")
-
-    def dispatch(self, request, *args, **kwargs):
-        if isinstance(request.user, AnonymousUser):
-            return HttpResponseRedirect(reverse_lazy("account_login"))
-        return super().dispatch(request, *args, **kwargs)
 
 
 # Custom Allauth Views
