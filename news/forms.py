@@ -52,21 +52,27 @@ class NewsForm(EntryForm):
 
 # v3-only forms: the v3 create page also captures the AI-assisted `summary`.
 class V3BlogPostForm(BlogPostForm):
-    image = forms.ImageField(validators=[downscale_image_file_size_validator])
+    image = forms.ImageField(
+        validators=[downscale_image_file_size_validator], required=False
+    )
 
     class Meta(BlogPostForm.Meta):
         fields = ["title", "publish_at", "content", "summary", "image"]
 
 
 class V3NewsForm(NewsForm):
-    image = forms.ImageField(validators=[downscale_image_file_size_validator])
+    image = forms.ImageField(
+        validators=[downscale_image_file_size_validator], required=False
+    )
 
     class Meta(NewsForm.Meta):
         fields = ["title", "publish_at", "content", "summary", "image"]
 
 
 class V3LinkForm(LinkForm):
-    image = forms.ImageField(validators=[downscale_image_file_size_validator])
+    image = forms.ImageField(
+        validators=[downscale_image_file_size_validator], required=False
+    )
 
     class Meta(LinkForm.Meta):
         fields = ["title", "publish_at", "external_url", "summary", "image"]
@@ -85,7 +91,9 @@ class VideoForm(EntryForm):
 
 
 class V3VideoForm(EntryForm):
-    image = forms.ImageField(validators=[downscale_image_file_size_validator])
+    image = forms.ImageField(
+        validators=[downscale_image_file_size_validator], required=False
+    )
 
     class Meta:
         model = Video
