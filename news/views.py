@@ -388,26 +388,6 @@ class EntryModerationMagicApproveView(View):
         return redirect(entry)
 
 
-def _v3_create_context():
-    """Shared context variables needed by the v3 create-post template."""
-    return {
-        "post_type_options": [
-            ("blog", "Blog"),
-            ("news", "News"),
-            ("video", "Video"),
-            ("link", "Link"),
-        ],
-        "related_libraries_options": [
-            (
-                library.slug,
-                library.name,
-            )
-            for library in Library.objects.all().order_by("name")
-        ],
-        "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
-    }
-
-
 class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = None
     form_class = None
@@ -541,9 +521,61 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
             return response
         return super().dispatch(request, *args, **kwargs)
 
+    def _v3_create_context(self):
+        """Shared context variables needed by the v3 create-post template."""
+        return {
+            "post_type_options": [
+                ("blog", "Blog"),
+                ("news", "News"),
+                ("video", "Video"),
+                ("link", "Link"),
+            ],
+            "related_libraries_options": [
+                ("", "Select"),
+            ]
+            + [
+                (
+                    library.slug,
+                    library.name,
+                )
+                for library in Library.objects.all().order_by("name")
+            ],
+            "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
+            "title": "Create Post",
+        }
+
+    def _v3_edit_context(self, page: PostPage):
+        ctx = {}
+        ctx["title"] = "Edit Post"
+        block_config = self._POST_BLOCK_MAP.get(page.post_content_type, None)
+        form_class = self._POST_TYPE_MAP.get(page.post_content_type, None)
+        print(page.post_content_type)
+        if not block_config or not form_class:
+            messages.error(
+                self.request,
+                _("An internal database error has occurred. Please contact an admin."),
+            )
+            return {}
+
+        return ctx
+
     def get_context_data(self, **kwargs):
+        slug = kwargs.pop("slug", "")
         context = super().get_context_data(**kwargs)
-        context.update(_v3_create_context())
+        if not slug:
+            context.update(self._v3_create_context())
+        else:
+            index_page = PostIndexPage.objects.first()
+            if not index_page:
+                messages.error(
+                    self.request,
+                    _(
+                        "An internal database error has occurred. Please contact an admin."
+                    ),
+                )
+                return self.render_to_response(context)
+            page = index_page.get_children().get(slug=slug).specific
+            context.update(self._v3_edit_context(page))
         return context
 
     def post(self, request, *args, **kwargs):

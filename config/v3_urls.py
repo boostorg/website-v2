@@ -74,6 +74,11 @@ v3_urlpatterns = [
         name="v3-news-create",
     ),
     path(
+        "v3/news/edit/<slug:slug>/",
+        V3AllTypesCreateView.as_view(),
+        name="v3-news-edit",
+    ),
+    path(
         "v3/accounts/login/",
         V3LoginView.as_view(),
         name="v3-login",
