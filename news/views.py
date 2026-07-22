@@ -542,20 +542,50 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
             ],
             "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
             "title": "Create Post",
+            "edit": False,
         }
 
     def _v3_edit_context(self, page: PostPage):
         ctx = {}
+        ctx["edit"] = True
         ctx["title"] = "Edit Post"
-        block_config = self._POST_BLOCK_MAP.get(page.post_content_type, None)
-        form_class = self._POST_TYPE_MAP.get(page.post_content_type, None)
-        print(page.post_content_type)
-        if not block_config or not form_class:
+        form_class = self._POST_TYPE_MAP.get(page.stream_content_type, None)
+        if not form_class:
             messages.error(
                 self.request,
                 _("An internal database error has occurred. Please contact an admin."),
             )
             return {}
+
+        form_data = {
+            "title": page.title,
+            "publish_at": page.go_live_at,
+            "summary": page.summary,
+            "image": page.image,
+            "related_libraries": page.tags.first().slug if page.tags.first() else "",
+        }
+        if page.stream_content_type in ["video", "link"]:
+            form_data["external_url"] = page.external_url
+        else:
+            form_data["content"] = page.content
+
+        form = form_class(form_data)
+        ctx["form"] = form
+
+        ctx["post_type_selected"] = page.stream_content_type
+        ctx["post_type_options"] = [
+            (page.stream_content_type, page.post_content_type),
+        ]
+
+        ctx["related_libraries_options"] = [
+            ("", "Select"),
+        ] + [
+            (
+                library.slug,
+                library.name,
+            )
+            for library in Library.objects.all().order_by("name")
+        ]
 
         return ctx
 

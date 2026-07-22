@@ -256,11 +256,13 @@
           // Restore saved Title / Link URL / Content / Description / Link-Description
           // drafts for the current post type. On a fresh load with no draft this
           // leaves the field untouched.
-          this.restoreTitleDraft();
-          this.restoreExternalUrlDraft();
-          this.restoreContentDraft();
-          this.restoreDescriptionDraft();
-          this.restoreLinkDescriptionDraft();
+          {% if not edit %}
+            this.restoreTitleDraft();
+            this.restoreExternalUrlDraft();
+            this.restoreContentDraft();
+            this.restoreDescriptionDraft();
+            this.restoreLinkDescriptionDraft();
+          {% endif %}
         },
 
         handleFieldChange(e) {
