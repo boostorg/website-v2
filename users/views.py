@@ -117,9 +117,14 @@ class CurrentUserProfileView(
         if self.request.GET.get("edit", "").lower() == "true":
             ctx["user_profile_form"] = V3UserProfileForm(
                 user_links=user.profile_links,
-                initial={"avatar": self.request.user.avatar_url},
+                initial={
+                    "avatar": self.request.user.avatar_url,
+                    "tagline": user.tagline,
+                    "bio": user.biography,
+                },
             )
             ctx["SLACK_PROFILE_URL_PREFIX"] = SLACK_PROFILE_URL_PREFIX
+            ctx["biography_max_length"] = User.BIOGRAPHY_MAX_LENGTH
             ctx["badge_tiers"] = [
                 {"tier": "1", "name": "Bronze"},
                 {"tier": "2", "name": "Silver"},
@@ -372,7 +377,8 @@ class CurrentUserProfileView(
                 }
             ]
             ctx["bio"] = (
-                "Add a short bio to tell the community who you are, what you work on, or what you’re passionate about."
+                user.biography
+                or "Add a short bio to tell the community who you are, what you work on, or what you’re passionate about."
             )
             ctx["profile_post_cta_label"] = "Create a Post"
             ctx["profile_post_cta_url"] = "#"

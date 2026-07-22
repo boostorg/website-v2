@@ -260,13 +260,13 @@ class V3UserProfileForm(forms.Form):
 
     # Left Column Fields
     tagline = forms.CharField(
-        max_length=70,
+        max_length=User.TAGLINE_MAX_LENGTH,
         widget=forms.TextInput(
             attrs={"placeholder": "Placeholder", "display_max_chars": True}
         ),
     )
     bio = forms.CharField(
-        max_length=4000,
+        max_length=User.BIOGRAPHY_MAX_LENGTH,
         help_text="This text field supports Markdown and this content is what will appear on your public profile",
         widget=forms.Textarea(),
     )

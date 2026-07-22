@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
   User Profile - Edit
@@ -29,11 +30,11 @@
               <div class="user-profile__content-actions" x-show="taglineSaveStatus" x-cloak>
               <span class="user-profile__save-indicator" role="status" aria-live="polite">
                 <span class="user-profile__save-state" x-show="taglineSaveStatus === 'saving'" x-cloak>
-                  <span class="user-profile__save-text">Saving</span>
+                  <span class="user-profile__save-text">Saving to draft</span>
                   {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
                 </span>
                 <span class="user-profile__save-state" x-show="taglineSaveStatus === 'saved'" x-cloak>
-                  <span class="user-profile__save-text">Saved</span>
+                  <span class="user-profile__save-text">Saved to draft</span>
                   {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
                 </span>
               </span>
@@ -42,30 +43,31 @@
               </div>
             </div>
             <div class="user-profile__default-space-col">
-              {% comment %} Content (Blog, News): WYSIWYG editor. Char counter, Saving/Saved indicator, and draft persistence are driven by the wysiwyg-update event (see handleWysiwygUpdate). No placeholder by design. {% endcomment %}
-            <div x-data="createWysiwyg" @wysiwyg-update="handleWysiwygUpdate($event)" class="field create-post-page__content-field" :class="{ 'field--error': errors.content }">
+              {% comment %} Content (Blog, News): WYSIWYG editor. Char counter, Saving to draft/Saved to draft indicator, and draft persistence are driven by the wysiwyg-update event (see handleWysiwygUpdate). No placeholder by design. {% endcomment %}
+            <div x-data="createWysiwyg" @wysiwyg-update="handleWysiwygUpdate($event)" class="field create-post-page__content-field" :class="{ 'field--error': errors.content || contentLength >= {{ biography_max_length }} }">
             <div class="field__label-row">
               <label class="field__label" for="field-content">Biography</label>
               <span
               class="field__max-chars"
               aria-hidden="true"
-              x-text="(20000 - contentLength).toLocaleString() + ' left'">
-              20,000 left
+              x-text="({{ biography_max_length }} - contentLength).toLocaleString() + ' left'">
+              {{ biography_max_length|intcomma }} left
             </span>
             </div>
-            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value preset="minimal" only %}
+            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=user_profile_form.bio.value preset="bio" maxlength=biography_max_length only %}
             <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
-            {% comment %} Content auto-save indicator (no Auto-Generate button — that's Description-only). Hidden when nothing is written; driven by contentSaveStatus. {% endcomment %}
+            <p class="field__error" role="alert" x-show="contentLength >= {{ biography_max_length }}" x-cloak aria-live="polite">Character limit reached.</p>
+            {% comment %} Content auto-draft-save indicator (no Auto-Generate button — that's Description-only). Hidden when nothing is written; driven by contentSaveStatus. {% endcomment %}
             <div class="field__label-row">
               <div class="field__help">This text field supports Markdown and this content is what will appear on your public profile</div>
             <div class="user-profile__content-actions" x-show="contentSaveStatus" x-cloak>
               <span class="user-profile__save-indicator" role="status" aria-live="polite">
                 <span class="user-profile__save-state" x-show="contentSaveStatus === 'saving'" x-cloak>
-                  <span class="user-profile__save-text">Saving</span>
+                  <span class="user-profile__save-text">Saving to draft</span>
                   {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
                 </span>
                 <span class="user-profile__save-state" x-show="contentSaveStatus === 'saved'" x-cloak>
-                  <span class="user-profile__save-text">Saved</span>
+                  <span class="user-profile__save-text">Saved to draft</span>
                   {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
                 </span>
               </span>
@@ -140,8 +142,8 @@
             </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
-          {% comment %} Persists the Profile links to the current user via PATCH /api/v1/users/me/. {% endcomment %}
           <div class="card__cta_section">
+            {% comment %} Persists the Profile section to the current user via PATCH /api/v1/users/me/. {% endcomment %}
             {% include 'v3/includes/_button.html' with style='primary' type='button' label='Save Changes' alpine_disabled="saving" alpine_click="save()" only %}
             <span class="user-profile__save-indicator" role="status" aria-live="polite">
               <span class="user-profile__save-state" x-show="saveStatus === 'saved'" x-cloak>
@@ -280,6 +282,11 @@
 
 
   document.addEventListener('alpine:init', () => {
+    // Draft keys are scoped to the logged-in user so drafts never leak across
+    // accounts sharing the same browser.
+    const TAGLINE_DRAFT_KEY = 'boost:editUser:taglineDraft:{{ request.user.pk }}';
+    const BIO_DRAFT_KEY = 'boost:editUser:bioDraft:{{ request.user.pk }}';
+
     window.createTagline = function () {
       const taglineInput = document.querySelector("input[name='{{user_profile_form.tagline.name}}']")
 
@@ -295,11 +302,18 @@
         },
 
         taglineDraftKey() {
-          return 'boost:editUser:taglineDraft';
+          return TAGLINE_DRAFT_KEY;
         },
 
         onTaglineEdited() {
           clearTimeout(this._taglineSaveTimer);
+          // Empty tagline: hide the indicator and drop the draft (mirrors the
+          // Biography behaviour in createWysiwyg.onContentEdited).
+          if (!taglineInput || !taglineInput.value) {
+            this.taglineSaveStatus = '';
+            this.clearTaglineDraft();
+            return;
+          }
           this.taglineSaveStatus = 'saving';
           this._taglineSaveTimer = setTimeout(() => this.saveTaglineDraft(), 800);
         },
@@ -334,30 +348,29 @@
 
     window.createWysiwyg = function () {
       return {
-        content: '{{ user_profile_form.bio|default_if_none:""|escapejs }}',
+        content: '{{ user_profile_form.bio.value|default_if_none:""|escapejs }}',
         contentLength: 0,
         contentSaveStatus: '',       // same states, for the Content field
         _contentSaveTimer: null,
+        _draftRestored: false,
         errors: {
           content:      '{{ user_profile_form.bio.errors.0|default:""|escapejs }}',
         },
 
-
-        async init() {
-          await Alpine.nextTick()
-          this.restoreContentDraft();
-        },
-
         // Bridge from the WYSIWYG editor: keep the counter, indicator, and draft
         // in sync. Programmatic updates (initial load / restore) skip the
-        // "Saving" animation and persistence.
+        // "Saving to draft" animation and persistence.
         handleWysiwygUpdate(e) {
           if (e.detail.id !== 'field-content') return;
-          this.contentLength = e.detail.characters;
+          this.contentLength = e.detail.markdownCharacters;
           this.content = e.detail.value;
-          if (e.detail.programmatic) {
-            this.contentSaveStatus = this.content ? 'saved' : '';
-          } else {
+          // The first (programmatic) update signals the editor is mounted —
+          // restoring any sooner would dispatch into a not-yet-created editor.
+          if (!this._draftRestored) {
+            this._draftRestored = true;
+            this.restoreContentDraft();
+          }
+          if (!e.detail.programmatic) {
             this.onContentEdited();
           }
         },
@@ -369,9 +382,9 @@
           }));
         },
 
-        // ── Content draft: localStorage, keyed per post type (mirrors Description) ──
+        // ── Content draft: localStorage, keyed per user (mirrors Tagline) ──
         contentDraftKey() {
-          return 'boost:userEdit:bioDraft:' + (this.postType || '');
+          return BIO_DRAFT_KEY;
         },
 
         onContentEdited(e) {
@@ -418,6 +431,7 @@
       const linkInput = (type) => document.querySelector(`[data-link-type='${type}']`);
       const SLACK_PROFILE_URL_PREFIX = '{{ SLACK_PROFILE_URL_PREFIX|escapejs }}';
       const SLACK_MEMBER_ID_PATTERN = /^[A-Z0-9]{9,11}$/i;
+      const taglineInput = document.querySelector("input[name='{{user_profile_form.tagline.name}}']");
 
       return {
         saving: false,
@@ -497,6 +511,12 @@
           return links;
         },
 
+        // The <textarea> only syncs on form submit, which we don't use; read the live value.
+        currentBiography() {
+          const el = document.querySelector('[x-data="createWysiwyg"]');
+          return el && window.Alpine ? (Alpine.$data(el).content || '') : '';
+        },
+
         async save() {
           if (this.saving) return;
 
@@ -509,6 +529,13 @@
           });
           if (hasError) return;
 
+          const biography = this.currentBiography();
+          if (biography.length > {{ biography_max_length }}) {
+            this.saveStatus = 'error';
+            this.saveError = 'Biography is too long. Please shorten it and try again.';
+            return;
+          }
+
           this.saving = true;
           this.saveStatus = '';
           this.saveError = '';
@@ -519,7 +546,11 @@
                 'X-CSRFToken': '{{ csrf_token }}',
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ profile_links: this.collectLinks() }),
+              body: JSON.stringify({
+                profile_links: this.collectLinks(),
+                tagline: taglineInput ? taglineInput.value : '',
+                biography: biography,
+              }),
             });
             if (!res.ok) {
               let data = {};
@@ -542,6 +573,12 @@
               throw new Error(fieldErrors.length ? fieldErrors.join(' ') : `Save failed (${res.status})`);
             }
             this.saveStatus = 'saved';
+            // The server now holds these values; drop the drafts so they can't
+            // shadow the saved data on the next visit.
+            try {
+              localStorage.removeItem(TAGLINE_DRAFT_KEY);
+              localStorage.removeItem(BIO_DRAFT_KEY);
+            } catch (_) {}
           } catch (err) {
             console.error('Profile save failed:', err);
             this.saveStatus = 'error';

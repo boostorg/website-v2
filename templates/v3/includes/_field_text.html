@@ -65,7 +65,7 @@
     {% elif alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"
     {% elif max_chars %}
     x-data="{
-      value: '',
+      value: '{{ value|default:''|escapejs }}',
       maxChars: {{max_chars}},
       get charLeft() {
         return Number(this.maxChars) - this.value?.length || 0;
@@ -103,6 +103,7 @@
            {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}
            {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
            {% if value %}value="{{ value }}"{% endif %}
+           {% if max_chars %}maxlength="{{ max_chars }}"{% endif %}
            {% if required %}required{% endif %}
            {% if disabled %}disabled{% endif %}
            {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ name }}-error' : {% if help_text %}'field-{{ name }}-help'{% else %}null{% endif %}
@@ -133,7 +134,7 @@
     <p class="field__error" x-cloak x-show="isEmpty" role="alert">This field is required.</p>
   {% endif %}
   {% if max_chars and display_max_chars %}
-    <p class="field__error" x-cloak x-show="isTooLong" role="alert">This field is too long.</p>
+    <p class="field__error" x-cloak x-show="isTooLong" role="alert">Character limit reached.</p>
   {% endif %}
   {% if alpine_error %}
     <p class="field__error"

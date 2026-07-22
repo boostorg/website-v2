@@ -215,14 +215,19 @@
     z-index: 10;
 }
 
+.user-profile__content-actions {
+  flex-shrink: 0;
+}
+
 .user-profile__save-indicator {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-tertiary);
+  white-space: nowrap;
 }
 
 .user-profile__save-state {
