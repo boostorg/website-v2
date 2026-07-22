@@ -197,7 +197,7 @@ def build_library_highlight_carousel(limit=3):
         lv = library_versions.get(library.id)
         first_version = library.first_boost_version
         slides_by_id[library.id] = {
-            "name": library.display_name_short,
+            "name": library.name,
             "category_tags": [
                 (
                     {
