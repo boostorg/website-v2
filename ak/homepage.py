@@ -196,6 +196,14 @@ def build_library_highlight_carousel(limit=3):
     for library in libraries:
         lv = library_versions.get(library.id)
         first_version = library.first_boost_version
+        # Fall back to the library detail page when the latest release has no
+        # documentation URL, so the CTA always points somewhere useful.
+        docs_url = get_documentation_url(lv, latest=True) if lv else ""
+        if not docs_url:
+            docs_url = reverse(
+                "library-detail",
+                kwargs={"version_slug": "latest", "library_slug": library.slug},
+            )
         slides_by_id[library.id] = {
             "name": library.name,
             "category_tags": [
@@ -214,7 +222,7 @@ def build_library_highlight_carousel(limit=3):
                 (lv.description if lv else None) or library.description or ""
             ),
             "added_in_version": (first_version.display_name if first_version else ""),
-            "docs_url": get_documentation_url(lv, latest=True) if lv else "",
+            "docs_url": docs_url,
         }
 
     if highlighted_ids:

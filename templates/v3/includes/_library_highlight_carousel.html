@@ -134,7 +134,7 @@
     {# Static CTA — one per slide stacked in place, only the active one shown. #}
     {% for slide in slides %}
       {% with cnt=forloop.counter|stringformat:"s" %}
-        {% include "v3/includes/_button.html" with label="View documentation" url=slide.docs_url|default:"#" extra_classes="btn-flex library-highlight-carousel__button library-highlight-carousel__button--"|add:cnt %}
+        {% include "v3/includes/_button.html" with label="View documentation" url=slide.docs_url extra_classes="btn-flex library-highlight-carousel__button library-highlight-carousel__button--"|add:cnt %}
       {% endwith %}
     {% endfor %}
   {% else %}
