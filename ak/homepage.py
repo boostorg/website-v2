@@ -5,18 +5,10 @@ from django.urls import reverse
 from core.constants import SLACK_MEMBER_COUNT
 from core.models import HomepageSettings
 from core.templatetags.custom_static import large_static
-from libraries.models import LibraryVersion, Tier
-from libraries.utils import build_library_intro_context
+from libraries.models import FEATURED_LIBRARY_TIERS, Library, LibraryVersion
+from libraries.utils import build_library_intro_context, get_documentation_url
 from news.models import Entry
 from versions.models import Version
-
-# Fallback code snippet shown on the Get Started card when no featured
-# library snippet is available. TODO: replace with a proper empty state.
-HELLO_WORLD_SNIPPET = """#include <iostream>
-int main()
-{
-    std::cout << "Hello, Boost.";
-}"""
 
 # Hero illustration for the V3 homepage.
 HERO_LEGACY_IMAGE_URL_LIGHT = large_static("img/v3/home-page/heros.png")
@@ -45,7 +37,7 @@ def get_v3_featured_library():
     return (
         LibraryVersion.objects.filter(
             version=latest_version,
-            library__tier__in=[Tier.FLAGSHIP, Tier.CORE],
+            library__tier__in=FEATURED_LIBRARY_TIERS,
         )
         .order_by("?")
         .first()
@@ -152,16 +144,96 @@ def build_join_developers_links():
     ]
 
 
-def build_get_started_code():
-    """The Get Started code card. Hardcoded for now; a redesign of this
-    component is tracked in a separate PR.
+def build_library_highlight_carousel(limit=3):
+    """Per-slide content for the homepage 'Explore battle tested libraries'
+    carousel.
+
+    Shows the libraries an editor curated in HomepageSettings; when fewer than
+    `limit` are curated, the remaining slots are filled with random flagship/core
+    libraries in the latest release (admins may curate more than `limit`). When
+    admins curate libraries, their pinned order is preserved (fallback top-ups
+    follow); with no pins, slides are ordered by description length for UI
+    appearance. Returns a list of dicts (name, category_tags, description,
+    added_in_version, docs_url); empty when no candidate library exists.
     """
-    return {
-        "heading": "Get started with our libraries",
-        "code": HELLO_WORLD_SNIPPET,
-        "language": "cpp",
-        "library_slug": "",
+    latest = Version.objects.most_recent()
+    highlighted_ids = list(
+        HomepageSettings.load().highlighted_libraries.values_list("id", flat=True)
+    )
+    library_ids = list(highlighted_ids)
+
+    # Admins may curate more than `limit`; only top up when they curate fewer.
+    remaining_slots = limit - len(highlighted_ids)
+    if remaining_slots > 0:
+        library_ids += list(
+            Library.objects.filter(
+                tier__in=FEATURED_LIBRARY_TIERS,
+                library_version__version=latest,
+            )
+            .exclude(id__in=highlighted_ids)
+            .distinct()
+            .order_by("?")
+            .values_list("id", flat=True)[:remaining_slots]
+        )
+
+    libraries = Library.objects.filter(id__in=library_ids).prefetch_related(
+        "categories"
+    )
+    if not libraries:
+        return []
+
+    library_versions = {
+        lv.library_id: lv
+        for lv in LibraryVersion.objects.filter(library__in=libraries, version=latest)
     }
+
+    category_list_url = reverse(
+        "libraries-list",
+        kwargs={"version_slug": "latest", "library_view_str": "list"},
+    )
+
+    slides_by_id = {}
+    for library in libraries:
+        lv = library_versions.get(library.id)
+        first_version = library.first_boost_version
+        # Fall back to the library detail page when the latest release has no
+        # documentation URL, so the CTA always points somewhere useful.
+        docs_url = get_documentation_url(lv, latest=True) if lv else ""
+        if not docs_url:
+            docs_url = reverse(
+                "library-detail",
+                kwargs={"version_slug": "latest", "library_slug": library.slug},
+            )
+        slides_by_id[library.id] = {
+            "name": library.name,
+            "category_tags": [
+                (
+                    {
+                        **tag,
+                        "url": f"{category_list_url}?category={tag['slug']}",
+                        "aria_label": f"Browse {tag['label']} libraries",
+                    }
+                    if tag["slug"]
+                    else tag
+                )
+                for tag in library.category_tags
+            ],
+            "description": (
+                (lv.description if lv else None) or library.description or ""
+            ),
+            "added_in_version": (first_version.display_name if first_version else ""),
+            "docs_url": docs_url,
+        }
+
+    if highlighted_ids:
+        # Respect the admin's pinned order; fallback top-ups follow.
+        return [slides_by_id[lib_id] for lib_id in library_ids]
+    # No pins: order by description length, then category count, for looks.
+    return sorted(
+        slides_by_id.values(),
+        key=lambda slide: (len(slide["description"]), len(slide["category_tags"])),
+        reverse=True,
+    )
 
 
 def build_library_intro():

@@ -132,8 +132,12 @@ body:has(.homepage-v3) .header {
       max-width: 100%;
     }
 
+    .card-masonry-top .item-d .library-highlight-carousel {
+      max-width: 100%;
+    }
+
     .card-masonry-top {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         grid-template-areas:
             "a f"
             "a c"
@@ -143,6 +147,10 @@ body:has(.homepage-v3) .header {
             "e b"
             "e ."
         ;
+    }
+
+    .card-masonry-top > div {
+        min-width: 0;
     }
 
     .card-masonry-top .item-f {
