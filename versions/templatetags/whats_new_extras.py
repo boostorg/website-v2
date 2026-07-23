@@ -1,6 +1,6 @@
 import re
 
-import bleach
+import nh3
 from django import template
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -12,7 +12,7 @@ register = template.Library()
 # same position — e.g. `a**b**c` stays a code span, the inner ** is not bolded.
 _INLINE_RE = re.compile(r"`([^`]+)`|\*\*([^*]+?)\*\*")
 
-# The only tags inline_markdown is allowed to emit. bleach (already a project
+# The only tags inline_markdown is allowed to emit. nh3 (already a project
 # dependency via wagtail-markdown) is the source of truth for this allowlist.
 _ALLOWED_TAGS = ["code", "strong"]
 
@@ -30,10 +30,10 @@ def inline_markdown(value):
     Scoped to what `WHATS_NEW_SYSTEM_PROMPT` permits in description bullets:
     code identifiers in single backticks and double-asterisk bold. The input is
     escaped first so raw markup becomes inert text, the two permitted spans are
-    converted, then `bleach.clean` enforces the allowlist on the result.
+    converted, then `nh3.clean` enforces the allowlist on the result.
     """
     if not value:
         return ""
     html = _INLINE_RE.sub(_replace_span, escape(value))
-    cleaned = bleach.clean(html, tags=_ALLOWED_TAGS, attributes={}, strip=True)
+    cleaned = nh3.clean(html, tags=set(_ALLOWED_TAGS), attributes={})
     return mark_safe(cleaned)

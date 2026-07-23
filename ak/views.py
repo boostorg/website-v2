@@ -26,8 +26,8 @@ from testimonials.models import Testimonial
 from ak.homepage import (
     WHY_BOOST_CARDS,
     build_community_posts,
-    build_get_started_code,
     build_join_developers_links,
+    build_library_highlight_carousel,
     build_library_intro,
     hero_image_context,
 )
@@ -116,8 +116,8 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         # Testimonial Card
         ctx["testimonial_cards"] = get_testimonial_cards(limit=5)
 
-        # Get Started Card
-        ctx["get_started_code"] = build_get_started_code()
+        # Library Highlight Carousel ("Explore battle tested libraries")
+        ctx["library_highlight_carousel"] = build_library_highlight_carousel()
 
         # Library Intro Card
         ctx["library_intro"] = build_library_intro()

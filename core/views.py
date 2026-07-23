@@ -1852,6 +1852,47 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
             },
         ]
 
+        context["demo_library_highlight_slides"] = [
+            {
+                "name": "Beast",
+                "category_tags": [
+                    {"label": "Concurrent", "slug": "concurrent"},
+                    {"label": "IO", "slug": "io"},
+                ],
+                "description": (
+                    "Portable HTTP, WebSocket, and network operations using only "
+                    "C++11 and Boost.Asio. Designed for performance at scale."
+                ),
+                "added_in_version": "1.66.0",
+                "docs_url": "#",
+            },
+            {
+                "name": "Asio",
+                "category_tags": [
+                    {"label": "Concurrent", "slug": "concurrent"},
+                    {"label": "IO", "slug": "io"},
+                ],
+                "description": (
+                    "Cross-platform C++ library for network and low-level I/O "
+                    "programming with a consistent asynchronous model."
+                ),
+                "added_in_version": "1.35.0",
+                "docs_url": "#",
+            },
+            {
+                "name": "Hana",
+                "category_tags": [
+                    {"label": "Metaprogramming", "slug": "metaprogramming"},
+                ],
+                "description": (
+                    "A modern C++ metaprogramming library for computations on both "
+                    "types and values."
+                ),
+                "added_in_version": "1.61.0",
+                "docs_url": "#",
+            },
+        ]
+
         context["learn_card_data"] = {
             "title": "I want to learn:",
             "text": "How to install Boost, use its libraries, build projects, and get help when you need it.",

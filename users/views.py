@@ -129,6 +129,8 @@ class CurrentUserProfileView(
             "avatar": user.avatar_url,
             "username": user.display_name,
             "email": user.email,
+            "tagline": user.tagline,
+            "bio": user.biography,
             "country": user.country.code,
             "indicate_last_login_method": user.indicate_last_login_method,
             "override_commit_author_name": user.is_commit_author_name_overridden,
@@ -160,6 +162,7 @@ class CurrentUserProfileView(
         return {
             "user_profile_form": form,
             "SLACK_PROFILE_URL_PREFIX": SLACK_PROFILE_URL_PREFIX,
+            "biography_max_length": User.BIOGRAPHY_MAX_LENGTH,
             "country_options": form.fields["country"].choices,
             "profile_account_edit_url": self.get_v3_edit_url(),
             "saved_sections": {
@@ -424,7 +427,8 @@ class CurrentUserProfileView(
                 }
             ]
             ctx["bio"] = (
-                "Add a short bio to tell the community who you are, what you work on, or what you’re passionate about."
+                user.biography
+                or "Add a short bio to tell the community who you are, what you work on, or what you’re passionate about."
             )
             ctx["profile_post_cta_label"] = "Create a Post"
             ctx["profile_post_cta_url"] = "#"

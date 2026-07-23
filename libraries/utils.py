@@ -533,7 +533,11 @@ def build_library_intro_context(
             .order_by("-count")[:remaining]
         )
 
-    author_dicts = [user.to_v3_profile_dict(role=roles[user.id]) for user in combined]
+    author_dicts = []
+    for user in combined:
+        profile = user.to_v3_profile_dict(role=roles[user.id])
+        profile["bio"] = user.tagline
+        author_dicts.append(profile)
     author_dicts.extend(
         contributor.to_v3_profile_dict("Contributor")
         for contributor in top_contributors

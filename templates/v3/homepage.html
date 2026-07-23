@@ -31,8 +31,7 @@
         {% include "v3/includes/_post_card.html" with heading="Posts from the Boost Community" items=community_posts variant="card" theme="teal" primary_cta_label="View all posts" primary_cta_url=posts_url %}
       </div>
         <div class="item-d">
-          {% url 'library-detail' version_slug='latest' library_slug=get_started_code.library_slug as get_started_url %}
-          {% include "v3/includes/_code_block_card.html" with heading=get_started_code.heading code=get_started_code.code language=get_started_code.language block_variant="grey-bg" button_text="View library" button_url=get_started_url button_aria_label="Explore examples" %}
+          {% include "v3/includes/_library_highlight_carousel.html" with carousel_id="library-highlight" slides=library_highlight_carousel %}
         </div>
       <div class="item-e homepage-join-card">
         {% include "v3/includes/_join_card.html" with heading="Join developers building the future of C++" items=join_developers_links variant="card" theme="yellow" primary_cta_label="Explore the community" primary_cta_url=community_url %}

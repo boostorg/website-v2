@@ -26,7 +26,7 @@
     - label_x_text (optional): Alpine.js expression that dynamically overrides the button's visible
         label (e.g. "saved ? 'Changes Saved' : 'Save changes'"). Requires an ancestor x-data scope.
         Not compatible with icon_html/icon_name (x-text replaces the button's children).
-    - alpine_click (optional): Alpine.js expression run on click (e.g. "save()")
+    - alpine_click (optional): Alpine.js expression for a click handler (e.g. "save()"); button must sit inside an x-data scope
     - extra_classes (optional) : Any extra classes that the button should have, as a string
     - aria_label (optional): An optional label for assistive technology. Defaults to the button label
     - js_disabled (optional, boolean): If this value is true, the button is hidden unless Javascript is disabled on the page

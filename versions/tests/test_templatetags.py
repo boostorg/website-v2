@@ -64,7 +64,7 @@ def test_inline_markdown_does_not_bold_inside_code_span():
     assert inline_markdown("`a**b**c`") == "<code>a**b**c</code>"
 
 
-def test_inline_markdown_strips_disallowed_tags_via_bleach():
-    """bleach enforces the <code>/<strong> allowlist; an unescaped angle
+def test_inline_markdown_strips_disallowed_tags_via_nh3():
+    """nh3 enforces the <code>/<strong> allowlist; an unescaped angle
     bracket inside a bold span is neutralized without dropping content."""
     assert inline_markdown("**a<b** test") == "<strong>a&lt;b</strong> test"

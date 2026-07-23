@@ -11,6 +11,10 @@
   gap: var(--space-default, 8px);
 }
 
+.field + .field__label-row {
+  margin-top: var(--space-default);
+}
+
 .field__label {
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);

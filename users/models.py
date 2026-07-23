@@ -200,6 +200,9 @@ class User(BaseUser):
     NOTE: See ./signals.py for signals that relate to this model.
     """
 
+    TAGLINE_MAX_LENGTH = 70
+    BIOGRAPHY_MAX_LENGTH = 20000
+
     badges = models.ManyToManyField(Badge)
     # todo: consider making this unique=True after checking user data for duplicates
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
@@ -285,6 +288,18 @@ class User(BaseUser):
             "user's Slack Member ID. The Member ID is derived for display in "
             "the edit form."
         ),
+    )
+    tagline = models.CharField(
+        max_length=TAGLINE_MAX_LENGTH,
+        blank=True,
+        default="",
+        help_text="Short plain-text tagline shown beside the avatar across the site.",
+    )
+    biography = models.TextField(
+        max_length=BIOGRAPHY_MAX_LENGTH,
+        blank=True,
+        default="",
+        help_text="Rich-text biography (stored as Markdown) shown on the public profile.",
     )
     # If non-null, the user has requested deletion but the grace period has not
     # elapsed.

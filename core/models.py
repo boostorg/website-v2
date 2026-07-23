@@ -144,18 +144,20 @@ class SiteSettings(models.Model):
 
 
 class HomepageSettingsForm(WagtailAdminModelForm):
-    """Scopes the featured-library chooser to flagship and core libraries
-    present in the latest stable release, A→Z."""
+    """Scopes the library choosers to flagship and core libraries present in
+    the latest stable release, A→Z."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        from libraries.models import Library, Tier
+        from libraries.models import FEATURED_LIBRARY_TIERS, Library
 
-        qs = Library.objects.filter(tier__in=[Tier.FLAGSHIP, Tier.CORE])
+        qs = Library.objects.filter(tier__in=FEATURED_LIBRARY_TIERS)
         latest = Version.objects.most_recent()
         if latest:
             qs = qs.filter(library_version__version=latest)
-        self.fields["featured_library"].queryset = qs.order_by(Lower("name"))
+        qs = qs.order_by(Lower("name"))
+        self.fields["featured_library"].queryset = qs
+        self.fields["highlighted_libraries"].queryset = qs
 
 
 @register_setting
@@ -178,7 +180,22 @@ class HomepageSettings(BaseGenericSetting):
         ),
     )
 
-    panels = [FieldPanel("featured_library")]
+    highlighted_libraries = models.ManyToManyField(
+        "libraries.Library",
+        blank=True,
+        related_name="+",
+        help_text=(
+            "Libraries shown in the homepage 'Explore battle tested "
+            "libraries' carousel. Only flagship and core libraries present in "
+            "the latest stable release are listed. If empty, a random "
+            "selection of flagship or core libraries is used."
+        ),
+    )
+
+    panels = [
+        FieldPanel("featured_library"),
+        FieldPanel("highlighted_libraries"),
+    ]
 
     class Meta:
         verbose_name = "Homepage Settings"
