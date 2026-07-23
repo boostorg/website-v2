@@ -15,10 +15,10 @@ from core.calendar import (
     upcoming_events,
 )
 from core.constants import HOMEPAGE_POPULAR_TERMS_DISPLAY
+from core.hero import home_hero_context
 from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
 from core.models import PopularSearchTerm
-from core.templatetags.custom_static import large_static
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
 from mailing_list.constants import MAILING_LIST_LABELS
@@ -142,20 +142,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             ]
             ctx["post_auth_modal_user_email"] = user.email
 
-        # Hero foreground/background swapped with the community hero (see
-        # CommunityView): home now shows the community scene and vice versa.
-        home_foreground = large_static("img/v3/community-page/community-foreground.png")
-        ctx["hero_image_url"] = home_foreground
-        ctx["hero_image_url_light"] = home_foreground
-        ctx["hero_image_url_dark"] = home_foreground
-        # Mobile art-direction: a tightly-trimmed foreground so it isn't letterboxed
-        # on narrow screens. Desktop/tablet keep the wide foreground above.
-        ctx["hero_image_url_mobile"] = large_static(
-            "img/v3/community-page/community-foreground-mobile.png"
-        )
-        ctx["hero_background_image_url"] = large_static(
-            "img/v3/community-page/community-background.png"
-        )
+        ctx.update(home_hero_context())
         return ctx
 
 

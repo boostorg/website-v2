@@ -71,6 +71,7 @@ from .constants import (
     SLACK_MEMBER_COUNT,
     STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES,
 )
+from .hero import community_hero_context
 from .htmlhelper import (
     modernize_legacy_page,
     convert_name_to_id,
@@ -338,18 +339,7 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
         ctx["archive_url"] = (
             "https://lists.boost.org/archives/list/boost@lists.boost.org/latest"
         )
-        # Hero foreground/background swapped with the home hero (see HomeView):
-        # community now shows the home scene and vice versa.
-        ctx["hero_image_url"] = large_static(
-            "img/v3/home-page/home-page-foreground.png"
-        )
-        # Mobile art-direction: a tighter crop swapped in via <picture> at <=767px.
-        ctx["hero_image_url_mobile"] = large_static(
-            "img/v3/home-page/home-page-foreground-mobile.png"
-        )
-        ctx["hero_background_image_url"] = large_static(
-            "img/v3/home-page/home-page-background.png"
-        )
+        ctx.update(community_hero_context())
         return ctx
 
 
