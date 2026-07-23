@@ -398,9 +398,6 @@ def _v3_create_context():
             ("link", "Link"),
         ],
         "related_libraries_options": [
-            ("", "Select"),
-        ]
-        + [
             (
                 library.slug,
                 library.name,
