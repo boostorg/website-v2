@@ -588,7 +588,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                         "An internal database error has occurred. Please contact an admin."
                     ),
                 )
-                context = self.get_context_data()
+                context = self.get_context_data(form=form, post_type_selected=post_type)
                 return self.render_to_response(context)
 
             try:
@@ -613,26 +613,29 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                     )
                     page.image = wagtail_image
                 tags = []
-                if related_library := post_data.get("related_libraries"):
-                    try:
-                        lib = Library.objects.get(slug=related_library)
-                    except Library.DoesNotExist:
-                        messages.error(
-                            request,
-                            _(
-                                "That related library does not exist, please select another."
-                            ),
-                        )
-                        context = self.get_context_data()
-                        return self.render_to_response(context)
+                if related_libraries := post_data.getlist("related_libraries"):
+                    for library in related_libraries:
+                        try:
+                            lib = Library.objects.get(slug=library)
+                        except Library.DoesNotExist:
+                            messages.error(
+                                request,
+                                _(
+                                    "That related library does not exist, please select another."
+                                ),
+                            )
+                            context = self.get_context_data(
+                                form=form, post_type_selected=post_type
+                            )
+                            return self.render_to_response(context)
 
-                    tag, created = ContentTag.objects.get_or_create(
-                        slug=lib.slug,
-                        defaults={
-                            "name": lib.name,
-                        },
-                    )
-                    tags.append(tag)
+                        tag, created = ContentTag.objects.get_or_create(
+                            slug=lib.slug,
+                            defaults={
+                                "name": lib.name,
+                            },
+                        )
+                        tags.append(tag)
                 index_page.add_child(instance=page)
                 if tags:
                     page.tags.add(*tags)

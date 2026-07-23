@@ -325,6 +325,9 @@ def set_summary_for_link_page(pk: int):
         logger.debug(f"Fetched {len(markup)=} for entry.{pk=}...")
         _title, content = extract_article(markup)
         logger.info(f"extracted content from {external_url=}, {markup[:100]=}")
+    except UnsafeURLError:
+        logger.warning(f"Refusing to fetch unsafe {external_url=} for {pk=}")
+        return
     except requests.RequestException as e:
         logger.error(f"Error fetching content from {external_url=}: {e=}")
         return
