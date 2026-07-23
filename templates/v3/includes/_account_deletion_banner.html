@@ -19,7 +19,7 @@
     <span class="deletion-banner__message">
       Your account is scheduled for deletion on {{ request.user.delete_permanently_at|date:'N j, Y, P e' }}.
     </span>
-    <form method="post" action="{% url 'profile-cancel-delete' %}" class="deletion-banner__form">
+    <form method="post" action="{{ profile_cancel_delete_url }}" class="deletion-banner__form">
       {% csrf_token %}
       <button type="submit" class="deletion-banner__cancel">Cancel deletion</button>
     </form>
