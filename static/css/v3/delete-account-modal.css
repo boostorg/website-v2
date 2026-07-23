@@ -146,16 +146,3 @@
   border: 0;
   background-color: var(--color-stroke-weak);
 }
-
-/* Delete-account card actions: cancel / delete-now sit side by side. */
-.user-profile__delete-account-actions {
-  display: flex;
-  flex-direction: row;
-  gap: var(--space-default);
-  align-items: center;
-}
-
-.user-profile__delete-inline-form {
-  margin: 0;
-  display: contents;
-}
