@@ -96,11 +96,6 @@ def send_account_deleted_email(email):
     )
 
 
-# External Postorius (Mailman) instance where users manage their own mailing
-# list subscriptions - kept in sync with the delete modal / profile view copy.
-POSTORIUS_URL = "https://lists.boost.org/mailman3/lists/"
-
-
 @shared_task
 def send_account_deletion_scheduled_email(
     email, first_name, grace_days, login_url, scheme, host
@@ -114,7 +109,7 @@ def send_account_deletion_scheduled_email(
         "first_name": first_name,
         "grace_days": grace_days,
         "action_url": login_url,
-        "postorius_url": POSTORIUS_URL,
+        "postorius_url": settings.POSTORIUS_URL,
         "scheme": scheme,
         "host": host,
     }

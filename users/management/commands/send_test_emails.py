@@ -245,7 +245,7 @@ def command(
             "unsubscribe_url": f"{base_url}/account/unsubscribe",
             # Account-deletion-scheduled email context.
             "grace_days": settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS,
-            "postorius_url": "https://lists.boost.org/mailman3/lists/",
+            "postorius_url": settings.POSTORIUS_URL,
             # Link lifetimes shown in the email bodies, sourced from the same
             # settings the real flows enforce (allauth email confirmation in
             # days, Django's password reset token timeout in seconds).

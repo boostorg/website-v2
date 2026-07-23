@@ -212,9 +212,7 @@ class CurrentUserProfileView(
         )
         ctx["profile_delete_url"] = reverse("profile-delete")
         ctx["profile_cancel_delete_url"] = reverse("profile-cancel-delete")
-        # External Boost Postorius (Mailman) instance - users manage their
-        # own mailing list subscriptions there after deletion.
-        ctx["postorius_url"] = "https://lists.boost.org/mailman3/lists/"
+        ctx["postorius_url"] = settings.POSTORIUS_URL
         return ctx
 
     def get_v3_context_data(self, **kwargs):

@@ -388,6 +388,10 @@ MAILMAN_REST_API_VERSION = env("MAILMAN_REST_API_VERSION", default="3.1")
 MAILMAN_REST_API_USER = env("MAILMAN_REST_API_USER", default="restadmin")
 MAILMAN_REST_API_PASS = env("MAILMAN_REST_API_PASS", default="restpass")
 
+# External Postorius (Mailman) instance where users manage their own mailing
+# list subscriptions.
+POSTORIUS_URL = env("POSTORIUS_URL", default="https://lists.boost.org/mailman3/lists/")
+
 # Fastly API credentials
 FASTLY_SERVICE = env("FASTLY_SERVICE", default="empty")
 FASTLY_SERVICE2 = env("FASTLY_SERVICE2", default="empty")
