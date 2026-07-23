@@ -559,7 +559,9 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
         form_data = {
             "title": page.title,
-            "publish_at": page.go_live_at,
+            "publish_at": page.go_live_at.replace(tzinfo=None).isoformat(
+                timespec="minutes"
+            ),
             "summary": page.summary,
             "image": page.image,
             "related_libraries": page.tags.first().slug if page.tags.first() else "",
@@ -570,6 +572,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
             form_data["content"] = page.content
 
         form = form_class(form_data)
+        print(page.go_live_at.isoformat())
         ctx["form"] = form
 
         ctx["post_type_selected"] = page.stream_content_type
