@@ -964,9 +964,8 @@ class UserAvatar(TemplateView):
         return response
 
 
-# Confirmation-phrase error shown inline in the delete modal; mirrors the
-# DeleteAccountForm.clean_verify message so JS and no-JS paths read the same.
-DELETE_CONFIRM_ERROR = 'Please enter "delete my account"'
+# Confirmation-phrase error shown inline in the delete modal.
+DELETE_CONFIRM_ERROR = DeleteAccountForm.CONFIRM_ERROR
 
 
 def _v3_profile_edit_url(fragment="", error=False):
