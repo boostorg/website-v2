@@ -101,6 +101,11 @@
      TEXT SEMANTIC COLORS
      ============================================ */
   --color-text-error: var(--color-error-strong);
+  /* Brighter red for high-emphasis warning banners (e.g. destructive-action
+     notices), distinct from --color-text-error's smaller inline field
+     validation text. Same value in both themes - already has good contrast
+     against dark surfaces, so no themes.css override is needed. */
+  --color-text-error-emphasis: var(--color-error-mid);
   --color-text-link-accent: var(--color-secondary-dark-blue);
   --color-text-on-accent: var(--color-primary-black);
   --color-text-reversed: var(--color-primary-white);

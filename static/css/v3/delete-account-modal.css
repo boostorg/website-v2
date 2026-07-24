@@ -42,12 +42,13 @@
 
 .delete-account-modal__warning {
   margin: 0;
-  padding: var(--space-default) var(--space-large) var(--space-large);
+  padding: 0 var(--space-large) var(--space-large);
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-default);
-  color: var(--color-text-error);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-error-emphasis);
 }
 
 /* Full-bleed rule between the warning and the white card (Figma "Line 161"). */
