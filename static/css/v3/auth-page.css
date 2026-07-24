@@ -262,7 +262,9 @@ body:has(.auth-page) .header {
   }
 
   .auth-page__content {
-    padding: var(--space-medium);
+    padding-top: 56px;
+    padding-inline: var(--space-card);
+    padding-bottom: var(--space-xxl);
     align-items: flex-start;
     margin-top: 0;
   }
