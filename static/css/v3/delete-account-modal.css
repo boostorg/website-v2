@@ -91,7 +91,7 @@
 .delete-account-modal__summary-title {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-small);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-default);
   color: var(--color-text-primary);
@@ -103,9 +103,9 @@
   list-style: disc;
   list-style-position: outside;
   font-family: var(--font-sans);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-small);
   font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-default);
+  line-height: var(--line-height-relaxed);
   color: var(--color-text-secondary);
 }
 
