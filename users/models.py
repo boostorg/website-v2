@@ -430,7 +430,7 @@ class User(BaseUser):
         return User.objects.filter(github_username=github_user).first()
 
     @transaction.atomic
-    def delete_account(self):
+    def delete_account(self, extended_scrub=False):
         from . import tasks
 
         email = self.email
@@ -457,16 +457,23 @@ class User(BaseUser):
         self.last_name = "Doe"
         self.display_name = "John Doe"
         self.email = "deleted-{}@example.com".format(uuid.uuid4())
-        self.github_username = ""
-        self.profile_links = {}
-        self.indicate_last_login_method = False
-        self.image_uploaded = False
-        self.badges.clear()
+
+        # These fields are only scrubbed for the V3 deletion flow - gating
+        # them keeps legacy (flag-off) deletion byte-identical to production.
+        if extended_scrub:
+            self.github_username = ""
+            self.profile_links = {}
+            self.indicate_last_login_method = False
+            self.image_uploaded = False
+            self.badges.clear()
 
         # Remove the avatar/HQ images and the cached thumbnail. File deletes are
         # deferred to on_commit so a rolled-back transaction leaves them intact.
         self.delete_cached_thumbnail()
-        for field_name in ("profile_image", "hq_image"):
+        image_fields = (
+            ("profile_image", "hq_image") if extended_scrub else ("profile_image",)
+        )
+        for field_name in image_fields:
             image = getattr(self, field_name)
             if image:
                 transaction.on_commit(lambda img=image: img.delete(save=False))

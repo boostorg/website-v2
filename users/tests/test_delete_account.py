@@ -33,7 +33,7 @@ def test_delete_account_scrubs_pii_and_identity(
     original_id = user.id
 
     with django_capture_on_commit_callbacks(execute=True):
-        user.delete_account()
+        user.delete_account(extended_scrub=True)
 
     user.refresh_from_db()
     # The row is preserved (authored content stays attributed to it).

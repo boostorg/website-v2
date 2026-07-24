@@ -1058,6 +1058,6 @@ class DeleteImmediatelyView(LoginRequiredMixin, SuccessMessageMixin, FormView):
 
     def form_valid(self, form):
         user = self.get_object()
-        user.delete_account()
+        user.delete_account(extended_scrub=flag_is_active(self.request, "v3"))
         auth.logout(self.request)
         return super().form_valid(form)
