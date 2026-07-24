@@ -6,6 +6,7 @@ import waffle.testutils
 from model_bakery import baker
 
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
 from django.utils import timezone
 
 from mailing_list.models import SubscriptionStatus, UserMailingListSubscription
@@ -27,6 +28,7 @@ def test_delete_account_scrubs_pii_and_identity(
     user.indicate_last_login_method = True
     user.image_uploaded = True
     user.save()
+    user.hq_image.save("hq.png", ContentFile(b"hq-image-bytes"), save=True)
     user.badges.add(baker.make("users.Badge"))
 
     original_email = user.email
@@ -51,6 +53,7 @@ def test_delete_account_scrubs_pii_and_identity(
     assert user.indicate_last_login_method is False
     assert user.image_uploaded is False
     assert not user.profile_image
+    assert not user.hq_image
     assert user.badges.count() == 0
     assert user.delete_permanently_at is None
 
