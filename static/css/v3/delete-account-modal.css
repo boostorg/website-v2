@@ -68,11 +68,12 @@
   overflow: hidden;
 }
 
-/* Fixed, consistent spacing for every card section. */
+/* Fixed, consistent spacing for every card section (Figma summary group
+   6635:25510 stacks its title and bullets 16px apart). */
 .delete-account-modal__section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-default);
+  gap: var(--space-large);
   padding: var(--space-large);
 }
 
@@ -87,7 +88,7 @@
   font-family: var(--font-sans);
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-default);
+  line-height: var(--line-height-relaxed);
   color: var(--color-text-primary);
 }
 
@@ -114,8 +115,10 @@
   color: var(--color-text-tertiary);
 }
 
+/* Figma spaces the bullet rows 6px apart, but those rows are 20px tall vs our
+   ~17px text line, so an 8px margin reproduces the same text-to-text rhythm. */
 .delete-account-modal__list li + li {
-  margin-top: var(--space-xs);
+  margin-top: var(--space-default);
 }
 
 .delete-account-modal__note {
