@@ -93,10 +93,12 @@
 }
 
 .delete-account-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
   margin: 0;
-  padding-left: 1.2em;
-  list-style: disc;
-  list-style-position: outside;
+  padding: 0;
+  list-style: none;
   font-family: var(--font-sans);
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-regular);
@@ -104,21 +106,25 @@
   color: var(--color-text-secondary);
 }
 
+/* Each row is a small dot + text (Figma bullet 6635:25514), replacing the
+   native disc marker so the dot's size, colour and alignment match the design. */
 .delete-account-modal__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-large);
   padding: 0;
 }
 
-/* Shrink the disc so it reads as a bullet, not a block, and tighten the
-   marker-to-text gap (matches the create-account-card list pattern). */
-.delete-account-modal__list li::marker {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-tertiary);
-}
-
-/* Figma spaces the bullet rows 6px apart, but those rows are 20px tall vs our
-   ~17px text line, so an 8px margin reproduces the same text-to-text rhythm. */
-.delete-account-modal__list li + li {
-  margin-top: var(--space-default);
+/* 3px rounded tertiary dot, vertically centred on the first text line
+   (Figma dot 6635:25516). */
+.delete-account-modal__list li::before {
+  content: "";
+  flex-shrink: 0;
+  width: 3px;
+  height: 3px;
+  margin-top: 0.5em;
+  border-radius: var(--border-radius-xs);
+  background-color: var(--color-text-tertiary);
 }
 
 .delete-account-modal__note {
