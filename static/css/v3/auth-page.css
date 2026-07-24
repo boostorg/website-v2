@@ -246,35 +246,24 @@ body:has(.auth-page) .header {
   width: 100%;
 }
 
-/* ── Responsive (Tablet) ────────────────────────────── */
-@media (max-width: 1279px) {
+/* ── Responsive (Mobile) ────────────────────────────── */
+@media (max-width: 767px) {
   .auth-page__wrapper {
     grid-template-columns: 1fr;
     flex: none;
   }
 
   .auth-page__illustration {
-    height: 592px;
+    height: 368px;
   }
 
   .auth-page__illustration-foreground {
-    height: 500px;
+    height: 280px;
   }
 
   .auth-page__content {
     padding: var(--space-medium);
     align-items: flex-start;
     margin-top: 0;
-  }
-}
-
-/* ── Responsive (Mobile) ────────────────────────────── */
-@media (max-width: 767px) {
-  .auth-page__illustration {
-    height: 368px;
-  }
-
-  .auth-page__illustration-foreground {
-    height: 280px;
   }
 }
