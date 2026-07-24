@@ -338,7 +338,8 @@
     }
 }
 
-/* Delete-account card actions: cancel / delete-now sit side by side. */
+/* Delete-account card actions: holds either the Cancel-deletion button or the
+   Delete-account trigger, never both. */
 .user-profile__delete-account-actions {
     display: flex;
     flex-direction: row;
