@@ -5,9 +5,10 @@
  * .dialog-modal overlay / container / header / buttons shell.
  *
  * Layout mirrors the Figma spec (node 6635:25490): the whole container is a
- * light-red canvas holding a white, rounded inner card. The card's sections
- * (summary / confirmation) are separated by full-bleed dividers that touch
- * both card edges, and a full-bleed rule sits between the warning and the card.
+ * light-red canvas holding a white, rounded inner card. A 16px gap separates
+ * the header, warning, card and buttons; the header carries a bottom divider
+ * between the title and the warning. The card's sections (summary /
+ * confirmation) are separated by full-bleed dividers that touch both edges.
  *
  * All colours go through semantic tokens, so light/dark are handled by
  * semantics.css + themes.css.
@@ -25,24 +26,26 @@
   );
 }
 
-/* The form is the container's single child, so it owns the vertical stack. */
+/* The form is the container's single child, so it owns the vertical stack.
+   The 16px gap reproduces the Figma container spacing between the header,
+   warning, card and buttons, so those children only carry horizontal padding. */
 .delete-account-modal__form {
   display: flex;
   flex-direction: column;
+  gap: var(--space-large);
   width: 100%;
 }
 
-/* Header sits directly on the light-red canvas; drop the shared divider so the
-   only rule between header/warning and the card is our full-bleed one. */
+/* Header sits transparently on the light-red canvas but keeps the shared
+   bottom divider (Figma node 6635:25492), which separates the title from the
+   warning line below it. */
 .delete-account-modal__header {
   background-color: transparent;
-  border-bottom: 0;
-  padding-bottom: 0;
 }
 
 .delete-account-modal__warning {
   margin: 0;
-  padding: 0 var(--space-large) var(--space-large);
+  padding: 0 var(--space-large);
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-regular);
@@ -51,17 +54,8 @@
   color: var(--color-text-error-emphasis);
 }
 
-/* Full-bleed rule between the warning and the white card (Figma "Line 161"). */
-.delete-account-modal__rule {
-  width: 100%;
-  height: 1px;
-  margin: 0;
-  border: 0;
-  background-color: var(--color-stroke-weak);
-}
-
 .delete-account-modal__body {
-  padding: var(--space-large);
+  padding: 0 var(--space-large);
 }
 
 /* White, rounded inner card sitting on the light-red canvas. */
