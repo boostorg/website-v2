@@ -117,6 +117,7 @@
    marker-to-text gap (matches the create-account-card list pattern). */
 .delete-account-modal__list li::marker {
   font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
 }
 
 .delete-account-modal__list li + li {
