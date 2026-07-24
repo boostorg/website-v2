@@ -46,5 +46,8 @@ class MaxFileSizeValidator:
 # 1 MB max file size
 max_file_size_validator = MaxFileSizeValidator(max_size=1 * 1024 * 1024)
 
+# 5 MB max file size, for downscalable images
+downscale_image_file_size_validator = MaxFileSizeValidator(max_size=5 * 1024 * 1024)
+
 # 50 MB allowed for certain large files - to be used on staff-only fields
 large_file_max_size_validator = MaxFileSizeValidator(max_size=50 * 1024 * 1024)

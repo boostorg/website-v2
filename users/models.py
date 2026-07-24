@@ -23,8 +23,8 @@ from imagekit.processors import ResizeToFill
 
 from core.validators import (
     image_validator,
-    max_file_size_validator,
     large_file_max_size_validator,
+    downscale_image_file_size_validator,
 )
 from core.templatetags.custom_static import large_static
 
@@ -213,7 +213,7 @@ class User(BaseUser):
         upload_to="profile-images",
         null=True,
         blank=True,
-        validators=[image_validator, max_file_size_validator],
+        validators=[image_validator, downscale_image_file_size_validator],
     )
     image_thumbnail = ImageSpecField(
         source="profile_image",

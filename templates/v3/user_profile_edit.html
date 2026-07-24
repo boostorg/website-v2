@@ -125,8 +125,7 @@ flushed rather than leaking onto the next page. {% endcomment %}
                 </span>
                 {# Invisible input, toggles the edit box appearing #}
                 <input type="checkbox" id="user-profile__avatar-row-checkbox" name="avatar-row-checkbox" class="badge-button__radio" />
-                {# File input, shown in the empty state #}
-                {% include 'v3/includes/_field_file.html' with name=user_profile_form.avatar.name extra_class='user-profile__empty-avatar-input' accept='image/png,image/jpeg' only %}
+                {% include 'v3/includes/_field_file.html' with id="field-avatar-modal-new" name=user_profile_form.avatar.name extra_class='user-profile__empty-avatar-input' accept='image/png,image/jpeg' only %}
                 <div class="user-profile__default-space-col user-profile__default-avatar-buttons">
                   {# Delete and replace buttons, shown in filled state #}
                   <label id="user-profile__avatar-replace-button" for="user-profile__avatar-row-checkbox" class="btn btn-secondary">Replace Avatar<span class="btn-icon" aria-hidden>{% include 'includes/icon.html' with icon_name='pixel-pencil' icon_size=16 icon_viewbox='0 0 16 16' only %}</span></label>
@@ -515,6 +514,12 @@ flushed rather than leaking onto the next page. {% endcomment %}
       const SLACK_MEMBER_ID_PATTERN = /^[A-Z0-9]{9,11}$/i;
       const taglineInput = document.querySelector("input[name='{{user_profile_form.tagline.name}}']");
 
+      const avatarInput = document.querySelector("input[id='field-avatar-modal']")
+      const avatarInputNew = document.querySelector("input[id='field-avatar-modal-new']")
+      const avatarDelete = document.querySelector('#user-profile__avatar-delete-checkbox')
+      const avatarComponent = document.querySelector('#user-profile-editable-avatar')
+      const avatarImg = avatarComponent.querySelector('img')
+
       return {
         saving: false,   // true while the links PATCH is in flight; disables the Save changes button
         saveError: '',
@@ -604,6 +609,7 @@ flushed rather than leaking onto the next page. {% endcomment %}
         // leave the button as-is.
         async saveLinks() {
           if (this.saving) return false;
+          const formData = new FormData()
 
           // Validate all links up front; block the save if any fail.
           let hasError = false;
@@ -619,21 +625,31 @@ flushed rather than leaking onto the next page. {% endcomment %}
             this.saveError = 'Biography is too long. Please shorten it and try again.';
             return false;
           }
+          formData.append("biography", biography)
+          formData.append('profile_links', JSON.stringify(this.collectLinks()))
+
+
+          let avatar = avatarInput.value
+          if(avatarDelete.checked) {
+            avatar = null;
+          }
+
+          if(!avatarDelete.checked) {
+            if(avatarInput.files.length > 0) formData.append('profile_image', avatarInput.files[0])
+            else if(avatarInputNew.files.length > 0) formData.append('profile_image', avatarInputNew.files[0])
+          }
+          formData.append('delete_profile_image', avatarDelete.checked)
 
           this.saving = true;
           this.saveError = '';
+
           try {
             const res = await fetch('/api/v1/users/me/', {
               method: 'PATCH',
               headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json',
               },
-              body: JSON.stringify({
-                profile_links: this.collectLinks(),
-                tagline: taglineInput ? taglineInput.value : '',
-                biography: biography,
-              }),
+              body: formData,
             });
             if (!res.ok) {
               let data = {};
@@ -661,6 +677,10 @@ flushed rather than leaking onto the next page. {% endcomment %}
               localStorage.removeItem(TAGLINE_DRAFT_KEY);
               localStorage.removeItem(BIO_DRAFT_KEY);
             } catch (_) {}
+            if(avatarDelete.checked) {
+              avatarDelete.checked = false;
+              avatarImg.src = "";
+            }
             return true;
           } catch (err) {
             console.error('Profile links save failed:', err);
