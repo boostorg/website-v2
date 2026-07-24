@@ -45,7 +45,7 @@
         enctype="multipart/form-data"
         method="post"
         :novalidate="true"
-        action="{% url 'v3-news-create' %}"
+        action=""
         @submit="prepareSubmit"
         data-create-post-form
       >
@@ -182,9 +182,9 @@
             <p class="field__error" id="field-link-description-error" role="alert" x-show="isLink && linkError" x-text="linkError" x-cloak aria-live="polite"></p>
           </div>
 
-          {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no larger than 5MB" extra_class="field--file-narrow create-post-page__field-image" %}
+          {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no larger than 5MB" extra_class="field--file-narrow create-post-page__field-image" preview_url=current_image %}
 
-          {% include "v3/includes/_field_multiselect.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" selected=form.data.related_libraries %}
+          {% include "v3/includes/_field_multiselect.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" selected_values=form.data.related_libraries %}
 
           {% include "v3/includes/_field_datetime.html" with name="publish_at" label="Publish Date *" value=form.publish_at.value|default:publish_at_initial %}
 

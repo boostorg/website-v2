@@ -48,7 +48,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import path, re_path
 
 from core.views import LearnPageView, V3ComponentDemoView
-from news.views import V3AllTypesCreateView
+from news.views import V3AllTypesCreateView, V3AllTypesEditView
 from users.views import (
     V3LoginView,
     V3PasswordResetDoneView,
@@ -75,7 +75,7 @@ v3_urlpatterns = [
     ),
     path(
         "v3/news/edit/<slug:slug>/",
-        V3AllTypesCreateView.as_view(),
+        V3AllTypesEditView.as_view(),
         name="v3-news-edit",
     ),
     path(

@@ -1,17 +1,17 @@
 {% comment %}
   V3 file input field.
   Variables:
-    name         (required) — input name attribute
-    id           (optional) — optional field id, defaults to field-{{name}} if not provided
-    label        (optional) — label text
-    accept       (optional) — accept attribute (e.g. "image/png,image/jpeg")
-    help_text    (optional) — help text below the field
-    error        (optional) — error message (activates error state)
-    required     (optional) — if truthy, adds required attribute
-    disabled     (optional) — if truthy, adds disabled attribute
-    extra_class  (optional) — additional classes on the wrapper
-    preview      (optional) — if truthy, enables clickable image preview after file selection
-    alpine_error (optional) — Alpine expression for dynamic error binding (e.g. "errors.image")
+    name          (required) — input name attribute
+    label         (optional) — label text
+    accept        (optional) — accept attribute (e.g. "image/png,image/jpeg")
+    help_text     (optional) — help text below the field
+    error         (optional) — error message (activates error state)
+    required      (optional) — if truthy, adds required attribute
+    disabled      (optional) — if truthy, adds disabled attribute
+    extra_class   (optional) — additional classes on the wrapper
+    preview       (optional) — if truthy, enables clickable image preview after file selection
+    preview_url   (optional) — if preview is truthy, this value will be preloaded into the image field if set
+    alpine_error  (optional) — Alpine expression for dynamic error binding (e.g. "errors.image")
   Usage:
     {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" help_text="PNG or JPEG, max 1MB" %}
     {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" help_text="PNG or JPEG, max 1MB" %}
@@ -21,8 +21,8 @@
 {% with field_id=id|default:default_id %}
 <div class="field field--file{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
-     x-data="{ jsReady: false, fileName: ''{% if preview %}, previewUrl: ''{% endif %} }"
-     x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = '';{% if preview %} if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; }{% endif %} })">
+     x-data="{ jsReady: false, fileName: ''{% if preview %}, previewUrl: '{{preview_url}}'{% endif %} }"
+     x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = '';{% if preview %} if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = '{{preview_url}}'; }{% endif %} })">
   {% if label %}
   <label class="field__label" for="{{ field_id }}">{{ label }}</label>
   {% endif %}
