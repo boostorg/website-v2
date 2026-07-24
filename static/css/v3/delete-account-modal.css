@@ -146,3 +146,14 @@
   border: 0;
   background-color: var(--color-stroke-weak);
 }
+
+/* Destructive submit: solid fill matches Figma node 6635:25533. Scoped here
+   because the shared .btn-error is an outline style used elsewhere (Delete
+   Avatar, the Delete Account trigger link). */
+.delete-account-modal .btn-error,
+.delete-account-modal .btn-error:hover,
+.delete-account-modal .btn-error[data-hover] {
+  background-color: var(--color-surface-error-strong);
+  border-color: var(--color-surface-error-strong);
+  color: var(--color-text-reversed);
+}
