@@ -196,7 +196,7 @@ class CurrentUserProfileView(
             ],
         }
         # Delete-account card: the modal schedules deletion, and once
-        # scheduled the card swaps to cancel / delete-now controls.
+        # scheduled the card swaps to a single "Cancel deletion" control.
         ctx["delete_account_form"] = DeleteAccountForm()
         # A failed confirmation redirects back here with ?delete_error=1 and
         # reopens the modal, which renders this inline on the verify field.
