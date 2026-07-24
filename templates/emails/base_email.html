@@ -128,9 +128,11 @@
                 <!-- Footer text -->
                 <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;letter-spacing:0.14px;color:#050816;">
                   <a href="https://www.boost.org/" style="color:#050816;text-decoration:underline;">Boost.org</a> is supported by grants from <a href="https://cppalliance.org/" style="color:#050816;text-decoration:underline;">The C++ Alliance.</a>
-                  <br><br>
-                  Want to change how you receive these emails?<br>
-                  You can <a href="{{ preferences_url|default:'#' }}" style="color:#050816;text-decoration:underline;">update your preferences</a> or <a href="{{ unsubscribe_url|default:'#' }}" style="color:#050816;text-decoration:underline;">unsubscribe from this list</a>.
+                  {% block footer_links %}
+                    <br><br>
+                    Want to change how you receive these emails?<br>
+                    You can <a href="{{ preferences_url|default:'#' }}" style="color:#050816;text-decoration:underline;">update your preferences</a> or <a href="{{ unsubscribe_url|default:'#' }}" style="color:#050816;text-decoration:underline;">unsubscribe from this list</a>.
+                  {% endblock %}
                 </div>
               </td>
             </tr>
