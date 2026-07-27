@@ -339,10 +339,6 @@ class V3UserProfileForm(forms.Form):
         help_text="Globally replaces your git commit author name with username value set above",
         required=False,
     )
-    override_commit_author_email = forms.BooleanField(
-        help_text="Links your login to an existing commit-author email after verification",
-        required=False,
-    )
 
     # Commit Emails
     commit_email_formset = V3CommitEmailFormSet(

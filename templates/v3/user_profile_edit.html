@@ -203,7 +203,6 @@ flushed rather than leaking onto the next page. {% endcomment %}
             {% include 'v3/includes/_field_combo.html' with name=user_profile_form.country.name label='Country' options=country_options selected=user_profile_form.country.value placeholder='Select' error=user_profile_form.country.errors.0 %}
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.indicate_last_login_method %}
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.override_commit_author_name %}
-            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.override_commit_author_email %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
@@ -349,6 +348,15 @@ flushed rather than leaking onto the next page. {% endcomment %}
             if (response.ok && contentType.includes('application/json')) {
               this.saved = true
               succeeded = true
+              // Static, server-rendered field errors (left over from a prior
+              // failed submit) don't clear themselves on a successful AJAX
+              // save since they aren't Alpine-reactive. Clear them here.
+              form.querySelectorAll('.field--error').forEach((wrapper) => {
+                wrapper.classList.remove('field--error')
+              })
+              form.querySelectorAll('p.field__error:not([x-show])').forEach((el) => {
+                el.remove()
+              })
             }
           } catch (_) {}
           if (!succeeded) {
