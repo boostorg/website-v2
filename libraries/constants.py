@@ -398,7 +398,7 @@ TOOLS = [
     {
         "name": "Regression",
         "description": "The Boost regression testing system reporting sources.",
-        "url_path": "https://www.boost.org/doc/contributor-guide/testing/regression-tests.html",
+        "url_path": "/doc/contributor-guide/testing/regression-tests.html",
         "version_specific": False,
     },
     {
@@ -422,7 +422,7 @@ TOOLS = [
     {
         "name": "QuickBook",
         "description": "QuickBook is a WikiWiki style documentation tool geared towards C++ documentation using simple rules and markup for simple formatting tasks. QuickBook generates BoostBook XML.",
-        "url_path": "/doc/libs/latest/doc/html/quickbook.html",
-        "version_specific": False,
+        "url_path": "doc/html/quickbook.html",
+        "version_specific": True,
     },
 ]
