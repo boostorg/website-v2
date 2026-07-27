@@ -81,12 +81,13 @@ def clear_tokens():
 
 @shared_task
 def do_scheduled_user_deletions():
-    # This task has no request/flag context and can't tell whether a given
-    # user scheduled through the legacy or V3 flow, so it deliberately
-    # defaults to the narrow (legacy) scrub rather than guessing.
+    # Reuse the scrub mode captured when the deletion was scheduled: V3
+    # requests set deletion_extended_scrub so the grace-period delete applies
+    # the same extended PII scrub as the V3 immediate delete; legacy requests
+    # leave it False and keep the narrow scrub.
     users = User.objects.filter(delete_permanently_at__lte=timezone.now())
     for user in users:
-        user.delete_account()
+        user.delete_account(extended_scrub=user.deletion_extended_scrub)
 
 
 @shared_task

@@ -304,6 +304,10 @@ class User(BaseUser):
     # If non-null, the user has requested deletion but the grace period has not
     # elapsed.
     delete_permanently_at = models.DateTimeField(null=True, editable=False)
+    # Remembers whether the pending deletion was requested through the V3 flow,
+    # so the grace-period task can apply the same extended PII scrub the V3
+    # immediate delete uses. Legacy requests leave this False.
+    deletion_extended_scrub = models.BooleanField(default=False, editable=False)
 
     def delete_cached_thumbnail(self):
         """Delete the cached ImageKit thumbnail so it regenerates on next access."""
@@ -480,6 +484,7 @@ class User(BaseUser):
             setattr(self, field_name, None)
 
         self.delete_permanently_at = None
+        self.deletion_extended_scrub = False
         self.save()
 
     def __str__(self):

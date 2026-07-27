@@ -992,6 +992,7 @@ class DeleteUserView(LoginRequiredMixin, FormView):
             days=settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS
         )
         if flag_is_active(self.request, "v3"):
+            user.deletion_extended_scrub = True
             login_url = self.request.build_absolute_uri(reverse("account_login"))
             scheme = self.request.scheme
             host = self.request.get_host()
@@ -1053,6 +1054,7 @@ class CancelDeletionView(LoginRequiredMixin, SuccessMessageMixin, FormView):
     def form_valid(self, form):
         user = self.get_object()
         user.delete_permanently_at = None
+        user.deletion_extended_scrub = False
         user.save()
         return super().form_valid(form)
 
