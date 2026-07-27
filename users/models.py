@@ -31,6 +31,8 @@ from core.validators import (
 )
 from core.templatetags.custom_static import large_static
 
+from . import achievements
+
 logger = logging.getLogger(__name__)
 
 
@@ -585,12 +587,14 @@ class User(BaseUser):
 
     def to_v3_profile_dict(self, role=None):
         """Dict shape consumed by `v3/includes/_user_profile.html`."""
+        badge = self.tenure_badge
         return {
             "name": self.display_name or str(self),
             "profile_url": None,
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
-            "badge": None,
+            "badge": badge["token"] if badge else None,
+            "badge_label": badge["label"] if badge else None,
             "bio": None,
         }
 
@@ -654,6 +658,11 @@ class User(BaseUser):
         if self.resolved_profile_role:
             return self.resolved_profile_role, None
         return None, None
+
+    @cached_property
+    def tenure_badge(self):
+        """Tenure star badge dict, or None for members under 2 years."""
+        return achievements.tenure_badge(self.date_joined)
 
     @cached_property
     def role(self):
