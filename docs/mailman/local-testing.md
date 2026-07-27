@@ -8,7 +8,7 @@ subscribe/confirm flow end to end.
 1. **Uncomment `mailman-core` and `mailman-web`** in `docker-compose.yml` (commented out by
    default - they add weight to `docker compose up` that most devs don't need day to day).
 2. **Confirm `MAILMAN_REST_API_URL`** in `.env` is set to:
-   ```
+   ```dotenv
    MAILMAN_REST_API_URL=http://lists.local.test:8001
    ```
    This is the default in `env.template`. `lists.local.test` is a network alias defined on the
@@ -23,7 +23,8 @@ subscribe/confirm flow end to end.
    ```bash
    ./scripts/dev-mailman-helpers
    ```
-   Pick `list lists` first - it should print nothing yet. Then run it again and pick
+   Pick `list lists` first - on an empty instance it should print `No lists found at $URL`
+   to stderr and exit non-zero. Then run it again and pick
    `create lists`. Run `list lists` once more to confirm the three lists now exist
    (`boost.lists.local.test`, `boost-announce.lists.local.test`, `boost-users.lists.local.test`).
 
@@ -57,8 +58,8 @@ At this point your local Mailman is ready to accept subscriptions - infrastructu
 
 ## Troubleshooting
 
-- **Confirm page shows "Could not subscribe - please try again later" for every list** - almost
-  always means `MailmanClient.subscribe()` couldn't reach Mailman. Check, in order:
+- **Confirm page shows "Could not subscribe - please try again later" for every list** - means
+  `MailmanClient.subscribe()` failed against Mailman's REST API. Check, in order:
   - Does `docker compose exec web python3 -c "import socket;
     print(socket.gethostbyname('lists.local.test'))"` resolve to an IP? If it errors, `web` isn't
     on the same network as `mailman-core`, or `mailman-core` wasn't recreated after you uncommented
@@ -66,6 +67,10 @@ At this point your local Mailman is ready to accept subscriptions - infrastructu
   - Did you restart `web`/`celery-worker`/`celery-beat` after changing `MAILMAN_REST_API_URL`?
   - Did you actually run `create lists` (Part 1, step 4)? If the lists don't exist yet on Mailman,
     every subscribe attempt fails the same way.
+  - Does the domain in `MAILMAN_REST_API_URL` match the domain the lists were actually created
+    under in Mailman? If you changed `MAILMAN_REST_API_URL` after running `create lists`, the app
+    will request a list under the new domain while Mailman only has one under the old domain -
+    run `list lists` (Part 1, step 4) to check which domain your lists currently exist under.
 - **No email shows up in Maildev** - check `docker compose logs celery-worker` for a failed task;
   the confirmation email is sent via Celery, so the worker needs to be running.
 
