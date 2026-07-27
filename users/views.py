@@ -211,7 +211,6 @@ class CurrentUserProfileView(
             "deletion before then."
         )
         ctx["profile_delete_url"] = reverse("profile-delete")
-        ctx["profile_cancel_delete_url"] = reverse("profile-cancel-delete")
         ctx["postorius_url"] = settings.POSTORIUS_URL
         return ctx
 
