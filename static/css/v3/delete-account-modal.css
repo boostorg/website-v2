@@ -154,10 +154,12 @@
 
 /* Destructive submit: solid fill matches Figma node 6635:25533. Scoped here
    because the shared .btn-error is an outline style used elsewhere (Delete
-   Avatar, the Delete Account trigger link). */
-.delete-account-modal .btn-error,
-.delete-account-modal .btn-error:hover,
-.delete-account-modal .btn-error[data-hover] {
+   Avatar, the Delete Account trigger link). Only applied while enabled - the
+   button is disabled until the confirmation phrase is typed, and the disabled
+   state keeps the shared outline + 0.5 opacity. */
+.delete-account-modal .btn-error:not(:disabled),
+.delete-account-modal .btn-error:not(:disabled):hover,
+.delete-account-modal .btn-error:not(:disabled)[data-hover] {
   background-color: var(--color-surface-error-strong);
   border-color: var(--color-surface-error-strong);
   color: var(--color-text-reversed);
