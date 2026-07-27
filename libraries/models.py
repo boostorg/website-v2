@@ -133,14 +133,12 @@ class CommitAuthor(models.Model):
         Mirrors `User.to_v3_profile_dict` so the same template can render
         either a registered user or a git-only contributor.
         """
-        badge = self.user.tenure_badge if self.user else None
         return {
             "name": self.display_name,
             "profile_url": self.github_profile_url,
             "role": role,
             "avatar_url": self.avatar_url or "",
-            "badge": badge["token"] if badge else None,
-            "badge_label": badge["label"] if badge else None,
+            "profile_badges": self.user.profile_badges if self.user else [],
             "bio": None,
         }
 

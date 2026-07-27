@@ -587,14 +587,12 @@ class User(BaseUser):
 
     def to_v3_profile_dict(self, role=None):
         """Dict shape consumed by `v3/includes/_user_profile.html`."""
-        badge = self.tenure_badge
         return {
             "name": self.display_name or str(self),
             "profile_url": None,
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
-            "badge": badge["token"] if badge else None,
-            "badge_label": badge["label"] if badge else None,
+            "profile_badges": self.profile_badges,
             "bio": None,
         }
 
@@ -660,9 +658,9 @@ class User(BaseUser):
         return None, None
 
     @cached_property
-    def tenure_badge(self):
-        """Tenure star badge dict, or None for members under 2 years."""
-        return achievements.tenure_badge(self.date_joined)
+    def profile_badges(self):
+        """Tenure star and Boost Day badge dicts for `_user_profile.html`."""
+        return achievements.profile_badges(self.date_joined)
 
     @cached_property
     def role(self):

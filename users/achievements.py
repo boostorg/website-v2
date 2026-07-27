@@ -1,11 +1,13 @@
-"""Tenure star badge resolution.
+"""Tenure star and Boost Day badge resolution.
 
-The badge is derived from the member's account creation date at render
-time — nothing is stored and no scheduled job assigns it.
+Both badges are derived from the member's account creation date at render
+time — nothing is stored and no scheduled job assigns them.
 """
 
+import calendar
 from datetime import date, datetime
 
+from django.contrib.humanize.templatetags.humanize import ordinal
 from django.utils import timezone
 
 from core.constants import BadgeToken
@@ -54,6 +56,23 @@ def tenure_tier_token(years):
     return token
 
 
+def is_boost_day(joined, today=None):
+    """True on the calendar anniversary of `joined`, first anniversary onward.
+
+    Members who signed up on February 29th celebrate on March 1st in
+    non-leap years.
+    """
+    joined = _as_local_date(joined)
+    if joined is None:
+        return False
+    today = today or timezone.localdate()
+    if tenure_years(joined, today) < 1:
+        return False
+    if (joined.month, joined.day) == (2, 29) and not calendar.isleap(today.year):
+        return (today.month, today.day) == (3, 1)
+    return (today.month, today.day) == (joined.month, joined.day)
+
+
 def tenure_badge(joined, today=None):
     """Tenure star badge dict, or None for members under 2 years."""
     years = tenure_years(joined, today)
@@ -64,3 +83,23 @@ def tenure_badge(joined, today=None):
         "token": str(token),
         "label": f"Boost Member for {years} years",
     }
+
+
+def boost_day_badge(joined, today=None):
+    """Boost Day badge dict, or None when today is not the anniversary."""
+    if not is_boost_day(joined, today):
+        return None
+    return {
+        "token": str(BadgeToken.BOOST_DAY),
+        "label": f"Happy {ordinal(tenure_years(joined, today))} Boost Day",
+    }
+
+
+def profile_badges(joined, today=None):
+    """Both badges, tenure star first so it stays nearest the member's name."""
+    today = today or timezone.localdate()
+    return [
+        badge
+        for badge in (tenure_badge(joined, today), boost_day_badge(joined, today))
+        if badge is not None
+    ]

@@ -72,6 +72,13 @@
   width: auto;
 }
 
+/* Tenure star and Boost Day icon sit 4px apart when a member has both. */
+.user-profile__badges {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
 .user-profile__role, .user-profile__role p {
   margin: 0;
   padding: 0;
