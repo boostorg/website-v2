@@ -309,19 +309,29 @@ class User(BaseUser):
     # immediate delete uses. Legacy requests leave this False.
     deletion_extended_scrub = models.BooleanField(default=False, editable=False)
 
-    def delete_cached_thumbnail(self):
-        """Delete the cached ImageKit thumbnail so it regenerates on next access."""
-        if not self.profile_image:
+    def _delete_cached_spec(self, source_field, spec_field):
+        """Delete a cached ImageKit spec file so it regenerates on next access."""
+        if not getattr(self, source_field):
             return
         try:
             from imagekit.cachefiles.backends import CacheFileState
 
-            thumb = self.image_thumbnail
-            if thumb.name:
-                thumb.storage.delete(thumb.name)
-            thumb.cachefile_backend.set_state(thumb, CacheFileState.DOES_NOT_EXIST)
+            cache_file = getattr(self, spec_field)
+            if cache_file.name:
+                cache_file.storage.delete(cache_file.name)
+            cache_file.cachefile_backend.set_state(
+                cache_file, CacheFileState.DOES_NOT_EXIST
+            )
         except (OSError, AttributeError):
-            logger.debug("Failed to invalidate thumbnail cache", exc_info=True)
+            logger.debug("Failed to invalidate %s cache", spec_field, exc_info=True)
+
+    def delete_cached_thumbnail(self):
+        """Delete the cached ImageKit thumbnail so it regenerates on next access."""
+        self._delete_cached_spec("profile_image", "image_thumbnail")
+
+    def delete_cached_hq_render(self):
+        """Delete the cached full-size render of the high-quality image."""
+        self._delete_cached_spec("hq_image", "hq_image_render")
 
     def save_image_from_provider(self, avatar_url):
         from django.core.files.base import ContentFile
@@ -474,6 +484,8 @@ class User(BaseUser):
         # Remove the avatar/HQ images and the cached thumbnail. File deletes are
         # deferred to on_commit so a rolled-back transaction leaves them intact.
         self.delete_cached_thumbnail()
+        if extended_scrub:
+            self.delete_cached_hq_render()
         image_fields = (
             ("profile_image", "hq_image") if extended_scrub else ("profile_image",)
         )

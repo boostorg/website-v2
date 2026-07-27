@@ -105,6 +105,32 @@ def test_delete_account_deletes_mailing_list_rows_without_api_call(
 
 
 @pytest.mark.django_db
+def test_delete_account_invalidates_hq_render_cache(
+    user, django_capture_on_commit_callbacks
+):
+    """The cached full-size render goes with the source file, not after it."""
+    user.hq_image.save("hq.png", ContentFile(b"hq-image-bytes"), save=True)
+
+    with patch.object(User, "delete_cached_hq_render") as mock_invalidate:
+        with django_capture_on_commit_callbacks(execute=True):
+            user.delete_account(extended_scrub=True)
+
+    mock_invalidate.assert_called_once()
+
+
+@pytest.mark.django_db
+def test_legacy_delete_leaves_hq_render_cache(user, django_capture_on_commit_callbacks):
+    """Legacy deletion never touched hq_image, so its render is left alone."""
+    user.hq_image.save("hq.png", ContentFile(b"hq-image-bytes"), save=True)
+
+    with patch.object(User, "delete_cached_hq_render") as mock_invalidate:
+        with django_capture_on_commit_callbacks(execute=True):
+            user.delete_account()
+
+    mock_invalidate.assert_not_called()
+
+
+@pytest.mark.django_db
 def test_delete_account_is_idempotent(user, django_capture_on_commit_callbacks):
     """A second run (e.g. immediate delete racing the scheduled task) is a no-op."""
     with django_capture_on_commit_callbacks(execute=True):
