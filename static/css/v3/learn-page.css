@@ -19,7 +19,7 @@
   line-height: var(--line-height-tight);
   color: var(--color-text-primary);
   /* 64px */
-  letter-spacing: -0.64px;
+  letter-spacing: var(--letter-spacing-tight);
   margin: 0;
   align-self: stretch;
   font-variation-settings: "wdth" 84;
