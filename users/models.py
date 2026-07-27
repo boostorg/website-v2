@@ -465,8 +465,12 @@ class User(BaseUser):
         self.display_name = "John Doe"
         self.email = "deleted-{}@example.com".format(uuid.uuid4())
 
-        # These records and fields are only scrubbed for the V3 deletion flow -
-        # gating them keeps legacy (flag-off) deletion byte-identical to
+        # Drop the cached avatar render while its source field is still set.
+        self.delete_cached_thumbnail()
+        image_fields = ["profile_image"]
+
+        # These records, fields and files are only scrubbed for the V3 deletion
+        # flow - gating them keeps legacy (flag-off) deletion byte-identical to
         # production.
         if extended_scrub:
             # The local mailing-list rows store the user's email. We
@@ -474,20 +478,18 @@ class User(BaseUser):
             # - list membership is left for the user to manage in Postorius.
             self.mailing_list_subscriptions.all().delete()
             LastSeen.objects.filter(user=self).delete()
+            self.badges.clear()
+
             self.github_username = ""
             self.profile_links = {}
             self.indicate_last_login_method = False
             self.image_uploaded = False
-            self.badges.clear()
 
-        # Remove the avatar/HQ images and the cached thumbnail. File deletes are
-        # deferred to on_commit so a rolled-back transaction leaves them intact.
-        self.delete_cached_thumbnail()
-        if extended_scrub:
             self.delete_cached_hq_render()
-        image_fields = (
-            ("profile_image", "hq_image") if extended_scrub else ("profile_image",)
-        )
+            image_fields.append("hq_image")
+
+        # File deletes are deferred to on_commit so a rolled-back transaction
+        # leaves them intact.
         for field_name in image_fields:
             image = getattr(self, field_name)
             if image:
