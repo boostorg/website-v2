@@ -450,19 +450,12 @@ class User(BaseUser):
         email = self.email
         transaction.on_commit(lambda: tasks.send_account_deleted_email.delay(email))
 
-        # Delete the local mailing-list subscription rows to remove the stored
-        # email PII. We deliberately do NOT call the Mailman/Postorius API to
-        # unsubscribe - list membership is left for the user to manage in
-        # Postorius.
-        self.mailing_list_subscriptions.all().delete()
-
         # Remove linked auth + preference records. Manager-level deletes are
         # idempotent, so a second run (immediate delete racing the scheduled
         # task) is a harmless no-op.
         self.socialaccount_set.all().delete()
         self.emailaddress_set.all().delete()
         Preferences.objects.filter(user=self).delete()
-        LastSeen.objects.filter(user=self).delete()
 
         # Scrub credentials, profile identity and public PII.
         self.is_active = False
@@ -472,9 +465,15 @@ class User(BaseUser):
         self.display_name = "John Doe"
         self.email = "deleted-{}@example.com".format(uuid.uuid4())
 
-        # These fields are only scrubbed for the V3 deletion flow - gating
-        # them keeps legacy (flag-off) deletion byte-identical to production.
+        # These records and fields are only scrubbed for the V3 deletion flow -
+        # gating them keeps legacy (flag-off) deletion byte-identical to
+        # production.
         if extended_scrub:
+            # The local mailing-list rows store the user's email. We
+            # deliberately do NOT call the Mailman/Postorius API to unsubscribe
+            # - list membership is left for the user to manage in Postorius.
+            self.mailing_list_subscriptions.all().delete()
+            LastSeen.objects.filter(user=self).delete()
             self.github_username = ""
             self.profile_links = {}
             self.indicate_last_login_method = False

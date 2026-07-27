@@ -59,28 +59,39 @@ def test_delete_account_scrubs_pii_and_identity(
 
 
 @pytest.mark.django_db
-def test_delete_account_removes_linked_records(
-    user, django_capture_on_commit_callbacks
-):
-    """Preferences and LastSeen are removed on deletion."""
+def test_delete_account_removes_preferences(user, django_capture_on_commit_callbacks):
+    """Preferences are removed on deletion in both flows."""
     assert Preferences.objects.filter(user=user).exists()
-    assert LastSeen.objects.filter(user=user).exists()
 
     with django_capture_on_commit_callbacks(execute=True):
         user.delete_account()
 
     assert not Preferences.objects.filter(user=user).exists()
+
+
+@pytest.mark.django_db
+def test_v3_delete_account_removes_last_seen(user, django_capture_on_commit_callbacks):
+    """LastSeen is a V3-only addition to the scrub."""
+    assert LastSeen.objects.filter(user=user).exists()
+
+    with django_capture_on_commit_callbacks(execute=True):
+        user.delete_account(extended_scrub=True)
+
     assert not LastSeen.objects.filter(user=user).exists()
 
 
 @pytest.mark.django_db
-def test_delete_account_deletes_mailing_list_rows_without_api_call(
+def test_legacy_delete_account_keeps_last_seen(
     user, django_capture_on_commit_callbacks
 ):
-    """Local subscription rows are deleted (PII removed); Mailman is not called.
+    """Legacy behaviour is unchanged: LastSeen was never part of the scrub."""
+    with django_capture_on_commit_callbacks(execute=True):
+        user.delete_account()
 
-    List membership is left to Postorius - we only drop our stored rows.
-    """
+    assert LastSeen.objects.filter(user=user).exists()
+
+
+def _make_subscriptions(user):
     baker.make(
         UserMailingListSubscription,
         user=user,
@@ -96,12 +107,36 @@ def test_delete_account_deletes_mailing_list_rows_without_api_call(
         status=SubscriptionStatus.PENDING,
     )
 
+
+@pytest.mark.django_db
+def test_v3_delete_deletes_mailing_list_rows_without_api_call(
+    user, django_capture_on_commit_callbacks
+):
+    """Local subscription rows are deleted (PII removed); Mailman is not called.
+
+    List membership is left to Postorius - we only drop our stored rows.
+    """
+    _make_subscriptions(user)
+
     with patch("mailing_list.client.MailmanClient") as MockClient:
         with django_capture_on_commit_callbacks(execute=True):
-            user.delete_account()
+            user.delete_account(extended_scrub=True)
         MockClient.assert_not_called()
 
     assert not UserMailingListSubscription.objects.filter(user=user).exists()
+
+
+@pytest.mark.django_db
+def test_legacy_delete_keeps_mailing_list_rows(
+    user, django_capture_on_commit_callbacks
+):
+    """Legacy behaviour is unchanged: subscription rows were never dropped."""
+    _make_subscriptions(user)
+
+    with django_capture_on_commit_callbacks(execute=True):
+        user.delete_account()
+
+    assert UserMailingListSubscription.objects.filter(user=user).count() == 2
 
 
 @pytest.mark.django_db
