@@ -130,12 +130,15 @@ def test_v3_delete_schedules_and_redirects_to_edit(user, tp):
 
 @pytest.mark.django_db
 @waffle.testutils.override_flag("v3", active=True)
-def test_v3_delete_sends_scheduled_email(user, tp, settings, mailoutbox):
+def test_v3_delete_sends_scheduled_email(
+    user, tp, settings, mailoutbox, django_capture_on_commit_callbacks
+):
     user.first_name = "Vinnie"
     user.save()
 
     with tp.login(user):
-        tp.post("profile-delete", data={"verify": "delete my account"})
+        with django_capture_on_commit_callbacks(execute=True):
+            tp.post("profile-delete", data={"verify": "delete my account"})
 
     assert len(mailoutbox) == 1
     email = mailoutbox[0]

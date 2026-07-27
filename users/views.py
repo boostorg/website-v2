@@ -12,6 +12,7 @@ from django.views.generic import DetailView, FormView
 from django.views.generic.base import TemplateView
 from django.utils import timezone
 from django.conf import settings
+from django.db import transaction
 from django import forms
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
@@ -990,17 +991,27 @@ class DeleteUserView(LoginRequiredMixin, FormView):
         user.delete_permanently_at = timezone.now() + datetime.timedelta(
             days=settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS
         )
-        user.save()
         if flag_is_active(self.request, "v3"):
-            tasks.send_account_deletion_scheduled_email.delay(
-                email=user.email,
-                first_name=user.first_name,
-                grace_days=settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS,
-                login_url=self.request.build_absolute_uri(reverse("account_login")),
-                scheme=self.request.scheme,
-                host=self.request.get_host(),
-            )
+            login_url = self.request.build_absolute_uri(reverse("account_login"))
+            scheme = self.request.scheme
+            host = self.request.get_host()
+            # Persist the schedule and enqueue the confirmation email atomically:
+            # the task is published only after the row commits (mirroring
+            # delete_account), so a rolled-back save never enqueues an email.
+            with transaction.atomic():
+                user.save()
+                transaction.on_commit(
+                    lambda: tasks.send_account_deletion_scheduled_email.delay(
+                        email=user.email,
+                        first_name=user.first_name,
+                        grace_days=settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS,
+                        login_url=login_url,
+                        scheme=scheme,
+                        host=host,
+                    )
+                )
             return HttpResponseRedirect(_v3_profile_edit_url())
+        user.save()
         return super().form_valid(form)
 
     def form_invalid(self, form):
