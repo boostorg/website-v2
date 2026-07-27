@@ -7,8 +7,9 @@
 
   Only "Cancel deletion" is offered - immediate deletion is intentionally not
   exposed in V3. Cancel is a POST form (CancelDeletionView redirects V3 users
-  to their profile edit page). The dismiss (x) is a JS enhancement; with JS off
-  the banner simply stays visible.
+  to their profile edit page). The dismiss (x) is a JS enhancement; it is
+  x-cloaked so it never renders without JS, and the banner simply stays
+  visible.
 {% endcomment %}
 <div class="deletion-banner"
      role="region"
@@ -27,6 +28,7 @@
   <button type="button"
           class="deletion-banner__close"
           aria-label="Dismiss"
+          x-cloak
           x-on:click="show = false">
     {% include "includes/icon.html" with icon_name="close" icon_class="deletion-banner__close-icon" icon_size=16 %}
   </button>
