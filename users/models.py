@@ -415,10 +415,12 @@ class User(BaseUser):
 
     @cached_property
     def flag_emoji(self):
+        """Flag for the user's saved country, or "" when none is set.
+
+        `unicode_flag` is already "" for a blank CountryField, which the
+        user card treats as "hide the flag overlay".
         """
-        TODO: This is currently dummy data for testing
-        """
-        return "🇺🇸"
+        return self.country.unicode_flag
 
     @staticmethod
     def get_user_by_github_url(url: str):

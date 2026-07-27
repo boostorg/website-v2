@@ -211,6 +211,7 @@ class CurrentUserProfileView(
             },
             "member_since": user.date_joined.year,
             "role": "Contributor",
+            "flag_emoji": user.flag_emoji,
         }
 
         # Data shared between both versions, Boost Github and Mailing List activity
