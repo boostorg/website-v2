@@ -1,14 +1,11 @@
 /*
   Library Subpage layout.
 
-  .card-masonry-top: CSS multi-column masonry. Cards flow and pack into as many
-  columns as fit (column-width var(--subpage-col-min)), so the layout auto-
-  rearranges 3 → 2 → 1 columns by available width — no strict breakpoints, no
-  grid row-stretching gaps. Reading order flows down each column, then across.
+  .card-masonry-top: CSS multi-column, so cards pack into as many columns as fit
+  (3 → 2 → 1 by width) with no strict breakpoints and no grid row-stretching
+  gaps. Reading order runs down each column, then across.
 
-  .card-masonry-bottom: posts 2/3 + mailing list 1/3 (grid), stacking on mobile.
-
-  All widths, gaps, and spacing derive from design tokens.
+  .card-masonry-bottom: posts 2/3 + mailing list 1/3, stacking on mobile.
 */
 
 /* ── Page wrapper ─────────────────────────────────────────────────────────── */
@@ -20,7 +17,6 @@
   width: 100%;
 }
 
-/* Outer container with page-level centering */
 .library-subpage-container {
   display: flex;
   flex-direction: column;
@@ -38,16 +34,14 @@ body:has(.is_flagship) .library-subpage-container {
 
 /* ── Top card masonry ────────────────────────────────────────────────────── */
 
-/* Multi-column masonry: cards pack into as many columns as fit at this width.
-   --subpage-col-min is the target column width — with the 1440px container and
-   16px gaps it yields 3 columns on desktop, 2 on tablet, 1 on mobile. */
+/* --subpage-col-min is hand-picked: with the 1440px container and 16px gaps it
+   yields 3 columns on desktop, 2 on tablet, 1 on mobile. */
 .card-masonry-top {
-  --subpage-col-min: 22rem; /* Hand-picked value that accommodates 3->2->1 column flow at desktop->tablet->mobile breakpoints. */
+  --subpage-col-min: 22rem;
   columns: var(--subpage-col-min);
   column-gap: var(--space-card);
 }
 
-/* Keep each card whole within a column and space stacked cards vertically. */
 .card-masonry-top > * {
   break-inside: avoid;
   margin-bottom: var(--space-card);
@@ -88,8 +82,7 @@ body:has(.is_flagship) .library-subpage-container {
   width: 100%;
 }
 
-/* Benchmark card sizes like the other cards: fill the column width, grow to
-   fit its content (override the component's fixed 460px / 420px cap). */
+/* Override the component's fixed height so it sizes like the other cards. */
 .card-masonry-top .stats--benchmarks {
   height: auto;
   max-height: none;
@@ -101,10 +94,10 @@ body:has(.is_flagship) .library-subpage-container {
   flex-direction: column;
 }
 
-/* .markdown-card__body already scrolls and shrinks (markdown-card.css). */
+/* ── Card body scroll caps ───────────────────────────────────────────────── */
 
-/* About + Install cards: the body (blurb + code sample) is capped and scrolls as
-   one region, so heading, divider and CTA stay in place. */
+/* Each card caps its body — the region below the title — so one long card can't
+   dominate a column. Titles, dividers and CTAs stay put. */
 .card-masonry-top .item-a { --subpage-code-body-max: 450px; }  /* About */
 .card-masonry-top .item-c { --subpage-code-body-max: 214px; }  /* Install */
 
@@ -114,6 +107,8 @@ body:has(.is_flagship) .library-subpage-container {
   overflow-y: auto;
 }
 
+/* Body is the only scroll region: let the code block grow to its full height
+   instead of flexing down into its own nested scroller. */
 .card-masonry-top .item-a .code-block,
 .card-masonry-top .item-c .code-block {
   flex: 0 0 auto;
@@ -125,7 +120,7 @@ body:has(.is_flagship) .library-subpage-container {
   overflow: visible;
 }
 
-/* Benchmarks card */
+/* Benchmarks */
 .card-masonry-top .item-g .stats__body {
   max-height: 362px;
   overflow-y: auto;
@@ -136,12 +131,12 @@ body:has(.is_flagship) .library-subpage-container {
   max-height: 408px;
 }
 
-/* Designed for card */
+/* Designed for */
 .card-masonry-top .item-f .markdown-card__body {
   max-height: 245px;
 }
 
-/* Freeform card */
+/* Freeform */
 .library-subpage__freeform > .markdown-card .markdown-card__body {
   max-height: 143px;
 }

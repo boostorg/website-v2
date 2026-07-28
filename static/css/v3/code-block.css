@@ -1,3 +1,11 @@
+/*
+  Code Block & Code Block Card
+
+  A code sample with copy button and syntax highlighting, plus the card that
+  wraps it: heading, then .code-block-card__body (scroll region owning the
+  divider) holding the description and code, then an optional CTA.
+*/
+
 :root {
   --code-block-bg: var(--color-bg-secondary);
   --code-block-border: var(--color-border);

@@ -1,3 +1,11 @@
+/*
+  Markdown Card
+
+  Card for rendered markdown or HTML: title, then .markdown-card__body — the
+  scroll region owning the top divider — wrapping the .markdown-content text
+  area, then an optional CTA. Pages cap the body to bound the card's height.
+*/
+
 .card__column.markdown-content {
     gap: var(--space-medium);
     line-height: var(--line-height-code);

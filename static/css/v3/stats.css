@@ -1,3 +1,11 @@
+/*
+  Stats
+
+  Bar-chart cards in two variants: .stats--benchmarks (labelled bar rows grouped
+  into .stats__set blocks inside the .stats__body scroll region) and
+  .stats--in-numbers (vertical bars sized to the container).
+*/
+
 .stats {
   --stats-space: var(--space-large);
   font-family: var(--font-sans);
