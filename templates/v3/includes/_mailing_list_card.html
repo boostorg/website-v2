@@ -96,20 +96,20 @@ and HTMX swaps [data-ml-block] in place; x-init then clears the URL hash so the 
   {% if modal_subscribe_url and mailing_lists %}
     <div class="dialog-modal" id="mailing-list-modal"
          x-data="{
-                 totalLists: {{ mailing_lists|length }},
-                 checkedCount: 0,
-                 updateCount() {
-                 this.checkedCount = this.$refs.checkboxContainer.querySelectorAll('[name=list_id]:checked').length;
-                 },
-                 unselectAll() {
-                 this.$refs.checkboxContainer.querySelectorAll('[name=list_id]').forEach(cb => { cb.checked = false; });
-                 this.checkedCount = 0;
-                 },
-                 selectAll() {
-                 this.$refs.checkboxContainer.querySelectorAll('[name=list_id]').forEach(cb => { cb.checked = true; });
-                 this.checkedCount = this.totalLists;
-                 }
-                 }"
+           totalLists: {{ mailing_lists|length }},
+           checkedCount: 0,
+           updateCount() {
+             this.checkedCount = this.$refs.checkboxContainer.querySelectorAll('[name=list_id]:checked').length;
+           },
+           unselectAll() {
+             this.$refs.checkboxContainer.querySelectorAll('[name=list_id]').forEach(cb => { cb.checked = false; });
+             this.checkedCount = 0;
+           },
+           selectAll() {
+             this.$refs.checkboxContainer.querySelectorAll('[name=list_id]').forEach(cb => { cb.checked = true; });
+             this.checkedCount = this.totalLists;
+           }
+         }"
          x-init="updateCount()">
       <a class="dialog-modal__backdrop" href="#_" tabindex="-1"></a>
       <div class="dialog-modal__container"
