@@ -71,6 +71,13 @@
   flex-direction: column;
 }
 
+.code-block-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .code-block-card .code-block {
   margin: 0 var(--space-card);
   overflow: hidden;
@@ -169,7 +176,7 @@ html.dark .code-block-card--grey {
   color: var(--color-text-secondary);
 }
 
-.code-block-card .code-block-card__description {
+.code-block-card__body:has(.code-block-card__description) {
   border-top: 1px solid var(--color-border);
 }
 

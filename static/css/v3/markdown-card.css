@@ -36,13 +36,19 @@
     text-underline-position: from-font;
 }
 
+.markdown-card__body {
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    border-top: 1px solid var(--color-stroke-weak);
+}
+
 .markdown-content {
     color: var(--color-text-secondary);
-    padding: 0 var(--space-large);
+    padding: var(--space-card) var(--space-large) 0;
     font-size: var(--font-size-small);
     font-weight: var(--font-weight-regular);
     letter-spacing: var(--letter-spacing-tight);
-    overflow-y: auto;
     overflow-wrap: anywhere;
     min-width: 0;
 }

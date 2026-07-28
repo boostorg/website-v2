@@ -27,9 +27,11 @@
     {% endif %}
   </div>
   <hr class="card__hr" />
-  <div class="card__column px-large">
-    {% for contributor in contributors %}
-        {% include "v3/includes/_user_profile.html" with author=contributor only %}
-    {% endfor %}
+  <div class="contributors-list__body">
+    <div class="card__column px-large">
+      {% for contributor in contributors %}
+          {% include "v3/includes/_user_profile.html" with author=contributor only %}
+      {% endfor %}
+    </div>
   </div>
 </div>

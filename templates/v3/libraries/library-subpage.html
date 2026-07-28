@@ -29,7 +29,7 @@
     <div class="card-masonry-top">
       {% if website_adoc.about %}
       <div class="item-a">
-        {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description=website_adoc.about.blurb code=website_adoc.about.code.code language=website_adoc.about.code.language card_variant="neutral" button_text="Explore examples" button_url=documentation_url|default:"#" button_aria_label="Explore examples for "|add:object.display_name %}
+        {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description=website_adoc.about.blurb code=website_adoc.about.code.code language=website_adoc.about.code.language|default:"cpp" %}
       </div>
       {% endif %}
 

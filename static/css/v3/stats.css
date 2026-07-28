@@ -215,7 +215,7 @@
 }
 
 .stats__set-bar {
-  height: var(--stats-space);
+  height: 24px;
   background: var(--color-surface-strong);
   border-radius: var(--border-radius-xs);
   flex-shrink: 0;

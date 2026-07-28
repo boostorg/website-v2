@@ -98,7 +98,7 @@ def _build_quick_start_links(documentation_url, links):
     if common_url:
         result.append({"label": "Common use cases", "url": common_url})
     if example_url:
-        result.append({"label": "Code examples", "url": example_url})
+        result.append({"label": "Code Examples", "url": example_url})
     return result
 
 

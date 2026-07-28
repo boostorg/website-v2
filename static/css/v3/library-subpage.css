@@ -101,9 +101,49 @@ body:has(.is_flagship) .library-subpage-container {
   flex-direction: column;
 }
 
-.library-subpage__documentation > .markdown-card .markdown-content {
-  min-height: 0;
+/* .markdown-card__body already scrolls and shrinks (markdown-card.css). */
+
+/* About + Install cards: the body (blurb + code sample) is capped and scrolls as
+   one region, so heading, divider and CTA stay in place. */
+.card-masonry-top .item-a { --subpage-code-body-max: 450px; }  /* About */
+.card-masonry-top .item-c { --subpage-code-body-max: 214px; }  /* Install */
+
+.card-masonry-top .item-a .code-block-card__body,
+.card-masonry-top .item-c .code-block-card__body {
+  max-height: var(--subpage-code-body-max);
   overflow-y: auto;
+}
+
+.card-masonry-top .item-a .code-block,
+.card-masonry-top .item-c .code-block {
+  flex: 0 0 auto;
+}
+
+.card-masonry-top .item-a .code-block__scroll-container,
+.card-masonry-top .item-c .code-block__scroll-container {
+  max-height: none;
+  overflow: visible;
+}
+
+/* Benchmarks card */
+.card-masonry-top .item-g .stats__body {
+  max-height: 362px;
+  overflow-y: auto;
+}
+
+/* Contributors: This Release */
+.card-masonry-top .item-d .contributors-list__body {
+  max-height: 408px;
+}
+
+/* Designed for card */
+.card-masonry-top .item-f .markdown-card__body {
+  max-height: 245px;
+}
+
+/* Freeform card */
+.library-subpage__freeform > .markdown-card .markdown-card__body {
+  max-height: 143px;
 }
 
 /* ── Mobile (< 768px): tighter padding, stack the bottom row ─────────────── */

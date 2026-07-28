@@ -2,9 +2,14 @@
     margin: 0;
 }
 
+.contributors-list__body {
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+}
+
 .contributors-list .card__column {
     gap: var(--space-medium);
-    overflow-y: auto;
 }
 
 .contributors-list.all-contributors {
@@ -20,7 +25,6 @@
 @media (max-width: 768px) {
     .contributors-list.all-contributors .card__column {
         grid-template-columns: 1fr;
-        overflow-y: auto;
     }
 
     .contributors-list {
