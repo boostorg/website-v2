@@ -26,27 +26,22 @@
 
 .card-group--default {
   background: var(--color-surface-weak);
-  border-color: var(--color-stroke-weak);
 }
 
 .card-group--card.card-group--default {
   background: var(--color-surface-mid);
-  border-color: var(--color-stroke-weak);
 }
 
 .card-group--yellow {
   background: var(--color-surface-weak-accent-yellow);
-  border-color: var(--color-accent-strong-yellow);
 }
 
 .card-group--green {
   background: var(--color-surface-weak-accent-green);
-  border-color: var(--color-accent-strong-green);
 }
 
 .card-group--teal {
   background: var(--color-surface-weak-accent-teal);
-  border-color: var(--color-accent-strong-teal);
 }
 
 /* ── Heading ───────────────────────────────── */
@@ -138,9 +133,6 @@
 
 /* ── Dark mode ─────────────────────────────── */
 html.dark {
-  .card-group {
-    border-color: var(--color-stroke-weak);
-  }
 
   .card-group--default {
     background: var(--color-primary-grey-850);
