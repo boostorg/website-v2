@@ -60,24 +60,37 @@
 }
 
 /* ── B) CURRENT-ART OVERRIDES — remove when on-spec art ships ──────────────── */
-/* Foreground size/shift are now shared (above); what remains pinned to today's
-   art is per-hero anchoring, background focal/scale, and the mobile crop ratios. */
+/* Pinned to today's art: per-breakpoint bg focal + home mascot scale/shift. */
 @media (max-width: 1279px) {
   :root {
     /* Tablet */
-    --hero-bg-home-position-x: 100%;
+    --hero-bg-home-position-x: 50%;
     --hero-bg-community-size: max(1200px, 100%);
     --hero-bg-community-position-x: 100%;
   }
 }
 @media (max-width: 767px) {
   :root {
-    /* Mobile — focal points, height-driven bg. */
-    --hero-bg-home-position-x: 80%;
-    --hero-bg-home-position-y: top;
+    /* Mobile */
+    --hero-bg-home-position-x: 50%;
+    --hero-bg-home-position-y: 65%;
     --hero-bg-community-position-x: 87%;
     --hero-bg-community-position-y: bottom;
     --hero-bg-community-size: auto 120%;
+  }
+}
+/* Desktop: scale mascots down (Figma) and shift left to clear the install card. */
+@media (min-width: 1280px) {
+  .hero--home .hero-fg {
+    transform: translateX(-160px) scale(0.82);
+    transform-origin: center bottom;
+  }
+}
+/* Tablet: scale down for antler headroom, nudge left (% so it won't crowd the CTAs when narrow). */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .hero--home .hero-fg {
+    transform: translateX(-7%) scale(0.82);
+    transform-origin: center bottom;
   }
 }
 
@@ -108,6 +121,27 @@
   background-size: var(--hero-bg-home-size);
   background-color: var(--color-surface-weak-accent-yellow);
   margin-bottom: var(--space-large, 16px);
+}
+
+/* Large desktop: soft dark fade on the left edge (sits above the bg, below
+   content/mascots) so that side recedes into shadow and the headline stays legible. */
+@media (min-width: 1440px) {
+  .hero.hero--home {
+    position: relative;
+  }
+  .hero.hero--home::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(to right,
+      #22302f 0%, rgba(34, 48, 47, 0) 14%);
+  }
+  .hero.hero--home .hero__block {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 /* Home block: split layout (content + install card). Scoped under .hero--home so

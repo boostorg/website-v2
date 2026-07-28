@@ -27,7 +27,7 @@ def home_hero_context():
             "img/v3/community-page/community-foreground-mobile.png"
         ),
         "hero_background_image_url": large_static(
-            "img/v3/community-page/community-background.png"
+            "img/v3/home-page/home-hero-background.png"
         ),
     }
 
