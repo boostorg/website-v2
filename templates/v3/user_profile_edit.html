@@ -12,11 +12,28 @@
   <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
 {% endblock %}
 
+{% comment %} Section save state is shown on each submit button (see saved_sections)
+instead of the legacy toast; still iterate `messages` so any queued message is
+flushed rather than leaking onto the next page. {% endcomment %}
+{% block messages %}
+  <div id="messages" class="w-full text-center transition-opacity" x-data="{show: true}">
+    {% for message in messages %}{% endfor %}
+  </div>
+{% endblock messages %}
+
 {% block content %}
   <div class="user-profile__container">
     <div class="user-profile__profile-content-area">
       <div class="user-profile__col">
-        <div class="basic-card card user-profile__profile-edit-card" x-data="profileForm">
+        <div class="basic-card card user-profile__profile-edit-card">
+          {% comment %} novalidate: this form still contains required fields (tagline, bio, links) with
+          no save handler yet; native constraint validation would silently block "Save changes" for
+          sections that are otherwise ready. Server-side validation is authoritative. {% endcomment %}
+          <form method="post" action="{{ profile_account_edit_url }}" class="card__form" enctype="multipart/form-data" novalidate
+                x-data="{...createSectionForm({{ saved_sections.v3_update_profile|yesno:'true,false' }}), ...profileForm()}"
+                @submit="handleSubmit($event)"
+                @input="saved = false" @change="saved = false">
+          {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Profile</span>
           </div>
@@ -142,17 +159,15 @@
             </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
+          {% comment %} Save changes: profile links, tagline, and biography are validated and
+          persisted via PATCH /api/v1/users/me/ (see saveLinks in profileForm) before the section
+          form submits the visibility settings, so one click covers both; a validation/save failure
+          blocks the section submit and the button stays "Save changes". {% endcomment %}
           <div class="card__cta_section">
-            {% comment %} Persists the Profile section to the current user via PATCH /api/v1/users/me/. {% endcomment %}
-            {% include 'v3/includes/_button.html' with style='primary' type='button' label='Save Changes' alpine_disabled="saving" alpine_click="save()" only %}
-            <span class="user-profile__save-indicator" role="status" aria-live="polite">
-              <span class="user-profile__save-state" x-show="saveStatus === 'saved'" x-cloak>
-                <span class="user-profile__save-text">Saved</span>
-                {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
-              </span>
-              <span class="field__error" x-show="saveStatus === 'error'" x-text="saveError" x-cloak></span>
-            </span>
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_profile' label='Save changes' label_x_text="saved ? 'Changes Saved' : 'Save changes'" alpine_disabled='saved || saving' only %}
+            <span class="field__error" x-show="saveError" x-text="saveError" x-cloak></span>
           </div>
+          </form>
         </div>
         <div class="basic-card card user-profile__delete-account">
           <div class="card__header">
@@ -173,6 +188,11 @@
       </div>
       <div class="user-profile__col">
         <div class="basic-card card user-profile__update-details">
+          <form method="post" action="{{ profile_account_edit_url }}" class="card__form"
+                x-data="createSectionForm({{ saved_sections.v3_update_details|yesno:'true,false' }})"
+                @submit="handleSubmit($event)"
+                @input="saved = false" @change="saved = false">
+          {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Update Details</span>
           </div>
@@ -180,15 +200,15 @@
           <div class="user-profile__xl-space-col px-large">
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.username %}
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.email %}
-            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.country %}
+            {% include 'v3/includes/_field_combo.html' with name=user_profile_form.country.name label='Country' options=country_options selected=user_profile_form.country.value placeholder='Select' error=user_profile_form.country.errors.0 %}
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.indicate_last_login_method %}
             {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.override_commit_author_name %}
-            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.override_commit_author_email %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save changes' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_details' label='Save details' label_x_text="saved ? 'Changes Saved' : 'Save details'" alpine_disabled='saved' only %}
           </div>
+          </form>
         </div>
         <div class="basic-card card user-profile__commit-email-card">
           <div class="card__header">
@@ -211,6 +231,11 @@
           </div>
         </div>
         <div class="basic-card card user-profile__email-preferences-card">
+          <form method="post" action="{{ profile_account_edit_url }}" class="card__form"
+                x-data="createSectionForm({{ saved_sections.v3_update_email_preferences|yesno:'true,false' }})"
+                @submit="handleSubmit($event)"
+                @input="saved = false" @change="saved = false">
+          {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Email Preferences</span>
           </div>
@@ -229,8 +254,9 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save Changes' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_email_preferences' label='Update' label_x_text="saved ? 'Changes Saved' : 'Update'" alpine_disabled='saved' only %}
           </div>
+          </form>
         </div>
         <div class="user-profile-edit__connections-card">
           {% include 'v3/includes/_account_connections_card.html' with connections=account_connections_mixed %}
@@ -286,6 +312,60 @@
     // accounts sharing the same browser.
     const TAGLINE_DRAFT_KEY = 'boost:editUser:taglineDraft:{{ request.user.pk }}';
     const BIO_DRAFT_KEY = 'boost:editUser:bioDraft:{{ request.user.pk }}';
+
+    // Submits a section's form via fetch so a successful save can flip its
+    // button to "Changes Saved" without a full-page navigation. On any
+    // non-success outcome (validation error, network failure, JS/fetch
+    // unsupported) it falls back to a real form submission, which the
+    // server renders/redirects exactly as it did before this existed.
+    window.createSectionForm = function (initialSaved) {
+      return {
+        saved: initialSaved,
+        _bypassFetch: false,
+        async handleSubmit(event) {
+          if (this._bypassFetch) {
+            this._bypassFetch = false
+            return
+          }
+          event.preventDefault()
+          // Only the Profile form mixes in profileForm(); other sections
+          // (Update Details, Email Preferences) have no saveLinks and skip
+          // straight to their own submit.
+          if (typeof this.saveLinks === 'function') {
+            const linksSaved = await this.saveLinks()
+            if (!linksSaved) return
+          }
+          const form = event.target
+          const submitter = event.submitter
+          let succeeded = false
+          try {
+            const response = await fetch(form.action, {
+              method: 'POST',
+              body: new FormData(form, submitter),
+              headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+            const contentType = response.headers.get('content-type') || ''
+            if (response.ok && contentType.includes('application/json')) {
+              this.saved = true
+              succeeded = true
+              // Static, server-rendered field errors (left over from a prior
+              // failed submit) don't clear themselves on a successful AJAX
+              // save since they aren't Alpine-reactive. Clear them here.
+              form.querySelectorAll('.field--error').forEach((wrapper) => {
+                wrapper.classList.remove('field--error')
+              })
+              form.querySelectorAll('p.field__error:not([x-show])').forEach((el) => {
+                el.remove()
+              })
+            }
+          } catch (_) {}
+          if (!succeeded) {
+            this._bypassFetch = true
+            form.requestSubmit(submitter)
+          }
+        },
+      }
+    }
 
     window.createTagline = function () {
       const taglineInput = document.querySelector("input[name='{{user_profile_form.tagline.name}}']")
@@ -434,8 +514,7 @@
       const taglineInput = document.querySelector("input[name='{{user_profile_form.tagline.name}}']");
 
       return {
-        saving: false,
-        saveStatus: '',   // '' | 'saved' | 'error' (button shows "saving" via :disabled)
+        saving: false,   // true while the links PATCH is in flight; disables the Save changes button
         saveError: '',
         errors: { github: '', website: '', email: '', slack: '' },  // inline per-link errors, keyed by type
 
@@ -443,7 +522,6 @@
         clearLinkError(e) {
           const type = e.target.dataset.linkType;
           if (type) this.errors[type] = '';
-          this.saveStatus = '';
           this.saveError = '';
         },
 
@@ -517,8 +595,13 @@
           return el && window.Alpine ? (Alpine.$data(el).content || '') : '';
         },
 
-        async save() {
-          if (this.saving) return;
+        // Validates and persists the profile links, tagline, and biography via
+        // PATCH before the section form submit proceeds (see handleSubmit in
+        // createSectionForm). Returns true when it's safe to continue with the
+        // section submit, false to abort it (validation or save failure) and
+        // leave the button as-is.
+        async saveLinks() {
+          if (this.saving) return false;
 
           // Validate all links up front; block the save if any fail.
           let hasError = false;
@@ -527,17 +610,15 @@
             this.errors[type] = msg;
             if (msg) hasError = true;
           });
-          if (hasError) return;
+          if (hasError) return false;
 
           const biography = this.currentBiography();
           if (biography.length > {{ biography_max_length }}) {
-            this.saveStatus = 'error';
             this.saveError = 'Biography is too long. Please shorten it and try again.';
-            return;
+            return false;
           }
 
           this.saving = true;
-          this.saveStatus = '';
           this.saveError = '';
           try {
             const res = await fetch('/api/v1/users/me/', {
@@ -566,23 +647,23 @@
                 Object.entries(linkErrors).forEach(([type, msg]) => {
                   this.errors[type] = Array.isArray(msg) ? msg[0] : msg;
                 });
-                return;
+                return false;
               }
 
               const fieldErrors = Object.values(data).flat().filter(Boolean);
               throw new Error(fieldErrors.length ? fieldErrors.join(' ') : `Save failed (${res.status})`);
             }
-            this.saveStatus = 'saved';
             // The server now holds these values; drop the drafts so they can't
             // shadow the saved data on the next visit.
             try {
               localStorage.removeItem(TAGLINE_DRAFT_KEY);
               localStorage.removeItem(BIO_DRAFT_KEY);
             } catch (_) {}
+            return true;
           } catch (err) {
-            console.error('Profile save failed:', err);
-            this.saveStatus = 'error';
+            console.error('Profile links save failed:', err);
             this.saveError = err.message || 'Could not save. Please try again.';
+            return false;
           } finally {
             this.saving = false;
           }

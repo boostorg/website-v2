@@ -21,7 +21,7 @@
        jsReady: false,
        open: false,
        query: '',
-       selected: '{{ selected|default:'' }}',
+       selected: '{{ selected|default:''|escapejs }}',
        selectedLabel: '',
        options: [],
        activeIndex: -1,
@@ -35,7 +35,7 @@
          this.jsReady = true;
          this.options = JSON.parse(document.getElementById('field-{{ name }}-options').textContent);
          if (this.selected) {
-           const match = this.options.find(o => o.value === this.selected);
+           const match = this.options.find(o => String(o.value) === String(this.selected));
            if (match) this.selectedLabel = match.label;
          }
        },
@@ -45,6 +45,7 @@
          this.query = '';
          this.activeIndex = -1;
          this.open = false;
+         this.$dispatch('input');
          setTimeout(() => this.$refs.chevronBtn.focus());
        },
        toggle() {
@@ -129,9 +130,9 @@
         <template x-for="option in filtered" :key="option.value">
           <div class="dropdown__item"
                :id="'field-{{ name }}-option-' + option.value"
-               :class="{ 'dropdown__item--selected': selected === option.value, 'dropdown__item--active': activeValue === option.value }"
+               :class="{ 'dropdown__item--selected': String(selected) === String(option.value), 'dropdown__item--active': activeValue === option.value }"
                role="option"
-               :aria-selected="selected === option.value"
+               :aria-selected="String(selected) === String(option.value)"
                @click="choose(option.value, option.label)"
                @keydown.enter.prevent="choose(option.value, option.label)"
                @keydown.space.prevent="choose(option.value, option.label)"
