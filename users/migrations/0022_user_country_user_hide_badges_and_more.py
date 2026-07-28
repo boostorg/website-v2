@@ -3,6 +3,29 @@
 import django_countries.fields
 from django.db import migrations, models
 
+# This migration shipped to long-lived environments under several different
+# names, so some databases have its columns already present but recorded under
+# a name that no longer exists on disk. Emitting the DDL with IF NOT EXISTS
+# makes it a no-op wherever the columns are already there, which lets the file
+# keep a stable name regardless of what a given database recorded.
+ADD_COLUMNS = """
+ALTER TABLE "users_user" ADD COLUMN IF NOT EXISTS "country" varchar(2) DEFAULT '' NOT NULL;
+ALTER TABLE "users_user" ALTER COLUMN "country" DROP DEFAULT;
+ALTER TABLE "users_user" ADD COLUMN IF NOT EXISTS "hide_badges" boolean DEFAULT false NOT NULL;
+ALTER TABLE "users_user" ALTER COLUMN "hide_badges" DROP DEFAULT;
+ALTER TABLE "users_user" ADD COLUMN IF NOT EXISTS "hide_github_activity" boolean DEFAULT false NOT NULL;
+ALTER TABLE "users_user" ALTER COLUMN "hide_github_activity" DROP DEFAULT;
+ALTER TABLE "users_user" ADD COLUMN IF NOT EXISTS "hide_mailing_list_activity" boolean DEFAULT false NOT NULL;
+ALTER TABLE "users_user" ALTER COLUMN "hide_mailing_list_activity" DROP DEFAULT;
+"""
+
+DROP_COLUMNS = """
+ALTER TABLE "users_user" DROP COLUMN IF EXISTS "hide_mailing_list_activity";
+ALTER TABLE "users_user" DROP COLUMN IF EXISTS "hide_github_activity";
+ALTER TABLE "users_user" DROP COLUMN IF EXISTS "hide_badges";
+ALTER TABLE "users_user" DROP COLUMN IF EXISTS "country";
+"""
+
 
 class Migration(migrations.Migration):
 
@@ -11,31 +34,41 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name="user",
-            name="country",
-            field=django_countries.fields.CountryField(blank=True, max_length=2),
-        ),
-        migrations.AddField(
-            model_name="user",
-            name="hide_badges",
-            field=models.BooleanField(
-                default=False, help_text="Hide badges from the public profile."
-            ),
-        ),
-        migrations.AddField(
-            model_name="user",
-            name="hide_github_activity",
-            field=models.BooleanField(
-                default=False, help_text="Hide GitHub activity from the public profile."
-            ),
-        ),
-        migrations.AddField(
-            model_name="user",
-            name="hide_mailing_list_activity",
-            field=models.BooleanField(
-                default=False,
-                help_text="Hide mailing list activity from the public profile.",
-            ),
+        migrations.SeparateDatabaseAndState(
+            database_operations=[
+                migrations.RunSQL(ADD_COLUMNS, DROP_COLUMNS),
+            ],
+            state_operations=[
+                migrations.AddField(
+                    model_name="user",
+                    name="country",
+                    field=django_countries.fields.CountryField(
+                        blank=True, max_length=2
+                    ),
+                ),
+                migrations.AddField(
+                    model_name="user",
+                    name="hide_badges",
+                    field=models.BooleanField(
+                        default=False, help_text="Hide badges from the public profile."
+                    ),
+                ),
+                migrations.AddField(
+                    model_name="user",
+                    name="hide_github_activity",
+                    field=models.BooleanField(
+                        default=False,
+                        help_text="Hide GitHub activity from the public profile.",
+                    ),
+                ),
+                migrations.AddField(
+                    model_name="user",
+                    name="hide_mailing_list_activity",
+                    field=models.BooleanField(
+                        default=False,
+                        help_text="Hide mailing list activity from the public profile.",
+                    ),
+                ),
+            ],
         ),
     ]
