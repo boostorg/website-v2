@@ -4,7 +4,7 @@
     Inputs:
         title:              str, required   - text that appears bolded at the top of the card
         contributor_data:   dict, required  - a dict of contributions and libraries (i.e. {"author": "beast", "asyncio"})
-        markdown:           str, required   - markdown formatted text that appears in the body of the card. The card handles transforming the text
+        markdown:           str, optional   - markdown formatted text that appears in the body of the card. The card handles transforming the text. When empty, an empty state is shown instead.
         button_url:         str, optional   - url that the button should link to. If not provided, button is not shown
         button_label:       str, optional   - label for the optional cta button. If not provided, button is not shown.
 {% endcomment %}
@@ -24,7 +24,11 @@
     </div>
     <hr class="card__hr" />
   {% endif %}
-  <div class="card__column markdown-content">{{ markdown|markdown }}</div>
+  {% if markdown %}
+    <div class="card__column markdown-content">{{ markdown|markdown }}</div>
+  {% else %}
+    <div class="card__column bio-card__empty">This user hasn't added a bio yet.</div>
+  {% endif %}
   {% if button_url and button_label %}
     <hr class="card__hr" />
     <div class="card__cta_section">

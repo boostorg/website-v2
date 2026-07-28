@@ -1,5 +1,5 @@
 import datetime
-from textwrap import dedent
+from urllib.parse import urlparse
 
 from allauth.account import app_settings
 from django.contrib import messages
@@ -32,8 +32,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from waffle import flag_is_active
 
-from core.constants import BadgeToken
-from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin, V3AuthContextMixin
 from libraries.constants import (
     COMMIT_EMAIL_ADD_FAILED_ERROR,
@@ -291,273 +289,87 @@ class CurrentUserProfileView(
         return ctx
 
     def get_v3_context_data(self, **kwargs):
-        user = self.request.user
-        ctx = {}
-
         if self.request.GET.get("edit", "").lower() == "true":
             return self.get_v3_edit_context()
+        return self.get_v3_public_context(self.request.user)
 
-        ctx["user_info"] = {
-            "user_name": user.display_name,
-            "avatar_url": user.get_avatar_url(),
-            "featured_badge": {
-                "name": "Bug Catcher",
-                "badge": BadgeToken.TIER_5,
+    # Header buttons that link out to the public profile links a user has
+    # set, in display order. Each entry maps a profile_links key to the
+    # button label and icon; the stored value becomes the button's href.
+    V3_PROFILE_LINK_BUTTONS = [
+        ("github", "GitHub", "pixel-github"),
+        ("website", "Website", "pixel-computer"),
+        ("email", "Email", "pixel-email"),
+        ("slack", "Chat on Slack", "pixel-slack"),
+    ]
+
+    @staticmethod
+    def _safe_web_url(value):
+        """Return a safe http(s) href for a stored profile-link value, or None.
+
+        Profile-link values are stored as plain text with no scheme
+        validation, so they are untrusted. Rendering them straight into an
+        `href` would allow a `javascript:`/`data:` value to execute when a
+        visitor clicks the link. Only http(s) URLs are allowed through;
+        scheme-less values (e.g. "example.com") are treated as https."""
+        value = value.strip()
+        scheme = urlparse(value).scheme.lower()
+        if scheme in ("http", "https"):
+            return value
+        if not scheme:
+            return f"https://{value}"
+        return None
+
+    def get_v3_profile_link_buttons(self, user):
+        """Header buttons for the public profile links the user has set.
+
+        Links with no (or an unsafe) value are omitted, since only populated
+        links are shown publicly. The list always ends with the Share
+        button."""
+        links = user.profile_links or {}
+        buttons = []
+        for key, label, icon in self.V3_PROFILE_LINK_BUTTONS:
+            value = links.get(key)
+            if not value:
+                continue
+            if key == "email":
+                url = f"mailto:{value.strip()}"
+            else:
+                url = self._safe_web_url(value)
+                if url is None:
+                    continue
+            buttons.append({"label": label, "url": url, "icon": icon})
+        buttons.append({"label": "Share", "url": "#", "icon": "pixel-share"})
+        return buttons
+
+    def get_v3_public_context(self, user):
+        """Context for the public-facing v3 profile view.
+
+        Renders real user data. Sections with no underlying data (GitHub
+        activity, mailing list activity, posts, achievements, badges) are
+        left out of the context so the template omits them entirely. The
+        bio section is always rendered, falling back to an empty state."""
+        return {
+            "user_info": {
+                "user_name": user.display_name,
+                "avatar_url": user.get_avatar_url(),
+                "member_since": user.year_joined,
+                # `public_role` rather than `role`: the hide-public-role opt-out
+                # suppresses the role elsewhere on the site, but the user's own
+                # profile page still shows the best available one.
+                "role": user.public_role,
+                "flag_emoji": user.flag_emoji,
             },
-            "member_since": user.date_joined.year,
-            "role": user.public_role,
-            "flag_emoji": user.flag_emoji,
+            # Library contributions grouped by role, rendered as the
+            # contributions section of the bio card. An empty dict means no
+            # contributions, and the card omits the section.
+            "contributor_data": user.get_contributor_data(),
+            # None (rather than "") when the user has no biography, so the
+            # template renders the bio empty state instead of an empty card.
+            # A stored biography is Markdown; the bio card renders it.
+            "bio": user.biography or None,
+            "top_links": self.get_v3_profile_link_buttons(user),
         }
-
-        # Library contributions grouped by role (Author/Maintainer/Contributor)
-        ctx["contributor_data"] = user.get_contributor_data()
-
-        # Data shared between both versions, Boost Github and Mailing List activity
-        ctx["github_activity_card_data"] = {
-            "title": "Latest Boost Github activity",
-            "markdown_text": dedent("""
-                        * Created 24 Commits in [**7 repositories**](https://www.example.com)
-                        * Created [**1 repository**](https://www.example.com)
-                        * Created a pull request in [**cppalliance/buffers**](https://www.example.com) that received 6 comments
-                        * Opened 17 other pull requests in [**6 repositories**](https://www.example.com)
-                        * Reviewed 3 pull requests in [**3 repositories**](https://www.example.com)
-                    """),
-            "button_url": "https://www.github.com",
-            "button_label": "View on Github",
-        }
-        ctx["mailing_list_activity_card_data"] = {
-            "title": "Mailing List Activity",
-            "mailing_list_items": [
-                {
-                    "date": datetime.date(2025, 7, 11),
-                    "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
-                    "url": "#",
-                },
-                {
-                    "date": datetime.date(2025, 7, 11),
-                    "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
-                    "url": "#",
-                },
-                {
-                    "date": datetime.date(2025, 7, 11),
-                    "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
-                    "url": "#",
-                },
-                {
-                    "date": datetime.date(2025, 7, 11),
-                    "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
-                    "url": "#",
-                },
-                {
-                    "date": datetime.date(2025, 7, 11),
-                    "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
-                    "url": "#",
-                },
-            ],
-        }
-
-        if self.request.GET.get("filled"):
-            ctx["bio"] = dedent("""
-                **Professional Profile**
-
-                I am a software engineer and C++ expert with extensive experience in systems programming and open-source software development. My work focuses on advancing the C++ ecosystem through libraries, tools, and community leadership.
-
-                **Boost Library Author**
-
-                I have authored and maintain several widely-used Boost libraries that are relied upon by developers worldwide. These libraries provide robust, production-ready components for modern C++ applications.
-
-                **President of The C++ Alliance**
-
-                As President of The C++ Alliance, I lead initiatives to support and advance the C++ programming language and its community. The Alliance provides resources, funding, and infrastructure to support C++ development, education, and standardization efforts.
-
-                **Creator of Mr. Docs**
-
-                I created Mr. Docs, a documentation generation tool designed specifically for C++ projects. Mr. Docs helps developers create high-quality, maintainable documentation that keeps pace with modern C++ codebases.
-
-                **My primary technical interests include:**
-
-                * HTTP Protocol: Implementation and optimization of HTTP client and server libraries
-                * WebSocket Protocol: Real-time bidirectional communication protocols and their practical applications
-                * Network Programming: High-performance asynchronous networking solutions in C++
-
-                These interests have shaped my contributions to the C++ ecosystem, particularly in developing libraries that make network programming more accessible and efficient for developers.
-            """)
-            ctx["profile_post_cta_label"] = "View All Posts"
-            ctx["profile_post_cta_url"] = "#"
-            ctx["achievements_data"] = {
-                "achievements": [
-                    {
-                        "title": "Lorem Ipsum",
-                        "points": 22,
-                        "description": "A longer description giving a summary of the achievement.",
-                    }
-                    for _ in range(6)
-                ]
-            }
-            ctx["demo_badges"] = [
-                {
-                    "icon": BadgeToken.TIER_1,
-                    "name": "Code Whisperer",
-                    "earned_date": "01/01/2025",
-                },
-                {
-                    "icon": BadgeToken.TIER_2,
-                    "name": "Library Alchemist",
-                    "earned_date": "03/04/2025",
-                },
-                {
-                    "icon": BadgeToken.TIER_3,
-                    "name": "Patch Wizard",
-                    "earned_date": "08/08/2025",
-                },
-                {
-                    "icon": BadgeToken.TIER_4,
-                    "name": "Bug Catcher",
-                    "earned_date": "02/04/2025",
-                },
-                {
-                    "icon": BadgeToken.TIER_5,
-                    "name": "Standard Bearer",
-                    "earned_date": "03/07/2025",
-                },
-                {
-                    "icon": BadgeToken.STAR_TIER_3,
-                    "name": "Review Hawk",
-                    "earned_date": "03/06/2025",
-                },
-            ]
-            ctx["posts"] = [
-                {
-                    "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                    "url": "#",
-                    "date": datetime.date(2025, 3, 3),
-                    "category": "Issues",
-                    "tag": "beast",
-                },
-                {
-                    "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                    "url": "#",
-                    "date": datetime.date(2025, 3, 3),
-                    "category": "Issues",
-                    "tag": "beast",
-                },
-                {
-                    "title": "Boost.Bind and modern C++: a quick overview",
-                    "url": "#",
-                    "date": datetime.date(2025, 2, 15),
-                    "category": "Releases",
-                    "tag": "bind",
-                },
-                {
-                    "title": "Boost.Bind and modern C++: a quick overview again",
-                    "url": "#",
-                    "date": datetime.date(2025, 2, 15),
-                    "category": "Releases",
-                    "tag": "bind",
-                },
-                {
-                    "title": "utility::string_view and core::detail::string_view",
-                    "url": "#",
-                    "date": datetime.date(2025, 2, 15),
-                    "category": "Releases",
-                    "tag": "bind",
-                },
-            ]
-            ctx["social_media_links"] = [
-                {
-                    "url": "#",
-                    "label": "GitHub",
-                    "icon": "pixel-github",
-                },
-                {
-                    "url": "#",
-                    "label": "Website",
-                    "icon": "pixel-computer",
-                },
-                {
-                    "url": "#",
-                    "label": "Email",
-                    "icon": "pixel-email",
-                },
-                {
-                    "url": "#",
-                    "label": "Chat on Slack",
-                    "icon": "pixel-slack",
-                },
-            ]
-            ctx["account_connections_none_connected"] = [
-                {
-                    "platform": "github",
-                    "label": "GitHub",
-                    "connected": False,
-                    "status_text": "Not connected",
-                    "action_label": "Connect",
-                    "action_url": "#",
-                },
-                {
-                    "platform": "google",
-                    "label": "Google",
-                    "connected": False,
-                    "status_text": "Not connected",
-                    "action_label": "Connect",
-                    "action_url": "#",
-                },
-            ]
-
-        else:
-            ctx["posts"] = [
-                {
-                    "title": "Share Your Knowledge with the community",
-                    "summary": "Write posts to share ideas, tutorials, announcements, or lessons learned about working with Boost",
-                }
-            ]
-            ctx["bio"] = (
-                user.biography
-                or "Add a short bio to tell the community who you are, what you work on, or what you’re passionate about."
-            )
-            ctx["profile_post_cta_label"] = "Create a Post"
-            ctx["profile_post_cta_url"] = "#"
-            ctx["social_media_links"] = [
-                {
-                    "icon": "pixel-github",
-                    "disabled": True,
-                    "extra_classes": "user-profile__btn-no-label",
-                    "tp_label": "Add GitHub Profile Link",
-                },
-                {
-                    "icon": "pixel-computer",
-                    "disabled": True,
-                    "extra_classes": "user-profile__btn-no-label",
-                    "tp_label": "Add Website Link",
-                },
-                {
-                    "icon": "pixel-email",
-                    "disabled": True,
-                    "extra_classes": "user-profile__btn-no-label",
-                    "tp_label": "Add Email Address",
-                },
-                {
-                    "icon": "pixel-slack",
-                    "disabled": True,
-                    "extra_classes": "user-profile__btn-no-label",
-                    "tp_label": "Add CPP Slack Profile Link",
-                },
-            ]
-
-        ctx["top_links"] = ctx["social_media_links"] + [
-            {
-                "url": edit_profile_url(),
-                "label": "Edit Profile",
-                "icon": "pixel-pencil",
-            },
-            {
-                "url": "#",
-                "label": "Share",
-                "icon": "pixel-share",
-            },
-        ]
-
-        return ctx
 
     def get_template_names(self):
         if (

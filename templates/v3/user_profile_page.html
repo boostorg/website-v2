@@ -11,14 +11,20 @@
 {% endblock %}
 
 {% block content %}
+  {% comment %}
+    Public profile view. The left column always shows the bio card; the right
+    column always shows the Achievements and Badges cards (with empty-state
+    fallbacks). GitHub, mailing-list, posts, and connections cards render only
+    when they have data.
+  {% endcomment %}
   <div class="user-profile__container">
     <div class="user-profile__profile-card-row">
       {% with user_info as user %}
-      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url badge_name=user.featured_badge.name badge=user.featured_badge.badge member_since=user.member_since role=user.role flag_emoji=user.flag_emoji compact=True %}
+      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url member_since=user.member_since role=user.role flag_emoji=user.flag_emoji compact=True %}
       {% endwith %}
       <div class="user-profile__button-group">
         {% for link in top_links %}
-        {% include "v3/includes/_button.html" with tp_label=link.tp_label tp_position="top" label=link.label url=link.url icon_name=link.icon disabled=link.disabled extra_classes=link.extra_classes icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
+        {% include "v3/includes/_button.html" with label=link.label url=link.url icon_name=link.icon icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
         {% endfor %}
       </div>
     </div>
@@ -27,27 +33,41 @@
         <div class="user-profile__bio">
           {% include 'v3/includes/_user_profile_bio_card.html' with title='Bio' markdown=bio contributor_data=contributor_data only %}
         </div>
+        {% if github_activity_card_data %}
         <div class="user-profile__github">
           {% with data=github_activity_card_data %}
             {% include 'v3/includes/_markdown_card.html' with title=data.title markdown=data.markdown_text button_url=data.button_url button_label=data.button_label %}
           {% endwith %}
         </div>
+        {% endif %}
+        {% if mailing_list_activity_card_data %}
         <div class="user-profile__mailing-list">
           {% with data=mailing_list_activity_card_data %}
             {% include 'v3/includes/_mailing_list_activity_card.html' with title=data.title mailing_list_items=data.mailing_list_items %}
           {% endwith %}
         </div>
+        {% endif %}
       </div>
       <div class="user-profile__col">
         <div class="user-profile__achievements">
-          {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements primary_button_url="https://www.example.com" %}
+          {% if achievements_data.achievements %}
+            {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements %}
+          {% else %}
+            {% include "v3/includes/_empty_state_card.html" with title="Achievements" message="No achievements earned yet." cta_label="Learn how achievements work" only %}
+          {% endif %}
         </div>
         <div class="user-profile__badges">
-          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=demo_badges %}
+          {% if badges %}
+            {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=badges %}
+          {% else %}
+            {% include "v3/includes/_empty_state_card.html" with title="Badges" message="No badges unlocked yet." cta_label="Learn how badges work" only %}
+          {% endif %}
         </div>
+        {% if posts %}
         <div class="user-profile__posts">
           {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label=profile_post_cta_label primary_cta_url=profile_post_cta_url %}
         </div>
+        {% endif %}
         {% if account_connections_none_connected %}
         <div class="user-profile__connections">
           {% include "v3/includes/_account_connections_card.html" with connections=account_connections_none_connected %}
