@@ -138,7 +138,8 @@ class CommitAuthor(models.Model):
             "profile_url": self.github_profile_url,
             "role": role,
             "avatar_url": self.avatar_url or "",
-            "profile_badges": self.user.profile_badges if self.user else [],
+            "tenure_badge": self.user.tenure_badge if self.user else None,
+            "boost_day_badge": self.user.boost_day_badge if self.user else None,
             "bio": None,
         }
 

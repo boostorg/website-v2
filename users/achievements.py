@@ -13,11 +13,11 @@ from django.utils import timezone
 from core.constants import BadgeToken
 
 TENURE_TIERS = (
-    (2, BadgeToken.STAR_TIER_1),  # bronze
-    (5, BadgeToken.STAR_TIER_2),  # silver
-    (10, BadgeToken.STAR_TIER_3),  # gold
-    (15, BadgeToken.STAR_TIER_4),  # diamond
-    (20, BadgeToken.STAR_TIER_5),  # platinum
+    (2, BadgeToken.TIER_1),  # bronze
+    (5, BadgeToken.TIER_2),  # silver
+    (10, BadgeToken.TIER_3),  # gold
+    (15, BadgeToken.TIER_4),  # diamond
+    (20, BadgeToken.TIER_5),  # platinum
 )
 
 
@@ -96,10 +96,13 @@ def boost_day_badge(joined, today=None):
 
 
 def profile_badges(joined, today=None):
-    """Both badges, tenure star first so it stays nearest the member's name."""
+    """Both badges keyed by slot, matching Figma node 5942:11222.
+
+    The tenure medal sits beside the member's role, the Boost Day icon
+    beside their name.
+    """
     today = today or timezone.localdate()
-    return [
-        badge
-        for badge in (tenure_badge(joined, today), boost_day_badge(joined, today))
-        if badge is not None
-    ]
+    return {
+        "tenure_badge": tenure_badge(joined, today),
+        "boost_day_badge": boost_day_badge(joined, today),
+    }

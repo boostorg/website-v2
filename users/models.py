@@ -592,7 +592,7 @@ class User(BaseUser):
             "profile_url": None,
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
-            "profile_badges": self.profile_badges,
+            **self.profile_badges,
             "bio": None,
         }
 
@@ -659,8 +659,18 @@ class User(BaseUser):
 
     @cached_property
     def profile_badges(self):
-        """Tenure star and Boost Day badge dicts for `_user_profile.html`."""
+        """Tenure medal and Boost Day badge dicts, keyed by template slot."""
         return achievements.profile_badges(self.date_joined)
+
+    @property
+    def tenure_badge(self):
+        """Tenure medal badge dict, or None for members under 2 years."""
+        return self.profile_badges["tenure_badge"]
+
+    @property
+    def boost_day_badge(self):
+        """Boost Day badge dict, or None outside the member's anniversary."""
+        return self.profile_badges["boost_day_badge"]
 
     @cached_property
     def role(self):
