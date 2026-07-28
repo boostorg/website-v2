@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("users", "0023_user_biography_user_tagline"),
+        ("users", "0024_user_country_user_hide_badges_and_more"),
     ]
 
     operations = [
