@@ -497,7 +497,7 @@ class User(BaseUser):
             setattr(self, field_name, None)
 
         self.delete_permanently_at = None
-        self.deletion_extended_scrub = False
+        self.deletion_extended_scrub = extended_scrub
         self.save()
 
     def __str__(self):
