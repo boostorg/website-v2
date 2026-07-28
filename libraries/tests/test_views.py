@@ -41,7 +41,7 @@ def test_build_quick_start_links_validates_and_falls_back():
             "label": "Common use cases",
             "url": "https://www.boost.org/doc/libs/x/use.html",
         },
-        {"label": "Code examples", "url": docs},
+        {"label": "Code Examples", "url": docs},
     ]
 
 
@@ -99,7 +99,7 @@ def test_build_quick_start_links_no_adoc_links_uses_docs():
     docs = "/doc/libs/1_90_0/libs/x/index.html"
     assert _build_quick_start_links(docs, None) == [
         {"label": "Common use cases", "url": docs},
-        {"label": "Code examples", "url": docs},
+        {"label": "Code Examples", "url": docs},
     ]
 
 

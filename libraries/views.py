@@ -85,7 +85,7 @@ def _is_boost_url(url):
 def _build_quick_start_links(documentation_url, links):
     """Build the Quick Start card links from website.adoc's [#links] section.
 
-    "Common use cases" and "Code examples" come from the maintainer's
+    "Common use cases" and "Code Examples" come from the maintainer's
     :common-use-case-url: / :code-example-url:. Each is used only if it is a
     valid Boost URL; otherwise it falls back to the documentation link.
     """
