@@ -212,7 +212,3 @@ gatewayType: "none"
 certmap: "revsys-certmap"
 redisInstall: false
 celeryInstall: false
-# Catch-all email inbox. Enable only alongside CATCH_ALL_EMAIL in the same
-# values file, and never in production. See docs/email.md
-maildevInstall: false
-maildevImageTag: "2.2.1"
