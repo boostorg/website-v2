@@ -625,6 +625,7 @@ def build_library_intro_context(
             CommitAuthor.humans.filter(commit__library_version=library_version)
             .exclude(id__in=exclude_commit_author_ids)
             .annotate(count=Count("commit"))
+            .select_related("user")
             .order_by("-count")[:remaining]
         )
 

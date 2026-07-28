@@ -322,7 +322,9 @@ class ContributorMixin:
             )
         if exclude:
             qs = qs.exclude(id__in=exclude)
-        qs = qs.annotate(count=Count("commit")).order_by("-count")
+        qs = (
+            qs.annotate(count=Count("commit")).select_related("user").order_by("-count")
+        )
         return qs
 
     def get_previous_contributors(self, library_version, exclude=None):
@@ -335,6 +337,7 @@ class ContributorMixin:
         qs = (
             CommitAuthor.humans.filter(commit__library_version__in=library_versions)
             .annotate(count=Count("commit"))
+            .select_related("user")
             .order_by("-count")
         )
         if exclude:

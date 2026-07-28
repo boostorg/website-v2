@@ -144,6 +144,7 @@ class VersionDetail(
                 count=Count("commit", filter=Q(commit__in=version_commits)),
             )
             .filter(count__gte=1)
+            .select_related("user")
             .order_by("-count")
         )
         return qs
