@@ -6,8 +6,12 @@ from django.db import migrations, models
 # This migration shipped to long-lived environments under several different
 # names, so some databases have its columns already present but recorded under
 # a name that no longer exists on disk. Emitting the DDL with IF NOT EXISTS
-# makes it a no-op wherever the columns are already there, which lets the file
-# keep a stable name regardless of what a given database recorded.
+# makes it a no-op wherever the columns are already there, which is what allows
+# this file to sit at the end of a linear chain despite those earlier names.
+#
+# Do not swap this back to plain AddField operations until every long-lived
+# database has run this migration at least once. Until then, the plain form
+# re-adds columns that already exist and fails with DuplicateColumn.
 ADD_COLUMNS = """
 ALTER TABLE "users_user" ADD COLUMN IF NOT EXISTS "country" varchar(2) DEFAULT '' NOT NULL;
 ALTER TABLE "users_user" ALTER COLUMN "country" DROP DEFAULT;
@@ -30,7 +34,7 @@ ALTER TABLE "users_user" DROP COLUMN IF EXISTS "country";
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("users", "0021_add_v3_testers_group"),
+        ("users", "0023_user_biography_user_tagline"),
     ]
 
     operations = [
