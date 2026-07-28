@@ -75,6 +75,7 @@ body:has(.is_flagship) .library-subpage-container {
 .card-masonry-bottom > div > .basic-card,
 .card-masonry-bottom > div > .card-group,
 .card-masonry-bottom > div > .post-card,
+.card-masonry-bottom > div > [data-ml-block] > .card,
 .library-subpage__documentation > .markdown-card,
 .library-subpage__freeform > .markdown-card,
 .library-subpage__all-contributors > .contributors-list {

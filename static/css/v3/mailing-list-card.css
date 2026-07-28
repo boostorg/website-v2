@@ -19,7 +19,7 @@
   padding: var(--space-default);
   border-radius: var(--border-radius-s);
   background-color: var(--color-surface-brand-accent-default);
-  color: var(--color-text-primary);
+  color: var(--color-text-on-accent);
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
