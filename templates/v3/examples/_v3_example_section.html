@@ -418,6 +418,22 @@
     {% endwith %}
   {% endif %}
 
+  {% comment %}
+    Benchmarks — the library subpage maps website.adoc's [#benchmarks] charts to
+    the _stats_benchmarks `sets` shape (bar width_pct normalized per chart).
+  {% endcomment %}
+  {% with section_title="Benchmarks Card — themes: default, teal, yellow, green" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box v3-examples-section-horizontal-container">
+        {% include "v3/includes/_stats_benchmarks.html" with heading="Benchmarks" sets=benchmark_demo_sets %}
+        {% include "v3/includes/_stats_benchmarks.html" with heading="Benchmarks" sets=benchmark_demo_sets theme="teal" %}
+        {% include "v3/includes/_stats_benchmarks.html" with heading="Benchmarks" sets=benchmark_demo_sets theme="yellow" %}
+        {% include "v3/includes/_stats_benchmarks.html" with heading="Benchmarks" sets=benchmark_demo_sets theme="green" %}
+      </div>
+    </div>
+  {% endwith %}
+
   {% include "v3/examples/_v3_example_section_wysiwyg.html" %}
 
   {% with section_title="Badges Card (empty with CTA)" %}
@@ -648,17 +664,6 @@
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">{% include "v3/includes/_markdown_card.html" with title="This library is designed for" html=designed_for_demo_html %}</div>
-    </div>
-  {% endwith %}
-
-  {% comment %}
-    Benchmarks — the library subpage maps website.adoc's [#benchmarks] charts to
-    the _stats_benchmarks `sets` shape (bar width_pct normalized per chart).
-  {% endcomment %}
-  {% with section_title="Benchmarks Card" %}
-    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-      <h3>{{ section_title }}</h3>
-      <div class="v3-examples-section__example-box">{% include "v3/includes/_stats_benchmarks.html" with heading="Benchmarks" sets=benchmark_demo_sets theme="green" %}</div>
     </div>
   {% endwith %}
 

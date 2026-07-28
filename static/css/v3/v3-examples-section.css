@@ -292,6 +292,11 @@ html.dark .v3-examples-section__toc {
   overflow-x: auto;
 }
 
+/* Fixed-width benchmark cards must scroll, not shrink, in the row above. */
+.v3-examples-section-horizontal-container .stats--benchmarks {
+  flex-shrink: 0;
+}
+
 /* ── V3 Paths Registry table ──────────────────── */
 
 .v3-examples-section__registry-table {

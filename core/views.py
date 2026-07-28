@@ -2033,6 +2033,8 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                         {"label": "Boost.Example", "value": 1200},
                         {"label": "Alternative A", "value": 800},
                         {"label": "Alternative B", "value": 450},
+                        {"label": "Alternative C", "value": 300},
+                        {"label": "Alternative D", "value": 150},
                     ],
                 },
                 {
@@ -2041,6 +2043,8 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                     "data": [
                         {"label": "Boost.Example", "value": 12},
                         {"label": "Alternative A", "value": 30},
+                        {"label": "Alternative B", "value": 45},
+                        {"label": "Alternative C", "value": 60},
                     ],
                 },
             ]
