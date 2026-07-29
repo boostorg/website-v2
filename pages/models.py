@@ -234,6 +234,8 @@ class PostPage(BasePage):
         ]
         ctx["object"] = self.specific
         ctx["post_author"] = self.author
+        ctx["user_can_edit"] = request.user == self.author
+        ctx["user_can_delete"] = request.user == self.author
         return ctx
 
     def save(self, *args, **kwargs):

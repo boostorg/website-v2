@@ -583,16 +583,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         tags = []
         if related_libraries:
             for library in related_libraries:
-                try:
-                    lib = Library.objects.get(slug=library)
-                except Library.DoesNotExist:
-                    return self.error_message_and_render(
-                        _(
-                            "That related library does not exist, please select another."
-                        ),
-                        {"form": form, "post_type_selected": post_type},
-                    )
-
+                lib = Library.objects.get(slug=library)
                 tag, created = ContentTag.objects.get_or_create(
                     slug=lib.slug,
                     defaults={
@@ -644,13 +635,21 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
             try:
                 page = PostPage()
                 page.owner = request.user
-                page = self.set_page_attrs(
-                    page=page,
-                    form=form,
-                    block_name=block_name,
-                    post_type=post_type,
-                    related_libraries=post_data.get("related_libraries"),
-                )
+                try:
+                    page = self.set_page_attrs(
+                        page=page,
+                        form=form,
+                        block_name=block_name,
+                        post_type=post_type,
+                        related_libraries=post_data.getlist("related_libraries"),
+                    )
+                except Library.DoesNotExist:
+                    return self.error_message_and_render(
+                        _(
+                            "That related library does not exist, please select another."
+                        ),
+                        {"form": form, "post_type_selected": post_type},
+                    )
                 index_page.add_child(instance=page)
                 page.save_revision(user=request.user)
                 page.get_workflow().start(obj=page, user=request.user)
@@ -743,7 +742,7 @@ class V3AllTypesEditView(V3AllTypesCreateView):
             )
             return context
         try:
-            page = index_page.get_children().get(slug=slug).specific
+            page = index_page.get_children().get(slug=slug).latest_revision.as_object()
         except PostPage.DoesNotExist:
             messages.error(
                 self.request,
@@ -811,10 +810,14 @@ class V3AllTypesEditView(V3AllTypesCreateView):
                     form=form,
                     block_name=block_name,
                     post_type=post_type,
-                    related_libraries=post_data.get("related_libraries"),
+                    related_libraries=post_data.getlist("related_libraries"),
                 )
                 page.save_revision(user=request.user)
-                page.get_workflow().start(obj=page, user=request.user)
+            except Library.DoesNotExist:
+                return self.error_message_and_render(
+                    _("That related library does not exist, please select another."),
+                    {"form": form, "post_type_selected": post_type, "slug": slug},
+                )
             except ValidationError as e:
                 if "slug" in str(e):
                     form.add_error(
@@ -844,6 +847,43 @@ class V3AllTypesEditView(V3AllTypesCreateView):
 
         context = self.get_context_data(form=form, post_type_selected=post_type)
         return self.render_to_response(context)
+
+
+class V3DeletePostView(View):
+    def get(self, request, **kwargs):
+        slug = kwargs.get("slug")
+        if not slug:
+            messages.error(request, message=_("No slug was provided to delete"))
+            return redirect(reverse("news"))
+        index_page = PostIndexPage.objects.first()
+        if not index_page:
+            messages.error(
+                request=request,
+                message=_(
+                    "An internal database error has occurred. Please contact an admin."
+                ),
+            )
+            return redirect(reverse("news"))
+        try:
+            page = index_page.get_children().get(slug=slug).specific
+        except Page.DoesNotExist:
+            messages.error(
+                request,
+                _(
+                    f"No page with slug {slug} exists. Try checking the link used to get here."
+                ),
+            )
+            return redirect(reverse("news"))
+
+        if not request.user == page.owner:
+            messages.error(request=request, message=_("You do not own this page."))
+            return redirect(page.url)
+
+        page.unpublish(user=request.user)
+        messages.success(
+            request=request, message=_("This page has been successfully removed.")
+        )
+        return redirect(reverse("news"))
 
 
 @login_required

@@ -60,7 +60,7 @@
 
         <div class="create-post-page__card">
           {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
-          {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True selected=post_type_selected alpine_error="errors.post_type" %}
+          {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True selected=post_type_selected alpine_error="errors.post_type" disabled=edit %}
 
           {% include "v3/includes/_field_text.html" with name="title" label="Post title *" placeholder="Title" value=form.title.value|default_if_none:"" required=True alpine_error="errors.title" error=form.title.errors.0 %}
 

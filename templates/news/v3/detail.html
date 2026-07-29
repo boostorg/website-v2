@@ -20,7 +20,7 @@
       {% endif %}
       {% if user_can_approve or user_can_edit or user_can_delete %}
         <div class="post-detail__admin-actions">
-          {% if not object.is_approved and not object.deleted_at %}
+          {% if object.workflow_in_progress and not object.deleted_at %}
             {% if user_can_approve %}
               <form method="POST" action="{% url 'news-approve' object.slug %}" class="post-detail__approve-form">
                 {% csrf_token %}
@@ -32,12 +32,13 @@
             {% endif %}
           {% endif %}
           {% if user_can_edit and not object.deleted_at %}
-            {% url 'news-update' object.slug as edit_url %}
+            {% url 'v3-news-edit' object.slug as edit_url %}
             {% include "v3/includes/_button.html" with url=edit_url label="Edit" style="secondary" %}
           {% endif %}
           {% if user_can_delete and not object.deleted_at %}
-            {% url 'news-delete' object.slug as delete_url %}
-            {% include "v3/includes/_button.html" with url=delete_url label="Delete" style="error" %}
+            {% url 'v3-news-delete' object.slug as delete_url %}
+            {% include "v3/includes/_button.html" with url='#delete-modal' label="Delete" style="error" %}
+            {% include 'v3/includes/_dialog.html' with dialog_id="delete-modal" title="Delete Post" primary_label="Delete" primary_url=delete_url secondary_label="Cancel" primary_style="error" description="Are you sure you want to delete this post? This can't be undone." only %}
           {% endif %}
         </div>
       {% endif %}
