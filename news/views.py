@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.humanize.templatetags import humanize
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import PermissionDenied
 from django.http import (
     Http404,
     HttpResponseRedirect,
@@ -685,14 +686,13 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
 
 class V3AllTypesEditView(V3AllTypesCreateView):
+    _page = PostPage.objects.none()
+
     def _v3_edit_context(self, page: PostPage):
         ctx = {}
         ctx["edit"] = True
         ctx["title"] = "Edit Post"
-        ctx["post_type_selected"] = page.stream_content_type
-        ctx["post_type_options"] = [
-            (page.stream_content_type, page.post_content_type),
-        ]
+        ctx["publish_at_initial"] = localtime(now()).strftime("%Y-%m-%dT%H:%M")
         ctx["related_libraries_options"] = [
             (
                 library.slug,
@@ -700,7 +700,13 @@ class V3AllTypesEditView(V3AllTypesCreateView):
             )
             for library in Library.objects.all().order_by("name")
         ]
-        ctx["publish_at_initial"] = (localtime(now()).strftime("%Y-%m-%dT%H:%M"),)
+
+        if not page:
+            return ctx
+        ctx["post_type_selected"] = page.stream_content_type
+        ctx["post_type_options"] = [
+            (page.stream_content_type, page.post_content_type),
+        ]
 
         if page.image:
             ctx["current_image"] = page.image_url
@@ -732,17 +738,25 @@ class V3AllTypesEditView(V3AllTypesCreateView):
         return ctx
 
     def get_v3_context_data(self, **kwargs):
-        slug = kwargs.get("slug", "")
+        page = self._page
         context = super().get_context_data(**kwargs)
+        context.update(self._v3_edit_context(page))
+        return context
+
+    def get_page(self, slug):
         index_page = PostIndexPage.objects.first()
         if not index_page:
             messages.error(
                 self.request,
                 _("An internal database error has occurred. Please contact an admin."),
             )
-            return context
+            return
         try:
-            page = index_page.get_children().get(slug=slug).latest_revision.as_object()
+            page: PostPage = (
+                PostPage.objects.child_of(index_page)
+                .get(slug=slug)
+                .get_latest_revision_as_object()
+            )
         except PostPage.DoesNotExist:
             messages.error(
                 self.request,
@@ -750,10 +764,31 @@ class V3AllTypesEditView(V3AllTypesCreateView):
                     f"No page with slug {slug} exists. Try checking the link used to get here."
                 ),
             )
-            return {}
+            return
 
-        context.update(self._v3_edit_context(page))
-        return context
+        if not self.request.user == page.owner:
+            raise PermissionDenied("Only the author of a page may edit it.")
+
+        self._page = page
+
+    def get(self, request, *args, **kwargs):
+        slug = kwargs.get("slug", "")
+        self.get_page(slug)
+
+        first_revision = self._page.revisions.first()
+        if not first_revision:
+            messages.error(self.request, _("No revisions found for this page."))
+
+        right_now = localtime(now())
+        td = abs(right_now - first_revision.created_at)
+        if td.days > 0 or abs(right_now - first_revision.created_at).seconds > (
+            6 * 60 * 60
+        ):
+            raise PermissionDenied(
+                "A page may only be edited in the first six hours of its creation."
+            )
+
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         slug = kwargs.get("slug", "")

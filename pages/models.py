@@ -7,6 +7,8 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
+from modelcluster.contrib.taggit import ClusterTaggableManager
+
 
 from pages.blocks import POST_BLOCKS
 from pages.mixins import BasePage
@@ -214,6 +216,7 @@ class PostPage(BasePage):
     summary = models.TextField(
         blank=True, default="", help_text="AI generated summary. Delete to regenerate."
     )
+    tags = ClusterTaggableManager(through="pages.TaggedContent", blank=True)
 
     def get_content(self):
         if self.post_content_type in ["News", "Blogpost"]:
@@ -223,15 +226,19 @@ class PostPage(BasePage):
 
     def get_context(self, request, *args, **kwargs):
         ctx = super().get_context(request, *args, **kwargs)
-        pages = self.__class__.objects.live().order_by("-first_published_at")
-        if self.live:
+        pages = PostPage.objects.live().order_by("-first_published_at")
+        if self.first_published_at:
             next_objects = pages.filter(first_published_at__gt=self.first_published_at)
         else:
             next_objects = pages
-        ctx["next_post_items"] = [next_objects.last()]
-        ctx["related_posts"] = pages.filter(content__0__type=self.stream_content_type)[
-            :3
-        ]
+        if next_objects.exists():
+            ctx["next_post_items"] = [next_objects.last()]
+        if self.tags.exists():
+            ctx["related_posts"] = pages.filter(tags__in=self.tags.all())
+        else:
+            ctx["related_posts"] = pages.filter(
+                content__0__type=self.stream_content_type
+            )[:3]
         ctx["object"] = self.specific
         ctx["post_author"] = self.author
         ctx["user_can_edit"] = request.user == self.author
@@ -335,6 +342,7 @@ class PostPage(BasePage):
             return None
 
     content_panels = BasePage.content_panels + [
+        "tags",
         "content",
         "image",
         "summary",
