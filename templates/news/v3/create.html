@@ -319,6 +319,7 @@
 
         saveTitleDraft() {
           if (!this.titleEl) return;
+          if (!this.postType) return;
           try {
             const value = this.titleEl.value;
             if (value) localStorage.setItem(this.titleDraftKey(), value);
@@ -328,6 +329,7 @@
 
         restoreTitleDraft({ allowEmpty = false } = {}) {
           if (!this.titleEl) return;
+          if (!this.postType) return;
           let saved = null;
           try { saved = localStorage.getItem(this.titleDraftKey()); } catch (_) {}
           if (saved !== null) this.titleEl.value = saved;
