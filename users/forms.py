@@ -9,6 +9,7 @@ from allauth.account.forms import ResetPasswordKeyForm, SignupForm
 from django_countries import countries
 
 from .models import Preferences
+from core.validators import max_file_size_validator
 from news.models import NEWS_MODELS
 from news.acl import can_approve
 
@@ -141,7 +142,11 @@ class CustomClearableFileInput(forms.ClearableFileInput):
 
 
 class UserProfilePhotoForm(forms.ModelForm):
-    profile_image = forms.FileField(widget=CustomClearableFileInput, required=False)
+    profile_image = forms.FileField(
+        widget=CustomClearableFileInput,
+        required=False,
+        validators=[max_file_size_validator],
+    )
 
     class Meta:
         model = User

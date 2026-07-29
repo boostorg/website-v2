@@ -2,6 +2,7 @@
   V3 file input field.
   Variables:
     name         (required) — input name attribute
+    id           (optional) — optional field id, defaults to field-{{name}} if not provided
     label        (optional) — label text
     accept       (optional) — accept attribute (e.g. "image/png,image/jpeg")
     help_text    (optional) — help text below the field
@@ -16,12 +17,14 @@
     {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" help_text="PNG or JPEG, max 1MB" %}
   Custom display: no native "No file chosen"; shows "Choose File" until a file is selected, then the file name.
 {% endcomment %}
+{% with default_id="field-"|add:name %}
+{% with field_id=id|default:default_id %}
 <div class="field field--file{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
      x-data="{ jsReady: false, fileName: ''{% if preview %}, previewUrl: ''{% endif %} }"
      x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = '';{% if preview %} if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; }{% endif %} })">
   {% if label %}
-  <label class="field__label" for="field-{{ name }}">{{ label }}</label>
+  <label class="field__label" for="{{ field_id }}">{{ label }}</label>
   {% endif %}
   <div class="field__control{% if disabled %} field__control--disabled{% endif %}" :class="jsReady && 'field__control--file'"{% if preview %} x-show="!previewUrl" x-transition{% endif %}>
     <span class="field__file-display" aria-hidden="true" x-show="jsReady" x-cloak>
@@ -32,7 +35,7 @@
       {% if preview %}x-ref="fileInput"{% endif %}
       class="field__input" :class="jsReady && 'field__input--file'"
       type="file"
-      id="field-{{ name }}"
+      id="{{field_id}}"
       name="{{ name }}"
       {% if accept %}accept="{{ accept }}"{% endif %}
       {% if required %}required{% endif %}
@@ -67,3 +70,5 @@
   {% endif %}
   {% endif %}
 </div>
+{% endwith %}
+{% endwith %}

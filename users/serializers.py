@@ -1,7 +1,14 @@
 import re
+import os
+import uuid
 from urllib.parse import urlparse
 
+from django.conf import settings
+from django.core.files.uploadedfile import UploadedFile
 from rest_framework import serializers
+
+from core.validators import downscale_image_file_size_validator
+from news.utils import downsize_uploaded_image
 
 from .forms import SLACK_PROFILE_URL_PREFIX, V3ProfileLinkChoices
 from .models import User
@@ -57,6 +64,10 @@ class CurrentUserSerializer(serializers.ModelSerializer):
     User serializer for the currently logged in user
     """
 
+    profile_image = serializers.ImageField(
+        validators=[downscale_image_file_size_validator]
+    )
+
     def validate_profile_links(self, value):
         if not isinstance(value, dict):
             raise serializers.ValidationError(
@@ -85,6 +96,61 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(field_errors)
         return value
 
+    def validate_profile_image(self, value):
+        file_name = value.name
+        root, ext = os.path.splitext(file_name)
+        value.name = str(uuid.uuid4()) + ext
+        if value.size > settings.DOWNSCALE_IMAGE_THRESHOLD:
+            return downsize_uploaded_image(value)
+        return value
+
+    def validate(self, data):
+        user = self.instance
+        if not user.can_update_image and "profile_image" in data:
+            raise serializers.ValidationError(
+                "You do not have permission to update your profile photo."
+            )
+
+        return super().validate(data)
+
+    def update(self, instance: User, validated_data):
+        # Pop the image and apply the file-lifecycle steps ourselves. If we left
+        # it in validated_data, the parent update() would assign and save it a
+        # second time, writing a duplicate file to storage and orphaning one.
+        new_image_data = validated_data.pop("profile_image", None)
+        has_new_upload = isinstance(new_image_data, UploadedFile)
+
+        if new_image_data:
+            # If the user is uploading a new image file, we need to do a few special steps
+            # 1. We need to set the image_uploaded flag correctly, to prevent automatic overwrites.
+            # 2. We need to delete the old image from file storage, since it is not stored in memory.
+            # 3. We need to delete their thumbnail to regenerate a new one.
+            old_image = instance.profile_image
+            old_image_name = old_image.name if old_image else None
+
+            # Save the new image
+            if not old_image:
+                # reset image on image delete checked
+                instance.image_uploaded = False
+            elif has_new_upload and old_image_name:
+                # Delete the old file directly from storage (not via FieldFile.delete(),
+                # which closes file handles and interferes with the pending upload)
+                old_image.storage.delete(old_image_name)
+
+            if has_new_upload:
+                instance.profile_image = new_image_data
+                instance.image_uploaded = True
+
+        # Applies the remaining fields and persists everything set above
+        # (image + flags) in a single save.
+        instance = super().update(instance, validated_data)
+
+        # Invalidate the cached thumbnail so ImageKit regenerates it
+        if has_new_upload:
+            instance.delete_cached_thumbnail()
+
+        return instance
+
     class Meta:
         model = User
         fields = (
@@ -101,7 +167,6 @@ class CurrentUserSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "id",
             "email",  # Users shouldn't change their email this way
-            "profile_image",
             "date_joined",
         )
 
