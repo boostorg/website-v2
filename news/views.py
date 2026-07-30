@@ -717,7 +717,7 @@ class V3AllTypesEditView(V3AllTypesCreateView):
                 self.request,
                 _("An internal database error has occurred. Please contact an admin."),
             )
-            return {}
+            return ctx
 
         form_data = {
             "title": page.title,
