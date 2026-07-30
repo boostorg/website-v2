@@ -57,6 +57,14 @@
   min-width: 0;
 }
 
+.user-card__name-group,
+.user-card__role-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-default);
+  min-width: 0;
+}
+
 .user-card__username {
   white-space: nowrap;
   color: var(--color-text-primary);
@@ -263,5 +271,4 @@ html.dark .user-card--logged-out.card {
   .user-card--logged-out .btn {
     font-size: var(--font-size-small);
   }
-
 }

@@ -97,6 +97,7 @@ class V3UserProfileContextMixin:
                 # opt-out exists to withhold; they get `role`, which honours it.
                 "role": (user.public_role if user == self.request.user else user.role),
                 "flag_emoji": user.flag_emoji,
+                **user.profile_badges,
             },
             # Library contributions grouped by role, rendered as the
             # contributions section of the bio card. An empty dict means no
