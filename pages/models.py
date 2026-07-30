@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.text import slugify
+from django.utils.timezone import localtime, now
 
 from modelcluster.contrib.taggit import ClusterTaggableManager
 
@@ -241,7 +242,7 @@ class PostPage(BasePage):
             )[:3]
         ctx["object"] = self.specific
         ctx["post_author"] = self.author
-        ctx["user_can_edit"] = request.user == self.author
+        ctx["user_can_edit"] = self.user_can_edit(request.user)
         ctx["user_can_delete"] = request.user == self.author
         return ctx
 
@@ -340,6 +341,22 @@ class PostPage(BasePage):
             return self.content[0].value.url
         else:
             return None
+
+    def _in_edit_window(self):
+        first_revision = self.revisions.first()
+        if not first_revision:
+            return False
+
+        right_now = localtime(now())
+        td = abs(right_now - first_revision.created_at)
+        if td.days > 0 or abs(right_now - first_revision.created_at).seconds > (
+            6 * 60 * 60
+        ):
+            return False
+        return True
+
+    def user_can_edit(self, user):
+        return self.owner == user and self._in_edit_window()
 
     content_panels = BasePage.content_panels + [
         "tags",

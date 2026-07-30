@@ -721,12 +721,11 @@ class V3AllTypesEditView(V3AllTypesCreateView):
 
         form_data = {
             "title": page.title,
-            "publish_at": page.go_live_at.replace(tzinfo=None).isoformat(
-                timespec="minutes"
-            ),
             "summary": page.summary,
             "related_libraries": list(page.tags.all().values_list("slug", flat=True)),
         }
+        if page.go_live_at:
+            form_data["publish_at"] = page.go_live_at.strftime("%Y-%m-%dT%H:%M")
         if page.stream_content_type in ["video", "link"]:
             form_data["external_url"] = page.external_url
         else:
@@ -775,18 +774,8 @@ class V3AllTypesEditView(V3AllTypesCreateView):
         slug = kwargs.get("slug", "")
         self.get_page(slug)
 
-        first_revision = self._page.revisions.first()
-        if not first_revision:
-            messages.error(self.request, _("No revisions found for this page."))
-
-        right_now = localtime(now())
-        td = abs(right_now - first_revision.created_at)
-        if td.days > 0 or abs(right_now - first_revision.created_at).seconds > (
-            6 * 60 * 60
-        ):
-            raise PermissionDenied(
-                "A page may only be edited in the first six hours of its creation."
-            )
+        if not self._page.user_can_edit(request.user):
+            raise PermissionDenied("You do not have permission to edit this page.")
 
         return super().get(request, *args, **kwargs)
 
