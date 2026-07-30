@@ -224,7 +224,10 @@ class PostPage(BasePage):
     def get_context(self, request, *args, **kwargs):
         ctx = super().get_context(request, *args, **kwargs)
         pages = self.__class__.objects.live().order_by("-first_published_at")
-        next_objects = pages.filter(first_published_at__gt=self.first_published_at)
+        if self.live:
+            next_objects = pages.filter(first_published_at__gt=self.first_published_at)
+        else:
+            next_objects = pages
         ctx["next_post_items"] = [next_objects.last()]
         ctx["related_posts"] = pages.filter(content__0__type=self.stream_content_type)[
             :3

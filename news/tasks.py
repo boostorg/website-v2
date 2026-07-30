@@ -1,12 +1,15 @@
+from celery import shared_task
 from textwrap import dedent
 from openai import OpenAI, OpenAIError
 import requests
 import structlog
 
+from django.core.management import call_command
+
 from config.celery import app
 from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL, SUMMARIZATION_MODEL
 from news.constants import CONTENT_SUMMARIZATION_THRESHOLD
-from news.helpers import UnsafeURLError, extract_article, safe_get, extract_content
+from news.helpers import UnsafeURLError, extract_article, safe_get
 from news.utils import set_video_thumbnail
 
 logger = structlog.get_logger(__name__)
@@ -106,6 +109,15 @@ def generate_summary(
     summary = _truncate_to_length(summary, max_length)
     logger.info(f"Final summary length after truncation: {len(summary)=}")
     return summary
+
+
+@shared_task
+def publish_scheduled_pages():
+    """
+    Publish Wagtail pages whose approved go_live_at has passed
+    (and unpublish pages past their expire_at).
+    """
+    call_command("publish_scheduled")
 
 
 @app.task(bind=True, max_retries=3, autoretry_for=(OpenAIError,))
@@ -307,12 +319,15 @@ def set_summary_for_link_page(pk: int):
     external_url = page.external_url
     try:
         logger.info(f"Fetching content from {external_url=} for entry.{pk=}")
-        response = requests.get(external_url, timeout=10)
+        response = safe_get(external_url, timeout=10)
         response.raise_for_status()
         markup = response.text
         logger.debug(f"Fetched {len(markup)=} for entry.{pk=}...")
-        content = extract_content(markup)
+        _title, content = extract_article(markup)
         logger.info(f"extracted content from {external_url=}, {markup[:100]=}")
+    except UnsafeURLError:
+        logger.warning(f"Refusing to fetch unsafe {external_url=} for {pk=}")
+        return
     except requests.RequestException as e:
         logger.error(f"Error fetching content from {external_url=}: {e=}")
         return

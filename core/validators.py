@@ -37,7 +37,7 @@ class MaxFileSizeValidator:
         self.max_size = max_size
 
     def __call__(self, value):
-        if value.size > self.max_size:
+        if value.size >= self.max_size:
             raise ValidationError(
                 f"File too large. Size should not exceed {self.max_size / 1024 / 1024} MB."  # noqa
             )
