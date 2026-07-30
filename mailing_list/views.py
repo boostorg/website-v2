@@ -223,14 +223,14 @@ class SubscribeView(LoginRequiredMixin, View):
                 unsubscribed.append(list_id)
                 continue
             try:
-                MailmanClient().unsubscribe(email, list_id)
+                MailmanClient().unsubscribe(sub.email, list_id)
                 UserMailingListSubscription.objects.filter(
                     user=request.user, list_id=list_id
                 ).delete()
                 unsubscribed.append(list_id)
             except MailmanAPIError as exc:
                 logger.error(
-                    "Mailman unsubscribe error for %s/%s: %s", email, list_id, exc
+                    "Mailman unsubscribe error for %s/%s: %s", sub.email, list_id, exc
                 )
                 errors.append(list_id)
 
