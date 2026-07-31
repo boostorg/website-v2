@@ -713,3 +713,20 @@ def group_libraries_by_tier(
             other.append(lib)
 
     return flagship, core, other
+
+
+def library_filter_options() -> list[tuple[str, str]]:
+    """(slug, label) pairs for the library filter dropdowns.
+
+    Labelled with display_name so the dropdown matches the wording used in
+    feed headers ("Boost.Beast" rather than "Beast").
+    """
+
+    from libraries.models import Library
+
+    return [
+        (library.slug, library.display_name)
+        for library in Library.objects.exclude(slug="")
+        .exclude(slug__isnull=True)
+        .order_by("name")
+    ]

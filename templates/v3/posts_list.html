@@ -2,10 +2,16 @@
 {% comment %}
   V3 Implemenation of the News Feed, renamed to posts page
   Inputs:
-    filter_terms -  list, req - list of terms to be passed to _post_filters.html. See that include for more info
-    libraries    -  list, req - List of libraries, used to filter posts
-    header_text  -  str,  req - Text that appears at the top of the central column, determined by filter type
-    entry_list   -  list, req - List of news posts to be displayed in the central column
+    filter_terms    -  list, req - list of terms to be passed to _post_filter.html. See that include for more info
+    filter_value    -  str,  req - Currently selected post type filter
+    library_options -  list, req - (slug, label) pairs for the library filter dropdown
+    library_value   -  str,  req - Currently selected library slug
+    search_value    -  str,  req - Current search term
+    author_value    -  int,  opt - Author pk when the feed is filtered to one author
+    header_text     -  str,  req - Text that appears at the top of the central column, determined by filter type
+    entry_list      -  list, req - List of news posts to be displayed in the central column
+    empty_message   -  str,  req - Message shown by the empty state when there are no posts
+    related_posts   -  list, opt - Suggested posts shown alongside the empty state
 {% endcomment %}
 {% load static %}
 
@@ -20,18 +26,28 @@
     <div class="post-content-layout">
       <p class="subheading">Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, and user-created content.</p>
       <div class="post-content__filter_column">
-        {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' only %}
-        <p class="field__label filter__tags-label">Filter</p>
-        <form>
-        <div class="filter__tags">
-            {% include "v3/includes/_post_filter.html" with options=filter_terms filter_name="post-filter" default=filter_value only %}
-        </div>
-        {% include 'v3/includes/_field_dropdown.html' with name='ex_type' label='Library' options=libraries placeholder='All' only %}
-        {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True extra_classes="filter-submit-button" only %}
+        {# One GET form for every control. The empty action drops the current #}
+        {# querystring, which is what resets pagination on each submit. #}
+        <form method="get"
+              action=""
+              x-data
+              @field-change="$el.requestSubmit()"
+              @keydown.enter.prevent="$el.requestSubmit()">
+          {% if author_value %}<input type="hidden" name="author" value="{{ author_value }}">{% endif %}
+          {% include 'v3/includes/_field_text.html' with label='Search' name='q' value=search_value placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' submit_label='Search' only %}
+          <p class="field__label filter__tags-label">Filter</p>
+          <div class="filter__tags" @change="$event.target.form.requestSubmit()">
+            {% include "v3/includes/_post_filter.html" with options=filter_terms filter_name="type" default=filter_value only %}
+          </div>
+          {% include 'v3/includes/_field_dropdown.html' with name='library' label='Library' options=library_options selected=library_value placeholder='All' deselectable=True only %}
+          {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True extra_classes="filter-submit-button" only %}
         </form>
       </div>
       <div class="post-content__content_column">
-        {% include 'v3/includes/_post_list_card.html' with heading=header_text items=entry_list only %}
+        {% include 'v3/includes/_post_list_card.html' with heading=header_text items=entry_list empty_message=empty_message only %}
+        {% if related_posts %}
+          {% include 'v3/includes/_post_list_card.html' with heading="Related Posts" items=related_posts only %}
+        {% endif %}
         {% include "v3/includes/_pagination.html" %}
       </div>
       <div class="post-content__user_card_column">
@@ -41,36 +57,11 @@
             {% include 'v3/includes/_user_card.html' with username=u.display_name avatar_url=u.avatar_url badge_name=u.featured_badge.name badge=u.featured_badge.icon member_since=u.year_joined role=u.role flag_emoji=u.flag_emoji cta_url=create_url cta_label='Create Post' only %}
           {% endwith %}
         {% else %}
-          {% include 'v3/includes/_user_card.html' with logged_out=True cta_url='#' cta_label='Create Post' only %}
+          {% url 'account_signup' as signup_url %}
+          {# Heading and description come from _user_card.html's own defaults. #}
+          {% include 'v3/includes/_user_card.html' with logged_out=True cta_url=signup_url cta_label='Sign Up Now' only %}
         {% endif %}
       </div>
     </div>
   </div>
 {% endblock %}
-
-{% block footer_js %}
-<script>
-   const inputs = document.querySelectorAll("input[name=post-filter]")
-    inputs.forEach(
-      function(el) {
-        el.addEventListener('change', function (event) {
-          const value = event.target.value
-          const name = event.target.name
-          if (name == 'post-filter') {
-            switch (value) {
-              {% for term in filter_terms %}
-              case '{{term.value}}':
-                window.location.assign("{{term.url}}");
-                break;
-              {% endfor %}
-              default:
-                console.error(`Value ${value} is unknown, please reload the page.`)
-            }
-
-          }
-        })
-      }
-    );
-  </script>
-
-{% endblock footer_js %}

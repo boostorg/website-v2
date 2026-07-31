@@ -7,6 +7,7 @@ from django.urls import NoReverseMatch, reverse
 
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.utils import get_version_from_cookie
+from pages.feed import posts_feed_url
 from versions.converters import BoostVersionSlugConverter
 from versions.models import Version
 
@@ -186,6 +187,7 @@ _PATH_MAP = {
     "/learn/": NavItem.LEARN,
     "/boost-development/": NavItem.LEARN,
     "/news/": NavItem.NEWS,
+    "/pages/posts/": NavItem.NEWS,
     "/community/": NavItem.COMMUNITY,
     "/library/": NavItem.LIBRARIES,
     "/libraries/": NavItem.LIBRARIES,
@@ -228,7 +230,7 @@ def header_context(request):
         NavLink(label="Learn", url=reverse("learn"), nav_id="learn"),
         NavLink(label="Community", url=reverse("community"), nav_id="community"),
         NavLink(
-            label="Posts", url=reverse("news"), nav_id="news", is_unread=True
+            label="Posts", url=posts_feed_url(), nav_id="news", is_unread=True
         ),  # TODO: update is_unread based on actual unread state
         NavLink(
             label="Downloads", url=reverse("releases-most-recent"), nav_id="releases"

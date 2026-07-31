@@ -22,7 +22,6 @@ from django.http import (
 from django.shortcuts import redirect, get_object_or_404
 from django.template.defaultfilters import date as datefilter
 from django.urls import reverse, reverse_lazy
-from django.utils.functional import cached_property
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
@@ -121,53 +120,21 @@ def display_publish_at(publish_at, since=None):
     return humanize.naturaltime(truncated).replace("\xa0", " ")
 
 
-class EntryListView(V3Mixin, ListView):
+class EntryListView(ListView):
+    """Legacy Entry feed.
+
+    The v3 posts feed is served by pages.models.PostIndexPage, which reads the
+    PostPage tree that create/edit writes to; this view stays on the v2
+    template so the two do not share a context contract.
+    """
+
     model = Entry
     template_name = "news/list.html"
-    v3_template_name = "v3/posts_list.html"
     ordering = ["-publish_at"]
     paginate_by = 10
     context_object_name = "entry_list"  # Ensure children use the same name
     header_text = "Latest Posts"
     filter_value = "all"
-
-    @cached_property
-    def libary_values(self):
-        return [(x.slug, x.name) for x in Library.objects.all().order_by("name")]
-
-    def get_v3_context_data(self, **kwargs):
-        return {
-            "filter_terms": [
-                {"label": "All", "value": "all", "url": reverse("news")},
-                {"label": "News", "value": "news", "url": reverse("news-news-list")},
-                {
-                    "label": "Blogs",
-                    "value": "blogpost",
-                    "url": reverse("news-blogpost-list"),
-                },
-                {"label": "Links", "value": "link", "url": reverse("news-link-list")},
-                {
-                    "label": "Videos",
-                    "value": "video",
-                    "url": reverse("news-video-list"),
-                },
-                {
-                    "label": "Discussions",
-                    "value": "discussions",
-                    "url": reverse("news"),
-                },
-                {
-                    "label": "Achievements",
-                    "value": "achievements",
-                    "url": reverse("news"),
-                },
-                {"label": "Issues", "value": "issues", "url": reverse("news")},
-            ],
-            "libraries": self.libary_values,
-            "header_text": self.header_text,
-            "filter_value": self.filter_value,
-            **kwargs,
-        }
 
     def get_queryset(self):
         if self.request.GET.get("sort") == "popular":
