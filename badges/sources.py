@@ -92,11 +92,24 @@ def _iter_code_commits():
         yield commit.author.user, commit
 
 
+def _iter_library_review():
+    """Yield (user, review) for every review submission with a linked user."""
+    from versions.models import Review
+
+    for review in Review.objects.prefetch_related("submitters__user").iterator(
+        chunk_size=500
+    ):
+        for commit_author in review.submitters.all():
+            if commit_author.user_id:
+                yield commit_author.user, review
+
+
 BACKFILL_ITERATORS = {
     AchievementSlug.LIBRARY_AUTHORING: _iter_library_authoring,
     AchievementSlug.LIBRARY_MAINTENANCE: _iter_library_maintenance,
     AchievementSlug.LIBRARY_VERSIONING: _iter_library_versioning,
     AchievementSlug.CODE_COMMITS: _iter_code_commits,
+    AchievementSlug.LIBRARY_REVIEW: _iter_library_review,
 }
 
 # Derived, so the CLI choices can never drift from the wired iterators.
