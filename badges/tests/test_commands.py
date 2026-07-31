@@ -85,6 +85,26 @@ def test_backfill_library_authoring(plain_user):
     ).exists()
 
 
+def test_backfill_library_maintenance(plain_user):
+    """Backfill grants the maintenance achievement once per library maintained."""
+    library = baker.make("libraries.Library")
+    for _ in range(2):
+        version = baker.make("libraries.LibraryVersion", library=library)
+        version.maintainers.add(plain_user)
+
+    call_command("backfill_achievements", "--source", "library-maintenance")
+
+    assert (
+        UserAchievement.objects.filter(
+            user=plain_user, achievement__slug="library-maintenance"
+        ).count()
+        == 1
+    )
+    assert UserBadge.objects.filter(
+        user=plain_user, badge__achievement__slug="library-maintenance"
+    ).exists()
+
+
 def test_backfill_fails_loudly_on_an_explicit_unseeded_source(plain_user):
     """A named source with no Achievement row is a deploy bug, not a skip."""
     Achievement.objects.filter(slug=AchievementSlug.CODE_COMMITS).delete()

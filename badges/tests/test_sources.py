@@ -66,6 +66,17 @@ def test_iter_library_authoring_skips_sub_libraries(plain_user):
     assert list(sources._iter_library_authoring()) == []
 
 
+def test_iter_library_maintenance_dedupes_versions(plain_user):
+    """Maintaining many versions of one library yields a single pair."""
+    library = baker.make("libraries.Library")
+    for _ in range(3):
+        version = baker.make("libraries.LibraryVersion", library=library)
+        version.maintainers.add(plain_user)
+
+    pairs = list(sources._iter_library_maintenance())
+    assert pairs == [(plain_user, library)]
+
+
 def test_iter_code_commits_skips_unlinked(plain_user):
     """Only commits whose author has a linked user are yielded."""
     linked = baker.make("libraries.CommitAuthor", user=plain_user)
