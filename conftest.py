@@ -9,6 +9,7 @@ from django.core.files import File as DjangoFile
 # Include the various pytest fixtures from all of our Django apps tests
 # directories
 pytest_plugins = [
+    "badges.tests.fixtures",
     "core.tests.fixtures",
     "libraries.tests.fixtures",
     "news.tests.fixtures",
