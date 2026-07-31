@@ -40,6 +40,7 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 from wagtail.blocks import Block
 from wagtail.images.models import Image
 
+from badges.display import active_badges_prefetch
 from core.mixins import V3Mixin
 from pages.blocks import NEWS_BLOCK, BLOG_BLOCK, LINK_BLOCK, VIDEO_BLOCK
 from pages.models import PostPage, PostIndexPage
@@ -259,7 +260,14 @@ class EntryDetailView(V3Mixin, DetailView):
     template_name = "news/detail.html"
     v3_template_name = "news/v3/detail.html"
 
-    AUTHOR_PREFETCH = ("author__maintainers",)
+    # Each author card reads the author's badges; without the prefetch that is
+    # one extra query per card, and a detail page renders up to five. Asked for
+    # through the path, because these querysets also select_related the author -
+    # see ``badges.display.active_badges_prefetch``.
+    AUTHOR_PREFETCH = (
+        "author__maintainers",
+        active_badges_prefetch("author__badges"),
+    )
 
     def get_queryset(self):
         qs = super().get_queryset()

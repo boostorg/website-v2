@@ -33,6 +33,7 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from waffle import flag_is_active
 
+from badges.display import active_badges_prefetch
 from core.templatetags.custom_static import large_static
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -141,6 +142,18 @@ class CalendarView(V3Mixin, TemplateView):
 
 class BoostDevelopmentView(CalendarView):
     template_name = "boost_development.html"
+
+
+def build_recent_community_posts():
+    """The four recent post cards, with their authors' active badges loaded."""
+    entries = (
+        Entry.objects.published()
+        .filter(deleted_at__isnull=True)
+        .select_related("author", "author__displayed_profile_role_library")
+        .prefetch_related(active_badges_prefetch("author__badges"))
+        .order_by("-publish_at")[:4]
+    )
+    return [entry.to_v3_post_card_dict() for entry in entries]
 
 
 class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
@@ -308,14 +321,7 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
                 },
             )
         )
-        recent_entries = (
-            Entry.objects.published()
-            .filter(deleted_at__isnull=True)
-            .select_related("author", "author__displayed_profile_role_library")
-            .order_by("-publish_at")[:4]
-        )
-
-        ctx["posts"] = [entry.to_v3_post_card_dict() for entry in recent_entries]
+        ctx["posts"] = build_recent_community_posts()
         ctx["news_url"] = self.request.build_absolute_uri(reverse("news"))
         ctx["contribute_url"] = self.request.build_absolute_uri(
             "/doc/contributor-guide/contributors-faq.html"
@@ -1634,15 +1640,15 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                     "checked": True,
                 },
                 {
-                    "value": "diamond",
+                    "value": "platinum",
                     "icon": BadgeToken.TIER_4,
-                    "icon_alt": "Diamond badge",
+                    "icon_alt": "Platinum badge",
                     "checked": False,
                 },
                 {
-                    "value": "platinum",
+                    "value": "diamond",
                     "icon": BadgeToken.TIER_5,
-                    "icon_alt": "Platinum badge",
+                    "icon_alt": "Diamond badge",
                     "checked": False,
                 },
                 {
@@ -1666,13 +1672,13 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 {
                     "value": "star-tier-4",
                     "icon": BadgeToken.STAR_TIER_4,
-                    "icon_alt": "Diamond star",
+                    "icon_alt": "Platinum star",
                     "checked": False,
                 },
                 {
                     "value": "star-tier-5",
                     "icon": BadgeToken.STAR_TIER_5,
-                    "icon_alt": "Platinum star",
+                    "icon_alt": "Diamond star",
                     "checked": False,
                 },
                 {
