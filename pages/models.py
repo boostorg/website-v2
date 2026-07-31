@@ -227,7 +227,7 @@ class PostPage(BasePage):
 
     def get_context(self, request, *args, **kwargs):
         ctx = super().get_context(request, *args, **kwargs)
-        pages = PostPage.objects.live().order_by("-first_published_at")
+        pages: models.QuerySet = PostPage.objects.live().order_by("-first_published_at")
         if self.first_published_at:
             next_objects = pages.filter(first_published_at__gt=self.first_published_at)
         else:
@@ -235,7 +235,11 @@ class PostPage(BasePage):
         if next_objects.exists():
             ctx["next_post_items"] = [next_objects.last()]
         if self.tags.exists():
-            ctx["related_posts"] = pages.filter(tags__in=self.tags.all())
+            ctx["related_posts"] = (
+                pages.filter(tags__in=self.tags.all())
+                .exclude(pk=self.pk)
+                .distinct()[:3]
+            )
         else:
             ctx["related_posts"] = pages.filter(
                 content__0__type=self.stream_content_type
@@ -343,7 +347,7 @@ class PostPage(BasePage):
             return None
 
     def _in_edit_window(self):
-        first_revision = self.revisions.first()
+        first_revision = self.revisions.order_by("created_at").first()
         if not first_revision:
             return False
 
@@ -357,6 +361,9 @@ class PostPage(BasePage):
 
     def user_can_edit(self, user):
         return self.owner == user and self._in_edit_window()
+
+    def user_can_delete(self, user):
+        return self.owner == user
 
     content_panels = BasePage.content_panels + [
         "tags",

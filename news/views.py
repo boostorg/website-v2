@@ -551,7 +551,8 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
     def error_message_and_render(self, message: str, extra_context: dict | None = None):
         messages.error(self.request, message)
-        context = self.get_context_data(**extra_context)
+        if extra_context:
+            context = self.get_context_data(**extra_context)
         return self.render_to_response(context)
 
     def set_page_attrs(
@@ -593,7 +594,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                 )
                 tags.append(tag)
         if tags:
-            page.tags.add(*tags)
+            page.tags.set(tags)
 
         return page
 
@@ -724,14 +725,14 @@ class V3AllTypesEditView(V3AllTypesCreateView):
             "summary": page.summary,
             "related_libraries": list(page.tags.all().values_list("slug", flat=True)),
         }
-        if page.go_live_at:
-            form_data["publish_at"] = page.go_live_at.strftime("%Y-%m-%dT%H:%M")
+        go_live = page.go_live_at or localtime(now())
+        form_data["publish_at"] = go_live.strftime("%Y-%m-%dT%H:%M")
         if page.stream_content_type in ["video", "link"]:
             form_data["external_url"] = page.external_url
         else:
             form_data["content"] = page.content
 
-        form = form_class(form_data)
+        form = form_class(initial=form_data)
         ctx["form"] = form
 
         return ctx
@@ -739,6 +740,9 @@ class V3AllTypesEditView(V3AllTypesCreateView):
     def get_v3_context_data(self, **kwargs):
         page = self._page
         context = super().get_context_data(**kwargs)
+        context["related_libraries"] = list(
+            page.tags.all().values_list("slug", flat=True)
+        )
         context.update(self._v3_edit_context(page))
         return context
 
@@ -759,9 +763,7 @@ class V3AllTypesEditView(V3AllTypesCreateView):
         except PostPage.DoesNotExist:
             messages.error(
                 self.request,
-                _(
-                    f"No page with slug {slug} exists. Try checking the link used to get here."
-                ),
+                _("No page with slug %(slug)s exists…") % {"slug": slug},
             )
             return
 
@@ -774,14 +776,29 @@ class V3AllTypesEditView(V3AllTypesCreateView):
         slug = kwargs.get("slug", "")
         self.get_page(slug)
 
-        if not self._page.user_can_edit(request.user):
+        if self._page and not self._page.user_can_edit(request.user):
             raise PermissionDenied("You do not have permission to edit this page.")
 
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         slug = kwargs.get("slug", "")
-        post_type = request.POST.get("post_type", "")
+        index_page = PostIndexPage.objects.first()
+        if not index_page:
+            return self.error_message_and_render(
+                _("An internal database error has occurred. Please contact an admin."),
+            )
+        try:
+            page: PostPage = index_page.get_children().get(slug=slug).specific
+        except Page.DoesNotExist:
+            messages.error(
+                self.request,
+                _("No page with slug %(slug)s exists…") % {"slug": slug},
+            )
+            context = self.get_context_data()
+            return self.render_to_response(context)
+
+        post_type = page.stream_content_type
         block_config = self._POST_BLOCK_MAP.get(post_type, None)
         form_class = self._POST_TYPE_MAP.get(post_type)
 
@@ -807,23 +824,10 @@ class V3AllTypesEditView(V3AllTypesCreateView):
 
         form = form_class(post_data, request.FILES)
         if form.is_valid():
-            index_page = PostIndexPage.objects.first()
-            if not index_page:
-                return self.error_message_and_render(
-                    _(
-                        "An internal database error has occurred. Please contact an admin."
-                    ),
-                    {"form": form, "post_type_selected": post_type},
-                )
-
-            try:
-                page = index_page.get_children().get(slug=slug).specific
-            except Page.DoesNotExist:
+            if not page.user_can_edit(request.user):
                 messages.error(
                     self.request,
-                    _(
-                        f"No page with slug {slug} exists. Try checking the link used to get here."
-                    ),
+                    _("You do not have permission to edit this page."),
                 )
                 context = self.get_context_data(form=form, post_type_selected=post_type)
                 return self.render_to_response(context)
@@ -837,6 +841,8 @@ class V3AllTypesEditView(V3AllTypesCreateView):
                     related_libraries=post_data.getlist("related_libraries"),
                 )
                 page.save_revision(user=request.user)
+                if not page.workflow_in_progress:
+                    page.get_workflow().start(obj=page, user=request.user)
             except Library.DoesNotExist:
                 return self.error_message_and_render(
                     _("That related library does not exist, please select another."),
@@ -858,7 +864,11 @@ class V3AllTypesEditView(V3AllTypesCreateView):
                             "Something went wrong — your draft is saved, so give it another try."
                         ),
                     )
-                context = self.get_context_data(form=form, post_type_selected=post_type)
+                context = self.get_context_data(
+                    form=form,
+                    post_type_selected=post_type,
+                    selected_libraries=post_data.getlist("related_libraries"),
+                )
                 return self.render_to_response(context)
 
             messages.success(
@@ -874,7 +884,7 @@ class V3AllTypesEditView(V3AllTypesCreateView):
 
 
 class V3DeletePostView(View):
-    def get(self, request, **kwargs):
+    def post(self, request, **kwargs):
         slug = kwargs.get("slug")
         if not slug:
             messages.error(request, message=_("No slug was provided to delete"))
@@ -889,17 +899,15 @@ class V3DeletePostView(View):
             )
             return redirect(reverse("news"))
         try:
-            page = index_page.get_children().get(slug=slug).specific
+            page: PostPage = index_page.get_children().get(slug=slug).specific
         except Page.DoesNotExist:
             messages.error(
                 request,
-                _(
-                    f"No page with slug {slug} exists. Try checking the link used to get here."
-                ),
+                _("No page with slug %(slug)s exists…") % {"slug": slug},
             )
             return redirect(reverse("news"))
 
-        if not request.user == page.owner:
+        if not page.user_can_delete(request.user):
             messages.error(request=request, message=_("You do not own this page."))
             return redirect(page.url)
 

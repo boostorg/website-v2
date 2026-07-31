@@ -38,7 +38,10 @@
           {% if user_can_delete and not object.deleted_at %}
             {% url 'v3-news-delete' object.slug as delete_url %}
             {% include "v3/includes/_button.html" with url='#delete-modal' label="Delete" style="error" %}
-            {% include 'v3/includes/_dialog.html' with dialog_id="delete-modal" title="Delete Post" primary_label="Delete" primary_url=delete_url secondary_label="Cancel" primary_style="error" description="Are you sure you want to delete this post? This can't be undone." only %}
+            <form action="{{delete_url}}" method="POST">
+              {% csrf_token %}
+              {% include 'v3/includes/_dialog.html' with dialog_id="delete-modal" title="Delete Post" primary_label="Delete" submit=True secondary_label="Cancel" primary_style="error" description="Are you sure you want to delete this post? This can't be undone." only %}
+            </form>
           {% endif %}
         </div>
       {% endif %}

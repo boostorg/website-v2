@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Create Post{% endblock %}
+{% block title %}{{title}}{% endblock %}
 
 {% block css %}
   {{ block.super }}
@@ -184,7 +184,7 @@
 
           {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no larger than 5MB" extra_class="field--file-narrow create-post-page__field-image" preview_url=current_image %}
 
-          {% include "v3/includes/_field_multiselect.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" selected_values=form.data.related_libraries %}
+          {% include "v3/includes/_field_multiselect.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" selected_values=related_libraries %}
 
           {% include "v3/includes/_field_datetime.html" with name="publish_at" label="Publish Date *" value=form.publish_at.value|default:publish_at_initial %}
 
