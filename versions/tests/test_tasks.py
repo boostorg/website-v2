@@ -100,3 +100,13 @@ def test_import_version_race_condition(tag_mock: MagicMock, *args):
     assert rm.latest_version is not None
     # Ensure that that latest version is not our previously created version
     assert rm.latest_version != v
+
+
+@patch("versions.tasks.call_command")
+def test_import_reviews_task_runs_the_import_command(mock_call):
+    """The task exists so the admin can start the scrape off-request."""
+    from versions.tasks import import_reviews_task
+
+    import_reviews_task()
+
+    assert [c.args for c in mock_call.call_args_list] == [("import_reviews",)]
