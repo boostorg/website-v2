@@ -72,12 +72,38 @@ def test_backfill_skips_recalculation_without_new_rows(plain_user):
     assert not UserBadge.objects.exists()
 
 
+def test_backfill_library_authoring(plain_user):
+    """Backfill grants the authoring achievement from Library authors."""
+    library = baker.make("libraries.Library")
+    library.authors.add(plain_user)  # M2M only - no live signal grants it
+
+    call_command("backfill_achievements", "--source", "library-authoring")
+
+    assert UserBadge.objects.filter(
+        user=plain_user, badge__achievement__slug="library-authoring"
+    ).exists()
+
+
 def test_backfill_fails_loudly_on_an_explicit_unseeded_source(plain_user):
     """A named source with no Achievement row is a deploy bug, not a skip."""
     Achievement.objects.filter(slug=AchievementSlug.CODE_COMMITS).delete()
 
     with pytest.raises(CommandError, match="code-commits"):
         call_command("backfill_achievements", "--source", "code-commits")
+
+
+def test_backfill_skips_an_unseeded_source_on_a_full_run(plain_user, capsys):
+    """A scheduled sweep must not lose every other source to one missing row."""
+    library = baker.make("libraries.Library")
+    library.authors.add(plain_user)
+    Achievement.objects.filter(slug=AchievementSlug.CODE_COMMITS).delete()
+
+    call_command("backfill_achievements")
+
+    assert "code-commits" in capsys.readouterr().err
+    assert UserBadge.objects.filter(
+        user=plain_user, badge__achievement__slug="library-authoring"
+    ).exists()
 
 
 def test_backfill_fails_when_no_source_is_seeded(plain_user):
@@ -292,6 +318,25 @@ def test_reconcile_rejects_an_unknown_member(plain_user):
     """A typo in ``--user`` must not silently widen the run to everybody."""
     with pytest.raises(CommandError, match=re.escape("nobody@example.com")):
         call_command("reconcile_achievements", "--user", "nobody@example.com")
+
+
+def test_reconcile_scopes_to_the_named_source(
+    plain_user, commit_by_someone_else, stale_commit_grant
+):
+    """``--source`` must not walk, or prune, a source it was not given."""
+    library = baker.make("libraries.Library")
+    library.authors.add(plain_user)
+    call_command("backfill_achievements", "--source", "library-authoring")
+    library.authors.remove(plain_user)
+
+    call_command("reconcile_achievements", "--source", "code-commits")
+
+    assert not UserAchievement.objects.filter(
+        user=plain_user, achievement__slug="code-commits"
+    ).exists()
+    assert UserAchievement.objects.filter(
+        user=plain_user, achievement__slug="library-authoring"
+    ).exists()
 
 
 def test_reconcile_refuses_a_source_that_yields_nothing(

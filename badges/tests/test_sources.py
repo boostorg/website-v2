@@ -46,6 +46,14 @@ def test_an_automatic_grant_is_idempotent(plain_user):
     )
 
 
+def test_iter_library_authoring(plain_user):
+    """The authoring iterator yields each (author, library) pair."""
+    library = baker.make("libraries.Library")
+    library.authors.add(plain_user)
+    pairs = list(sources._iter_library_authoring())
+    assert (plain_user, library) in pairs
+
+
 def test_iter_code_commits_skips_unlinked(plain_user):
     """Only commits whose author has a linked user are yielded."""
     linked = baker.make("libraries.CommitAuthor", user=plain_user)

@@ -21,6 +21,15 @@ All three can still be granted by hand in the admin.
 from badges.enums import AchievementSlug
 
 
+def _iter_library_authoring():
+    """Yield (user, library) for every library authorship."""
+    from libraries.models import Library
+
+    for library in Library.objects.prefetch_related("authors").iterator(chunk_size=500):
+        for user in library.authors.all():
+            yield user, library
+
+
 def _iter_code_commits():
     """Yield (user, commit) for every attributed commit."""
     from libraries.models import Commit
@@ -35,6 +44,7 @@ def _iter_code_commits():
 
 
 BACKFILL_ITERATORS = {
+    AchievementSlug.LIBRARY_AUTHORING: _iter_library_authoring,
     AchievementSlug.CODE_COMMITS: _iter_code_commits,
 }
 
