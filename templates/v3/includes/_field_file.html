@@ -21,8 +21,8 @@
 {% with field_id=id|default:default_id %}
 <div class="field field--file{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
-     x-data="{ jsReady: false, fileName: ''{% if preview %}, previewUrl: '{{preview_url}}'{% endif %} }"
-     x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = '';{% if preview %} if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = '{{preview_url}}'; }{% endif %} })">
+     x-data="{ jsReady: false, fileName: ''{% if preview %}, previewUrl: '{{preview_url|escapejs}}'{% endif %} }"
+     x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = '';{% if preview %} if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = '{{preview_url|escapejs}}'; }{% endif %} })">
   {% if label %}
   <label class="field__label" for="{{ field_id }}">{{ label }}</label>
   {% endif %}
