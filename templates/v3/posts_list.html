@@ -28,10 +28,12 @@
       <div class="post-content__filter_column">
         {# One GET form for every control. The empty action drops the current #}
         {# querystring, which is what resets pagination on each submit. #}
+        {# $nextTick: the dropdown dispatches field-change as it sets `selected`, #}
+        {# before Alpine has written it to the hidden input the form submits. #}
         <form method="get"
               action=""
               x-data
-              @field-change="$el.requestSubmit()"
+              @field-change="$nextTick(() => $el.requestSubmit())"
               @keydown.enter.prevent="$el.requestSubmit()">
           {% if author_value %}<input type="hidden" name="author" value="{{ author_value }}">{% endif %}
           {% include 'v3/includes/_field_text.html' with label='Search' name='q' value=search_value placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' submit_label='Search' only %}

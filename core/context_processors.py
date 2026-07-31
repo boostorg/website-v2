@@ -230,7 +230,10 @@ def header_context(request):
         NavLink(label="Learn", url=reverse("learn"), nav_id="learn"),
         NavLink(label="Community", url=reverse("community"), nav_id="community"),
         NavLink(
-            label="Posts", url=posts_feed_url(), nav_id="news", is_unread=True
+            label="Posts",
+            url=posts_feed_url(request),
+            nav_id="news",
+            is_unread=True,
         ),  # TODO: update is_unread based on actual unread state
         NavLink(
             label="Downloads", url=reverse("releases-most-recent"), nav_id="releases"

@@ -100,8 +100,12 @@ FEED_FILTER_TERMS = [
 ] + UNAVAILABLE_FILTER_TERMS
 
 
-def posts_feed_url():
+def posts_feed_url(request=None):
     """URL of the posts feed.
+
+    The request is passed through to `get_url` so a visitor browsing the feed's
+    own site gets a path rather than a fully qualified URL, which is what
+    `Page.url` falls back to when more than one site is configured.
 
     Falls back to the legacy news list while the index page does not exist, so
     the header nav never renders a dead link.
@@ -109,7 +113,9 @@ def posts_feed_url():
     from pages.models import PostIndexPage
 
     index_page = PostIndexPage.objects.live().first()
-    return (index_page and index_page.url) or reverse("news")
+    if index_page is None:
+        return reverse("news")
+    return index_page.get_url(request=request) or reverse("news")
 
 
 @dataclass(frozen=True)

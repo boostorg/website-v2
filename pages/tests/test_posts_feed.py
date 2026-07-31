@@ -370,6 +370,13 @@ class TestUserCard:
 
         assert "Bug Catcher" not in content
 
+    def test_header_nav_links_to_the_feed(self, tp, feed_url):
+        """The nav renders a path, not the fully qualified URL Page.url falls
+        back to once a second Site exists."""
+        content = get_feed(tp, feed_url).content.decode()
+
+        assert f'href="{feed_url}"' in content
+
     def test_logged_out(self, tp, feed_url):
         content = get_feed(tp, feed_url).content.decode()
 
