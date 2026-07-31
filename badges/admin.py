@@ -7,22 +7,34 @@ invalidate / revoke with a required audit note.
 
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
-from django.db.models import Count, Q
+from django.core.exceptions import ValidationError
+from django.db.models import Count, Prefetch, Q
+from django.forms.models import BaseInlineFormSet
 from django.shortcuts import render
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.text import Truncator
 
+from badges.enums import TierRank
 from badges.forms import NotesActionForm
 from badges.models import (
+    RANK_LADDER_ORDER,
     Achievement,
+    Badge,
+    BadgeTier,
     RevocationSource,
     SourceType,
     UserAchievement,
     UserBadge,
 )
-from badges.services import recalculate_badges, sync_source
+from badges.services import (
+    deactivate_tier,
+    reactivate_tier,
+    recalculate_badges,
+    replace_tier,
+    sync_source,
+)
 from badges.sources import AUTOMATIC_SLUGS
 from badges.tasks import (
     backfill_achievements_task,
@@ -310,6 +322,328 @@ class AchievementAdmin(admin.ModelAdmin):
         if obj is None:
             return self.prepopulated_fields
         return {}
+
+
+class ActiveBadgeTierInlineFormSet(BaseInlineFormSet):
+    """Reject repeated ranks that exist only as sibling forms in this request."""
+
+    def clean(self):
+        """Add a field error before the conditional database constraint can fire."""
+        super().clean()
+        if any(self.errors):
+            return
+
+        seen = set()
+        for form in self.forms:
+            if not form.cleaned_data or form.cleaned_data.get("DELETE"):
+                continue
+            rank = form.cleaned_data.get("rank")
+            if not rank:
+                continue
+            if rank in seen:
+                form.add_error(
+                    "rank",
+                    f"Only one active {TierRank(rank).label} tier is allowed "
+                    "for a badge.",
+                )
+            seen.add(rank)
+
+
+class ActiveBadgeTierInline(admin.TabularInline):
+    """A badge's live ladder, edited in place.
+
+    Tiers are append-only records, so an edit here never updates the row:
+    ``BadgeAdmin.save_formset`` retires the old tier and creates a replacement,
+    and removing a row retires it. Both are what preserve the members who
+    already reached the old threshold - see ``badges.services.replace_tier``.
+    """
+
+    model = BadgeTier
+    formset = ActiveBadgeTierInlineFormSet
+    fields = ("rank", "threshold")
+    # One blank row, because the "Add another" link needs JavaScript. Capped at
+    # the number of ranks, which is also the point at which the constraint on
+    # (badge, rank) would start rejecting additions.
+    extra = 1
+    max_num = len(TierRank)
+    verbose_name = "active tier"
+    verbose_name_plural = "active tiers"
+
+    def get_queryset(self, request):
+        """The live ladder only; retired tiers are linked from the badge form."""
+        return (
+            super()
+            .get_queryset(request)
+            .filter(is_active=True)
+            .order_by(RANK_LADDER_ORDER)
+        )
+
+
+@admin.register(BadgeTier)
+class BadgeTierAdmin(admin.ModelAdmin):
+    """The tier record, kept for history and recovery rather than for tuning.
+
+    Tiers are configured on the badge page. What is left here is what that page
+    deliberately does not show: the retired rows, and the ``reactivate`` action
+    that undoes a mistaken retirement. Rows stay immutable - ``rank`` and
+    ``threshold`` cannot be edited, because updating one in place would revoke
+    the members who reached the old threshold.
+    """
+
+    change_list_template = ADMIN_ACTIONS_CHANGE_LIST
+    list_display = ("badge", "rank", "threshold", "is_active", "deactivated_at")
+    list_filter = ("is_active", "rank", "badge")
+    search_fields = ("badge__label", "rank")
+    autocomplete_fields = ("badge",)
+    actions = ["reactivate"]
+
+    def get_ordering(self, request):
+        """Group by badge, then up the ladder, then oldest threshold first.
+
+        The model's default ordering is by threshold alone, which interleaves
+        every badge's bronze row. Threshold is also not the ladder on this page in
+        particular: it is the one that shows retired rows, so a badge that has been
+        retuned has a bronze at 1 and a bronze at 6 sitting either side of its gold.
+
+        Returned from here rather than set as ``ordering``, because the admin
+        system check validates that attribute against real model fields and
+        ``rank_order`` is an annotation.
+        """
+        return ("badge__label", "rank_order", "threshold")
+
+    def get_queryset(self, request):
+        """Annotate the ladder position, then order on it.
+
+        Not ``super().get_queryset()`` plus an annotation: ``ModelAdmin`` applies
+        the ordering itself, and ``order_by`` validates a plain name against the
+        queryset it is handed, so the annotation has to exist first.
+        """
+        return (
+            self.model._default_manager.get_queryset()
+            .annotate(rank_order=RANK_LADDER_ORDER)
+            .order_by(*self.get_ordering(request))
+        )
+
+    def get_model_perms(self, request):
+        """Keep this off the index: tiers are configured on the badge page.
+
+        Two entry points for the same thing is the confusion this layer removes.
+        URLs, the badge page's retired-tier link and the ``reactivate`` action
+        all keep working; only the index and sidebar listings drop it.
+        """
+        return {}
+
+    def get_readonly_fields(self, request, obj=None):
+        """Lock rank/threshold once the tier exists; status is always derived."""
+        if obj is None:
+            return ("is_active", "deactivated_at", "deactivated_by")
+        return (
+            "badge",
+            "rank",
+            "threshold",
+            "is_active",
+            "deactivated_at",
+            "deactivated_by",
+        )
+
+    def get_deleted_objects(self, objs, request):
+        """Report no cascade - deletion is soft, so nothing is actually removed.
+
+        Without this, the protected ``UserBadge`` references would block the
+        delete confirmation page before the soft delete can run.
+        """
+        return [str(obj) for obj in objs], {}, set(), []
+
+    def delete_model(self, request, obj):
+        """Soft-delete a single tier."""
+        deactivate_tier(obj, actor=request.user)
+
+    def delete_queryset(self, request, queryset):
+        """Soft-delete tiers selected via the bulk delete action."""
+        for tier in queryset:
+            deactivate_tier(tier, actor=request.user)
+
+    @admin.action(description="Reactivate selected retired tiers")
+    def reactivate(self, request, queryset):
+        """Undo a retirement, which the change form cannot do.
+
+        A retired tier's form has no editable fields, so without this a mistaken
+        retirement can only be undone by adding a replacement tier - which leaves
+        the original's badges behind and duplicates the rank.
+        """
+        reactivated, refused = 0, []
+        for tier in queryset.filter(is_active=False):
+            try:
+                reactivate_tier(tier)
+            except ValidationError:
+                refused.append(str(tier))
+            else:
+                reactivated += 1
+        self.message_user(request, f"Reactivated {reactivated} tier(s).")
+        if refused:
+            self.message_user(
+                request,
+                "Skipped tiers whose rank already has an active tier: "
+                f"{', '.join(refused)}. Retire the replacement first.",
+                level=messages.WARNING,
+            )
+
+
+@admin.register(Badge)
+class BadgeAdmin(admin.ModelAdmin):
+    """The configuration page for a badge: its achievement and its ladder.
+
+    A badge, its description and all five of its tiers are one form and one
+    save. What is *not* an admin action is inventing a new category: ``label``
+    is constrained to ``badges.enums.BadgeLabel`` because the label chooses the
+    display asset, so an empty-looking dropdown means every category is already
+    in use, not that something is broken. A genuinely new one needs an enum
+    member and a ``badges.catalogue`` entry, which is a deploy.
+    """
+
+    change_list_template = ADMIN_ACTIONS_CHANGE_LIST
+    list_display = ("label", "achievement", "ladder", "holders", "source_wired")
+    list_filter = ("label",)
+    search_fields = ("label", "achievement__name")
+    autocomplete_fields = ("achievement",)
+    inlines = [ActiveBadgeTierInline]
+
+    def get_queryset(self, request):
+        """Everything the health columns read, without a query per row.
+
+        ``to_attr`` rather than filtering ``tiers`` in place, so the inline's own
+        queryset is unaffected.
+        """
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("achievement")
+            .prefetch_related(
+                Prefetch(
+                    "tiers",
+                    queryset=BadgeTier.objects.filter(is_active=True).order_by(
+                        RANK_LADDER_ORDER
+                    ),
+                    to_attr="active_tiers",
+                )
+            )
+            .annotate(
+                holder_count=Count(
+                    "user_badges__user",
+                    filter=Q(user_badges__revoked_at__isnull=True),
+                    distinct=True,
+                )
+            )
+        )
+
+    @admin.display(description="Ladder")
+    def ladder(self, obj):
+        """The live thresholds, bronze to diamond.
+
+        A badge with no active tiers is the silent misconfiguration: it is
+        wired, it looks complete, and it can never award anything.
+        """
+        if not obj.active_tiers:
+            return "No tiers - awards nothing"
+        return " / ".join(str(tier.threshold) for tier in obj.active_tiers)
+
+    @admin.display(description="Holders", ordering="holder_count")
+    def holders(self, obj):
+        """Members currently holding any tier of this badge, counted once each."""
+        return obj.holder_count
+
+    @admin.display(boolean=True, description="Automatic")
+    def source_wired(self, obj):
+        """Whether a backfill iterator feeds this badge's achievement.
+
+        ``documentation`` and ``mailing-list`` deliberately have none, so they
+        only ever move on a manual grant. That is worth seeing on the page
+        rather than knowing.
+        """
+        return obj.achievement.slug in AUTOMATIC_SLUGS
+
+    def save_formset(self, request, form, formset, change):
+        """Apply the append-only tier rules: an edit replaces, a delete retires.
+
+        ``formset.save(commit=False)`` fills in ``new_objects``,
+        ``changed_objects`` and ``deleted_objects`` without writing or deleting
+        anything, which is what lets a removed row become a retirement instead.
+        The whole request is already wrapped in a transaction by
+        ``ModelAdmin.changeform_view``.
+        """
+        if formset.model is not BadgeTier:
+            super().save_formset(request, form, formset, change)
+            return
+
+        formset.save(commit=False)
+        for tier in formset.deleted_objects:
+            deactivate_tier(tier, actor=request.user)
+            self.message_user(
+                request,
+                f"Retired {tier.get_rank_display()} (>= {tier.threshold}). It "
+                "no longer awards badges; the members who earned it keep it.",
+            )
+        # The inline exposes only rank and threshold, and both are append-only,
+        # so every changed row is a replacement rather than an update.
+        for tier, _changed_fields in formset.changed_objects:
+            retired, replacement = replace_tier(tier, actor=request.user)
+            self.message_user(
+                request,
+                f"Retired {retired.get_rank_display()} (>= {retired.threshold}) "
+                f"and created {replacement.get_rank_display()} "
+                f"(>= {replacement.threshold}). Members who already earned "
+                f"{retired.get_rank_display()} keep it; the new threshold "
+                "applies from now on.",
+            )
+        for tier in formset.new_objects:
+            tier.save()
+
+    def has_delete_permission(self, request, obj=None):
+        """Never delete a badge; retire its tiers instead.
+
+        ``UserBadge.tier`` is protected, so this is a dead end once anything has
+        been awarded, and a silent cascade over the tiers when it has not.
+        """
+        return False
+
+    def get_fields(self, request, obj=None):
+        """The retired-tier link needs a badge to scope itself to."""
+        fields = ["label", "achievement", "description"]
+        if obj is not None:
+            fields.append("retired_tiers")
+        return fields
+
+    def get_readonly_fields(self, request, obj=None):
+        """Freeze the achievement once the badge exists.
+
+        Repointing a badge at a different achievement would leave every awarded
+        ``UserBadge`` derived from a count that no longer feeds it, and nothing
+        recalculates the members of the achievement it used to track.
+        """
+        if obj is None:
+            return ()
+        return ("achievement", "retired_tiers")
+
+    @admin.display(description="Retired tiers")
+    def retired_tiers(self, obj):
+        """A link out to the history the live ladder deliberately hides.
+
+        A second inline for the retired rows would be the obvious thing, but two
+        inlines of the same model share a formset prefix and collide.
+        """
+        count = obj.tiers.filter(is_active=False).count()
+        if not count:
+            return "None."
+        url = (
+            f"{reverse('admin:badges_badgetier_changelist')}"
+            f"?is_active__exact=0&badge__id__exact={obj.pk}"
+        )
+        return format_html(
+            '<a href="{}">{} retired tier(s)</a> - kept because members still '
+            "hold the badges earned against them.",
+            url,
+            count,
+        )
 
 
 class NotesActionMixin:
