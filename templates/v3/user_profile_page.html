@@ -14,7 +14,7 @@
   <div class="user-profile__container">
     <div class="user-profile__profile-card-row">
       {% with user_info as user %}
-      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url badge_name=user.featured_badge.name badge=user.featured_badge.badge member_since=user.member_since role=user.role flag_emoji=user.flag_emoji compact=True %}
+      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url badge_name=user.featured_badge.name badge=user.featured_badge.icon member_since=user.member_since role=user.role flag_emoji=user.flag_emoji compact=True %}
       {% endwith %}
       <div class="user-profile__button-group">
         {% for link in top_links %}
@@ -43,7 +43,7 @@
           {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements primary_button_url="https://www.example.com" %}
         </div>
         <div class="user-profile__badges">
-          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=demo_badges %}
+          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=profile_badges %}
         </div>
         <div class="user-profile__posts">
           {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label=profile_post_cta_label primary_cta_url=profile_post_cta_url %}

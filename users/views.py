@@ -33,7 +33,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from waffle import flag_is_active
 
 from badges import display as badge_display
-from core.constants import BadgeToken
 from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin, V3AuthContextMixin
 from libraries.models import CommitAuthorEmail
@@ -245,17 +244,17 @@ class CurrentUserProfileView(
         if self.request.GET.get("edit", "").lower() == "true":
             return self.get_v3_edit_context()
 
+        # include_hidden: this is the owner's own profile, so they still see
+        # badges they have hidden from everyone else.
         ctx["user_info"] = {
             "user_name": user.display_name,
             "avatar_url": user.get_avatar_url(),
-            "featured_badge": {
-                "name": "Bug Catcher",
-                "badge": BadgeToken.TIER_5,
-            },
+            "featured_badge": badge_display.featured_badge(user, include_hidden=True),
             "member_since": user.date_joined.year,
             "role": "Contributor",
             "flag_emoji": user.flag_emoji,
         }
+        ctx["profile_badges"] = badge_display.badge_cards(user, include_hidden=True)
 
         # Data shared between both versions, Boost Github and Mailing List activity
         ctx["github_activity_card_data"] = {
@@ -353,38 +352,6 @@ class CurrentUserProfileView(
                     for _ in range(6)
                 ]
             }
-            ctx["demo_badges"] = [
-                {
-                    "icon": BadgeToken.TIER_1,
-                    "name": "Code Whisperer",
-                    "earned_date": "01/01/2025",
-                },
-                {
-                    "icon": BadgeToken.TIER_2,
-                    "name": "Library Alchemist",
-                    "earned_date": "03/04/2025",
-                },
-                {
-                    "icon": BadgeToken.TIER_3,
-                    "name": "Patch Wizard",
-                    "earned_date": "08/08/2025",
-                },
-                {
-                    "icon": BadgeToken.TIER_4,
-                    "name": "Bug Catcher",
-                    "earned_date": "02/04/2025",
-                },
-                {
-                    "icon": BadgeToken.TIER_5,
-                    "name": "Standard Bearer",
-                    "earned_date": "03/07/2025",
-                },
-                {
-                    "icon": BadgeToken.STAR_TIER_3,
-                    "name": "Review Hawk",
-                    "earned_date": "03/06/2025",
-                },
-            ]
             ctx["posts"] = [
                 {
                     "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
