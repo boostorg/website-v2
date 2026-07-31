@@ -135,15 +135,36 @@ class ResultInline(admin.StackedInline):
 
 @admin.register(models.Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ["submission", "review_dates", "get_results"]
-    search_fields = ["submission"]
+    list_display = [
+        "id",
+        "submission",
+        "review_dates",
+        "get_results",
+        "get_review_manager",
+        "get_scraped_review_manager",
+    ]
+    ordering = ["-id"]
+    search_fields = ["submission", "review_manager_raw", "review_manager__name"]
     inlines = [ResultInline]
 
     def get_results(self, obj):
-        return " | ".join(obj.results.values_list("short_description", flat=True))
+        return " | ".join(result.short_description for result in obj.results.all())
+
+    @admin.display(description="Review manager", ordering="review_manager__name")
+    def get_review_manager(self, obj):
+        return obj.review_manager or ""
+
+    @admin.display(description="Scraped review manager", ordering="review_manager_raw")
+    def get_scraped_review_manager(self, obj):
+        return obj.review_manager_raw
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
-        return super().get_queryset(request).prefetch_related("results")
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("review_manager")
+            .prefetch_related("results")
+        )
 
 
 @admin.register(models.ReviewResult)
