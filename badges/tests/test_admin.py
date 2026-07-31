@@ -16,11 +16,13 @@ from model_bakery import baker
 from badges.admin import UserAchievementAdmin, UserBadgeAdmin
 from badges.enums import TierRank
 from badges.models import (
+    BadgeTier,
     RevocationSource,
     SourceType,
     UserAchievement,
     UserBadge,
 )
+from badges.services import deactivate_tier
 from badges.tests.fixtures import grant_from_source
 
 pytestmark = pytest.mark.django_db
@@ -401,6 +403,76 @@ def test_userbadge_changelist_shows_a_hidden_profile(
     assert admin_class.hidden_by_member(row) is True
 
 
+def test_tier_delete_is_a_soft_delete(client, super_user, badge):
+    """Deleting a tier in the admin deactivates it instead of removing it."""
+    silver = badge.tiers.get(rank=TierRank.SILVER)
+    client.force_login(super_user)
+    url = reverse("admin:badges_badgetier_delete", args=[silver.pk])
+
+    client.post(url, {"post": "yes"})
+
+    silver.refresh_from_db()  # row still exists
+    assert silver.is_active is False
+    assert silver.deactivated_by == super_user
+    assert silver.deactivated_at is not None
+
+
+def test_reactivate_action_restores_a_retired_tier(client, super_user, badge):
+    """A retired tier's change form has no fields, so an action is the only undo."""
+    silver = badge.tiers.get(rank=TierRank.SILVER)
+    deactivate_tier(silver, actor=super_user)
+    client.force_login(super_user)
+
+    client.post(
+        reverse("admin:badges_badgetier_changelist"),
+        {"action": "reactivate", helpers.ACTION_CHECKBOX_NAME: [silver.pk]},
+    )
+
+    silver.refresh_from_db()
+    assert silver.is_active is True
+    assert silver.deactivated_at is None
+
+
+def test_reactivate_action_refuses_a_replaced_tier(client, super_user, badge):
+    """Reactivating would break the one-active-tier-per-rank constraint."""
+    silver = badge.tiers.get(rank=TierRank.SILVER)
+    deactivate_tier(silver, actor=super_user)
+    baker.make(BadgeTier, badge=badge, rank=TierRank.SILVER, threshold=9)
+    client.force_login(super_user)
+
+    response = client.post(
+        reverse("admin:badges_badgetier_changelist"),
+        {"action": "reactivate", helpers.ACTION_CHECKBOX_NAME: [silver.pk]},
+        follow=True,
+    )
+
+    silver.refresh_from_db()
+    assert silver.is_active is False
+    assert "Retire the replacement first" in response.content.decode()
+
+
+def test_tier_changelist_groups_a_badge_ladder_together(client, super_user, catalogue):
+    """Ordering by threshold alone interleaves every badge's bronze row."""
+    client.force_login(super_user)
+
+    response = client.get(reverse("admin:badges_badgetier_changelist"))
+
+    labels = [row.badge.label for row in response.context["cl"].result_list]
+    assert labels == sorted(labels)
+
+
+def test_tier_threshold_is_readonly_on_change(client, super_user, badge):
+    """The change form locks rank/threshold so the record can't be rewritten."""
+    bronze = badge.tiers.get(rank=TierRank.BRONZE)
+    client.force_login(super_user)
+    url = reverse("admin:badges_badgetier_change", args=[bronze.pk])
+
+    response = client.get(url)
+    form_fields = response.context["adminform"].form.fields
+    assert "threshold" not in form_fields
+    assert "rank" not in form_fields
+
+
 def test_revoke_action_does_not_touch_achievements(
     client, super_user, plain_user, badge, achievement, grant_achievement
 ):
@@ -430,13 +502,18 @@ def test_revoke_action_does_not_touch_achievements(
     )
 
 
-def test_achievement_rows_cannot_be_deleted(client, super_user, achievement):
-    """Deleting an achievement type destroys every grant it carries."""
+@pytest.mark.parametrize(
+    "url_name",
+    ["admin:badges_achievement_delete", "admin:badges_badge_delete"],
+)
+def test_configuration_rows_cannot_be_deleted(
+    client, super_user, badge, achievement, url_name
+):
+    """Deleting a type or a badge destroys grants or dead-ends on PROTECT."""
     client.force_login(super_user)
+    target = achievement if "achievement" in url_name else badge
 
-    response = client.get(
-        reverse("admin:badges_achievement_delete", args=[achievement.pk])
-    )
+    response = client.get(reverse(url_name, args=[target.pk]))
 
     assert response.status_code == 403
 
@@ -574,6 +651,15 @@ def test_existing_rows_are_read_only(
         response = client.get(url)
         assert response.status_code == 200
         assert list(response.context["adminform"].form.fields) == editable
+
+
+def test_badge_achievement_is_frozen_after_creation(client, super_user, badge):
+    """Repointing a badge would orphan every UserBadge awarded against it."""
+    client.force_login(super_user)
+
+    response = client.get(reverse("admin:badges_badge_change", args=[badge.pk]))
+
+    assert "achievement" not in response.context["adminform"].form.fields
 
 
 @pytest.mark.parametrize(
