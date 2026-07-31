@@ -7,11 +7,13 @@ invalidate / revoke with a required audit note.
 
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
-from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Count, Prefetch, Q
 from django.forms.models import BaseInlineFormSet
-from django.shortcuts import render
-from django.urls import NoReverseMatch, reverse
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+from django.urls import NoReverseMatch, path, reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.text import Truncator
@@ -29,13 +31,16 @@ from badges.models import (
     UserBadge,
 )
 from badges.services import (
+    achievement_pairs,
     deactivate_tier,
     reactivate_tier,
     recalculate_badges,
+    recalculate_many,
     replace_tier,
     sync_source,
 )
 from badges.sources import AUTOMATIC_SLUGS
+from badges.summary import user_badge_summary
 from badges.tasks import (
     backfill_achievements_task,
     recalculate_all_badges_task,
@@ -232,6 +237,11 @@ RECALCULATE_BUTTON = TaskButton(
         "to run after editing a badge's thresholds."
     ),
 )
+
+
+def user_summary_url(user_id):
+    """The per-user badge page, which three admins link to."""
+    return reverse("admin:badges_userbadge_user_summary", args=[user_id])
 
 
 class BadgeStatusFilter(admin.SimpleListFilter):
@@ -695,8 +705,26 @@ class NotesActionMixin:
         )
 
 
+class MemberSummaryLinkMixin:
+    """A ``user`` column leading to the per-user badge page.
+
+    On both of these changelists the question about a row is almost always a
+    question about the member rather than the row. The row itself stays reachable
+    through the first column, which is what the changelist links by default.
+    """
+
+    @admin.display(description="User", ordering="user__email")
+    def user_link(self, obj):
+        """The member, linking to why they hold what they hold."""
+        return format_html(
+            '<a href="{}">{}</a>', user_summary_url(obj.user_id), obj.user
+        )
+
+
 @admin.register(UserAchievement)
-class UserAchievementAdmin(NotesActionMixin, TaskButtonAdminMixin, admin.ModelAdmin):
+class UserAchievementAdmin(
+    MemberSummaryLinkMixin, NotesActionMixin, TaskButtonAdminMixin, admin.ModelAdmin
+):
     """Admin for per-user achievement grants.
 
     Manual creation auto-populates ``source_type`` and ``granted_by``, and requires
@@ -709,7 +737,7 @@ class UserAchievementAdmin(NotesActionMixin, TaskButtonAdminMixin, admin.ModelAd
     task_buttons = (BACKFILL_BUTTON, RECONCILE_BUTTON)
     list_display = (
         "achievement",
-        "user",
+        "user_link",
         "source_type",
         "source_link",
         "grant_note",
@@ -887,7 +915,9 @@ class UserAchievementAdmin(NotesActionMixin, TaskButtonAdminMixin, admin.ModelAd
 
 
 @admin.register(UserBadge)
-class UserBadgeAdmin(NotesActionMixin, TaskButtonAdminMixin, admin.ModelAdmin):
+class UserBadgeAdmin(
+    MemberSummaryLinkMixin, NotesActionMixin, TaskButtonAdminMixin, admin.ModelAdmin
+):
     """Read-only admin for derived badge state.
 
     Badges are awarded and revoked by the recalculation service, so rows are
@@ -900,7 +930,7 @@ class UserBadgeAdmin(NotesActionMixin, TaskButtonAdminMixin, admin.ModelAdmin):
     task_buttons = (RECALCULATE_BUTTON,)
     list_display = (
         "badge",
-        "user",
+        "user_link",
         "tier",
         "is_held",
         "hidden_by_member",
@@ -921,6 +951,131 @@ class UserBadgeAdmin(NotesActionMixin, TaskButtonAdminMixin, admin.ModelAdmin):
         "revocation_notes",
     )
     actions = ["revoke", "reinstate"]
+
+    def get_urls(self):
+        """Register the per-user page ahead of the ``<object_id>/`` catch-all."""
+        summary = [
+            path(
+                "user-summary/<int:user_id>/",
+                self.admin_site.admin_view(self.user_summary_view),
+                name="badges_userbadge_user_summary",
+            )
+        ]
+        return summary + super().get_urls()
+
+    def user_summary_view(self, request, user_id):
+        """Why one member does or does not show each badge.
+
+        The four causes of a missing badge live in three changelists otherwise,
+        two of them only as arithmetic against a threshold. Every url the page
+        renders is built here rather than in the template.
+
+        ``admin_site.admin_view`` only asks whether the caller is staff. The page
+        reads awarded badges *and* achievement grants, so it needs view
+        permission on both.
+        """
+        if not (
+            self.has_view_permission(request)
+            and request.user.has_perm("badges.view_userachievement")
+        ):
+            raise PermissionDenied
+
+        member = get_object_or_404(get_user_model(), pk=user_id)
+        if request.method == "POST":
+            if request.POST.get("action") == "reconcile":
+                return self._reconcile_member(request, member)
+            # Anything else is the recalculate form. Defaulting to it is safe
+            # because it is the idempotent one: an unrecognised action costs a
+            # recalculation, not a deletion.
+            return self._recalculate_member(request, member)
+
+        grants_changelist = reverse("admin:badges_userachievement_changelist")
+        rows = [
+            {
+                "row": row,
+                "grants_url": (
+                    f"{grants_changelist}?user__id__exact={member.pk}"
+                    f"&achievement__id__exact={row.achievement.pk}"
+                ),
+            }
+            for row in user_badge_summary(member)
+        ]
+        context = {
+            **self.admin_site.each_context(request),
+            "title": f"Badges for {member}",
+            "member": member,
+            "rows": rows,
+            "opts": self.model._meta,
+            "index_url": reverse("admin:index"),
+            "changelist_url": reverse("admin:badges_userbadge_changelist"),
+            "recalculate_url": user_summary_url(member.pk),
+            "can_recalculate": self.has_change_permission(request),
+            "reconcile_url": user_summary_url(member.pk),
+            "can_reconcile": request.user.has_perm(RECONCILE_PERMISSION),
+            "grant_url": (
+                f"{reverse('admin:badges_userachievement_add')}?user={member.pk}"
+            ),
+            "can_grant": request.user.has_perm("badges.add_userachievement"),
+        }
+        return render(request, "admin/badges/user_summary.html", context)
+
+    def _recalculate_member(self, request, member):
+        """Reconcile every one of this member's badges, synchronously.
+
+        One member is at most a handful of achievement types at five queries
+        each, so a Celery task would buy nothing and cost the admin the ability
+        to see the result on the page they are already looking at.
+        """
+        if not self.has_change_permission(request):
+            raise PermissionDenied
+        count = recalculate_many(achievement_pairs(user_ids=[member.pk]))
+        self.message_user(
+            request, f"Recalculated {count} achievement type(s) for this member."
+        )
+        return HttpResponseRedirect(user_summary_url(member.pk))
+
+    def _reconcile_member(self, request, member):
+        """Preview, then on a second POST apply, this member's source disagreements.
+
+        Synchronous for the same reason ``_recalculate_member`` is - the admin
+        wants the outcome on the page they are already looking at - and the choice
+        costs less than it looks: walking every source is the price whether the run
+        is scoped to one member or not, and it is the same walk the preview just
+        did.
+
+        It can delete, so it is gated on ``delete_userachievement`` rather than on
+        the change permission that guards the rest of this page.
+        """
+        if not request.user.has_perm(RECONCILE_PERMISSION):
+            raise PermissionDenied
+
+        if "apply" not in request.POST:
+            return render(
+                request,
+                "admin/dry_run_confirm.html",
+                {
+                    **self.admin_site.each_context(request),
+                    "opts": self.model._meta,
+                    "title": f"Reconcile achievements for {member}",
+                    "preview": reconcile_preview(
+                        AUTOMATIC_SLUGS,
+                        user_ids=[member.pk],
+                        scope_label=str(member),
+                    ),
+                    "form_action": user_summary_url(member.pk),
+                    "hidden_fields": [{"name": "action", "value": "reconcile"}],
+                    "submit_label": "Reconcile this member",
+                    "cancel_url": user_summary_url(member.pk),
+                },
+            )
+
+        added, removed = reconcile_apply(AUTOMATIC_SLUGS, user_ids=[member.pk])
+        self.message_user(
+            request,
+            f"Reconciled this member with their sources: added {added} and removed "
+            f"{removed} automatic achievement(s).",
+        )
+        return HttpResponseRedirect(user_summary_url(member.pk))
 
     def has_add_permission(self, request):
         """Badges are derived. Grant the achievement behind one instead.
