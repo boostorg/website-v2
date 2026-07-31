@@ -19,7 +19,7 @@
   <div class="user-profile__container">
     <div class="user-profile__profile-card-row">
       {% with user_info as user %}
-      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url member_since=user.member_since role=user.role flag_emoji=user.flag_emoji compact=True %}
+      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url badge_name=user.featured_badge.name badge=user.featured_badge.icon member_since=user.member_since role=user.role flag_emoji=user.flag_emoji compact=True %}
       {% endwith %}
       <div class="user-profile__button-group">
         {% for link in top_links %}
@@ -52,17 +52,21 @@
         grid has a single child for `.user-profile__col:only-child` to widen.
         An empty column would otherwise leave the bio at half width beside a
         blank gap.
+
+        The badges card renders on the member's own page even with nothing in
+        it: its empty state is what tells them badges exist and how to earn
+        them. A visitor sees the card only once there is a badge to show.
       {% endcomment %}
-      {% if achievements_data.achievements or badges or posts or account_connections_none_connected %}
+      {% if profile_is_owner or achievements_data.achievements or profile_badges or posts or account_connections_none_connected %}
       <div class="user-profile__col">
         {% if achievements_data.achievements %}
         <div class="user-profile__achievements">
           {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements %}
         </div>
         {% endif %}
-        {% if badges %}
+        {% if profile_is_owner or profile_badges %}
         <div class="user-profile__badges">
-          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=badges %}
+          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=profile_badges %}
         </div>
         {% endif %}
         {% if posts %}

@@ -1,5 +1,6 @@
 from urllib.parse import urlparse
 
+from badges import display as badge_display
 from core.context_processors import edit_profile_url
 
 
@@ -83,9 +84,10 @@ class V3UserProfileContextMixin:
         """Context for the read-only v3 profile view.
 
         Renders real user data. Sections with no underlying data (GitHub
-        activity, mailing list activity, posts, achievements, badges) are
-        left out of the context so the template omits them entirely. The
-        bio section is always rendered, falling back to an empty state."""
+        activity, mailing list activity, posts, achievements) are left out
+        of the context so the template omits them entirely. The bio section
+        is always rendered, falling back to an empty state."""
+        is_owner = user == self.request.user
         return {
             "user_info": {
                 "user_name": user.display_name,
@@ -95,9 +97,20 @@ class V3UserProfileContextMixin:
                 # only ever right on the owner's own view of their page.
                 # Serving it to a visitor would publish the very role the
                 # opt-out exists to withhold; they get `role`, which honours it.
-                "role": (user.public_role if user == self.request.user else user.role),
+                "role": (user.public_role if is_owner else user.role),
                 "flag_emoji": user.flag_emoji,
+                # include_hidden only for the owner, for the same reason as
+                # `role`: a member who hid their badges still sees them on
+                # their own page, and a visitor never does.
+                "featured_badge": badge_display.featured_badge(
+                    user, include_hidden=is_owner
+                ),
             },
+            "profile_badges": badge_display.badge_cards(user, include_hidden=is_owner),
+            # The recognition cards render on the owner's own page even when
+            # empty, because their empty states are the way in to the badge and
+            # achievement dialogs. A visitor sees them only with real data.
+            "profile_is_owner": is_owner,
             # Library contributions grouped by role, rendered as the
             # contributions section of the bio card. An empty dict means no
             # contributions, and the card omits the section.

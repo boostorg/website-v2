@@ -3,7 +3,8 @@
 ``Achievement.slug`` is an open field by design (admins may add manual-only
 types), so the slugs the codebase hard-codes are only safe if something checks
 they still exist. These tests are that check: they cover the seams between
-``badges.enums``, ``badges.seed_data`` and ``badges.sources``.
+``badges.enums``, ``badges.seed_data``, ``badges.sources`` and the map in
+``badges.display`` that turns a tier rank into a rendered asset.
 """
 
 import os
@@ -16,6 +17,7 @@ from django.db.models import Count
 from model_bakery import baker
 
 from badges import sources
+from badges.display import TIER_TOKENS
 from badges.enums import AchievementSlug, BadgeLabel, TierRank
 from badges.models import Achievement, Badge, BadgeTier
 from badges.seed_data import SEED_CATALOGUE, seed_catalogue
@@ -103,6 +105,11 @@ def test_automatic_slugs_are_derived_from_the_iterators():
     assert sources.AUTOMATIC_SLUGS == [
         slug.value for slug in sources.BACKFILL_ITERATORS
     ]
+
+
+def test_tier_token_map_covers_every_rank():
+    """A rank missing from the map would raise when a user earns that tier."""
+    assert set(TIER_TOKENS) == set(TierRank)
 
 
 @pytest.mark.django_db
