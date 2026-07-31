@@ -64,6 +64,17 @@ def _iter_library_maintenance():
                 yield user, version.library
 
 
+def _iter_library_versioning():
+    """Yield (user, library_version) for every per-version authorship."""
+    from libraries.models import LibraryVersion
+
+    for version in LibraryVersion.objects.prefetch_related("authors").iterator(
+        chunk_size=500
+    ):
+        for user in version.authors.all():
+            yield user, version
+
+
 def _iter_code_commits():
     """Yield (user, commit) for every attributed commit."""
     from libraries.models import Commit
@@ -80,6 +91,7 @@ def _iter_code_commits():
 BACKFILL_ITERATORS = {
     AchievementSlug.LIBRARY_AUTHORING: _iter_library_authoring,
     AchievementSlug.LIBRARY_MAINTENANCE: _iter_library_maintenance,
+    AchievementSlug.LIBRARY_VERSIONING: _iter_library_versioning,
     AchievementSlug.CODE_COMMITS: _iter_code_commits,
 }
 
