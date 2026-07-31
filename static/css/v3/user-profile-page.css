@@ -46,12 +46,11 @@
     margin-bottom: var(--space-xl);
 }
 
-/* When there are no right-column cards, the bio card spans the full width. */
-/* Empty-state copy in the Achievements / Badges cards ("No ... yet."). */
-.user-profile__empty-card-text {
-    color: var(--color-text-primary);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-medium);
+/* A profile whose right-column sections all lack data renders the left column
+   alone (the template drops the right one entirely). Span both tracks so the
+   bio fills the width instead of sitting at half width beside a blank gap. */
+.user-profile__col:only-child {
+    grid-column: 1 / -1;
 }
 
 /* Empty-state message shown in the bio card when no bio has been added.

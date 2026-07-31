@@ -14,6 +14,7 @@ from django.core.mail import send_mail
 from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -597,6 +598,10 @@ class User(BaseUser):
         if self.hq_image and self.hq_image_render:
             with suppress(AttributeError, MissingSource, FileNotFoundError, OSError):
                 return getattr(self.hq_image_render, "url", None)
+
+    def get_absolute_url(self):
+        """This user's public profile page."""
+        return reverse("profile-user", kwargs={"pk": self.pk})
 
     @property
     def github_profile_url(self):

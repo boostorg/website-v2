@@ -12,10 +12,9 @@
 
 {% block content %}
   {% comment %}
-    Public profile view. The left column always shows the bio card; the right
-    column always shows the Achievements and Badges cards (with empty-state
-    fallbacks). GitHub, mailing-list, posts, and connections cards render only
-    when they have data.
+    Public profile view. Every card except the bio renders only when it has
+    data behind it, so a profile with no content is the bio card alone, showing
+    its own empty state. The bio is the one section always present.
   {% endcomment %}
   <div class="user-profile__container">
     <div class="user-profile__profile-card-row">
@@ -48,21 +47,24 @@
         </div>
         {% endif %}
       </div>
+      {% comment %}
+        Drop the right column wholesale when none of its cards have data, so the
+        grid has a single child for `.user-profile__col:only-child` to widen.
+        An empty column would otherwise leave the bio at half width beside a
+        blank gap.
+      {% endcomment %}
+      {% if achievements_data.achievements or badges or posts or account_connections_none_connected %}
       <div class="user-profile__col">
+        {% if achievements_data.achievements %}
         <div class="user-profile__achievements">
-          {% if achievements_data.achievements %}
-            {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements %}
-          {% else %}
-            {% include "v3/includes/_empty_state_card.html" with title="Achievements" message="No achievements earned yet." cta_label="Learn how achievements work" only %}
-          {% endif %}
+          {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements %}
         </div>
+        {% endif %}
+        {% if badges %}
         <div class="user-profile__badges">
-          {% if badges %}
-            {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=badges %}
-          {% else %}
-            {% include "v3/includes/_empty_state_card.html" with title="Badges" message="No badges unlocked yet." cta_label="Learn how badges work" only %}
-          {% endif %}
+          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=badges %}
         </div>
+        {% endif %}
         {% if posts %}
         <div class="user-profile__posts">
           {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label=profile_post_cta_label primary_cta_url=profile_post_cta_url %}
@@ -74,6 +76,7 @@
         </div>
         {% endif %}
       </div>
+      {% endif %}
     </div>
   </div>
 {% endblock %}
