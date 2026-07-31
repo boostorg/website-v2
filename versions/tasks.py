@@ -503,6 +503,9 @@ def import_library_versions(version_name, token=None, version_type="tag"):
 def import_reviews_task():
     """Imports Boost formal-review results and milestones from boost.org."""
     call_command("import_reviews")
+    # Reviews are the only source of the library-review achievement, and this is
+    # the only thing that writes them, so it owns keeping the grants in step.
+    call_command("backfill_achievements", "--source", "library-review")
 
 
 @app.task

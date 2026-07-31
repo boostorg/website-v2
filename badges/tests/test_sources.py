@@ -104,3 +104,14 @@ def test_iter_code_commits_skips_unlinked(plain_user):
 
     pairs = list(sources._iter_code_commits())
     assert [u for u, _ in pairs] == [plain_user]
+
+
+def test_iter_library_review_skips_unlinked(plain_user):
+    """Review submitters without a linked user are skipped."""
+    review = baker.make("versions.Review")
+    review.submitters.add(
+        baker.make("libraries.CommitAuthor", user=plain_user),
+        baker.make("libraries.CommitAuthor", user=None),
+    )
+    pairs = list(sources._iter_library_review())
+    assert [u for u, _ in pairs] == [plain_user]

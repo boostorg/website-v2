@@ -1179,6 +1179,21 @@ def test_reconcile_preview_refuses_an_empty_source(
     assert UserAchievement.objects.filter(user=plain_user).count() == 1
 
 
+def test_reconcile_preview_blocks_an_incomplete_catalogue(
+    client, super_user, plain_user, commit_by_someone_else, stale_commit_grant
+):
+    """An unseeded slug is what the command refuses outright, so say so first."""
+    Achievement.objects.filter(slug="library-review").delete()
+    client.force_login(super_user)
+
+    response = client.post(reverse(RECONCILE_URL))
+
+    body = response.content.decode()
+    assert "the catalogue is incomplete" in body
+    assert "Run migrations first" in body
+    assert 'name="apply"' not in body
+
+
 def test_reconcile_button_needs_more_than_the_change_permission(
     client, plain_user, commit_by_someone_else, stale_commit_grant
 ):
