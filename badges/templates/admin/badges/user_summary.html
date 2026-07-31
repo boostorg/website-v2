@@ -1,0 +1,119 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin/controls.css' %}">
+{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{{ index_url }}">{% translate "Home" %}</a>
+    &rsaquo; <a href="{{ changelist_url }}">{% translate "User badges" %}</a>
+    &rsaquo; {{ member }}
+  </div>
+{% endblock %}
+
+{% block content %}
+  {% if member.hide_badges %}
+    <ul class="messagelist">
+      <li class="warning">
+        {% blocktranslate %}This member has turned badge display off. None of their badges appear on their public profile, whatever they have earned.{% endblocktranslate %}
+      </li>
+    </ul>
+  {% endif %}
+
+  <div class="module">
+    <h2>{% translate "Achievements and badges" %}</h2>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">{% translate "Badge" %}</th>
+          <th scope="col">{% translate "Achievement" %}</th>
+          <th scope="col">{% translate "Valid grants" %}</th>
+          <th scope="col">{% translate "Invalid" %}</th>
+          <th scope="col">{% translate "Current rank" %}</th>
+          <th scope="col">{% translate "Next rank" %}</th>
+          <th scope="col">{% translate "State" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in rows %}
+          <tr>
+            <td>{{ item.row.badge|default:"-" }}</td>
+            <th scope="row">{{ item.row.achievement }}</th>
+            <td><a href="{{ item.grants_url }}">{{ item.row.valid_grants }}</a></td>
+            <td>{{ item.row.invalid_grants }}</td>
+            <td>
+              {% if item.row.held %}
+                {{ item.row.held.tier.get_rank_display }} (&ge; {{ item.row.held.tier.threshold }})
+              {% else %}
+                {% translate "None" %}
+              {% endif %}
+            </td>
+            <td>
+              {% if item.row.next_tier %}
+                {{ item.row.next_tier.get_rank_display }} (&ge; {{ item.row.next_tier.threshold }}),
+                {% blocktranslate with gap=item.row.gap %}{{ gap }} to go{% endblocktranslate %}
+              {% else %}
+                {% translate "None" %}
+              {% endif %}
+            </td>
+            <td>
+              {{ item.row.reason }}
+              {% if item.row.revoked %}
+                <ul>
+                  {% for entry in item.row.revoked %}
+                    <li>
+                      {% blocktranslate with rank=entry.tier.get_rank_display source=entry.get_revocation_source_display date=entry.revoked_at|date:"Y-m-d" %}{{ rank }} revoked {{ date }} ({{ source }}){% endblocktranslate %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7">{% translate "No achievement types are configured." %}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="submit-row">
+    {% if can_recalculate %}
+      <div class="submit-row-action">
+        <form method="post" action="{{ recalculate_url }}">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="recalculate">
+          <input type="submit" class="default" value="{% translate 'Recalculate this member' %}">
+        </form>
+        <p class="help">
+          {% blocktranslate %}Rebuilds their badges from the achievements above, awarding any tier they now meet and revoking any they no longer do. Changes no achievements.{% endblocktranslate %}
+        </p>
+      </div>
+    {% endif %}
+    {% if can_reconcile %}
+      <div class="submit-row-action">
+        <form method="post" action="{{ reconcile_url }}">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="reconcile">
+          <input type="submit" value="{% translate 'Reconcile this member' %}">
+        </form>
+        <p class="help">
+          {% blocktranslate %}Rebuilds the achievements themselves from their sources, adding what a source now supports and removing what it no longer does, then the badges. Manual grants are left alone, and you see the changes first.{% endblocktranslate %}
+        </p>
+      </div>
+    {% endif %}
+    {% if can_grant %}
+      <div class="submit-row-action">
+        <a href="{{ grant_url }}" class="button">{% translate "Grant an achievement" %}</a>
+        <p class="help">
+          {% blocktranslate %}Adds one achievement by hand, for something no source can see. Reconciling never removes it.{% endblocktranslate %}
+        </p>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

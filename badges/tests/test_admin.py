@@ -16,6 +16,7 @@ from model_bakery import baker
 from badges.admin import UserAchievementAdmin, UserBadgeAdmin
 from badges.enums import TierRank
 from badges.models import (
+    Achievement,
     BadgeTier,
     RevocationSource,
     SourceType,
@@ -698,6 +699,231 @@ def test_each_changelist_offers_its_own_task_button(
     assert response.status_code == 302
 
 
+def test_user_summary_page_renders(client, super_user, plain_user, catalogue):
+    """Every achievement type is answered for, whether or not it was earned."""
+    client.force_login(super_user)
+
+    response = client.get(
+        reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+    )
+
+    assert response.status_code == 200
+    body = response.content.decode()
+    for name in Achievement.objects.values_list("name", flat=True):
+        assert name in body
+
+
+def test_user_summary_explains_a_mixed_state(
+    client, super_user, plain_user, badge, achievement, grant_achievement
+):
+    """A held tier, a revoked tier and the gap to the next one, on one page."""
+    grant_achievement(plain_user, achievement, count=3)
+    silver = UserBadge.objects.get(user=plain_user, tier__rank=TierRank.SILVER)
+    silver.revoked_at = timezone.now()
+    silver.revoked_by = super_user
+    silver.revocation_notes = "Duplicate reviews."
+    silver.revocation_source = RevocationSource.MANUAL
+    silver.save()
+    client.force_login(super_user)
+
+    response = client.get(
+        reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+    )
+
+    body = response.content.decode()
+    assert "Held since" in body
+    # The unreached tier and the gap to it, which is arithmetic anywhere else.
+    assert "Gold (&ge; 5)" in body
+    assert "2 to go" in body
+    # ISO, matching the dates the state text builds in Python.
+    assert f"Silver revoked {timezone.localdate()} (Manual)" in body
+
+
+def test_user_summary_explains_each_action_separately(
+    client, super_user, plain_user, catalogue
+):
+    """Every action carries its own help text, not one paragraph for all three.
+
+    Recalculate and Reconcile differ only in whether they touch achievements at
+    all, which is not a distinction either label makes.
+    """
+    client.force_login(super_user)
+
+    body = client.get(
+        reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+    ).content.decode()
+
+    assert body.count('class="submit-row-action"') == 3
+    assert body.count('<p class="help">') == 3
+
+
+def test_user_summary_requires_view_permission_on_both_models(
+    client, db, plain_user, catalogue
+):
+    """The page shows grants as well as badges, so staff alone is not enough."""
+    staff = baker.make("users.User", email="summary-staff@example.com", is_staff=True)
+    client.force_login(staff)
+    url = reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+
+    assert client.get(url).status_code == 403
+
+    staff.user_permissions.add(
+        Permission.objects.get(
+            codename="view_userbadge", content_type__app_label="badges"
+        )
+    )
+    assert client.get(url).status_code == 403
+
+    staff.user_permissions.add(
+        Permission.objects.get(
+            codename="view_userachievement", content_type__app_label="badges"
+        )
+    )
+    assert client.get(url).status_code == 200
+
+
+def test_user_summary_recalculate_requires_post(
+    client, super_user, plain_user, badge, achievement, grant_achievement
+):
+    """A link prefetch or a restored tab must not rewrite badge state."""
+    grant_achievement(plain_user, achievement, count=1)
+    user_badge = UserBadge.objects.get(user=plain_user)
+    # A bulk delete: no post_delete receivers, so the badge is left stale.
+    UserAchievement.objects.filter(user=plain_user)._raw_delete(using="default")
+    client.force_login(super_user)
+
+    client.get(reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk]))
+
+    user_badge.refresh_from_db()
+    assert user_badge.revoked_at is None
+
+
+def test_user_summary_recalculate_fixes_a_stale_badge(
+    client, super_user, plain_user, badge, achievement, grant_achievement
+):
+    """The button reconciles this member without touching the whole table."""
+    grant_achievement(plain_user, achievement, count=1)
+    user_badge = UserBadge.objects.get(user=plain_user)
+    UserAchievement.objects.filter(user=plain_user)._raw_delete(using="default")
+    client.force_login(super_user)
+
+    response = client.post(
+        reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk]),
+        follow=True,
+    )
+
+    user_badge.refresh_from_db()
+    assert user_badge.revoked_at is not None
+    assert "Recalculated 1 achievement type(s)" in response.content.decode()
+
+
+def test_user_summary_recalculate_requires_change_permission(
+    client, db, plain_user, badge, achievement, grant_achievement
+):
+    """Reading the page is not authorisation to rewrite badge state."""
+    grant_achievement(plain_user, achievement, count=1)
+    user_badge = UserBadge.objects.get(user=plain_user)
+    UserAchievement.objects.filter(user=plain_user)._raw_delete(using="default")
+    staff = baker.make("users.User", email="viewer@example.com", is_staff=True)
+    staff.user_permissions.set(
+        Permission.objects.filter(
+            codename__in=["view_userbadge", "view_userachievement"],
+            content_type__app_label="badges",
+        )
+    )
+    client.force_login(staff)
+    url = reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+
+    assert client.get(url).context["can_recalculate"] is False
+    assert client.post(url).status_code == 403
+
+    user_badge.refresh_from_db()
+    assert user_badge.revoked_at is None
+
+
+def test_user_summary_grant_link_prefills_the_user(
+    client, super_user, plain_user, catalogue
+):
+    """The grant form lands with the member already chosen."""
+    client.force_login(super_user)
+    url = reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+
+    grant_url = client.get(url).context["grant_url"]
+
+    assert grant_url.endswith(f"?user={plain_user.pk}")
+    response = client.get(grant_url)
+    assert response.status_code == 200
+    assert response.context["adminform"].form.initial["user"] == str(plain_user.pk)
+
+
+def test_user_summary_grant_counts_link_to_the_filtered_changelist(
+    client, super_user, plain_user, badge, achievement, grant_achievement
+):
+    """The valid-grant count is a way in to the rows behind it."""
+    grant_achievement(plain_user, achievement, count=2)
+    client.force_login(super_user)
+    url = reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+
+    grants_url = client.get(url).context["rows"][0]["grants_url"]
+
+    response = client.get(grants_url)
+    assert response.status_code == 200
+    assert response.context["cl"].result_count == 2
+
+
+def test_user_summary_404s_for_an_unknown_member(client, super_user, db):
+    """A stale link is a 404, not a crash."""
+    client.force_login(super_user)
+
+    response = client.get(reverse("admin:badges_userbadge_user_summary", args=[9999]))
+
+    assert response.status_code == 404
+
+
+def test_user_admin_links_to_the_badge_summary(client, super_user, plain_user):
+    """The user record is where support starts, so the way in is from there."""
+    client.force_login(super_user)
+
+    response = client.get(reverse("admin:users_user_change", args=[plain_user.pk]))
+
+    assert (
+        reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+        in response.content.decode()
+    )
+
+
+def test_user_admin_add_form_has_no_dead_badge_link(client, super_user):
+    """There is nothing to summarise before the user exists."""
+    client.force_login(super_user)
+
+    response = client.get(reverse("admin:users_user_add"))
+
+    assert response.status_code == 200
+    assert "user-summary" not in response.content.decode()
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "admin:badges_userbadge_changelist",
+        "admin:badges_userachievement_changelist",
+    ],
+)
+def test_changelists_link_the_member_to_their_summary(
+    client, super_user, plain_user, badge, achievement, grant_achievement, url_name
+):
+    """Both changelists reach the per-user page through the user column."""
+    grant_achievement(plain_user, achievement, count=1)
+    client.force_login(super_user)
+
+    response = client.get(reverse(url_name))
+
+    body = response.content.decode()
+    assert reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk]) in body
+    # The row itself is still reachable through the changelist's first column.
+    assert "field-user_link" in body
+
+
 RECONCILE_URL = "admin:badges_userachievement_reconcile"
 RECONCILE_TASK = "badges.admin.reconcile_achievements_task.delay"
 
@@ -796,6 +1022,33 @@ def test_reconcile_preview_reports_grants_it_would_create(
     assert not UserAchievement.objects.filter(user=plain_user).exists()
 
 
+def test_member_reconcile_restores_a_grant_the_source_supports_again(
+    client, super_user, plain_user, commit_by_someone_else, stale_commit_grant
+):
+    """Unbind the author, reconcile, rebind, reconcile: the badge comes back.
+
+    The step that a one-directional prune left no way to take, and the reason the
+    per-member control is two-way.
+    """
+    client.force_login(super_user)
+    url = reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+    client.post(url, {"action": "reconcile", "apply": "1"})
+    assert not UserAchievement.objects.filter(user=plain_user).exists()
+    bronze = UserBadge.objects.get(user=plain_user, tier__rank="bronze")
+    assert bronze.revocation_source == RevocationSource.CASCADE
+
+    author = stale_commit_grant.author
+    author.user = plain_user
+    author.save()
+
+    response = client.post(url, {"action": "reconcile", "apply": "1"}, follow=True)
+
+    assert "added 1 and removed 0" in response.content.decode()
+    assert UserAchievement.objects.filter(user=plain_user).count() == 1
+    bronze.refresh_from_db()
+    assert bronze.revoked_at is None
+
+
 def test_reconcile_preview_refuses_an_empty_source(
     client, super_user, plain_user, stale_commit_grant
 ):
@@ -838,3 +1091,66 @@ def test_reconcile_status_endpoint_needs_the_delete_permission(client, db):
     client.force_login(staff)
 
     assert client.get(reverse(f"{RECONCILE_URL}_status")).status_code == 403
+
+
+def test_member_page_offers_a_reconcile_preview(
+    client, super_user, plain_user, commit_by_someone_else, stale_commit_grant
+):
+    """The per-member control previews exactly the way the changelist one does."""
+    client.force_login(super_user)
+    url = reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+
+    assert client.get(url).context["can_reconcile"] is True
+
+    response = client.post(url, {"action": "reconcile"})
+
+    body = response.content.decode()
+    assert "would remove 1 grant(s)" in body
+    assert UserAchievement.objects.filter(user=plain_user).count() == 1
+
+
+def test_member_reconcile_applies_and_cascades_the_badge(
+    client, super_user, plain_user, commit_by_someone_else, stale_commit_grant
+):
+    """The second POST does the work synchronously and reports what it did."""
+    client.force_login(super_user)
+    url = reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+
+    response = client.post(url, {"action": "reconcile", "apply": "1"}, follow=True)
+
+    assert "added 0 and removed 1" in response.content.decode()
+    assert not UserAchievement.objects.filter(user=plain_user).exists()
+    assert not UserBadge.objects.filter(user=plain_user, revoked_at=None).exists()
+
+
+def test_member_reconcile_leaves_every_other_member_alone(
+    client, super_user, plain_user, commit_by_someone_else, stale_commit_grant
+):
+    """It is the page for one member, so it is a run for one member."""
+    other = baker.make("users.User", email="other-stale@example.com")
+    _stale_grant_for(other)
+    client.force_login(super_user)
+    url = reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+
+    client.post(url, {"action": "reconcile", "apply": "1"})
+
+    assert not UserAchievement.objects.filter(user=plain_user).exists()
+    assert UserAchievement.objects.filter(user=other).exists()
+
+
+def test_member_reconcile_needs_the_delete_permission(
+    client, plain_user, commit_by_someone_else, stale_commit_grant
+):
+    """Change permission runs the recalculation on this page, not the deletion."""
+    staff = _staff_with(
+        "member-changer@example.com",
+        "view_userbadge",
+        "view_userachievement",
+        "change_userbadge",
+    )
+    client.force_login(staff)
+    url = reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+
+    assert client.get(url).context["can_reconcile"] is False
+    assert client.post(url, {"action": "reconcile"}).status_code == 403
+    assert UserAchievement.objects.filter(user=plain_user).count() == 1
