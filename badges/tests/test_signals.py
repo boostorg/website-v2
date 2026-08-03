@@ -82,16 +82,28 @@ def test_tier_change_does_nothing_before_the_transaction_commits(
     assert TierRank.PLATINUM.value not in active_ranks(plain_user, badge)
 
 
-def test_tier_delete_without_its_badge_is_a_noop(
-    badge, django_capture_on_commit_callbacks
+def test_tier_cascaded_away_with_its_badge_sweeps_harmlessly(
+    badge,
+    plain_user,
+    achievement,
+    grant_achievement,
+    django_capture_on_commit_callbacks,
 ):
-    """A tier cascaded away with its badge has no achievement left to visit."""
+    """Deleting a badge still queues one sweep, and the sweep changes nothing.
+
+    A cascade removes tiers before their badge, so the handler can still read the
+    achievement and queues work as usual. What makes it safe is that the badge is
+    gone by the time the sweep runs, leaving it nothing to award.
+    """
+    grant_achievement(plain_user, achievement, count=1)
     other = baker.make(
         Badge, label="documenter", achievement=badge.achievement, description=""
     )
     tier = baker.make(BadgeTier, badge=other, rank=TierRank.BRONZE, threshold=1)
 
-    with django_capture_on_commit_callbacks(execute=True):
+    with django_capture_on_commit_callbacks(execute=True) as callbacks:
         Badge.objects.filter(pk=other.pk).delete()
 
+    assert len(callbacks) == 1
     assert not BadgeTier.objects.filter(pk=tier.pk).exists()
+    assert not UserBadge.objects.filter(badge=other).exists()

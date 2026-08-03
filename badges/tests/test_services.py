@@ -3,10 +3,12 @@
 from unittest.mock import patch
 
 import pytest
+from django.core.exceptions import ValidationError
+from django.db.models import ProtectedError
 from django.utils import timezone
 from model_bakery import baker
 
-from badges.enums import TierRank
+from badges.enums import BadgeLabel, TierRank
 from badges.models import BadgeTier, RevocationSource, UserAchievement, UserBadge
 from badges.services import (
     achievement_pairs,
@@ -14,6 +16,7 @@ from badges.services import (
     reactivate_tier,
     recalculate_badges,
     replace_tier,
+    revocation_cause,
 )
 from badges.tests.fixtures import ONE_PER_RANK, active_ranks, set_ladder, shift_ladder
 
@@ -294,20 +297,22 @@ def test_tier_with_earned_badge_cannot_be_hard_deleted(
     plain_user, badge, achievement, grant_achievement
 ):
     """on_delete=PROTECT stops a tier from being destroyed once earned."""
-    from django.db.models import ProtectedError
-
     grant_achievement(plain_user, achievement, count=1)
     bronze_tier = badge.tiers.get(rank=TierRank.BRONZE)
     with pytest.raises(ProtectedError):
         bronze_tier.delete()
 
 
-def test_recalculation_noop_when_user_or_achievement_gone(achievement, plain_user):
+def test_recalculation_noop_when_user_or_achievement_gone(
+    achievement, badge, plain_user
+):
     """Stale ids are a no-op rather than a crash.
 
-    A missing user simply counts zero achievements; a missing achievement has
-    nothing to reconcile against, so it logs and returns.
+    A missing user counts zero achievements; a missing achievement has nothing to
+    reconcile against, so it logs and returns. The ``badge`` fixture is what gives
+    the achievement active tiers, without which nothing could be written anyway.
     """
+    assert badge.tiers.filter(is_active=True).exists()
     recalculate_badges(99999999, achievement.pk)
     recalculate_badges(99999999, 99999999)
     recalculate_badges(plain_user.pk, 99999999)
@@ -318,9 +323,6 @@ def test_recalculation_handles_multiple_badges_per_achievement(
     plain_user, badge, achievement, grant_achievement
 ):
     """One achievement can feed more than one badge."""
-    from badges.enums import BadgeLabel
-    from badges.models import BadgeTier
-
     second = baker.make(
         "badges.Badge", label=BadgeLabel.DOCUMENTER, achievement=achievement
     )
@@ -377,8 +379,6 @@ def test_reactivate_tier_restores_a_retired_tier(badge, super_user):
 
 def test_reactivate_tier_refuses_a_taken_rank(badge, super_user):
     """Only one active tier per rank, so a replaced tier cannot come back."""
-    from django.core.exceptions import ValidationError
-
     bronze = badge.tiers.get(rank=TierRank.BRONZE)
     deactivate_tier(bronze, actor=super_user)
     baker.make("badges.BadgeTier", badge=badge, rank=TierRank.BRONZE, threshold=5)
@@ -472,3 +472,54 @@ def test_achievement_pairs_scopes_to_one_user(
     assert set(achievement_pairs(user_ids=[plain_user.pk])) == {
         (plain_user.pk, achievement.pk)
     }
+
+
+def test_cascade_revocation_note_carries_the_arithmetic(
+    plain_user, badge, achievement, grant_achievement
+):
+    """Support's first question is "how far short", so the note has to answer it."""
+    grants = grant_achievement(plain_user, achievement, count=3)
+    silver = badge.tiers.get(rank=TierRank.SILVER)  # threshold 3
+
+    grants[0].is_valid = False
+    grants[0].save()
+
+    revoked = UserBadge.objects.get(user=plain_user, tier=silver)
+    assert revoked.count_at_revocation == 2
+    assert "2 valid" in revoked.revocation_notes
+    assert "Silver" in revoked.revocation_notes
+    assert "threshold of 3" in revoked.revocation_notes
+    # The old wording blamed an invalidation even when a reconcile had deleted the
+    # grants, which sent support looking for a row that was never there.
+    assert "invalidated" not in revoked.revocation_notes
+
+
+def test_revocation_cause_names_the_operation_responsible(
+    plain_user, badge, achievement, grant_achievement
+):
+    """Without a cause, an automated removal revokes with nobody to point at."""
+    grants = grant_achievement(plain_user, achievement, count=1)
+
+    with revocation_cause("reconcile of code-commits"):
+        grants[0].delete()
+
+    revoked = UserBadge.objects.get(user=plain_user)
+    assert "Cause: reconcile of code-commits." in revoked.revocation_notes
+
+
+def test_re_earning_clears_the_revocation_audit(
+    plain_user, badge, achievement, grant_achievement
+):
+    """A recovered count leaves no stale count_at_revocation behind."""
+    grants = grant_achievement(plain_user, achievement, count=1)
+    grants[0].is_valid = False
+    grants[0].save()
+    assert UserBadge.objects.get(user=plain_user).count_at_revocation == 0
+
+    grants[0].is_valid = True
+    grants[0].save()
+
+    held = UserBadge.objects.get(user=plain_user)
+    assert held.revoked_at is None
+    assert held.count_at_revocation is None
+    assert held.revocation_notes == ""

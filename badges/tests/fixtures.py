@@ -1,7 +1,7 @@
 """Shared fixtures and helpers for the badges tests.
 
-Registered as a pytest plugin in the root ``conftest.py``, so the fixtures here
-are available everywhere; the plain helpers have to be imported.
+Registered as a pytest plugin in the root ``conftest.py``, so the fixtures are
+available everywhere; the plain helpers have to be imported.
 """
 
 import pytest
@@ -20,8 +20,7 @@ from badges.models import (
 )
 from badges.services import replace_tier
 
-# The user's ladder from the bug report: one achievement per rank, so every rung
-# is one grant above the last and a shift moves all five together.
+# One grant per rung, so a shift moves all five rungs together.
 ONE_PER_RANK = {
     TierRank.BRONZE: 1,
     TierRank.SILVER: 2,
@@ -32,12 +31,10 @@ ONE_PER_RANK = {
 
 
 def grant_from_source(user, achievement, source):
-    """Record an automatic grant pointing at ``source``, the way a backfill does.
+    """Record one automatic grant pointing at ``source``.
 
-    ``backfill_achievements`` writes these in bulk, which is unusable for a test
-    that needs one row and its generic foreign key. ``get_or_create`` rather than
-    ``create`` so a test can also assert that a repeat is a no-op, which is what
-    ``unique_automatic_user_achievement_source`` is there to guarantee.
+    ``get_or_create`` rather than ``create``, so a test can assert that a repeat
+    is a no-op.
     """
     return UserAchievement.objects.get_or_create(
         user=user,
@@ -51,9 +48,8 @@ def grant_from_source(user, achievement, source):
 def set_ladder(badge, thresholds):
     """Replace a badge's tiers with one active tier per rank in ``thresholds``.
 
-    The ``badge`` fixture stops at gold, which is enough for most tests but cannot
-    express "the rank above the one I hold" for a gold holder. Safe to call before
-    any badge has been awarded, which is the only time it is used.
+    The ``badge`` fixture stops at gold, which cannot express "the rank above the
+    one I hold" for a gold holder. Only safe before anything has been awarded.
     """
     badge.tiers.all().delete()
     return [
@@ -63,11 +59,11 @@ def set_ladder(badge, thresholds):
 
 
 def shift_ladder(badge, by):
-    """Add ``by`` to every active threshold, the way the badge admin page does.
+    """Add ``by`` to every active threshold, through the supported path.
 
-    Goes through ``replace_tier`` rather than updating in place, so it leaves the
-    shape a real retuning leaves: the old tiers retired with the badges awarded
-    against them intact, and new active tiers carrying the new numbers.
+    ``replace_tier`` rather than an in-place update, so it leaves the shape a real
+    retuning leaves: the old tiers retired with their badges intact, and new
+    active tiers carrying the new numbers.
     """
     for tier in list(badge.tiers.filter(is_active=True)):
         tier.threshold += by
@@ -75,11 +71,7 @@ def shift_ladder(badge, by):
 
 
 def active_ranks(user, badge):
-    """The ranks of ``badge`` the user currently holds, read from the database.
-
-    A plain helper rather than a fixture: it is called repeatedly inside a single
-    test, before and after the thing under test, which is the whole point.
-    """
+    """The ranks of ``badge`` the member currently holds, read from the database."""
     return set(
         UserBadge.objects.filter(
             user=user, badge=badge, revoked_at__isnull=True
@@ -101,7 +93,12 @@ def achievement(db):
 
 @pytest.fixture
 def badge(db, achievement):
-    """A maintainer badge with bronze/silver/gold tiers (1/3/5)."""
+    """A maintainer badge with bronze/silver/gold tiers (1/3/5).
+
+    Do not combine with ``catalogue``: both claim the maintainer label. Requested
+    after it, this raises on the unique label; requested before it, the seed keeps
+    this badge and tops it up, leaving a ladder mixed from both fixtures.
+    """
     badge = baker.make(Badge, label=BadgeLabel.MAINTAINER, achievement=achievement)
     baker.make(BadgeTier, badge=badge, rank=TierRank.BRONZE, threshold=1)
     baker.make(BadgeTier, badge=badge, rank=TierRank.SILVER, threshold=3)
@@ -119,11 +116,8 @@ def plain_user(db):
 def grant_achievement(db):
     """Return a helper that creates valid UserAchievement rows.
 
-    Manual, which is what these rows have always been called and now also what
-    they are. The field defaults to automatic, and an *automatic* row with no
-    source pointer is a shape nothing in production can produce and one
-    ``sync_source`` classifies as stale - so a threshold test built on them was
-    quietly asserting against garbage rows.
+    Manual on purpose. The field defaults to automatic, and an automatic row with
+    no source pointer is a shape nothing in production creates.
     """
 
     def _grant(user, achievement, count=1):

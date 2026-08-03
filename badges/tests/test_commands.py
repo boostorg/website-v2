@@ -4,7 +4,12 @@ import pytest
 from django.core.management import call_command
 
 from badges.enums import AchievementSlug
-from badges.models import Achievement, UserAchievement, UserBadge
+from badges.models import (
+    Achievement,
+    SourceType,
+    UserAchievement,
+    UserBadge,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -17,15 +22,13 @@ def _catalogue(catalogue):
 def _grant(user, slug):
     """One valid manual grant, which is all a threshold of 1 needs.
 
-    Built directly rather than through ``backfill_achievements``: recalculation
-    reads ``UserAchievement`` rows and does not care where they came from, so
-    driving a source iterator here would only couple these tests to the ingestion
-    engine.
+    Built directly rather than through a source iterator: recalculation reads
+    ``UserAchievement`` rows and does not care where they came from.
     """
     return UserAchievement.objects.create(
         user=user,
         achievement=Achievement.objects.get(slug=slug),
-        source_type="manual",
+        source_type=SourceType.MANUAL,
     )
 
 
@@ -37,7 +40,8 @@ def test_recalculate_rebuilds_badges(plain_user):
     call_command("recalculate_badges")
 
     assert UserBadge.objects.filter(
-        user=plain_user, badge__achievement__slug="library-authoring"
+        user=plain_user,
+        badge__achievement__slug=AchievementSlug.LIBRARY_AUTHORING,
     ).exists()
 
 
