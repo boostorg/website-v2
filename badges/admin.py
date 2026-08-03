@@ -23,12 +23,15 @@ from badges.forms import NotesActionForm
 from badges.models import (
     RANK_LADDER_ORDER,
     Achievement,
+    AchievementSyncRun,
     Badge,
     BadgeTier,
     RevocationSource,
     SourceType,
+    SyncTrigger,
     UserAchievement,
     UserBadge,
+    ladder_order_error,
 )
 from badges.services import (
     achievement_pairs,
@@ -62,7 +65,7 @@ RECONCILE_PERMISSION = "badges.delete_userachievement"
 ADMIN_ACTIONS_CHANGE_LIST = "admin/admin_actions_change_list.html"
 
 
-def reconcile_results(slugs, user_ids=None, dry_run=False):
+def reconcile_results(slugs, user_ids=None, dry_run=False, actor=None):
     """Sync each named source, skipping any the catalogue has no row for.
 
     Returns ``(results, unseeded)``. The management command refuses to run at all
@@ -74,21 +77,28 @@ def reconcile_results(slugs, user_ids=None, dry_run=False):
         for achievement in Achievement.objects.filter(slug__in=slugs)
     }
     results = [
-        sync_source(slug, achievements[slug], user_ids=user_ids, dry_run=dry_run)
+        sync_source(
+            slug,
+            achievements[slug],
+            user_ids=user_ids,
+            dry_run=dry_run,
+            trigger=SyncTrigger.ADMIN,
+            actor=actor,
+        )
         for slug in sorted(slugs)
         if slug in achievements
     ]
     return results, sorted(set(slugs) - set(achievements))
 
 
-def reconcile_apply(slugs, user_ids=None):
+def reconcile_apply(slugs, user_ids=None, actor=None):
     """Sync the named sources for real, then recalculate the members that moved.
 
     ``sync_source`` deliberately leaves the recalculation to its caller. Deletions
     have already recalculated themselves through ``post_delete``; additions have
     not, and revisiting a pair is idempotent.
     """
-    results, _ = reconcile_results(slugs, user_ids=user_ids)
+    results, _ = reconcile_results(slugs, user_ids=user_ids, actor=actor)
     achievements = {
         achievement.slug: achievement.pk
         for achievement in Achievement.objects.filter(
@@ -335,15 +345,27 @@ class AchievementAdmin(admin.ModelAdmin):
 
 
 class ActiveBadgeTierInlineFormSet(BaseInlineFormSet):
-    """Reject repeated ranks that exist only as sibling forms in this request."""
+    """Validate the ladder this request is about to save, not the stored one.
+
+    Two things can only be judged across the whole submitted set: a rank claimed by
+    two rows, and the thresholds' ordering. Shifting every rung up is legal even
+    though each rung passes through a value that collides with a sibling's stored
+    threshold, so the per-row model check is handed over here.
+    """
+
+    def add_fields(self, form, index):
+        """Tell each row that this formset owns the ladder ordering check."""
+        super().add_fields(form, index)
+        form.instance.ladder_checked_by_caller = True
 
     def clean(self):
-        """Add a field error before the conditional database constraint can fire."""
+        """Add field errors before the conditional database constraint can fire."""
         super().clean()
         if any(self.errors):
             return
 
         seen = set()
+        submitted = {}
         for form in self.forms:
             if not form.cleaned_data or form.cleaned_data.get("DELETE"):
                 continue
@@ -357,6 +379,22 @@ class ActiveBadgeTierInlineFormSet(BaseInlineFormSet):
                     "for a badge.",
                 )
             seen.add(rank)
+            threshold = form.cleaned_data.get("threshold")
+            if threshold is not None:
+                submitted[rank] = threshold
+
+        for form in self.forms:
+            if not form.cleaned_data or form.cleaned_data.get("DELETE"):
+                continue
+            rank = form.cleaned_data.get("rank")
+            threshold = form.cleaned_data.get("threshold")
+            if not rank or threshold is None:
+                continue
+            error = ladder_order_error(
+                rank, threshold, {r: t for r, t in submitted.items() if r != rank}
+            )
+            if error:
+                form.add_error("threshold", error)
 
 
 class ActiveBadgeTierInline(admin.TabularInline):
@@ -949,6 +987,7 @@ class UserBadgeAdmin(
         "revoked_at",
         "revocation_source",
         "revocation_notes",
+        "count_at_revocation",
     )
     actions = ["revoke", "reinstate"]
 
@@ -1069,7 +1108,9 @@ class UserBadgeAdmin(
                 },
             )
 
-        added, removed = reconcile_apply(AUTOMATIC_SLUGS, user_ids=[member.pk])
+        added, removed = reconcile_apply(
+            AUTOMATIC_SLUGS, user_ids=[member.pk], actor=request.user
+        )
         self.message_user(
             request,
             f"Reconciled this member with their sources: added {added} and removed "
@@ -1155,6 +1196,7 @@ class UserBadgeAdmin(
             revoked_by=None,
             revocation_notes="",
             revocation_source="",
+            count_at_revocation=None,
         )
         self.message_user(request, f"Reinstated {count} badge(s).")
         if skipped:
@@ -1165,3 +1207,45 @@ class UserBadgeAdmin(
                 "achievements instead.",
                 level=messages.WARNING,
             )
+
+
+@admin.register(AchievementSyncRun)
+class AchievementSyncRunAdmin(admin.ModelAdmin):
+    """Read-only history of backfill and reconcile runs.
+
+    This is what a cascade revocation note points at. When a member asks where
+    their badge went, the run named in that note says what changed the count, when,
+    and whether a person or the weekly pipeline started it.
+    """
+
+    list_display = (
+        "id",
+        "source_slug",
+        "mode",
+        "trigger",
+        "triggered_by",
+        "started_at",
+        "added",
+        "removed",
+        "members_changed",
+        "refused",
+    )
+    list_filter = ("mode", "trigger", "refused", "source_slug")
+    list_select_related = ("triggered_by",)
+    search_fields = ("source_slug", "triggered_by__email")
+    date_hierarchy = "started_at"
+    readonly_fields = tuple(
+        field.name for field in AchievementSyncRun._meta.fields if field.name != "id"
+    )
+
+    def has_add_permission(self, request):
+        """Runs are recorded by the sync itself, never entered by hand."""
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """A run is history; editing one would defeat the point of keeping it."""
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Revocation notes point at these rows, so deleting one orphans a note."""
+        return False
