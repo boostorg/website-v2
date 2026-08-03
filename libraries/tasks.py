@@ -281,7 +281,7 @@ def update_authors_and_maintainers():
     call_command("update_library_version_authors", "--clean")
     app.signature("users.tasks.recompute_displayed_profile_roles").apply_async()
     # Only the sources whose upstream data just changed. A blanket backfill would
-    # also sweep the commit, review and news tables this task never touches.
+    # also sweep the commit and review tables this task never touches.
     call_command(
         "backfill_achievements",
         "--source",
