@@ -1,13 +1,11 @@
-"""Signals that keep badge state in sync with achievement and tier changes.
+"""Signals that keep badge state in step with achievement and tier changes.
 
-Creating a ``UserAchievement``, invalidating one (a soft update to ``is_valid``)
-and hard-deleting one all change a member's valid count, so all three funnel into
-``recalculate_badges``.
+Creating, invalidating or deleting a ``UserAchievement`` all move a member's valid
+count, so all three funnel into ``recalculate_badges``.
 
-A ``BadgeTier`` change instead affects *every* member of that achievement type, so
-it goes through a task rather than the request. It can only ever add badges:
-``recalculate_badges`` revokes only against an active tier's threshold, and a
-retired tier's badges are deliberately preserved, so grandfathering survives.
+A ``BadgeTier`` change affects every member of that achievement type, so it goes
+to a task instead of the request. It can only ever add badges: recalculation
+revokes against active tiers only, and a retired tier's badges are preserved.
 """
 
 from django.db import transaction
@@ -21,11 +19,10 @@ from badges.tasks import recalculate_achievement_task
 
 @receiver(post_save, sender=UserAchievement)
 def recalculate_on_achievement_save(sender, instance, created, raw, **kwargs):
-    """Recalculate badges when an achievement is created or invalidated.
+    """Recalculate when an achievement is created or invalidated.
 
-    When the save invalidated the achievement, the admin who performed the
-    invalidation (``invalidated_by``) is forwarded so any cascade badge
-    revocation is correctly attributed.
+    An invalidating save forwards ``invalidated_by`` so a cascade revocation is
+    attributed to the admin who caused it.
     """
     if raw:
         return
@@ -40,7 +37,7 @@ def recalculate_on_achievement_save(sender, instance, created, raw, **kwargs):
 
 @receiver(post_delete, sender=UserAchievement)
 def recalculate_on_achievement_delete(sender, instance, **kwargs):
-    """Recalculate badges when an achievement row is hard-deleted."""
+    """Recalculate when an achievement row is hard-deleted."""
     recalculate_badges(instance.user_id, instance.achievement_id)
 
 
@@ -48,8 +45,8 @@ def recalculate_on_achievement_delete(sender, instance, **kwargs):
 def recalculate_on_tier_change(sender, instance, **kwargs):
     """Revisit an achievement when one of its tiers is added, retired or removed.
 
-    Deferred to commit because the admin wraps the change form in a transaction:
-    a worker that picked the job up early would read pre-commit state.
+    Deferred to commit because the admin wraps the change form in a transaction,
+    and a worker picking the job up early would read pre-commit state.
     """
     if kwargs.get("raw"):
         return
@@ -59,7 +56,9 @@ def recalculate_on_tier_change(sender, instance, **kwargs):
         .values_list("achievement_id", flat=True)
         .first()
     )
-    if achievement_id is None:  # the badge cascaded away with the tier
+    # Defence against a delete that did not go through the ORM. A cascade deletes
+    # tiers before their badge, so the badge is normally still readable here.
+    if achievement_id is None:
         return
 
     transaction.on_commit(lambda: recalculate_achievement_task.delay(achievement_id))

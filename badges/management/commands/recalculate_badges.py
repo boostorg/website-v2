@@ -1,11 +1,8 @@
 """Rebuild UserBadge state from scratch.
 
-Recalculates every (user, achievement) pair that has an achievement row *or* a
-badge row - see ``badges.services.achievement_pairs`` for why both halves are
-needed.
-
-Useful after editing thresholds, fixing data, or a code change to the
-recalculation rules. Idempotent.
+Visits every (user, achievement) pair with an achievement row *or* a badge row.
+Useful after editing thresholds, fixing data, or changing the recalculation rules.
+Idempotent.
 """
 
 from django.core.management.base import BaseCommand
