@@ -116,6 +116,19 @@ def test_threshold_between_its_neighbours_is_accepted(badge):
     silver.full_clean()  # should not raise
 
 
+def test_a_caller_can_own_the_ladder_check(badge):
+    """A whole-ladder edit validates against what it will save, not what is stored.
+
+    Bronze moving to 5 collides with the stored silver at 3, but is legal when
+    silver is moving to 10 in the same request.
+    """
+    bronze = badge.tiers.get(rank=TierRank.BRONZE)
+    bronze.threshold = 5
+    bronze.ladder_checked_by_caller = True
+
+    bronze.full_clean()  # should not raise
+
+
 def test_retired_tiers_do_not_constrain_a_threshold(badge):
     """A retuned badge keeps retired rows, which must not block the live ladder."""
     gold = badge.tiers.get(rank=TierRank.GOLD)

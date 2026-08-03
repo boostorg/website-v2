@@ -265,7 +265,11 @@ class BadgeTier(models.Model):
                 }
             )
 
-        if self.threshold is None:
+        # Set by a caller that edits several rungs at once and therefore has to
+        # check the ladder against what it is about to save, not what is stored:
+        # shifting every threshold up is legal, but each rung passes through a
+        # value that collides with a sibling's stored one.
+        if self.threshold is None or getattr(self, "ladder_checked_by_caller", False):
             return
         error = ladder_order_error(
             self.rank, self.threshold, dict(siblings.values_list("rank", "threshold"))
