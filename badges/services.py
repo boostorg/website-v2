@@ -29,10 +29,13 @@ from badges import sources
 from badges.enums import rank_order
 from badges.models import (
     Achievement,
+    AchievementSyncRun,
     Badge,
     BadgeTier,
     RevocationSource,
     SourceType,
+    SyncMode,
+    SyncTrigger,
     UserAchievement,
     UserBadge,
 )
@@ -107,6 +110,7 @@ class SourceSync(NamedTuple):
     changed: frozenset
     applied: bool
     refused: bool
+    run_id: int | None = None
 
     def describe(self):
         """One sentence about what this source's sync found.
@@ -144,34 +148,28 @@ def sync_source(
     dry_run=False,
     allow_empty=False,
     batch_size=SYNC_BATCH_SIZE,
+    trigger=SyncTrigger.COMMAND,
+    actor=None,
 ):
     """Make the stored automatic grants for one source agree with that source.
 
-    One walk of the iterator answers both halves of the question. A pair the
-    source yields with no row behind it is missing and gets created; a row the
-    source never yields is stale and gets deleted - a commit re-assigned to
-    another author, a maintainer dropped from a library, a news entry
-    unpublished. ``backfill_achievements`` is this with ``remove=False``, which is
-    why it cannot undo anything, and why the weekly pipeline is safe to point at
-    it.
+    One walk answers both halves: a pair the source yields with no row behind it is
+    created, and a stored row the source never yields is stale and deleted.
+    ``backfill_achievements`` is this with ``remove=False``, which is why it cannot
+    undo anything and why the weekly pipeline is safe to point at it.
 
-    Manual grants are never touched. Only ``source_type=AUTOMATIC`` rows are
-    considered, which is also why an automatic row with no source pointer counts
-    as stale: nothing in this codebase can create one, it cannot be matched
-    against anything an iterator yields, and this is the right place to clear it.
-    An *invalidated* automatic row is matched like any other, so an admin's
-    judgement that a grant was wrong is never overwritten by a re-add.
+    Manual grants are never touched, and an *invalidated* automatic row is matched
+    like any other, so an admin's judgement is never overwritten by a re-add. An
+    automatic row with no source pointer counts as stale: nothing can create one and
+    it can never match what an iterator yields.
 
-    Stale grants are **deleted, not invalidated**, because
-    ``unique_automatic_user_achievement_source`` does not include ``is_valid``:
-    an invalidated row would permanently block this function from re-creating
-    that grant if the attribution ever came back.
+    Stale grants are **deleted, not invalidated**: the uniqueness constraint on
+    automatic grants ignores ``is_valid``, so a tombstone would permanently block
+    the grant from being re-created if the attribution came back.
 
-    Badges are **not** recalculated here. The caller owns that, because it knows
-    whether it is looking at one member or the whole table, and because on a dry
-    run there is nothing to recalculate. ``recalculate_on_achievement_delete``
-    does fire per deleted row, so removals partly recalculate themselves - see
-    the note on ``changed``.
+    Badges are **not** recalculated here - the caller knows whether it is looking at
+    one member or the whole table, and a dry run has nothing to recalculate.
+    Removals partly recalculate themselves through ``post_delete``.
 
     Args:
         slug: A key of ``sources.BACKFILL_ITERATORS``.
@@ -185,6 +183,8 @@ def sync_source(
         allow_empty: Delete even when the iterator yielded nothing at all. Off by
             default: see ``refused`` below.
         batch_size: Rows per ``bulk_create`` and per ``DELETE ... IN``.
+        trigger: What started this run, for the sync log.
+        actor: The admin who started it, where a person did.
 
     Returns:
         A ``SourceSync``. ``refused`` is set when the iterator yielded no pairs
@@ -193,6 +193,64 @@ def sync_source(
         deleted in that case unless ``allow_empty`` says so; the additive half is
         unaffected, there being nothing to add.
     """
+    run = None
+    if not dry_run:
+        run = AchievementSyncRun.objects.create(
+            source_slug=slug,
+            mode=SyncMode.RECONCILE if remove else SyncMode.BACKFILL,
+            trigger=trigger,
+            triggered_by=actor,
+        )
+    # Named on every badge this run revokes, so support can follow a vanished badge
+    # back to the operation that moved the count.
+    with revocation_cause(None if run is None else str(run)):
+        return _sync_source(
+            slug,
+            achievement,
+            run=run,
+            user_ids=user_ids,
+            add=add,
+            remove=remove,
+            dry_run=dry_run,
+            allow_empty=allow_empty,
+            batch_size=batch_size,
+        )
+
+
+def _finish_run(run, result):
+    """Record what a run did and hand the result back with its id attached."""
+    if run is None:
+        return result
+    run.added = result.added
+    run.removed = 0 if result.refused else result.removed
+    run.members_changed = len(result.changed)
+    run.refused = result.refused
+    run.finished_at = timezone.now()
+    run.save(
+        update_fields=[
+            "added",
+            "removed",
+            "members_changed",
+            "refused",
+            "finished_at",
+        ]
+    )
+    return result._replace(run_id=run.pk)
+
+
+def _sync_source(
+    slug,
+    achievement,
+    *,
+    run,
+    user_ids,
+    add,
+    remove,
+    dry_run,
+    allow_empty,
+    batch_size,
+):
+    """The walk itself. See ``sync_source``, which owns the run log around it."""
     stored = UserAchievement.objects.filter(
         achievement=achievement, source_type=SourceType.AUTOMATIC
     )
@@ -271,8 +329,11 @@ def sync_source(
             len(stale),
             slug,
         )
-        return SourceSync(
-            slug, yielded, added, len(stale), frozenset(changed), not dry_run, True
+        return _finish_run(
+            run,
+            SourceSync(
+                slug, yielded, added, len(stale), frozenset(changed), not dry_run, True
+            ),
         )
 
     if remove:
@@ -287,8 +348,11 @@ def sync_source(
                 pk__in=stale[start : start + batch_size]
             ).delete()
 
-    return SourceSync(
-        slug, yielded, added, len(stale), frozenset(changed), not dry_run, False
+    return _finish_run(
+        run,
+        SourceSync(
+            slug, yielded, added, len(stale), frozenset(changed), not dry_run, False
+        ),
     )
 
 
