@@ -13,7 +13,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from badges import sources
 from badges.management.arguments import positive_integer
-from badges.models import Achievement
+from badges.models import Achievement, SyncTrigger
 from badges.services import SYNC_BATCH_SIZE, recalculate_badges, sync_source
 
 
@@ -36,6 +36,12 @@ class Command(BaseCommand):
             type=positive_integer,
             default=SYNC_BATCH_SIZE,
             help=f"Rows per bulk_create batch (default: {SYNC_BATCH_SIZE}).",
+        )
+        parser.add_argument(
+            "--trigger",
+            choices=SyncTrigger.values,
+            default=SyncTrigger.COMMAND,
+            help="How this run was started, recorded in the sync log.",
         )
 
     def handle(self, *args, **options):
@@ -69,7 +75,13 @@ class Command(BaseCommand):
         dirty_pairs = set()
         for slug in slugs:
             achievement = achievements[slug]
-            result = sync_source(slug, achievement, remove=False, batch_size=batch_size)
+            result = sync_source(
+                slug,
+                achievement,
+                remove=False,
+                batch_size=batch_size,
+                trigger=options["trigger"],
+            )
             # Only the members who actually gained a row, so a repeat run - the
             # weekly one - does not recalculate every pair in the system.
             dirty_pairs.update((user_id, achievement.pk) for user_id in result.changed)

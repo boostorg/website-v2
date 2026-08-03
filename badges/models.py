@@ -376,3 +376,66 @@ class UserBadge(models.Model):
     def is_active(self):
         """Whether this badge is currently held (not revoked)."""
         return self.revoked_at is None
+
+
+class SyncMode(models.TextChoices):
+    """Which half of the sync a run was allowed to do."""
+
+    BACKFILL = "backfill", _("Backfill")
+    RECONCILE = "reconcile", _("Reconcile")
+
+
+class SyncTrigger(models.TextChoices):
+    """What started a sync run."""
+
+    COMMAND = "command", _("Command")
+    ADMIN = "admin", _("Admin")
+    PIPELINE = "pipeline", _("Release pipeline")
+
+
+class AchievementSyncRun(models.Model):
+    """One row per source per backfill or reconcile run.
+
+    A cascade revocation can say that a member's count fell below a threshold, but
+    not what moved the count. This is the record it names: what ran, when, how it
+    was started, and how many grants it added or removed. Without it, a member
+    losing a badge after an upstream data correction is unexplainable.
+
+    Dry runs are not recorded. A preview writes nothing, and the reconcile
+    confirmation page previews every source each time it is opened.
+    """
+
+    source_slug = models.CharField(_("source slug"), max_length=255)
+    mode = models.CharField(_("mode"), max_length=20, choices=SyncMode)
+    trigger = models.CharField(
+        _("trigger"),
+        max_length=20,
+        choices=SyncTrigger,
+        default=SyncTrigger.COMMAND,
+    )
+    triggered_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text=_("The admin who started this run, where a person started it."),
+    )
+    started_at = models.DateTimeField(_("started at"), default=timezone.now)
+    finished_at = models.DateTimeField(_("finished at"), null=True, blank=True)
+    added = models.PositiveIntegerField(_("grants added"), default=0)
+    removed = models.PositiveIntegerField(_("grants removed"), default=0)
+    members_changed = models.PositiveIntegerField(_("members changed"), default=0)
+    refused = models.BooleanField(
+        _("refused"),
+        default=False,
+        help_text=_("The source yielded nothing, so stale grants were left alone."),
+    )
+
+    class Meta:
+        ordering = ("-started_at",)
+        verbose_name = _("achievement sync run")
+
+    def __str__(self):
+        """Human-readable label."""
+        return f"{self.get_mode_display()} of '{self.source_slug}' #{self.pk}"
