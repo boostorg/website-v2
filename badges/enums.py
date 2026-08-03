@@ -1,26 +1,14 @@
-"""Enums for the achievements and badges system.
+"""Enums for achievements and badges.
 
-``BadgeLabel`` and ``TierRank`` back model fields, so they are
-``models.TextChoices`` like ``SourceType`` and ``RevocationSource``.
+``AchievementSlug`` is deliberately not a field constraint: ``Achievement`` is an
+admin-editable registry and manual-only types can be added without a deploy, so
+the enum names only the slugs code refers to.
 
-``AchievementSlug`` is deliberately *not* a field constraint: ``Achievement`` is
-an admin-editable registry, and manual-only achievement types may be added
-without a deploy. The enum names the slugs that code refers to, so that subset
-stays typed even though the field stays open. It is a plain ``StrEnum`` because
-it backs no field.
-
-``TierRank`` is *ordered* by declaration: ``bronze`` is the lowest rank and
-``diamond`` the highest. ``TierRank.order`` exposes that position, and
-``rank_order`` reads it off a rank stored as a plain string.
-
-That declared order is the **primary** ordering of the ladder, and thresholds
-are only ever the arithmetic behind one rung of it. Thresholds are not
-comparable across badges (a reviewer diamond needs 5, a commits silver needs
-12), and they are not reliably comparable *within* a badge either: retuning a
-threshold retires the old tier and adds a replacement, so a badge can hold a
-retired bronze at 1 next to a live bronze at 6, and sorting its tiers by
-threshold no longer walks bronze to diamond. Anything asking "which rung is
-this, and which comes next" must go through the rank order.
+``TierRank`` is ordered by declaration, bronze lowest. **That order is the primary
+ordering of the ladder**; thresholds are only the arithmetic behind one rung. They
+are not comparable across badges, nor reliably within one, since a retuned badge
+can hold a retired bronze at 1 beside a live bronze at 6. Anything asking "which
+rung is this, and which comes next" goes through ``rank_order``.
 """
 
 from enum import StrEnum

@@ -1,28 +1,18 @@
 """Canonical achievement / badge / tier catalogue.
 
-Values come from the Boost achievement-to-badge mapping spreadsheet. This is a
-*bootstrap* fixture, not a live source of truth: a tier is only created when its
-badge has no row for that rank at all, because the badge admin page lets staff
-retune thresholds afterwards and re-running the seed must not undo that.
+Values come from the Boost achievement-to-badge mapping spreadsheet. A bootstrap
+fixture, not a live source of truth: a tier is created only when its badge has no
+row for that rank at all, so re-seeding cannot undo a threshold staff have tuned
+or resurrect a rank they retired. (Not "no *active* row": a retuned rank has both
+a retired row and its replacement, and matching on rank finds both.)
 
-"No row at all" rather than "no *active* row", for two reasons. Retuning a
-threshold retires the old tier and creates a replacement - see
-``badges.services.replace_tier`` - so a retuned rank has two rows and matching on
-the rank alone finds both. And a rank staff retired outright has one retired row,
-which a re-seed must not resurrect.
+Editing a threshold here therefore only affects databases that were never seeded.
+To change one everywhere, edit it here *and* add a data migration that retires
+the existing rows and creates replacements - updating in place would revoke every
+member who only met the old number.
 
-Consequently, changing a threshold here only affects databases that have never
-been seeded. To change one everywhere it takes two steps:
-
-1. edit the value here, so fresh installs and the test suite agree, and
-2. add a data migration that retires the existing ``BadgeTier`` rows and creates
-   replacements, the way ``replace_tier`` does. Updating a threshold in place
-   would revoke every member who only ever met the old one.
-
-``seed_catalogue`` takes the model classes as arguments so the data migration can
-pass historical models (``apps.get_model``) while tests pass the real ones. The
-test suite runs with ``--no-migrations``, so it seeds through this module rather
-than through migration 0002.
+``seed_catalogue`` takes model classes as arguments so a data migration can pass
+historical models while tests pass the real ones.
 """
 
 from badges.enums import AchievementSlug, BadgeLabel, TierRank
