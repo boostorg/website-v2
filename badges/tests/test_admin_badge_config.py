@@ -63,7 +63,7 @@ def test_editing_a_threshold_retires_and_replaces_the_tier(
     gold = badge.tiers.get(rank=TierRank.GOLD)
     client.force_login(super_user)
 
-    _post_ladder(client, badge, [_row(bronze, threshold=5), _row(silver), _row(gold)])
+    _post_ladder(client, badge, [_row(bronze, threshold=2), _row(silver), _row(gold)])
 
     bronze.refresh_from_db()
     assert bronze.threshold == 1
@@ -71,7 +71,7 @@ def test_editing_a_threshold_retires_and_replaces_the_tier(
     assert bronze.deactivated_by == super_user
     assert bronze.deactivated_at is not None
     replacement = badge.tiers.get(rank=TierRank.BRONZE, is_active=True)
-    assert replacement.threshold == 5
+    assert replacement.threshold == 2
     assert replacement.pk != bronze.pk
 
 
@@ -118,15 +118,72 @@ def test_editing_a_threshold_awards_newly_qualifying_members(
     assert not UserBadge.objects.filter(user=plain_user, tier=gold).exists()
     client.force_login(super_user)
 
+    # Silver comes down with gold: the ladder has to stay ordered as submitted.
     with django_capture_on_commit_callbacks(execute=True):
         _post_ladder(
-            client, badge, [_row(bronze), _row(silver), _row(gold, threshold=3)]
+            client,
+            badge,
+            [_row(bronze), _row(silver, threshold=2), _row(gold, threshold=3)],
         )
 
     awarded = UserBadge.objects.get(
         user=plain_user, tier__rank=TierRank.GOLD, tier__is_active=True
     )
     assert awarded.revoked_at is None
+
+
+def test_a_threshold_out_of_ladder_order_is_refused(
+    client, super_user, badge, achievement
+):
+    """Silver may not be dragged onto bronze, and nothing is written when it is."""
+    bronze = badge.tiers.get(rank=TierRank.BRONZE)
+    silver = badge.tiers.get(rank=TierRank.SILVER)
+    gold = badge.tiers.get(rank=TierRank.GOLD)
+    client.force_login(super_user)
+
+    response = _post_ladder(
+        client, badge, [_row(bronze), _row(silver, threshold=1), _row(gold)]
+    )
+
+    assert "threshold of the rank below this one" in response.content.decode()
+    assert _ladder_rows(badge) == [
+        (TierRank.BRONZE.value, 1, True),
+        (TierRank.SILVER.value, 3, True),
+        (TierRank.GOLD.value, 5, True),
+    ]
+
+
+def test_shifting_the_whole_ladder_up_is_accepted(
+    client, super_user, badge, achievement
+):
+    """Every rung moves at once, so each one briefly collides with a stored value.
+
+    Judged against the submitted ladder this is legal, and it is the edit staff
+    actually make when a badge turns out to be too easy across the board.
+    """
+    bronze = badge.tiers.get(rank=TierRank.BRONZE)
+    silver = badge.tiers.get(rank=TierRank.SILVER)
+    gold = badge.tiers.get(rank=TierRank.GOLD)
+    client.force_login(super_user)
+
+    _post_ladder(
+        client,
+        badge,
+        [
+            _row(bronze, threshold=5),
+            _row(silver, threshold=10),
+            _row(gold, threshold=15),
+        ],
+    )
+
+    assert sorted(
+        badge.tiers.filter(is_active=True).values_list("rank", "threshold"),
+        key=lambda row: TierRank(row[0]).order,
+    ) == [
+        (TierRank.BRONZE.value, 5),
+        (TierRank.SILVER.value, 10),
+        (TierRank.GOLD.value, 15),
+    ]
 
 
 def test_deleting_a_tier_row_in_the_inline_retires_it(
@@ -257,11 +314,11 @@ def test_the_replacement_message_names_both_tiers(
     client.force_login(super_user)
 
     response = _post_ladder(
-        client, badge, [_row(bronze, threshold=5), _row(silver), _row(gold)]
+        client, badge, [_row(bronze, threshold=2), _row(silver), _row(gold)]
     )
 
     body = response.content.decode()
-    assert "Retired Bronze (&gt;= 1) and created Bronze (&gt;= 5)" in body
+    assert "Retired Bronze (&gt;= 1) and created Bronze (&gt;= 2)" in body
     assert "Members who already earned Bronze keep it" in body
 
 
