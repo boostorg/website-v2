@@ -208,7 +208,7 @@ def test_point_release_docs_urls_address_the_base_release(
 
 @patch("libraries.tasks.call_command")
 def test_update_authors_and_maintainers_backfills_only_library_sources(mock_call):
-    """A blanket backfill here would sweep the commit, review and news tables."""
+    """A blanket backfill here would sweep the commit and review tables too."""
     from libraries.tasks import update_authors_and_maintainers
 
     update_authors_and_maintainers()
@@ -248,8 +248,12 @@ def test_release_tasks_delegates_the_backfill_to_the_command(mock_call):
 
     assert [c.args[0] for c in mock_call.call_args_list] == ["release_tasks"]
     manager = ReleaseTasksManager(base_uri="https://example.com", user_id=None)
-    assert [
-        task.description
+    sweeps = [
+        task
         for task in manager.tasks
-        if task.handler == ["backfill_achievements"]
-    ] == ["Backfilling achievements"]
+        if isinstance(task.handler, list) and task.handler[0] == "backfill_achievements"
+    ]
+    assert [task.description for task in sweeps] == ["Backfilling achievements"]
+    # Tagged, so the sync log can tell the weekly job from a person pressing a
+    # button when support asks what moved a member's count.
+    assert sweeps[0].handler == ["backfill_achievements", "--trigger", "pipeline"]

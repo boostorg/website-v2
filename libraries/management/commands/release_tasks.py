@@ -62,7 +62,10 @@ class ReleaseTasksManager(ActionsManager):
             Action("Updating website statistics", self.update_website_statistics),
             Action("Importing mailing list counts", self.import_ml_counts),
             # Last, so every source it reads has already been refreshed above.
-            Action("Backfilling achievements", ["backfill_achievements"]),
+            Action(
+                "Backfilling achievements",
+                ["backfill_achievements", "--trigger", "pipeline"],
+            ),
             # Action("Generating report", self.generate_report),
         ]
 
