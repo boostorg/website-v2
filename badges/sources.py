@@ -1,19 +1,21 @@
-"""Automatic achievement sources (backfill only).
+"""Automatic achievement sources.
 
-Maps each automatic achievement type to the existing model it is derived from,
-as backfill iterators that yield ``(user, source_object)`` pairs over all
-historical data. There are deliberately **no live signals**: achievement data is
-processed in batch by ``backfill_achievements`` (run after the weekly
-``release_tasks``), and ad hoc by manual admin grants. Developers accept that
-automatic achievements are not real-time.
+Maps an automatic achievement type to the model it derives from, as an iterator
+yielding ``(user, source_object)`` pairs over all historical data. There are
+deliberately **no live signals**: this data is processed in batch by
+``backfill_achievements`` and ad hoc by manual admin grants, so automatic
+achievements are not real-time.
 
-One source is wired here; the rest arrive one per pull request. Two of the
-catalogue's eight types will never be wired, there being no clean per-record,
-per-user source for them in this codebase:
-* ``documentation`` - no model tracks doc contributions per user.
-* ``mailing-list`` (Regular) - posts live in the external Hyperkitty DB and
-  ``EmailData`` only stores aggregate counts, not per-post rows.
-Both can still be granted manually until a source is available.
+Three of the catalogue's eight types have no automatic source, there being no clean
+per-record, per-user source for them here:
+
+* ``documentation`` - no model tracks documentation contributions per user.
+* ``mailing-list`` (Regular) - posts live in the external Hyperkitty database,
+  which stores aggregate counts rather than per-post rows.
+* ``publisher`` - news post storage is being reworked, so an iterator written
+  against the current models would not survive it.
+
+All three can still be granted by hand in the admin.
 """
 
 from badges.enums import AchievementSlug
