@@ -1,11 +1,9 @@
-"""Data models for the achievements and badges system.
+"""Data models for achievements and badges.
 
-A unified, event-driven design: every achievement a user earns is recorded as a
-``UserAchievement`` row, regardless of whether it came from an automated source
-(GitHub activity, mailing-list posts, ...) or a manual admin grant. Badge tier
-state (``UserBadge``) is *derived* from the count of valid ``UserAchievement``
-rows via ``badges.services.recalculate_badges`` - no code path should write to
-``UserBadge`` directly outside of that service and the admin revocation action.
+Every achievement a member earns is a ``UserAchievement`` row, whether it came
+from an automated source or an admin's hand. Badge state (``UserBadge``) is
+*derived* from the count of valid rows by ``badges.services.recalculate_badges``,
+which is the only thing that should write it.
 """
 
 from django.conf import settings
@@ -16,17 +14,35 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from badges.enums import BadgeLabel, TierRank
+from badges.enums import BadgeLabel, TierRank, rank_order
 
-# Orders tiers up the ladder, bronze to diamond. Needed because the declared
-# order of the ranks exists only in Python: ordering by the ``rank`` column
-# sorts alphabetically (bronze, diamond, gold, platinum, silver), and ordering
-# by threshold only agrees with the ladder while a badge has never been retuned
-# - see ``badges.enums``.
+# Sorts tiers up the ladder. Needed because the rank order lives in Python only:
+# the ``rank`` column sorts alphabetically, and ``threshold`` only agrees with the
+# ladder until a badge is retuned.
 RANK_LADDER_ORDER = models.Case(
     *[models.When(rank=rank, then=models.Value(rank.order)) for rank in TierRank],
     output_field=models.IntegerField(),
 )
+
+
+def ladder_order_error(rank, threshold, thresholds_by_rank):
+    """Say how ``threshold`` breaks the ladder ordering, or return ``None``.
+
+    Thresholds must climb with the ranks, so a rung may neither meet nor undercut
+    the one below it, nor reach the one above.
+    """
+    order = rank_order(rank)
+    below = [t for r, t in thresholds_by_rank.items() if rank_order(r) < order]
+    above = [t for r, t in thresholds_by_rank.items() if rank_order(r) > order]
+    if below and threshold <= max(below):
+        return _(
+            "Must be more than %(other)s, the threshold of the rank below this one."
+        ) % {"other": max(below)}
+    if above and threshold >= min(above):
+        return _(
+            "Must be less than %(other)s, the threshold of the rank above this one."
+        ) % {"other": min(above)}
+    return None
 
 
 class SourceType(models.TextChoices):
@@ -53,16 +69,14 @@ class Achievement(models.Model):
 
 
 class UserAchievement(models.Model):
-    """One row per achievement instance earned by a user.
+    """One row per achievement a member has earned.
 
-    Supports both automatic and manual grant sources. Automatic grants point at
-    the originating record through a generic foreign key
-    (``source_content_type`` + ``source_object_id``); manual grants instead
-    record the admin who created them in ``granted_by`` and their reason in
-    ``grant_notes``, there being no source row to click through to.
+    An automatic grant points at the record that justified it through a generic
+    foreign key; a manual one records the admin and their reason instead, there
+    being no source row to click through to.
 
-    Invalidation is a soft change: ``is_valid`` is set to ``False`` and the
-    audit fields are populated rather than deleting the row.
+    Invalidation is soft: ``is_valid`` goes to ``False`` and the audit fields are
+    filled in rather than the row being deleted.
     """
 
     achievement = models.ForeignKey(
@@ -103,8 +117,7 @@ class UserAchievement(models.Model):
         related_name="+",
         help_text=_("For automatic grants: the model that triggered the grant."),
     )
-    # Big, not plain: every model a source iterator yields (Commit, Entry,
-    # Review, Library, LibraryVersion) has a BigAutoField primary key.
+    # Big, not plain: the models these grants point at use BigAutoField keys.
     source_object_id = models.PositiveBigIntegerField(null=True, blank=True)
     source = GenericForeignKey("source_content_type", "source_object_id")
 
@@ -116,9 +129,9 @@ class UserAchievement(models.Model):
         related_name="+",
         help_text=_("For manual grants: the admin who created this achievement."),
     )
-    # Blank at this level because the ~20,800 automatic rows are created by
-    # ``bulk_create`` and have a source record to explain them. The admin add form
-    # is where it becomes required, which is the only place a grant has no source.
+    # Blank here because automatic rows are written in bulk and are explained by
+    # their source. The admin add form requires it, being the only place a grant
+    # is created without one.
     grant_notes = models.TextField(
         _("grant notes"),
         blank=True,
@@ -171,15 +184,13 @@ class Badge(models.Model):
 
 
 class BadgeTier(models.Model):
-    """Configures the threshold for a single rank within a badge.
+    """The threshold for one rank of a badge.
 
-    Tiers are append-only records: ``rank`` and ``threshold`` are fixed once
-    created. Retuning a threshold means retiring the existing tier and creating
-    a replacement, which ``badges.services.replace_tier`` does and the badge
-    admin page presents as simply editing the number. Retiring is a *soft
-    delete* (``is_active=False``) so the ``UserBadge`` rows that reference the
-    tier - the record of why a member earned a badge - are preserved. Only one
-    *active* tier may exist per (badge, rank).
+    Tiers are append-only: retuning a threshold means retiring the row and
+    creating a replacement, which ``badges.services.replace_tier`` does. Retiring
+    is a soft delete, so the ``UserBadge`` rows pointing at the tier - the record
+    of why a member earned a badge - survive. Only one *active* tier may exist per
+    (badge, rank), and a badge's active thresholds must climb with its ranks.
     """
 
     badge = models.ForeignKey(
@@ -234,33 +245,41 @@ class BadgeTier(models.Model):
         return f"{self.badge} - {self.get_rank_display()} (>= {self.threshold})"
 
     def clean(self):
-        """Block a second *active* tier for the same badge and rank."""
-        if self.badge_id and self.is_active:
-            clash = BadgeTier.objects.filter(
-                badge_id=self.badge_id, rank=self.rank, is_active=True
+        """Reject a duplicate active rank, or a threshold out of ladder order."""
+        if not self.badge_id or not self.is_active:
+            return
+
+        siblings = BadgeTier.objects.filter(badge_id=self.badge_id, is_active=True)
+        if self.pk:
+            siblings = siblings.exclude(pk=self.pk)
+
+        if siblings.filter(rank=self.rank).exists():
+            raise ValidationError(
+                {
+                    "rank": _(
+                        "An active %(rank)s tier already exists for this badge. "
+                        "Change that tier's threshold instead of adding a second "
+                        "%(rank)s tier."
+                    )
+                    % {"rank": self.get_rank_display()}
+                }
             )
-            if self.pk:
-                clash = clash.exclude(pk=self.pk)
-            if clash.exists():
-                raise ValidationError(
-                    {
-                        "rank": _(
-                            "An active %(rank)s tier already exists for this "
-                            "badge. Change that tier's threshold instead of "
-                            "adding a second %(rank)s tier."
-                        )
-                        % {"rank": self.get_rank_display()}
-                    }
-                )
+
+        if self.threshold is None:
+            return
+        error = ladder_order_error(
+            self.rank, self.threshold, dict(siblings.values_list("rank", "threshold"))
+        )
+        if error:
+            raise ValidationError({"threshold": error})
 
 
 class RevocationSource(models.TextChoices):
     """Why a ``UserBadge`` was revoked.
 
-    Cascade revocations (the achievement count fell below the threshold) are
-    automatically re-earned when the count recovers. Manual revocations (an
-    admin used the revoke action) survive recalculation and only come back via
-    the reinstate action.
+    A cascade revocation (the count fell below the threshold) is re-earned when
+    the count recovers. A manual one survives recalculation and only comes back
+    through the reinstate action.
     """
 
     CASCADE = "cascade", _("Cascade")
@@ -276,11 +295,11 @@ class UserBadgeQuerySet(models.QuerySet):
 
 
 class UserBadge(models.Model):
-    """Records a user reaching a badge tier, with revocation audit fields.
+    """A member reaching a badge tier.
 
-    Revocation is a soft-delete: ``revoked_at`` is set rather than deleting the
-    row, so the audit trail (who revoked, when, why) is preserved and badges can
-    be re-earned by clearing the revocation fields.
+    Revocation is a soft delete: ``revoked_at`` is set rather than the row being
+    removed, so the audit trail survives and the badge can be re-earned by
+    clearing the revocation fields.
     """
 
     badge = models.ForeignKey(
@@ -325,12 +344,25 @@ class UserBadge(models.Model):
             "revocations are, once the achievement count recovers."
         ),
     )
+    # The count as it was, because later churn makes it unrecoverable and it is
+    # the first thing support needs when a member asks where their badge went.
+    count_at_revocation = models.PositiveIntegerField(
+        _("count at revocation"),
+        null=True,
+        blank=True,
+        help_text=_("Valid achievement count at the moment of revocation."),
+    )
 
     objects = UserBadgeQuerySet.as_manager()
 
     class Meta:
         ordering = ("-awarded_at",)
-        unique_together = ("badge", "user", "tier")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["badge", "user", "tier"],
+                name="unique_user_badge_tier",
+            )
+        ]
 
     def __str__(self):
         """Human-readable label."""
