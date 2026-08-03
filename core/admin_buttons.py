@@ -1,39 +1,29 @@
 """Changelist buttons that enqueue a Celery task.
 
-Kept in one place because every one of them needs the same four things and gets
-them wrong independently otherwise: a POST (so a link prefetch or a restored
-browser tab cannot start a full-table job), a CSRF token, a short cache lock so a
-double-click does not queue the work twice, and a permission check -
-``admin_site.admin_view`` only asks whether the caller is staff, which is not
-enough to authorise rewriting every row of a table.
+In one place because each button needs the same four things: a POST (so a link
+prefetch or a restored tab cannot start a full-table job), a CSRF token, a short
+cache lock so a double-click does not queue the work twice, and a real permission
+check - ``admin_site.admin_view`` only asks whether the caller is staff.
 
-The lock is the enqueued task's id rather than a boolean, so it can answer "is
-that job still running" instead of "was this button pressed recently". Three
-cache keys, each with one job:
+The lock stores the enqueued task's id rather than a boolean, so it can answer "is
+that job still running" instead of "was this pressed recently". Three keys:
 
-* ``<key>:job:<argument>`` (the cooldown) - the id of the last run of *this*
-  job, which blocks another while that run is demonstrably executing. Settings
-  enable ``task_track_started``, so a task a worker has collected reports
-  ``STARTED`` rather than ``PENDING``. Keyed by the argument, so a run scoped to
+* ``<key>:job:<argument>`` - the last run of *this* job, blocking another while
+  that run is demonstrably executing. Keyed by the argument, so a run scoped to
   one source does not refuse a run for another.
-* ``<key>:job:<argument>:recent`` (a few seconds) - one click is one job. A
-  second POST inside the floor is a double-click or a resubmitted form, whatever
-  the worker is doing. It is also the grace period a queued task gets to be
-  picked up: past it a ``PENDING`` task no longer blocks, because a task that no
-  worker will ever collect must not wedge the button.
-* ``<key>`` (the cooldown) - the last run of the button whatever it targeted,
-  read only to render its state.
+* ``<key>:job:<argument>:recent`` - a few seconds, so one click is one job. Also
+  the grace period a queued task gets to be collected: past it a ``PENDING`` task
+  stops blocking, because a task no worker will collect must not wedge the button.
+* ``<key>`` - the last run whatever it targeted, read only to render state.
 
 The trade is deliberate: a duplicate run of an idempotent job is recoverable, a
-button locked for ten minutes because the worker died is not.
+button locked for ten minutes because a worker died is not.
 
-The state is rendered with the page, so it is correct without JavaScript; the
-status view exists so HTMX can re-fetch just that fragment while the job runs.
+State is rendered with the page, so it is correct without JavaScript; the status
+view exists so HTMX can re-fetch that fragment while the job runs.
 
-A button whose job deletes rows sets ``permission`` (change is not enough to
-authorise a delete) and ``confirm`` (a preview page, so the click that starts it
-is an informed one). Both are opt-in: a button that only rewrites derived state
-needs neither.
+A button whose job deletes rows sets ``permission`` and ``confirm``. Both are
+opt-in: one that only rewrites derived state needs neither.
 """
 
 import logging
@@ -78,28 +68,22 @@ UNKNOWN_STATE_LABEL = "Status unavailable"
 class TaskButton:
     """One changelist button and the task it enqueues.
 
-    ``choices`` turns the button into a scoped run: ``(value, label)`` pairs
-    become a select beside it, and the chosen value is passed to the task as
-    ``argument``. Choosing nothing runs the task with no arguments at all, which
-    is what every unscoped caller of these tasks already does.
+    ``choices`` makes the button a scoped run: the pairs become a select beside it
+    and the chosen value reaches the task as ``argument``. Choosing nothing runs the
+    task with no arguments.
 
-    ``permission`` names the permission that authorises the job, for a button
-    whose task does something the model's *change* permission does not cover -
-    a sweep that deletes rows wants ``delete_``, not ``change_``. Left unset, the
-    change permission is the gate, which is what a button that only rewrites
-    derived state needs.
+    ``permission`` names what authorises the job, for a task doing something the
+    model's change permission does not cover - a sweep that deletes rows wants
+    ``delete_``. Unset, change permission is the gate.
 
-    ``confirm`` interposes a preview between the click and the enqueue, for a job
-    worth reading about before it runs. It is called as ``confirm(request, value)``
-    and returns the preview's context: ``title``, ``summary``, ``rows`` (each with
-    ``label``, ``detail`` and ``warning``), ``warning``, and ``can_apply``. The
-    task is enqueued only when the preview's own submit comes back, which is what
-    carries ``apply``.
+    ``confirm`` interposes a preview between the click and the enqueue. Called as
+    ``confirm(request, value)``, it returns the preview context: ``title``,
+    ``summary``, ``rows`` (``label``, ``detail``, ``warning``), ``warning`` and
+    ``can_apply``. The task is enqueued only when the preview's submit comes back.
 
-    ``description`` renders under the button as help text. These jobs are not
-    self-explanatory from a label - two of them differ only in whether they can
-    remove anything - and the person deciding which to press is not the person who
-    wrote them. One or two sentences: what it changes, and what it leaves alone.
+    ``description`` renders under the button as help text. Say what the job changes
+    and what it leaves alone: two of these differ only in whether they can remove
+    anything, and the person choosing is not the person who wrote them.
     """
 
     name: str
