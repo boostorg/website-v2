@@ -1,0 +1,55 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin/controls.css' %}">
+{% endblock %}
+
+{% block content %}
+  <p>{{ preview.summary }}</p>
+
+  {% if preview.warning %}
+    <ul class="messagelist">
+      <li class="warning">{{ preview.warning }}</li>
+    </ul>
+  {% endif %}
+
+  {% if preview.rows %}
+    <div class="module">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{% translate "Source" %}</th>
+            <th scope="col">{% translate "What a real run would do" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in preview.rows %}
+            <tr>
+              <th scope="row">{{ row.label }}</th>
+              <td>
+                {% if row.warning %}<strong>{{ row.detail }}</strong>{% else %}{{ row.detail }}{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  <form action="{{ form_action }}" method="post">
+    {% csrf_token %}
+    {% for field in hidden_fields %}
+      <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+    {% endfor %}
+
+    <div class="submit-row">
+      {% if preview.can_apply %}
+        <input type="submit" name="apply" value="{{ submit_label }}" class="default">
+      {% endif %}
+      <a href="{{ cancel_url }}" class="button cancel-link">{% translate "Cancel" %}</a>
+    </div>
+  </form>
+{% endblock %}

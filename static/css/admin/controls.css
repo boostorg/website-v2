@@ -1,0 +1,150 @@
+.admin-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0 0 15px;
+}
+
+.admin-actions .object-tools {
+    text-align: left;
+    margin: 0;
+    overflow: visible;
+}
+
+.admin-actions .object-tools li + li {
+    margin-left: 10px;
+}
+
+.task-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.task-buttons > li {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin: 0;
+}
+
+.task-buttons form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.task-buttons label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--body-quiet-color);
+}
+
+.task-buttons select {
+    margin: 0;
+}
+
+.task-buttons button {
+    border: none;
+    border-radius: 15px;
+    padding: 3px 12px;
+    background: var(--object-tools-bg);
+    color: var(--object-tools-fg);
+    font-family: var(--font-family-primary);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+}
+
+.task-buttons button:focus,
+.task-buttons button:hover {
+    background: var(--object-tools-hover-bg);
+}
+
+/* Restated rather than left to the admin's forms.css, which a changelist only
+   loads when it has an editable formset. */
+.task-buttons .help,
+.submit-row .help {
+    margin: 0;
+    padding: 0;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    color: var(--body-quiet-color);
+}
+
+.task-buttons .help {
+    max-width: 78ch;
+}
+
+.task-button-status {
+    font-size: 0.75rem;
+    color: var(--body-quiet-color);
+}
+
+.task-button-error {
+    margin-left: 6px;
+    color: var(--error-fg);
+}
+
+/* flex-start, not center: each action is a button with its own help text under
+   it, so the buttons line up along the top of the row and not against the
+   tallest paragraph in it. */
+.submit-row {
+    align-items: flex-start;
+}
+
+.submit-row form {
+    margin: 0;
+}
+
+/* align-items so the button keeps its own width instead of stretching to the
+   paragraph, flex so the columns come out even whatever the paragraphs say. */
+.submit-row-action {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    max-width: 34ch;
+}
+
+.submit-row input.default {
+    text-transform: none;
+}
+
+/* The id carries no styling. It is here to outrank the admin's own
+   a:not(#header a, ...) underline rule, which an id makes unreachable by
+   specificity alone. */
+#content .submit-row a.button {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 2.1875rem;
+    padding: 10px 15px;
+    font-family: var(--font-family-primary);
+    font-size: 0.8125rem;
+    font-weight: normal;
+    line-height: 0.9375rem;
+    text-decoration: none;
+}
+
+#content .submit-row a.cancel-link {
+    background: var(--close-button-bg);
+}
+
+#content .submit-row a.cancel-link:active,
+#content .submit-row a.cancel-link:focus,
+#content .submit-row a.cancel-link:hover {
+    background: var(--close-button-hover-bg);
+}
