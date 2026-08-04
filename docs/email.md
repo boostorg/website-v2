@@ -14,9 +14,9 @@ Non-production environments deliberately send nothing to real recipients. This m
 
 Mailman is not affected by any of this. It is driven through `MAILMAN_REST_API_URL`, not Django's email backend.
 
-## `CATCH_ALL_EMAIL`
+## `CATCH_ALL_EMAIL` & `X_DEPLOYMENT_ENV`
 
-- Set to `true` in `kube/boost/values-stage-gke.yaml` and `kube/boost/values-cppal-dev-gke.yaml`.
+- Set `CATCH_ALL_EMAIL=true` and `X_DEPLOYMENT_ENV=<env's label>` in `kube/boost/values-stage-gke.yaml` and `kube/boost/values-cppal-dev-gke.yaml`.
 - When enabled, `EMAIL_BACKEND` defaults to Django's SMTP backend pointed at `EMAIL_HOST` / `EMAIL_PORT` (`maildev:1025`) instead of Mailgun. The `MAILGUN_*` values in those files stay present but become inert.
 - Django raises `ImproperlyConfigured` at startup if this is enabled while `X_DEPLOYMENT_ENV` is `production`. Mis-routing production email should be loud, not silent.
 - Default is `false`, so an environment only changes behavior if its values file opts in. Enable it only where a `maildev` pod is also deployed (`maildevInstall: true`), otherwise sends will fail with a connection error.
