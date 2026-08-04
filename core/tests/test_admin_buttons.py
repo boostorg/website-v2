@@ -31,10 +31,11 @@ TASK_PATH = "badges.admin.backfill_achievements_task.delay"
 
 # Both live buttons, so the contract is asserted on more than the single one the
 # rest of this module drives. The scoped and status-rendering behaviour is only
-# exercised through the backfill button, which is the one that has choices.
+# exercised through the backfill button, which is the one that has choices. The
+# third element is whether the button names the caller to its task.
 BUTTONS = [
-    ("admin:badges_userachievement_backfill", "backfill_achievements_task"),
-    ("admin:badges_userbadge_recalculate", "recalculate_all_badges_task"),
+    ("admin:badges_userachievement_backfill", "backfill_achievements_task", True),
+    ("admin:badges_userbadge_recalculate", "recalculate_all_badges_task", False),
 ]
 
 # The last run of the button, for display; and the last run of one of its jobs,
@@ -74,8 +75,10 @@ def _bare_staff(email):
     return baker.make("users.User", email=email, is_staff=True)
 
 
-@pytest.mark.parametrize("url_name,task", BUTTONS)
-def test_button_still_swallows_a_double_click(client, super_user, url_name, task):
+@pytest.mark.parametrize("url_name,task,names_actor", BUTTONS)
+def test_button_still_swallows_a_double_click(
+    client, super_user, url_name, task, names_actor
+):
     """Two immediate posts enqueue once, whatever the worker is doing."""
     client.force_login(super_user)
 
@@ -83,7 +86,9 @@ def test_button_still_swallows_a_double_click(client, super_user, url_name, task
         client.post(reverse(url_name))
         client.post(reverse(url_name))
 
-    delay.assert_called_once_with()
+    delay.assert_called_once_with(
+        **({"actor_id": super_user.pk} if names_actor else {})
+    )
 
 
 def test_button_does_not_enqueue_after_losing_the_click_floor_claim(client, super_user):
@@ -100,8 +105,8 @@ def test_button_does_not_enqueue_after_losing_the_click_floor_claim(client, supe
     assert "not starting another one" in response.content.decode()
 
 
-@pytest.mark.parametrize("url_name,task", BUTTONS)
-def test_button_ignores_a_get(client, super_user, url_name, task):
+@pytest.mark.parametrize("url_name,task,_names_actor", BUTTONS)
+def test_button_ignores_a_get(client, super_user, url_name, task, _names_actor):
     """A GET must never start the job: link prefetchers and history restores do.
 
     The button is a POST form, so a GET means something other than a click.
@@ -115,8 +120,8 @@ def test_button_ignores_a_get(client, super_user, url_name, task):
     assert response.status_code == 302
 
 
-@pytest.mark.parametrize("url_name,task", BUTTONS)
-def test_button_requires_change_permission(client, db, url_name, task):
+@pytest.mark.parametrize("url_name,task,_names_actor", BUTTONS)
+def test_button_requires_change_permission(client, db, url_name, task, _names_actor):
     """Staff alone is not authorisation to rewrite every row of a table.
 
     ``admin_site.admin_view`` only checks ``is_staff``, so without this a support
@@ -171,7 +176,7 @@ def test_button_allows_a_second_run_once_the_task_is_ready(client, super_user):
     with _state("SUCCESS"), patch(TASK_PATH, return_value=_result()) as delay:
         client.post(reverse(BACKFILL_URL))
 
-    delay.assert_called_once_with()
+    delay.assert_called_once_with(actor_id=super_user.pk)
 
 
 def test_button_allows_a_second_run_once_a_queued_task_is_stale(client, super_user):
@@ -187,7 +192,7 @@ def test_button_allows_a_second_run_once_a_queued_task_is_stale(client, super_us
     with _state("PENDING"), patch(TASK_PATH, return_value=_result()) as delay:
         client.post(reverse(BACKFILL_URL))
 
-    delay.assert_called_once_with()
+    delay.assert_called_once_with(actor_id=super_user.pk)
 
 
 def test_button_records_the_task_id(client, super_user):
@@ -330,7 +335,7 @@ def test_button_does_not_lock_when_the_enqueue_fails(client, super_user):
     with patch(TASK_PATH, return_value=_result()) as delay:
         client.post(reverse(BACKFILL_URL))
 
-    delay.assert_called_once_with()
+    delay.assert_called_once_with(actor_id=super_user.pk)
 
 
 def test_changelist_offers_every_wired_source(client, super_user):
@@ -387,7 +392,7 @@ def test_scoped_button_passes_its_argument(client, super_user):
             reverse(BACKFILL_URL), {"slug": "code-commits"}, follow=True
         )
 
-    delay.assert_called_once_with(slug="code-commits")
+    delay.assert_called_once_with(slug="code-commits", actor_id=super_user.pk)
     assert "Limited to Code Commits." in response.content.decode()
 
 

@@ -12,6 +12,7 @@ from badges.models import (
     UserAchievement,
     UserBadge,
 )
+from badges.tasks import backfill_achievements_task, reconcile_achievements_task
 
 pytestmark = pytest.mark.django_db
 
@@ -72,6 +73,40 @@ def test_an_admin_reconcile_records_who_ran_it(plain_user, super_user):
     run = AchievementSyncRun.objects.get(source_slug=SOURCE)
     assert run.trigger == SyncTrigger.ADMIN
     assert run.triggered_by == super_user
+
+
+@pytest.mark.parametrize(
+    "task,mode",
+    [
+        (backfill_achievements_task, SyncMode.BACKFILL),
+        (reconcile_achievements_task, SyncMode.RECONCILE),
+    ],
+)
+def test_a_run_started_from_a_button_names_who_pressed_it(super_user, task, mode):
+    """The button hands its task the caller, which has to survive the trip.
+
+    Both changelist buttons run on a worker, so the request the admin made is over
+    long before the log row is written. Without the id travelling with the job, the
+    two paths that do the most damage are the two the log cannot attribute.
+    """
+    task(slug=SOURCE, actor_id=super_user.pk)
+
+    run = AchievementSyncRun.objects.get(source_slug=SOURCE, mode=mode)
+    assert run.trigger == SyncTrigger.ADMIN
+    assert run.triggered_by == super_user
+
+
+def test_a_run_whose_actor_no_longer_exists_still_happens(plain_user):
+    """Attribution is worth less than the sweep it describes."""
+    _commit(plain_user)
+
+    call_command(
+        "backfill_achievements", "--source", SOURCE, "--triggered-by", "123456789"
+    )
+
+    run = AchievementSyncRun.objects.get(source_slug=SOURCE)
+    assert run.triggered_by is None
+    assert run.added == 1
 
 
 def test_a_dry_run_is_not_recorded(plain_user):

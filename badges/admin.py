@@ -200,6 +200,7 @@ BACKFILL_BUTTON = TaskButton(
     choice_label="Source",
     choices=SOURCE_CHOICES,
     all_label="All sources",
+    pass_actor=True,
     description=(
         "Grants the automatic achievements the sources support and this site is "
         "missing, then awards any badge that reaches its threshold. It only ever "
@@ -221,6 +222,7 @@ RECONCILE_BUTTON = TaskButton(
     choice_label="Source",
     choices=SOURCE_CHOICES,
     all_label="All sources",
+    pass_actor=True,
     # This one deletes rows, which the change permission does not cover.
     permission=RECONCILE_PERMISSION,
     confirm=_reconcile_button_preview,
