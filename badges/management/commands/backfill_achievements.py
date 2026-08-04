@@ -15,7 +15,7 @@ from badges import sources
 from badges.management.arguments import (
     add_sync_log_arguments,
     positive_integer,
-    resolve_actor,
+    resolve_sync_log,
 )
 from badges.models import Achievement
 from badges.services import SYNC_BATCH_SIZE, recalculate_badges, sync_source
@@ -48,7 +48,7 @@ class Command(BaseCommand):
         explicit = bool(options["slugs"])
         slugs = options["slugs"] or sources.AUTOMATIC_SLUGS
         batch_size = options["batch_size"]
-        actor = resolve_actor(options["actor_id"], self.stderr)
+        trigger, actor = resolve_sync_log(options, self.stderr)
 
         achievements = {
             achievement.slug: achievement
@@ -80,7 +80,7 @@ class Command(BaseCommand):
                 achievement,
                 remove=False,
                 batch_size=batch_size,
-                trigger=options["trigger"],
+                trigger=trigger,
                 actor=actor,
             )
             # Only the members who actually gained a row, so a repeat run - the

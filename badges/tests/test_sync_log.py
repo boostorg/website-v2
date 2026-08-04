@@ -96,6 +96,25 @@ def test_a_run_started_from_a_button_names_who_pressed_it(super_user, task, mode
     assert run.triggered_by == super_user
 
 
+def test_an_explicit_trigger_beats_the_one_an_actor_implies(plain_user, super_user):
+    """A caller that states its trigger keeps it, actor or no actor."""
+    _commit(plain_user)
+
+    call_command(
+        "backfill_achievements",
+        "--source",
+        SOURCE,
+        "--trigger",
+        SyncTrigger.PIPELINE,
+        "--triggered-by",
+        str(super_user.pk),
+    )
+
+    run = AchievementSyncRun.objects.get(source_slug=SOURCE)
+    assert run.trigger == SyncTrigger.PIPELINE
+    assert run.triggered_by == super_user
+
+
 def test_a_run_whose_actor_no_longer_exists_still_happens(plain_user):
     """Attribution is worth less than the sweep it describes."""
     _commit(plain_user)
