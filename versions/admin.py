@@ -57,6 +57,7 @@ IMPORT_REVIEWS_BUTTON = TaskButton(
         "A review import is already queued or running; not starting another one."
     ),
     permission="versions.delete_review",
+    pass_actor=True,
     confirm=_import_reviews_preview,
     description=(
         "Re-scrapes the formal-review results published on boost.org and updates "
