@@ -1,15 +1,21 @@
-"""Canonical achievement / badge / tier catalogue.
+"""Initial values for a database that has never been seeded.
 
-Values come from the Boost achievement-to-badge mapping spreadsheet. A bootstrap
-fixture, not a live source of truth: a tier is created only when its badge has no
-row for that rank at all, so re-seeding cannot undo a threshold staff have tuned
-or resurrect a rank they retired. (Not "no *active* row": a retuned rank has both
-a retired row and its replacement, and matching on rank finds both.)
+**Not a source of truth and not for runtime use.** Only the initial data migration
+and the test suite may import this module; a test enforces that. ``Achievement``,
+``Badge`` and ``BadgeTier`` are admin-editable, so the live taxonomy diverges from
+this file the first time staff tune a threshold, retire a rank or add a manual-only
+achievement. Anything that needs a threshold, a name or a ladder must query those
+models.
 
-Editing a threshold here therefore only affects databases that were never seeded.
-To change one everywhere, edit it here *and* add a data migration that retires
-the existing rows and creates replacements - updating in place would revoke every
-member who only met the old number.
+Seeding is idempotent and one-way: a tier is created only when its badge has no row
+for that rank at all, so re-seeding cannot undo a tuned threshold or resurrect a
+retired rank. (Not "no *active* row": a retuned rank has both a retired row and its
+replacement, and matching on rank finds both.)
+
+Editing a threshold here therefore only affects databases that were never seeded. To
+change one everywhere, edit it here *and* add a data migration that retires the
+existing rows and creates replacements - updating in place would revoke every member
+who only met the old number.
 
 ``seed_catalogue`` takes model classes as arguments so a data migration can pass
 historical models while tests pass the real ones.
@@ -18,7 +24,7 @@ historical models while tests pass the real ones.
 from badges.enums import AchievementSlug, BadgeLabel, TierRank
 
 # (slug, name, description, badge_label, {rank: threshold})
-CATALOGUE = [
+SEED_CATALOGUE = [
     (
         AchievementSlug.LIBRARY_AUTHORING,
         "Library Authoring",
@@ -128,7 +134,7 @@ CATALOGUE = [
 
 def seed_catalogue(achievement_model, badge_model, badge_tier_model):
     """Idempotently create the catalogue using the given model classes."""
-    for slug, name, description, label, tiers in CATALOGUE:
+    for slug, name, description, label, tiers in SEED_CATALOGUE:
         achievement, _created = achievement_model.objects.get_or_create(
             slug=slug, defaults={"name": name, "description": description}
         )
