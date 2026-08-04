@@ -546,7 +546,7 @@ class BadgeAdmin(admin.ModelAdmin):
     is constrained to ``badges.enums.BadgeLabel`` because the label chooses the
     display asset, so an empty-looking dropdown means every category is already
     in use, not that something is broken. A genuinely new one needs an enum
-    member and a ``badges.catalogue`` entry, which is a deploy.
+    member, which is a deploy.
     """
 
     change_list_template = ADMIN_ACTIONS_CHANGE_LIST
