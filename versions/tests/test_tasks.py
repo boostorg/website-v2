@@ -107,9 +107,11 @@ def test_import_reviews_task_backfills_the_review_source(mock_call):
     """Reviews are the only source of library-review, so this task owns it."""
     from versions.tasks import import_reviews_task
 
-    import_reviews_task()
+    import_reviews_task(actor_id=7)
 
     assert [c.args for c in mock_call.call_args_list] == [
         ("import_reviews",),
         ("backfill_achievements", "--source", "library-review"),
     ]
+    # The admin who pressed the button, so the sync log can name them.
+    assert mock_call.call_args_list[-1].kwargs == {"actor_id": 7}

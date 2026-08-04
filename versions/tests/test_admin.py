@@ -32,7 +32,7 @@ def test_review_admin_import_button_enqueues_task(client, super_user):
     preview_body = preview.content.decode()
     assert "Duplicate stored reviews are merged" in preview_body
     assert "their results" in preview_body
-    mock_delay.assert_called_once_with()
+    mock_delay.assert_called_once_with(actor_id=super_user.pk)
     # Redirects back to the Review changelist.
     assert response.status_code == 302
 
