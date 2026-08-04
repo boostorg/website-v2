@@ -50,7 +50,9 @@
         {% if related_posts %}
           {% include 'v3/includes/_post_list_card.html' with heading="Related Posts" items=related_posts only %}
         {% endif %}
-        {% include "v3/includes/_pagination.html" %}
+        {# Nothing to page through on an empty result set, and the paginator #}
+        {# still reports one page there, so it would render a lone "1". #}
+        {% if entry_list %}{% include "v3/includes/_pagination.html" %}{% endif %}
       </div>
       <div class="post-content__user_card_column">
         {% if request.user.is_authenticated %}

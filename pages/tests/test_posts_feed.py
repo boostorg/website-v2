@@ -272,6 +272,14 @@ class TestPagination:
 
         assert titles(get_feed(tp, feed_url, page=999)) == {"Only Post"}
 
+    def test_hidden_when_nothing_matches(self, tp, feed_url, make_post_page):
+        """The paginator still reports one page for an empty result set, so
+        without the guard the empty state would sit above a lone "1"."""
+        make_post_page(title="Only Post")
+
+        assert b"pagination-nav" in get_feed(tp, feed_url).content
+        assert b"pagination-nav" not in get_feed(tp, feed_url, q="zzzznomatch").content
+
     def test_form_does_not_submit_the_current_page(self, tp, feed_url):
         """Pagination resets because page is not a field of the filter form."""
         response = get_feed(tp, feed_url, page=1)
