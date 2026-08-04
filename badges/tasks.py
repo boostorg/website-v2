@@ -11,22 +11,9 @@ import logging
 from celery import shared_task
 from django.core.management import call_command
 
-from badges.models import SyncTrigger
 from badges.services import achievement_pairs, recalculate_many
 
 logger = logging.getLogger(__name__)
-
-
-def _sync_log_options(actor_id):
-    """How the sync log should describe a run these wrappers started.
-
-    An ``actor_id`` reaches here only from a changelist button, so its presence is
-    what separates a person pressing one from a scheduled or shell run.
-    """
-    return {
-        "trigger": SyncTrigger.ADMIN if actor_id else SyncTrigger.COMMAND,
-        "actor_id": actor_id,
-    }
 
 
 @shared_task
@@ -37,7 +24,7 @@ def backfill_achievements_task(slug=None, actor_id=None):
     wants. A slug narrows the run to that one source, so a newly wired iterator can
     be backfilled without walking every commit in the database again.
     """
-    options = _sync_log_options(actor_id)
+    options = {"actor_id": actor_id}
     if slug is not None:
         options["slugs"] = [slug]
     call_command("backfill_achievements", **options)
@@ -57,7 +44,7 @@ def reconcile_achievements_task(slug=None, user_id=None, actor_id=None):
     empty is refused, and overriding that refusal is a decision for someone at a
     shell who has looked at why it is empty, not for a button.
     """
-    options = _sync_log_options(actor_id)
+    options = {"actor_id": actor_id}
     if slug:
         options["slugs"] = [slug]
     if user_id:

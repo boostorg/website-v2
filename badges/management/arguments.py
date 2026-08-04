@@ -25,8 +25,11 @@ def add_sync_log_arguments(parser):
     parser.add_argument(
         "--trigger",
         choices=SyncTrigger.values,
-        default=SyncTrigger.COMMAND,
-        help="How this run was started, recorded in the sync log.",
+        default=None,
+        help=(
+            "How this run was started, recorded in the sync log (default: admin "
+            "when --triggered-by names somebody, otherwise command)."
+        ),
     )
     parser.add_argument(
         "--triggered-by",
@@ -37,19 +40,29 @@ def add_sync_log_arguments(parser):
     )
 
 
-def resolve_actor(actor_id, stderr):
-    """The member ``--triggered-by`` names, or ``None``.
+def resolve_sync_log(options, stderr):
+    """``(trigger, actor)`` describing where this run came from.
+
+    A named person means somebody pressed a button, which is why a caller passing
+    ``--triggered-by`` need not also state the trigger. An explicit one still wins,
+    so the release pipeline can label its own sweep.
 
     An id that resolves to nobody is reported and otherwise ignored: attribution is
     worth less than the run itself, so a member deleted between a button press and
-    the worker collecting the job costs the log a name, not the sweep.
+    the worker collecting the job costs the log a name, not the sweep. The trigger
+    still says a person started it, because one did.
     """
+    actor_id = options["actor_id"]
+    trigger = options["trigger"] or (
+        SyncTrigger.ADMIN if actor_id else SyncTrigger.COMMAND
+    )
     if actor_id is None:
-        return None
+        return trigger, None
+
     actor = get_user_model().objects.filter(pk=actor_id).first()
     if actor is None:
         stderr.write(
             f"No member with id {actor_id}: the sync log will not record who "
             "started this run."
         )
-    return actor
+    return trigger, actor
