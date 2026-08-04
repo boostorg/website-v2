@@ -11,24 +11,36 @@ import logging
 from celery import shared_task
 from django.core.management import call_command
 
+from badges.models import SyncTrigger
 from badges.services import achievement_pairs, recalculate_many
 
 logger = logging.getLogger(__name__)
 
 
+def _sync_log_options(actor_id):
+    """How the sync log should describe a run these wrappers started.
+
+    An ``actor_id`` reaches here only from a changelist button, so its presence is
+    what separates a person pressing one from a scheduled or shell run.
+    """
+    return {
+        "trigger": SyncTrigger.ADMIN if actor_id else SyncTrigger.COMMAND,
+        "actor_id": actor_id,
+    }
+
+
 @shared_task
-def backfill_achievements_task(slug=None):
+def backfill_achievements_task(slug=None, actor_id=None):
     """Run the ``backfill_achievements`` management command off-request.
 
-    No slug sweeps every wired source, which is what the weekly pipeline and the
-    unscoped admin button want. A slug narrows the run to that one source, so a
-    newly wired iterator can be backfilled without walking every commit in the
-    database again.
+    No slug sweeps every wired source, which is what the unscoped admin button
+    wants. A slug narrows the run to that one source, so a newly wired iterator can
+    be backfilled without walking every commit in the database again.
     """
-    if slug is None:
-        call_command("backfill_achievements")
-    else:
-        call_command("backfill_achievements", slugs=[slug])
+    options = _sync_log_options(actor_id)
+    if slug is not None:
+        options["slugs"] = [slug]
+    call_command("backfill_achievements", **options)
 
 
 @shared_task
@@ -38,14 +50,14 @@ def recalculate_all_badges_task():
 
 
 @shared_task
-def reconcile_achievements_task(slug=None, user_id=None):
+def reconcile_achievements_task(slug=None, user_id=None, actor_id=None):
     """Run the ``reconcile_achievements`` command off-request.
 
     ``--allow-empty`` is deliberately not reachable from here. A source that reads
     empty is refused, and overriding that refusal is a decision for someone at a
     shell who has looked at why it is empty, not for a button.
     """
-    options = {}
+    options = _sync_log_options(actor_id)
     if slug:
         options["slugs"] = [slug]
     if user_id:

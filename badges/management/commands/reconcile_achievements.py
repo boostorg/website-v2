@@ -16,8 +16,12 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 
 from badges import sources
-from badges.management.arguments import positive_integer
-from badges.models import Achievement, SyncTrigger
+from badges.management.arguments import (
+    add_sync_log_arguments,
+    positive_integer,
+    resolve_actor,
+)
+from badges.models import Achievement
 from badges.services import SYNC_BATCH_SIZE, recalculate_badges, sync_source
 
 User = get_user_model()
@@ -75,18 +79,14 @@ class Command(BaseCommand):
             default=SYNC_BATCH_SIZE,
             help=f"Rows per insert and delete batch (default: {SYNC_BATCH_SIZE}).",
         )
-        parser.add_argument(
-            "--trigger",
-            choices=SyncTrigger.values,
-            default=SyncTrigger.COMMAND,
-            help="How this run was started, recorded in the sync log.",
-        )
+        add_sync_log_arguments(parser)
 
     def handle(self, *args, **options):
         """Sync the requested source(s) and report what changed."""
         dry_run = options["dry_run"]
         slugs = options["slugs"] or sources.AUTOMATIC_SLUGS
         user_ids = self._resolve_users(options["users"])
+        actor = resolve_actor(options["actor_id"], self.stderr)
 
         achievements = {
             achievement.slug: achievement
@@ -115,6 +115,7 @@ class Command(BaseCommand):
                 allow_empty=options["allow_empty"],
                 batch_size=options["batch_size"],
                 trigger=options["trigger"],
+                actor=actor,
             )
             for slug in slugs
         ]

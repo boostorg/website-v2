@@ -84,6 +84,10 @@ class TaskButton:
     ``description`` renders under the button as help text. Say what the job changes
     and what it leaves alone: two of these differ only in whether they can remove
     anything, and the person choosing is not the person who wrote them.
+
+    ``pass_actor`` sends the caller's primary key to the task as ``actor_id``, for a
+    job that records who asked for it. Opt-in because the task has to accept the
+    keyword, and because a job whose audit trail says nothing gains nothing from it.
     """
 
     name: str
@@ -98,6 +102,7 @@ class TaskButton:
     permission: str = ""
     confirm: Any = None
     description: str = ""
+    pass_actor: bool = False
 
     def __post_init__(self):
         """Refuse a select whose value would go nowhere."""
@@ -341,10 +346,11 @@ class TaskButtonAdminMixin:
             ):
                 self.message_user(request, button.busy_message, level=messages.WARNING)
                 return HttpResponseRedirect(redirect_url)
+            kwargs = {button.argument: value} if value else {}
+            if button.pass_actor:
+                kwargs["actor_id"] = request.user.pk
             try:
-                result = button.task.delay(
-                    **({button.argument: value} if value else {})
-                )
+                result = button.task.delay(**kwargs)
             except Exception:
                 cache.delete(f"{job_key}:recent")
                 logger.exception("Could not enqueue %s", button.name)

@@ -695,7 +695,9 @@ def test_each_changelist_offers_its_own_task_button(
     with patch(f"badges.admin.{task}.delay") as mock_delay:
         response = client.post(url)
 
-    mock_delay.assert_called_once_with()
+    # Which arguments travel with the job is asserted where they matter: the
+    # actor in the sync log tests, the scope below.
+    mock_delay.assert_called_once()
     assert response.status_code == 302
 
 
@@ -973,7 +975,7 @@ def test_reconcile_button_enqueues_the_task_only_on_apply(
     with patch(RECONCILE_TASK, return_value=Mock(id="a-task-id")) as delay:
         response = client.post(reverse(RECONCILE_URL), {"apply": "1"}, follow=True)
 
-    delay.assert_called_once_with()
+    delay.assert_called_once_with(actor_id=super_user.pk)
     assert "being reconciled with their sources" in response.content.decode()
 
 
@@ -989,7 +991,7 @@ def test_reconcile_preview_carries_the_chosen_source_into_the_apply(
     with patch(RECONCILE_TASK, return_value=Mock(id="a-task-id")) as delay:
         client.post(reverse(RECONCILE_URL), {"slug": "code-commits", "apply": "1"})
 
-    delay.assert_called_once_with(slug="code-commits")
+    delay.assert_called_once_with(slug="code-commits", actor_id=super_user.pk)
 
 
 def test_reconcile_preview_offers_no_apply_when_everything_agrees(
