@@ -1,624 +1,809 @@
 /**
- * Heroes – Home and Library hero sections.
- * All classes are hero-specific (heros__, hero-home__, hero-library__).
+ * Heroes – one unified .hero component: a shared base/banner plus a .hero--home variant.
+ * All classes are hero-specific (heros__, hero__, hero--home / hero--community / hero--release).
  * Reuses: .btn, .btn-hero, .btn-primary, .btn-secondary, .btn-icon-library (foundations/buttons),
  * .category-tag, .version-tag (tokens/category-tags.css).
+ *
+ * Layout: 1) Tokens  2) Shared  3) Hero home variant  4) Hero (base/banner)  5) Hero variants.
+ * Within each hero, base rules come first, then media queries in ascending
+ * breakpoint order (tablet ≤1279, then mobile ≤767), so the cascade reads top-down.
  */
 
- .heros,
- .heros * {
-   box-sizing: border-box;
- }
+/* ═══════════════════════════════════════════════════════════════════════════
+   1. TOKENS — hero positioning.
+   Foreground SIZE + SHIFT + mobile ASPECT are SHARED by every hero:
+   --hero-fg-width / -height / -shift-x / -aspect are a single set, so home and
+   community frame identically (the same code matches; drop-in for on-spec art per
+   ILLUSTRATOR-HERO-SPEC). Only per-hero anchoring (--hero-fg-*-margin-*) stays
+   per hero. Backgrounds keep a per-type focal point.
+   home = .hero--home, community = .hero--community.
 
- /* Wrapper layout and doc header use same inline styles as stats.stories.tsx. */
+   A) CONTRACT — the shared, art-agnostic frame: foreground fills the block,
+      bottom-anchored, no nudge; background covers low. Do NOT tune per page.
+   B) CURRENT-ART OVERRIDES — what's still pinned to today's off-spec art
+      (per-hero anchoring, background focal/scale, mobile crop ratios). Delete
+      when on-spec art ships.
 
- /* Doc header uses same inline styles as stats.stories / other component docs – no hero-specific classes. */
+   Block height is layout (Figma 480/400/600), in the contract with its own steps.
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* ── A) CONTRACT (shared frame, keep) ─────────────────────────────────────── */
+:root {
+  /* Shared foreground frame — home + community must match */
+  --hero-fg-inset-block: 0;
+  --hero-fg-width: 100%;
+  --hero-fg-height: 100%;
+  --hero-fg-shift-x: 0;
 
- /* ----- Hero home ----- */
- .hero-home {
-   display: flex;
-   flex-direction: column;
+  /* Shared mobile crop ratio — home + community match (on-spec canvas, used at <=767) */
+  --hero-fg-aspect: 768 / 672;
+
+  /* Shared anchoring — full-width, centered (home + community match) */
+  --hero-fg-margin-start: auto;
+  --hero-fg-margin-end: auto;
+
+  /* Backgrounds: cover + per-type focal point (anchored low per spec) */
+  --hero-bg-home-size: cover;
+  --hero-bg-home-position-x: center;
+  --hero-bg-home-position-y: 80%;
+  --hero-bg-community-size: cover;
+  --hero-bg-community-position-x: center;
+  --hero-bg-community-position-y: 90%;
+
+  /* Block height — layout, not art (Figma 480/400/600). Stays after override removal. */
+  --hero-block-height: 480px;
+}
+@media (max-width: 1279px) {
+  :root { --hero-block-height: 400px; }
+}
+@media (max-width: 767px) {
+  :root { --hero-block-height: 600px; }
+}
+
+/* ── B) CURRENT-ART OVERRIDES — remove when on-spec art ships ──────────────── */
+/* Pinned to today's art: per-breakpoint bg focal + home mascot scale/shift. */
+@media (max-width: 1279px) {
+  :root {
+    /* Tablet */
+    --hero-bg-home-position-x: 50%;
+    --hero-bg-community-size: max(1200px, 100%);
+    --hero-bg-community-position-x: 100%;
+  }
+}
+@media (max-width: 767px) {
+  :root {
+    /* Mobile */
+    --hero-bg-home-position-x: 50%;
+    --hero-bg-home-position-y: 65%;
+    --hero-bg-community-position-x: 87%;
+    --hero-bg-community-position-y: bottom;
+    --hero-bg-community-size: auto 120%;
+  }
+}
+/* Desktop: scale mascots down (Figma) and shift left to clear the install card. */
+@media (min-width: 1280px) {
+  .hero--home .hero-fg {
+    transform: translateX(-160px) scale(0.82);
+    transform-origin: center bottom;
+  }
+}
+/* Tablet: scale down for antler headroom, nudge left (% so it won't crowd the CTAs when narrow). */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .hero--home .hero-fg {
+    transform: translateX(-7%) scale(0.82);
+    transform-origin: center bottom;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2. SHARED
+   ═══════════════════════════════════════════════════════════════════════════ */
+.heros,
+.heros * {
+  box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3. HERO — HOME VARIANT (.hero.hero--home)
+   Shares the base .hero section plus the --no-image / --with-background-image
+   modifiers (defined under HERO below). Only the home-specific split layout
+   (content + install card) and its block/content overrides live here.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.hero.hero--home {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-large);
-   width: 100%;
-   justify-content: space-between;
-   align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
   background-image: var(--hero-bg-image);
   background-repeat: no-repeat;
-  background-position: center center;
-  background-size: min(1440px, 100%) 100%;
+  background-position: var(--hero-bg-home-position-x) var(--hero-bg-home-position-y);
+  background-size: var(--hero-bg-home-size);
   background-color: var(--color-surface-weak-accent-yellow);
-   margin-bottom: var(--space-large, 16px);
- }
-
-/* If a background image is provided, surface color should be transparent */
-.hero-home--with-background-image {
- background-color: transparent;
+  margin-bottom: var(--space-large, 16px);
 }
 
- .dark .hero-home {
- background-color: #081040;
- }
-
-.dark .hero-home--with-background-image {
- background-color: transparent;
+/* Large desktop: soft dark fade on the left edge (sits above the bg, below
+   content/mascots) so that side recedes into shadow and the headline stays legible. */
+@media (min-width: 1440px) {
+  .hero.hero--home {
+    position: relative;
+  }
+  .hero.hero--home::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(to right,
+      #22302f 0%, rgba(34, 48, 47, 0) 14%);
+  }
+  .hero.hero--home .hero__block {
+    position: relative;
+    z-index: 1;
+  }
 }
 
- .hero-home--no-image {
-  background-image: none;
-  background: none;
- }
-
- .dark .hero-home--no-image {
-   background: none;
- }
-
- .hero-home__block {
-   width: 100%;
-   max-width: 1440px;
-   min-height: 480px;
-   position: relative;
-   display: flex;
-   align-items: center;
-   flex-direction: row;
+/* Home block: split layout (content + install card). Scoped under .hero--home so
+   the base .hero__block (library banner) rules don't apply; z-index/justify-content
+   are reset to neutralize the base block's values that would otherwise leak in. */
+.hero--home .hero__block {
+  width: 100%;
+  max-width: 1440px;
+  height: 480px;
+  position: relative;
+  display: flex;
+  flex-direction: row;
   padding: calc(var(--space-medium) + var(--space-default));
-   align-items: end;
-   padding-top: 60px;
- }
-
-.hero-home--no-image .hero-home__block {
-  align-items: center;
+  align-items: end;
+  padding-top: 60px;
+  z-index: auto;
+  justify-content: normal;
 }
 
- .hero-home__content {
-   display: flex;
-   flex-direction: column;
+.hero--home .hero__content {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-xl);
-   align-items: flex-start;
-  left: var(--space-large);
-  top: calc(2 * var(--space-xxl));
-   max-width: 950px;
-   margin: auto;
-   margin-left: 0;
-   width: 53%;
- }
+  align-items: flex-start;
+  max-width: 950px;
+  flex: 1;
+  z-index: 1;
+  align-self: center;
+  margin-left: 0;
+}
 
- .hero-home__headline {
-   color: var(--color-text-primary);
-  font-size: var(--font-size-3xl);
-   line-height: var(--line-height-tight);
-   font-weight: var(--font-weight-regular);
-   margin: 0;
-   align-self: stretch;
-   letter-spacing: -4px;
-   z-index: 1;
- }
+/* Headline forces three lines at every tier, with different break points:
+   desktop/tablet break after "the" and "community."; mobile breaks after "C++" and "by". */
+.hero__title-br--mobile {
+  display: none;
+}
 
- /* When hero has background + center image, main headline is white (light and dark mode) */
- .hero-home--with-bg-and-image .hero-home__headline {
-   color: #fff;
- }
-
- .hero-home__actions {
-   display: flex;
-   flex-direction: row;
+.hero__actions {
+  display: flex;
+  flex-direction: row;
   gap: var(--space-default);
-   align-items: flex-start;
- }
+  align-items: flex-start;
+}
 
- .btn.btn-hero.btn-secondary {
-   background-color: var(--color-surface-weak);
-   border-color: var(--color-stroke-weak);
- }
+.btn.btn-hero.btn-secondary {
+  background-color: var(--color-surface-weak);
+  border-color: var(--color-stroke-weak);
+}
 
- .hero-home__actions .btn-icon {
-   flex-shrink: 0;
+.hero__actions .btn-icon {
+  flex-shrink: 0;
   width: var(--space-large);
   height: var(--space-large);
- }
+}
 
- .hero-home__card {
-   z-index: 1;
-   min-width: 458px;
- }
+.hero__card {
+  z-index: 1;
+  min-width: 458px;
+}
 
- .hero-home__image {
-   width: 488px;
-  max-width: calc(100vw - var(--space-xl));
-   height: 416px;
-   position: absolute;
-   left: 50%;
-   transform: translateX(-50%);
-   bottom: 0;
-   overflow: hidden;
- }
-
-/* Hide card on tablet and mobile; only show on desktop */
- @media (max-width: 1279px) {
-   .hero-home__content {
-     width: 100%;
-   }
-
-   .hero-home__card {
-     display: none;
-   }
-
-   .hero-home__image{
-     position: relative;
-     transform: none;
-     left: 0;
-   }
- }
-
- .hero-home__card-title {
-   color: var(--color-text-primary);
-   font-family: var(--font-display);
+.hero__card-title {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
   font-size: var(--font-size-large);
   line-height: var(--line-height-tight);
-   letter-spacing: -0.01em;
+  letter-spacing: -0.01em;
   font-weight: var(--font-weight-medium);
-   margin: 0;
-   align-self: stretch;
- }
+  margin: 0;
+  align-self: stretch;
+}
 
- .hero-home__card-body {
-   display: flex;
-   flex-direction: column;
+.hero__card-body {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-medium);
-   align-self: stretch;
- }
+  align-self: stretch;
+}
 
- .hero-home__tabs {
-   display: flex;
-   flex-direction: row;
+.hero__tabs {
+  display: flex;
+  flex-direction: row;
   gap: var(--space-medium);
- }
+}
 
- .hero-home__tab {
+.hero__tab {
   padding-bottom: var(--space-xs);
- }
+}
 
- .hero-home__tab--active {
-   border-bottom: 1px solid var(--color-text-secondary);
- }
+.hero__tab--active {
+  border-bottom: 1px solid var(--color-text-secondary);
+}
 
- .hero-home__tab span {
-   color: var(--color-text-primary);
+.hero__tab span {
+  color: var(--color-text-primary);
   font-size: var(--font-size-xs);
-   line-height: 1.2;
+  line-height: 1.2;
   font-weight: var(--font-weight-regular);
- }
+}
 
- .hero-home__tab:not(.hero-home__tab--active) span {
-   color: var(--color-text-tertiary);
- }
+.hero__tab:not(.hero__tab--active) span {
+  color: var(--color-text-tertiary);
+}
 
- .hero-home__code-row {
-   background: var(--color-surface-mid);
+.hero__code-row {
+  background: var(--color-surface-mid);
   border-radius: var(--border-radius-l);
   padding: var(--space-medium) var(--space-large);
-   display: flex;
-   flex-direction: row;
+  display: flex;
+  flex-direction: row;
   gap: var(--space-xl);
-   align-items: center;
-   align-self: stretch;
- }
+  align-items: center;
+  align-self: stretch;
+}
 
- .hero-home__code-text {
-   color: var(--color-text-primary);
-   font-family: var(--font-mono, monospace);
+.hero__code-text {
+  color: var(--color-text-primary);
+  font-family: var(--font-mono, monospace);
   font-size: var(--font-size-xs);
   line-height: var(--line-height-code);
-   flex: 1;
- }
+  flex: 1;
+}
 
- .hero-home__code-badge {
-   background: var(--color-surface-strong);
+.hero__code-badge {
+  background: var(--color-surface-strong);
   border-radius: var(--border-radius-l);
   padding: var(--space-default);
-   display: flex;
-   flex-direction: row;
+  display: flex;
+  flex-direction: row;
   gap: var(--space-default);
-   align-items: center;
- }
-
- .hero-home__code-badge-label {
-   color: var(--color-text-primary);
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-tight);
-  font-weight: var(--font-weight-regular);
- }
-
-
- .hero-home__image .hero-home__img {
-   width: 100%;
-   height: 100%;
-   object-fit: contain;
-   object-position: center bottom;
-   display: block;
- }
-
- .hero-home__image--theme-aware .hero-home__img--light {
-   display: block;
- }
- .hero-home__image--theme-aware .hero-home__img--dark {
-   display: none;
- }
- .dark .hero-home__image--theme-aware .hero-home__img--light {
-   display: none;
- }
- .dark .hero-home__image--theme-aware .hero-home__img--dark {
-   display: block;
- }
-
- [data-theme="dark"] .hero-home__image .hero-home__img {
-   mix-blend-mode: screen;
- }
-
-  /* ----- Hero home: mobile ----- */
-  @media (max-width: 1000px) {
-    .hero-home__actions{
-      flex-direction: column;
-    }
-
-    }
-
- /* ----- Hero home: mobile ----- */
- @media (max-width: 767px) {
-   .hero-home__block {
-     height: auto;
-     min-height: 600px;
-     display: flex;
-     flex-direction: column;
-     align-items: stretch;
-    padding: calc(5 * var(--space-large)) var(--space-default) 0 var(--space-default);
-   }
-
-   .hero-home--no-image .hero-home__block {
-    min-height: auto;
-  }
-
-  .hero-home {
-    background-size: cover;
-    background-position: center top;
-  }
-
-   .hero-home__content {
-     position: static;
-     left: auto;
-     top: auto;
-     width: 100%;
-     max-width: 100%;
-    gap: var(--space-xl);
-     order: 1;
-     align-self: stretch;
-   }
-
-   .hero-home__headline {
-    font-size: var(--font-size-3xl);
-    line-height: var(--line-height-tight);
-     letter-spacing: 0px;
-   }
-
-   .hero-home__actions {
-     flex-direction: column;
-     align-items: stretch;
-     align-self: stretch;
-     width: 100%;
-    gap: var(--space-default);
-   }
-
-   .hero-home__actions .btn {
-     width: 100%;
-     min-width: 0;
-     justify-content: center;
-     box-sizing: border-box;
-   }
-
-   .hero-home__image {
-     position: static;
-     left: auto;
-     transform: none;
-     bottom: auto;
-     width: 100%;
-    max-width: calc(100vw - var(--space-large));
-     height: 306px;
-    margin: var(--space-xlarge) auto 0;
-     order: 2;
-     flex-shrink: 0;
-   }
- }
-
- /* ----- Hero library ----- */
- .hero-library {
-   display: flex;
-   flex-direction: column;
-  gap: var(--space-large);
-   width: 100%;
-  background-image: var(--hero-bg-image);
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: min(1440px, 100%) 100%;
-  background-color: var(--color-surface-weak-accent-yellow);
-   align-items: center;
- }
-
-/* If a background image is provided, surface color should be transparent */
-.hero-library--with-background-image {
- background-color: transparent;
-}
-
- .dark .hero-library {
-  background-color: #081040;
- }
-
-.dark .hero-library--with-background-image {
- background-color: transparent;
-}
-
- .hero-library--no-image {
-  background-image: none;
-   background: none;
- }
-
- .dark .hero-library--no-image {
-   background: none;
- }
-
- .hero-library__block {
-   width: 100%;
-   max-width: 1440px;
-   display: flex;
-   flex-direction: column;
-   gap: var(--space-large);
-   padding-bottom: var(--space-avatar);
-   padding-top: var(--space-hero-padding-top);
- }
-
- .hero-library__main {
-   width: 100%;
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
- }
-
-.hero-library--no-image .hero-library__main {
   align-items: center;
 }
 
-/* Banner sits inside __block; inset its sides to match content/image margins */
-.hero-library__block > .banner {
-  margin: 0 var(--space-large);
-  width: auto;
+.hero__code-badge-label {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-regular);
 }
 
- .hero-library__content {
-   display: flex;
-   flex-direction: column;
+/* ───────────────────────────────────────────────────────────────────────────
+   Foreground frame — SHARED by the home hero and the community hero (full-bleed,
+   bottom-anchored, baked-in-position art). Applied via class `hero-fg` in both
+   _hero_home.html and _hero_library.html (the latter gated by `fullbleed_fg`).
+   Library-detail keeps its own small-box `.hero__image` below.
+   ─────────────────────────────────────────────────────────────────────────── */
+.hero-fg {
+  position: absolute;
+  inset-block-end: var(--hero-fg-inset-block);
+  inset-inline: 0;
+  margin-inline-start: var(--hero-fg-margin-start);
+  margin-inline-end: var(--hero-fg-margin-end);
+  transform: translateX(var(--hero-fg-shift-x, 0));
+  width: var(--hero-fg-width);
+  max-width: 100%;
+  height: var(--hero-fg-height);
+  overflow: hidden;
+}
+
+/* <picture> is only a per-breakpoint source swap; keep it transparent to layout
+   so the img still sizes against .hero-fg. */
+.hero-fg picture {
+  display: contents;
+}
+
+.hero-fg__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+}
+
+.hero-fg--theme-aware .hero-fg__img--light {
+  display: block;
+}
+.hero-fg--theme-aware .hero-fg__img--dark {
+  display: none;
+}
+.dark .hero-fg--theme-aware .hero-fg__img--light {
+  display: none;
+}
+.dark .hero-fg--theme-aware .hero-fg__img--dark {
+  display: block;
+}
+
+[data-theme="dark"] .hero-fg .hero-fg__img {
+  /* CURRENT-ART dark fallback; replace with explicit on-spec dark exports (spec §4). */
+  mix-blend-mode: screen;
+}
+
+/* ----- Hero home: tablet ----- */
+/* Hide card on tablet and mobile; only show on desktop. */
+@media (max-width: 1279px) {
+  .hero--home .hero__block {
+    height: 360px;
+  }
+
+  .hero__card {
+    display: none;
+  }
+}
+
+/* ----- Hero home: actions stack below 1000 ----- */
+@media (max-width: 1000px) {
+  .hero__actions {
+    flex-direction: column;
+  }
+}
+
+/* ----- Hero home: mobile ----- */
+@media (max-width: 767px) {
+  .hero--home .hero__block {
+    height: auto;
+    /* Figma mobile hero is 600px. The figure is pinned to the bottom (margin-top:auto
+       on .hero-fg), so on narrow screens the slack sits ABOVE the figure
+       (filled by the background) rather than below it (which read as "floating"). */
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: calc(5 * var(--space-large)) var(--space-default) 0 var(--space-default);
+    overflow: hidden;
+  }
+
+  .hero--home .hero__content {
+    position: static;
+    left: auto;
+    top: auto;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    gap: var(--space-xl);
+    order: 0;
+    align-self: stretch;
+    /* No grow on mobile: a flex-grow sibling would absorb the figure's negative
+       margin (consuming the freed space), neutralizing the pull. */
+    flex: none;
+  }
+
+  .hero__title-br {
+    display: none;
+  }
+  .hero__title-br--mobile {
+    display: inline;
+  }
+
+  .hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+    align-self: stretch;
+    width: 100%;
+    gap: var(--space-default);
+  }
+
+  .hero__actions .btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  /* Pin the figure to the bottom of the block: margin-top:auto absorbs the free
+     space above it (filled by the background) so it stays grounded when
+     content+figure is shorter than the block, and is a no-op once they exceed it.
+     Shared by home + community (both go in-flow and bottom-anchored on mobile). */
+  .hero-fg {
+    position: relative;
+    margin-top: auto;
+    margin-inline: 0;
+    aspect-ratio: var(--hero-fg-aspect);
+    height: auto;
+  }
+
+  /* Overlay darkens the top edge (for header + headline legibility) instead of
+     the left edge used on wider screens. */
+  .hero--home.hero--with-background-image::before {
+    background: linear-gradient(360deg, rgba(0, 0, 0, 0) 26.53%, rgba(0, 0, 0, 0.5) 100%);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. HERO — BASE / SHARED BANNER (.hero)
+   The default hero used by library detail, community, and release pages.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  width: 100%;
+  background-image: var(--hero-bg-image);
+  background-repeat: no-repeat;
+  background-position: center center;
+  /* Base stays cover; the community art's tuned per-breakpoint sizing
+     (--hero-bg-community-size) is applied only on .hero--community so library
+     and release heroes don't inherit it. */
+  background-size: cover;
+  background-color: var(--color-surface-weak-accent-yellow);
+  align-items: center;
+}
+
+/* If a background image is provided, surface color should be transparent */
+.hero--with-background-image {
+  background-color: transparent;
+  position: relative;
+}
+
+.hero--with-background-image::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.70) 0%, rgba(0, 0, 0, 0.00) 73.12%);
+  z-index: 0;
+}
+
+.dark .hero {
+  background-color: #081040;
+}
+
+.dark .hero--with-background-image {
+  background-color: transparent;
+}
+
+.hero--no-image {
+  background: none;
+}
+
+.dark .hero--no-image {
+  background: none;
+}
+
+.hero__block {
+  width: 100%;
+  max-width: 1440px;
+  height: var(--hero-block-height);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-avatar);
+  padding-top: var(--space-hero-padding-top);
+}
+
+.hero--no-image .hero__block {
+  align-items: center;
+}
+
+.hero__content {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-xlarge);
   margin-left: var(--space-large);
-   max-width: 662px;
-   flex: 1;
- }
-
- .hero-library__meta {
-   display: flex;
-   flex-direction: column;
-  gap: var(--space-large);
-   align-self: stretch;
- }
-
- .hero-library__tags {
-   display: flex;
-   flex-direction: row;
-  gap: var(--space-xs);
-   align-items: center;
-   flex-wrap: wrap;
- }
-
- .hero-library__added-wrap {
-   display: inline-flex;
-   align-items: center;
-  padding: calc(3 * var(--space-xs)) var(--space-default);
-   border-radius: 1000px;
- }
-
- .hero-library__added {
-   color: var(--color-text-secondary);
-  font-size: var(--font-size-xs);
-   line-height: 1.2;
-  font-weight: var(--font-weight-regular);
- }
-
-/* Keep added text color consistent with description on bg+image heroes */
-.hero-library--with-bg-and-image .hero-library__added {
- color: var(--color-primary-grey-400);
+  max-width: 662px;
+  flex: 1;
 }
 
- .hero-library__text-block {
-   display: flex;
-   flex-direction: column;
-  gap: var(--space-medium);
-   align-self: stretch;
- }
+.hero__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  align-self: stretch;
+}
 
- .hero-library__title {
-   color: var(--color-text-primary);
-   font-size: var(--font-size-2xl);
-   line-height: 1;
-   letter-spacing: -0.01em;
-   font-weight: 400;
- }
+.hero__tags {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-xs);
+  align-items: center;
+  flex-wrap: wrap;
+}
 
- .hero-library__title--flagship {
-   font-size: var(--font-size-3xl);
- }
+.hero__added-wrap {
+  display: inline-flex;
+  align-items: center;
+  padding: calc(3 * var(--space-xs)) var(--space-default);
+  border-radius: 1000px;
+}
 
- /* When hero has background + center image, main title is white (light and dark mode) */
- .hero-library--with-bg-and-image .hero-library__title {
-   color: #fff;
- }
-
- /* When hero has background + center image, description uses secondary text color (light and dark mode) */
- .hero-library--with-bg-and-image .hero-library__description {
-   color: var(--color-primary-grey-400);
- }
-
- .hero-library__description {
-   color: var(--color-text-secondary);
-  font-size: var(--font-size-large);
-   line-height: 1.33;
-   letter-spacing: -0.01em;
+.hero__added {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: 1.2;
   font-weight: var(--font-weight-regular);
-   margin: 0;
-   padding: 0;
- }
+}
 
- .hero-library__links {
-   display: flex;
-   flex-direction: row;
+/* Keep added text color consistent with description on bg+image heroes */
+.hero--with-bg-and-image .hero__added {
+  color: var(--color-primary-grey-400);
+}
+
+.hero__text-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium);
+  align-self: stretch;
+}
+
+/* The single hero heading, identical on every page (home, community, library,
+   release). One size ladder: 64px desktop, 40px tablet, 32px mobile (steps below). */
+.hero__title {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: -4px;
+  margin: 0;
+  align-self: stretch;
+  z-index: 1;
+}
+
+/* When hero has background + center image, main title is white (light and dark mode) */
+.hero--with-bg-and-image .hero__title {
+  color: #fff;
+}
+
+/* When hero has background + center image, description uses secondary text color (light and dark mode) */
+.hero--with-bg-and-image .hero__description {
+  color: var(--color-primary-grey-400);
+}
+
+.hero__description {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-large);
+  line-height: 1.33;
+  letter-spacing: -0.01em;
+  font-weight: var(--font-weight-regular);
+  margin: 0;
+  padding: 0;
+}
+
+.hero__links {
+  display: flex;
+  flex-direction: row;
   gap: var(--space-s);
-   flex-wrap: wrap;
-   align-self: stretch;
- }
+  flex-wrap: wrap;
+  align-self: stretch;
+}
 
- .hero-library__links .btn-icon-library {
-   height: 32px;
+.hero__links .btn-icon-library {
+  height: 32px;
   padding: var(--space-default) var(--space-large);
- }
+}
 
- .hero-library__links .btn-icon {
+/* In dark mode the hero links sit over the photo, so they use Surface-Mid (#2F313D,
+   Figma) instead of the global button's Surface-Weak (#1A1C29). The hover rule is
+   repeated here only because this resting rule would otherwise out-specify the
+   global dark hover and freeze the hover state. */
+html.dark .hero__links .btn-icon-library {
+  background-color: var(--color-surface-mid);
+}
+
+html.dark .hero__links .btn-icon-library:hover {
+  background-color: var(--color-stroke-mid);
+}
+
+.hero__links .btn-icon {
   width: var(--space-large);
   height: var(--space-large);
- }
+}
 
- .hero-library__image {
-   width: 488px;
-   height: 416px;
+.hero__image {
+  width: 488px;
+  height: 416px;
   margin-right: var(--space-large);
-   overflow: hidden;
-   flex: 1;
-   display: flex;
-   flex-direction: row-reverse;
- }
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: row-reverse;
+}
 
- .hero-library__image .hero-library__img {
-   height: 100%;
-   object-fit: contain;
-   object-position: center bottom;
-   display: block;
- }
+/* <picture> is only a per-breakpoint source swap; keep it transparent to layout
+   so the img still sizes against .hero__image. */
+.hero__image picture {
+  display: contents;
+}
 
- .hero-library__image--theme-aware .hero-library__img--light {
-   display: block;
- }
- .hero-library__image--theme-aware .hero-library__img--dark {
-   display: none;
- }
- .dark .hero-library__image--theme-aware .hero-library__img--light {
-   display: none;
- }
- .dark .hero-library__image--theme-aware .hero-library__img--dark {
-   display: block;
- }
+.hero__image .hero__img {
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+}
 
- [data-theme="dark"] .hero-library__image .hero-library__img {
-   mix-blend-mode: screen;
- }
+.hero__image--theme-aware .hero__img--light {
+  display: block;
+}
+.hero__image--theme-aware .hero__img--dark {
+  display: none;
+}
+.dark .hero__image--theme-aware .hero__img--light {
+  display: none;
+}
+.dark .hero__image--theme-aware .hero__img--dark {
+  display: block;
+}
 
- /* ----- Hero library: mobile ----- */
- @media (max-width: 767px) {
+[data-theme="dark"] .hero__image .hero__img {
+  /* CURRENT-ART dark fallback; replace with explicit on-spec dark exports (spec §4). */
+  mix-blend-mode: screen;
+}
 
-   .hero-library__block {
-     padding: 96px var(--space-default) 32px var(--space-default);
-   }
+/* ----- Hero base: tablet ----- */
+/* Step the heading down from 64px to 40px. */
+@media (max-width: 1279px) {
+  .hero__title {
+    font-size: var(--font-size-2xl);
+    letter-spacing: -2px;
+  }
+}
 
-   .hero-library__main {
-     min-height: 210px;
-     flex-direction: column;
-     justify-content: center;
-   }
+/* ----- Hero base: mobile ----- */
+@media (max-width: 767px) {
+  .hero__block {
+    height: auto;
+    min-height: var(--hero-block-height);
+    flex-direction: column;
+    justify-content: center;
+    padding: 96px var(--space-default) 32px var(--space-default);
+  }
 
-   .hero-library--no-image .hero-library__main {
+  .hero--no-image .hero__block {
     min-height: auto;
     height: auto;
   }
 
-  .hero-library__block > .banner {
+  .hero__content {
     margin: 0;
+    margin-right: auto;
+    flex: none;
   }
 
-  .hero-library {
-    background-size: cover;
-    background-position: center top;
-  }
-
-   .hero-library__content {
-     margin: 0;
-     margin-right: auto;
-     flex: none;
-   }
-
-   .hero-library__meta {
+  .hero__meta {
     gap: var(--space-medium);
-   }
+  }
 
-   .hero-library__tags .category-tag {
+  .hero__tags .category-tag {
     padding: var(--space-default);
     border-radius: var(--border-radius-s);
     font-size: var(--font-size-xs);
     line-height: var(--line-height-tight);
-   }
+  }
 
-   .hero-library__tags .version-tag {
+  .hero__tags .version-tag {
     padding: var(--space-default);
     border-radius: var(--border-radius-l);
     font-size: var(--font-size-xs);
     line-height: var(--line-height-tight);
-   }
+  }
 
-   .hero-library__added {
+  .hero__added {
     font-size: var(--font-size-xs);
-     line-height: 1.2;
-   }
+    line-height: 1.2;
+  }
 
-   .hero-library__text-block {
+  .hero__text-block {
     gap: var(--space-default);
-   }
+  }
 
-   .hero-library__title {
-    font-size: var(--font-size-2xl);
-   }
-
-   .hero-library__title--flagship {
+  .hero__title {
     font-size: var(--font-size-3xl);
-   }
+    letter-spacing: 0px;
+  }
 
-   .hero-library__description {
+  .hero__description {
     font-size: var(--font-size-large);
     line-height: var(--line-height-loose-alt);
-   }
+  }
 
-   .hero-library__links .btn-icon-library {
+  .hero__links .btn-icon-library {
     padding: var(--space-default) 12px;
     gap: var(--space-default);
     border-radius: var(--border-radius-l);
     font-size: var(--font-size-small);
     line-height: var(--line-height-relaxed);
-     height: 32px;
-   }
+    height: 32px;
+  }
 
-   .hero-library__links .btn-icon {
-     width: 16px;
-     height: 16px;
-   }
+  .hero__links .btn-icon {
+    width: 16px;
+    height: 16px;
+  }
 
-   .hero-library__image {
+  .hero__image {
     width: min(100%, calc(100vw - var(--space-large)));
     margin-top: var(--space-large);
-     margin-right: 0px;
-     height: 306px;
-     right: 0px;
-     bottom: 0;
-     justify-content: center;
-   }
- }
+    margin-right: 0px;
+    height: 306px;
+    right: 0px;
+    bottom: 0;
+    justify-content: center;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5. HERO VARIANTS (page-specific)
+   Modifier classes set by the template via `extra_classes`, so page stylesheets
+   no longer reach into hero internals.
+     --community  community page: shares the full-bleed .hero-fg foreground (home)
+     --release    release detail: solid surface, taller block, no foreground
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Community: background focal point + tuned per-breakpoint sizing (independent of
+   other library heroes, which keep the base `cover`). */
+.hero--community {
+  background-position: var(--hero-bg-community-position-x) var(--hero-bg-community-position-y);
+  background-size: var(--hero-bg-community-size);
+}
+
+/* Community foreground uses the shared `.hero-fg` frame (gated by fullbleed_fg in
+   _hero_library.html) — no community-specific foreground rules needed. */
+
+.hero--community .hero__content {
+  z-index: 1;
+  /* Narrower than the base 662px so the headline wraps. Shrinks further in the
+     tablet band (see below) so it clears the full-bleed mascot. */
+  max-width: 615px;
+}
+
+/* Subtext white over the hero scene (Figma: Text-Reversed-on-Accent, #FFF), same
+   as the title and home headline; overrides the grey-400 other library heroes use.
+   Literal #fff (not --color-text-reversed, which is black in light mode) so it
+   stays white in both themes over the dark background photo. The remaining type
+   (24px / 1.33 / -0.01em ≈ -0.24px / 400) already matches Figma via the base rule. */
+.hero--community .hero__description {
+  color: #fff;
+}
+
+/* Release detail: solid surface only when there's no hero image. Once an image is
+   present, the shared --with-background-image rules (transparent + left gradient)
+   take over so the background scene shows through, same as community. */
+.hero--release.hero--no-image {
+  background: var(--color-surface-weak-accent-yellow);
+}
+
+/* ----- Hero variants: tablet ----- */
+/* In the tablet band the community foreground is still full width but the mascot has
+   moved toward center, so cap the text column at 50vw to keep it clear of the art.
+   Banded (not <=1279) so mobile, where the foreground stacks in-flow below the text,
+   keeps the full-width text. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .hero--community .hero__content {
+    max-width: min(615px, 50vw);
+  }
+}
+
+/* ----- Hero variants: mobile ----- */
+@media (max-width: 767px) {
+  /* The mobile foreground is in-flow, so the block's padding-bottom would gap it
+     from the edge. Zero it so the figure sits flush, matching the home hero. */
+  .hero--community .hero__block {
+    padding-bottom: 0;
+  }
+
+  /* Community foreground (mobile) uses the shared `.hero-fg` mobile rule above. */
+
+  .hero--release .hero__block {
+    padding: 80px 0 0 0;
+    justify-content: flex-start;
+  }
+
+  .hero--release .hero__content {
+    margin: 0;
+  }
+}

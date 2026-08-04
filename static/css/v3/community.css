@@ -3,14 +3,8 @@
  * BEM naming, semantic tokens with fallbacks.
  */
 
-/* ── Navbar overlays hero (matches homepage pattern) ──────────── */
-
-body:has(.community-v3) .header {
-  position: absolute;
-  z-index: 10;
-  left: 0;
-  right: 0;
-}
+/* Hero styling (including the full-bleed .hero-fg foreground) lives in heros.css
+   under `.hero--community`, set via the template's extra_classes. */
 
 /* ── Page container (below full-bleed hero) ───────────────────── */
 

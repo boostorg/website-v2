@@ -2,25 +2,6 @@ body:has(.homepage-v3) {
   overflow-x: clip;
 }
 
-body:has(.homepage-v3) .header {
-  position: absolute;
-  z-index: 10;
-  left: 0;
-  right: 0;
-}
-
-.homepage-container .hero-home {
-  border: none;
-  border-radius: 0;
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  box-sizing: border-box;
-}
-
 .homepage-container {
   max-width: 1440px;
   margin: 0 auto;
@@ -192,11 +173,6 @@ body:has(.homepage-v3) .header {
 }
 
 @media (max-width: 767px) {
-    .homepage-container .hero-home {
-      padding-left: var(--space-default);
-      padding-right: var(--space-default);
-    }
-
     .homepage-container {
       max-width: 485px;
       padding: 0 var(--space-medium);

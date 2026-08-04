@@ -13,33 +13,42 @@
     hero_image_url    (optional) — Image URL for the right side. If omitted, image block is not shown.
     hero_image_url_light (optional) — Image URL for light mode. If omitted, falls back to hero_image_url.
     hero_image_url_dark  (optional) — Image URL for dark mode. If omitted, only the light image is used.
+    hero_image_url_mobile (optional) — Art-directed image swapped in at &lt;=767px (e.g. a tighter crop). If omitted, the desktop image is used at all widths.
     hero_background_image_url (optional) — Background image URL for the hero container.
 
   Usage:
     {% include "v3/includes/_hero_home.html" %}
     {% include "v3/includes/_hero_home.html" with headline="Welcome to Boost" primary_url="/docs/" hero_image_url=hero_image_url %}
 {% endcomment %}
-<section class="hero-home{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-home--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero-home--with-bg-and-image{% endif %}{% if hero_background_image_url %} hero-home--with-background-image{% endif %}"
+<section class="hero hero--home{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero--with-bg-and-image{% endif %}{% if hero_background_image_url %} hero--with-background-image{% endif %}"
          {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
          aria-label="Hero">
-  <div class="hero-home__block">
-    <div class="hero-home__content">
-      <h1 class="hero-home__headline">
-        {{ headline|default:"Built by the C++ community. Trusted by the world." }}</h1>
-      <div class="hero-home__actions">
+  <div class="hero__block">
+    <div class="hero__content">
+      <h1 class="hero__title">
+        {% if headline %}{{ headline }}{% else %}Built by the <br class="hero__title-br">C++ <br class="hero__title-br--mobile">community. <br class="hero__title-br">Trusted by <br class="hero__title-br--mobile">the world.{% endif %}</h1>
+      <div class="hero__actions">
         {% include "v3/includes/_button_hero.html" with label=primary_label|default:"I'm new to Boost" url=primary_url style="primary" type="button" %}
         {% include "v3/includes/_button_hero.html" with label=secondary_label|default:"I need a specific solution" url=secondary_url style="secondary" type="button" %}
       </div>
     </div>
-    <div class="hero-home__card">
+    <div class="hero__card">
       {% include "v3/includes/_install_card.html" with title=install_card_title|default:"Install Boost and get started in your terminal." card_id=install_card_id|default:"hero-home-install" %}
     </div>
     {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
-    <div class="hero-home__image{% if hero_image_url_dark %} hero-home__image--theme-aware{% endif %}">
+    <div class="hero-fg{% if hero_image_url_dark %} hero-fg--theme-aware{% endif %}">
       {% with hero_light=hero_image_url_light|default:hero_image_url hero_dark=hero_image_url_dark %}
-      <img alt="" class="hero-home__img hero-home__img--light" src="{{ hero_light }}" loading="lazy" decoding="async">
+      {% if hero_light %}
+      <picture>
+        {% if hero_image_url_mobile %}<source media="(max-width: 767px)" srcset="{{ hero_image_url_mobile }}">{% endif %}
+        <img alt="" class="hero-fg__img hero-fg__img--light" src="{{ hero_light }}" loading="lazy" decoding="async">
+      </picture>
+      {% endif %}
       {% if hero_dark %}
-      <img alt="" class="hero-home__img hero-home__img--dark" src="{{ hero_dark }}" loading="lazy" decoding="async">
+      <picture>
+        {% if hero_image_url_mobile %}<source media="(max-width: 767px)" srcset="{{ hero_image_url_mobile }}">{% endif %}
+        <img alt="" class="hero-fg__img hero-fg__img--dark" src="{{ hero_dark }}" loading="lazy" decoding="async">
+      </picture>
       {% endif %}
       {% endwith %}
     </div>

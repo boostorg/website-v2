@@ -22,6 +22,19 @@
   color: var(--color-text-primary);
 }
 
+/* Consistent header positioning on all v3 pages.
+   Header overlays the top of the page; non-hero pages reserve space below. */
+body.v3 .header {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+}
+
+body.v3 .v3-container > .w-full {
+  padding-top: calc(var(--header-height, 48px) + 2 * var(--space-medium));
+}
+
 /* ── Shared control surface ────────────────────── */
 
 .header__nav--desktop,

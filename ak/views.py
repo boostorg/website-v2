@@ -15,6 +15,7 @@ from core.calendar import (
     upcoming_events,
 )
 from core.constants import HOMEPAGE_POPULAR_TERMS_DISPLAY
+from core.hero import home_hero_context
 from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
 from core.models import PopularSearchTerm
@@ -29,7 +30,6 @@ from ak.homepage import (
     build_join_developers_links,
     build_library_highlight_carousel,
     build_library_intro,
-    hero_image_context,
 )
 from testimonials.utils import get_testimonial_cards
 from libraries.utils import commit_data_to_stats_bars, get_commit_data_by_release
@@ -127,9 +127,6 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             get_commit_data_by_release(limit=10)
         )
 
-        # Hero Image
-        ctx.update(hero_image_context())
-
         user = self.request.user
         if user.is_authenticated and self.request.session.pop(
             "show_ml_post_auth_modal", False
@@ -145,6 +142,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             ]
             ctx["post_auth_modal_user_email"] = user.email
 
+        ctx.update(home_hero_context())
         return ctx
 
 

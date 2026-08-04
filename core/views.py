@@ -71,6 +71,7 @@ from .constants import (
     SLACK_MEMBER_COUNT,
     STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES,
 )
+from .hero import community_hero_context
 from .htmlhelper import (
     modernize_legacy_page,
     convert_name_to_id,
@@ -338,6 +339,7 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
         ctx["archive_url"] = (
             "https://lists.boost.org/archives/list/boost@lists.boost.org/latest"
         )
+        ctx.update(community_hero_context())
         return ctx
 
 
