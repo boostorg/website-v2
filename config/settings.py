@@ -491,6 +491,8 @@ if not LOCAL_DEVELOPMENT:
         "HTTP_X_FORWARDED_PROTO",
         ACCOUNT_DEFAULT_HTTP_PROTOCOL,
     )
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 # Admin banner configuration
 ENV_NAME = env("ENVIRONMENT_NAME", default="Unknown Environment")
