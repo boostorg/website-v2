@@ -20,6 +20,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
+from django_extensions.db.models import TimeStampedModel
 from imagekit.exceptions import MissingSource
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
@@ -917,6 +918,42 @@ class LastSeen(models.Model):
         self.at = timezone.now()
         if commit:
             self.save()
+
+
+class UserProfileRoutingKey(TimeStampedModel):
+    """A public profile URL segment pointing at a user.
+
+    Append-only: rows are never updated or deleted, so a key that has been
+    shared keeps resolving after the user renames themselves. A user's newest
+    row is the canonical one and older rows redirect to it.
+
+    TimeStampedModel adds `created` and `modified` fields.
+    """
+
+    KEY_MAX_LENGTH = 64
+
+    routing_key = models.SlugField(
+        max_length=KEY_MAX_LENGTH,
+        unique=True,
+        help_text=_(
+            "Lowercase URL segment for the user's public profile, e.g. "
+            '"jane-doe-k3f9". Never reused.'
+        ),
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="profile_routing_keys",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        # Resolving a user's canonical key means "their newest row", so the
+        # lookup is by user ordered on recency.
+        indexes = [models.Index(fields=["user", "-created"])]
+        get_latest_by = "created"
+
+    def __str__(self):
+        return self.routing_key
 
 
 def get_empty_notifications():
