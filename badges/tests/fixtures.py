@@ -8,7 +8,6 @@ import pytest
 from django.contrib.contenttypes.models import ContentType
 from model_bakery import baker
 
-from badges.catalogue import seed_catalogue
 from badges.enums import BadgeLabel, TierRank
 from badges.models import (
     Achievement,
@@ -18,6 +17,7 @@ from badges.models import (
     UserAchievement,
     UserBadge,
 )
+from badges.seed_data import seed_catalogue
 from badges.services import replace_tier
 
 # One grant per rung, so a shift moves all five rungs together.

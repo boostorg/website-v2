@@ -20,9 +20,9 @@ from django.utils.translation import gettext_lazy as _
 class AchievementSlug(StrEnum):
     """Slugs of the achievement types the codebase refers to by name.
 
-    Every member must exist in ``badges.catalogue.CATALOGUE``; a test enforces
-    that. Achievements created by an admin outside this enum are supported and
-    simply have no code referring to them.
+    Every member must be seeded on a fresh database; a test enforces that.
+    Achievements created by an admin outside this enum are supported and simply
+    have no code referring to them.
     """
 
     LIBRARY_AUTHORING = "library-authoring"
@@ -39,7 +39,7 @@ class BadgeLabel(models.TextChoices):
     """The fixed set of badge categories.
 
     A new category needs a matching ``Badge`` row and tiers, so adding a member
-    here is only the first half of the change - see ``badges.catalogue``.
+    here is only the first half of the change.
     """
 
     LIBRARY_AUTHOR = "library_author", _("Library Author")
