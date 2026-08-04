@@ -295,7 +295,7 @@ class Library(models.Model):
     slack_url = models.URLField(
         max_length=500,
         blank=True,
-        default="",
+        null=True,
         help_text=(
             "URL of the dedicated Slack channel for this library. "
             "Falls back to the general Boost Slack when blank."
