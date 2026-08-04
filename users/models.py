@@ -12,7 +12,7 @@ from django.contrib.auth.models import (
 )
 from django.core.cache import cache
 from django.core.mail import send_mail
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -31,6 +31,7 @@ from core.validators import (
     downscale_image_file_size_validator,
 )
 from users.constants import GITHUB_ACTIVITY_STALE_AFTER
+from users.utils import generate_routing_key
 
 logger = logging.getLogger(__name__)
 
@@ -920,6 +921,29 @@ class LastSeen(models.Model):
             self.save()
 
 
+class UserProfileRoutingKeyManager(models.Manager):
+    # The random suffix makes a collision unlikely rather than impossible, so
+    # minting retries instead of failing a profile save.
+    MINT_ATTEMPTS = 5
+
+    def mint_for(self, user):
+        """Create and return a new canonical routing key for `user`."""
+        for _ in range(self.MINT_ATTEMPTS):
+            key = generate_routing_key(user.display_name, self.model.KEY_MAX_LENGTH)
+            try:
+                # Each attempt gets its own savepoint: an IntegrityError would
+                # otherwise poison the surrounding transaction and make the
+                # retry unusable.
+                with transaction.atomic():
+                    return self.create(routing_key=key, user=user)
+            except IntegrityError:
+                continue
+        raise RuntimeError(
+            f"Could not mint a unique profile routing key for user {user.pk} "
+            f"in {self.MINT_ATTEMPTS} attempts."
+        )
+
+
 class UserProfileRoutingKey(TimeStampedModel):
     """A public profile URL segment pointing at a user.
 
@@ -945,6 +969,8 @@ class UserProfileRoutingKey(TimeStampedModel):
         related_name="profile_routing_keys",
         on_delete=models.CASCADE,
     )
+
+    objects = UserProfileRoutingKeyManager()
 
     class Meta:
         # Resolving a user's canonical key means "their newest row", so the
