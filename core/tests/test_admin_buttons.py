@@ -457,4 +457,4 @@ def test_scoped_lock_is_per_argument(client, super_user):
         client.post(reverse(BACKFILL_URL), {"slug": "library-authoring"})
 
     assert "not starting another one" in refused.content.decode()
-    delay.assert_called_once_with(slug="library-authoring")
+    delay.assert_called_once_with(slug="library-authoring", actor_id=super_user.pk)
