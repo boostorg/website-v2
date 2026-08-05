@@ -295,6 +295,11 @@ urlpatterns = (
             ),
             name="boost-people",
         ),
+        # SWITCHOVER TODO: once the v3 flag is the default, remove the two legal
+        # views (core.views.LegalPageView) and hand these URLs to Wagtail's
+        # router so the LegalPage serves itself:
+        #   path("privacy/", include(wagtail_urls)),
+        #   path("terms-of-use/", include(wagtail_urls)),
         path(
             "privacy/",
             PrivacyPolicyView.as_view(),
