@@ -1106,3 +1106,16 @@ def create_last_seen_for_user(sender, instance, created, raw, **kwargs):
     if created:
         LastSeen.objects.create(user=instance, at=timezone.now())
         Preferences.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def create_profile_routing_key_for_user(sender, instance, created, raw, **kwargs):
+    """Give every new user a public profile URL.
+
+    get_absolute_url() has no fallback for a user without a key, so one is
+    minted up front rather than on first profile view.
+    """
+    if raw or not created:
+        return
+
+    UserProfileRoutingKey.objects.mint_for(instance)

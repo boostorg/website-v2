@@ -1,7 +1,8 @@
 import pytest
+from django.db.models.signals import post_save
 from model_bakery import baker
 
-from users.models import UserProfileRoutingKey
+from users.models import User, UserProfileRoutingKey
 from users.utils import (
     ROUTING_KEY_FALLBACK_BASE,
     ROUTING_KEY_SUFFIX_LENGTH,
@@ -68,13 +69,13 @@ def test_mint_for_persists_a_key_pointing_at_the_user():
 def test_mint_for_appends_rather_than_replacing():
     """Old keys survive a rename so shared URLs keep resolving."""
     user = baker.make("users.User", display_name="Jane Doe", image=None)
-    first = UserProfileRoutingKey.objects.mint_for(user)
+    from_signup = user.profile_routing_keys.get()
     user.display_name = "Jane Smith"
-    second = UserProfileRoutingKey.objects.mint_for(user)
+    renamed = UserProfileRoutingKey.objects.mint_for(user)
 
     assert user.profile_routing_keys.count() == 2
-    assert user.profile_routing_keys.latest() == second
-    assert UserProfileRoutingKey.objects.filter(pk=first.pk).exists()
+    assert user.profile_routing_keys.latest() == renamed
+    assert UserProfileRoutingKey.objects.filter(pk=from_signup.pk).exists()
 
 
 def test_mint_for_retries_past_a_taken_key(monkeypatch):
@@ -101,3 +102,36 @@ def test_mint_for_raises_when_every_attempt_collides(monkeypatch):
 
     with pytest.raises(RuntimeError):
         UserProfileRoutingKey.objects.mint_for(user)
+
+
+def test_new_user_is_given_a_routing_key():
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    assert user.profile_routing_keys.get().routing_key.startswith("jane-doe-")
+
+
+def test_user_created_through_the_manager_is_given_a_routing_key():
+    """Signup goes through create_user(), not the model constructor."""
+    user = User.objects.create_user(email="jane@example.com", password="pw12345678")
+    assert user.profile_routing_keys.count() == 1
+
+
+def test_new_user_without_a_display_name_is_given_a_fallback_key():
+    """Email signup has no name yet, but still needs a public URL."""
+    user = baker.make("users.User", display_name=None, image=None)
+    key = user.profile_routing_keys.get().routing_key
+    assert key.startswith(f"{ROUTING_KEY_FALLBACK_BASE}-")
+
+
+def test_saving_an_existing_user_does_not_mint_another_key():
+    """Only creation mints here; renames are handled at their own call site."""
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    user.display_name = "Jane Smith"
+    user.save()
+    assert user.profile_routing_keys.count() == 1
+
+
+def test_loading_a_fixture_does_not_mint_a_key():
+    """loaddata sends raw=True, where side effects have to stay out."""
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    post_save.send(sender=User, instance=user, created=True, raw=True)
+    assert user.profile_routing_keys.count() == 1
