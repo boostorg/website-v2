@@ -6,6 +6,7 @@ from django.db.models.signals import post_delete, post_save
 from allauth.socialaccount.models import SocialAccount
 
 from users.constants import LOGIN_METHOD_SESSION_FIELD_NAME
+from users.models import UserProfileRoutingKey
 
 GITHUB = "github"
 GOOGLE = "google"
@@ -45,6 +46,10 @@ def import_social_profile_data(sender, instance, created, **kwargs):
         instance.user.display_name = provider_name
 
     instance.save()
+    # This is the one point where a social signup gets a name, and most users
+    # never open the edit form, so without this their public URL keeps the
+    # placeholder key minted back when they had no name at all.
+    UserProfileRoutingKey.objects.sync_for(instance.user)
 
     if instance.provider == GITHUB:
         # Deferred to on_commit so the worker sees the github_username that the

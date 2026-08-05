@@ -31,7 +31,12 @@ from core.validators import (
     downscale_image_file_size_validator,
 )
 from users.constants import GITHUB_ACTIVITY_STALE_AFTER
-from users.utils import generate_routing_key
+from users.utils import (
+    ROUTING_KEY_FALLBACK_BASE,
+    ROUTING_KEY_SUFFIX_LENGTH,
+    generate_routing_key,
+    routing_key_base,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -926,6 +931,28 @@ class UserProfileRoutingKeyManager(models.Manager):
     # minting retries instead of failing a profile save.
     MINT_ATTEMPTS = 5
 
+    def expected_base(self, user):
+        """The base a key minted for `user` right now would carry.
+
+        Mirrors the fallback in generate_routing_key(), so a stored key and a
+        display name can be compared on equal terms.
+        """
+        stem_length = self.model.KEY_MAX_LENGTH - ROUTING_KEY_SUFFIX_LENGTH - 1
+        stem = routing_key_base(user.display_name, stem_length)
+        return stem or ROUTING_KEY_FALLBACK_BASE
+
+    def sync_for(self, user):
+        """Mint a key for `user` only if their current one no longer fits.
+
+        Callers can fire on saves that left the name alone — linking a second
+        social account, or saving an unrelated profile field — and minting
+        unconditionally there would move a user's public URL for no reason.
+        """
+        current = self.filter(user=user).order_by("-created", "-pk").first()
+        if current is not None and current.base == self.expected_base(user):
+            return current
+        return self.mint_for(user)
+
     def mint_for(self, user):
         """Create and return a new canonical routing key for `user`."""
         for _ in range(self.MINT_ATTEMPTS):
@@ -977,6 +1004,11 @@ class UserProfileRoutingKey(TimeStampedModel):
         # lookup is by user ordered on recency.
         indexes = [models.Index(fields=["user", "-created"])]
         get_latest_by = "created"
+
+    @property
+    def base(self):
+        """The stem this key was minted from, without the random suffix."""
+        return self.routing_key.rsplit("-", 1)[0]
 
     def __str__(self):
         return self.routing_key

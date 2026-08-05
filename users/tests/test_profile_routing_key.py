@@ -135,3 +135,81 @@ def test_loading_a_fixture_does_not_mint_a_key():
     user = baker.make("users.User", display_name="Jane Doe", image=None)
     post_save.send(sender=User, instance=user, created=True, raw=True)
     assert user.profile_routing_keys.count() == 1
+
+
+def test_sync_for_keeps_the_current_key_when_the_name_is_unchanged():
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    existing = user.profile_routing_keys.get()
+    assert UserProfileRoutingKey.objects.sync_for(user) == existing
+    assert user.profile_routing_keys.count() == 1
+
+
+def test_sync_for_ignores_cosmetic_edits_to_the_name():
+    """Extra whitespace slugifies the same, so the public URL should not move."""
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    user.display_name = "  Jane   Doe  "
+    UserProfileRoutingKey.objects.sync_for(user)
+    assert user.profile_routing_keys.count() == 1
+
+
+def test_sync_for_mints_when_the_name_changes():
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    user.display_name = "Jane Smith"
+    minted = UserProfileRoutingKey.objects.sync_for(user)
+
+    assert minted.routing_key.startswith("jane-smith-")
+    assert user.profile_routing_keys.count() == 2
+    assert user.profile_routing_keys.latest() == minted
+
+
+def test_sync_for_mints_when_the_user_has_no_key():
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    user.profile_routing_keys.all().delete()
+    assert UserProfileRoutingKey.objects.sync_for(user).routing_key.startswith(
+        "jane-doe-"
+    )
+
+
+def social_account(user, provider="github", **extra_data):
+    """Link a social account, triggering import_social_profile_data.
+
+    No avatar_url/picture in extra_data, so the signal skips the image
+    download and the test needs no HTTP mocking.
+    """
+    return baker.make(
+        "socialaccount.SocialAccount",
+        user=user,
+        provider=provider,
+        uid=f"uid-{provider}-{user.pk}",
+        extra_data=extra_data,
+    )
+
+
+def test_social_signup_replaces_the_placeholder_key_with_a_named_one():
+    """A GitHub signup should not be stuck on "user-..." forever."""
+    user = baker.make("users.User", display_name=None, image=None)
+    placeholder = user.profile_routing_keys.get()
+    assert placeholder.base == ROUTING_KEY_FALLBACK_BASE
+
+    social_account(user, name="Jane Doe", login="janedoe")
+
+    user.refresh_from_db()
+    assert user.display_name == "Jane Doe"
+    assert user.profile_routing_keys.count() == 2
+    assert user.profile_routing_keys.latest().routing_key.startswith("jane-doe-")
+
+
+def test_social_signup_without_a_name_keeps_the_placeholder_key():
+    user = baker.make("users.User", display_name=None, image=None)
+    social_account(user, login="janedoe")
+    assert user.profile_routing_keys.count() == 1
+
+
+def test_linking_a_second_provider_does_not_mint_again():
+    """Same name from a second provider means the same base: no new URL."""
+    user = baker.make("users.User", display_name=None, image=None)
+    social_account(user, provider="github", name="Jane Doe", login="janedoe")
+    social_account(user, provider="google", name="Jane Doe")
+
+    assert user.profile_routing_keys.count() == 2
+    assert user.profile_routing_keys.latest().routing_key.startswith("jane-doe-")
