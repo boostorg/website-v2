@@ -175,11 +175,15 @@ urlpatterns = (
             DeleteImmediatelyView.as_view(),
             name="profile-delete-immediately",
         ),
-        # Must stay after the "users/me/..." routes above: `int` cannot match
-        # "me" today, but that stops being true if this ever moves to a
-        # username or slug converter.
-        path("users/<int:pk>/", PublicUserProfileView.as_view(), name="profile-user"),
         path("users/avatar/", UserAvatar.as_view(), name="user-avatar"),
+        # Must stay last of the single-segment "users/..." routes: `slug`
+        # matches "me" and "avatar" too, so every literal segment has to be
+        # registered ahead of it.
+        path(
+            "users/<slug:routing_key>/",
+            PublicUserProfileView.as_view(),
+            name="profile-user",
+        ),
         path("api/v1/users/me/", CurrentUserAPIView.as_view(), name="current-user"),
         path(
             "api/v1/import-versions/",

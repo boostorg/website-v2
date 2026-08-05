@@ -620,9 +620,26 @@ class User(BaseUser):
             with suppress(AttributeError, MissingSource, FileNotFoundError, OSError):
                 return getattr(self.hq_image_render, "url", None)
 
+    @cached_property
+    def profile_routing_key(self):
+        """The routing key this user's profile URL currently uses, or None.
+
+        Ordered in Python rather than by the database so that prefetching
+        `profile_routing_keys` covers a page linking many profiles without one
+        query per user.
+        """
+        keys = self.profile_routing_keys.all()
+        return max(keys, key=lambda key: (key.created, key.pk), default=None)
+
     def get_absolute_url(self):
         """This user's public profile page."""
-        return reverse("profile-user", kwargs={"pk": self.pk})
+        key = self.profile_routing_key
+        if key is None:
+            # Creation mints one and a migration backfilled the rest, so this
+            # only catches rows inserted around both (loaddata, bulk_create).
+            key = UserProfileRoutingKey.objects.mint_for(self)
+            self.profile_routing_key = key
+        return reverse("profile-user", kwargs={"routing_key": key.routing_key})
 
     @property
     def github_profile_url(self):

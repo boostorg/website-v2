@@ -8,7 +8,12 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import (
+    HttpResponsePermanentRedirect,
+    HttpResponseRedirect,
+    JsonResponse,
+)
+from django.shortcuts import get_object_or_404
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, FormView, View
@@ -55,7 +60,12 @@ from .forms import (
     SLACK_PROFILE_URL_PREFIX,
 )
 from .mixins import V3UserProfileContextMixin
-from .models import NO_PUBLIC_ROLE_OPTION, User, encode_role_option
+from .models import (
+    NO_PUBLIC_ROLE_OPTION,
+    User,
+    UserProfileRoutingKey,
+    encode_role_option,
+)
 from .password_rules import build_password_rules
 from .permissions import CustomUserPermissions
 from .profile_cards import github_activity_card_context
@@ -106,19 +116,36 @@ class CurrentUserAPIView(generics.RetrieveUpdateAPIView):
 
 
 class PublicUserProfileView(V3UserProfileContextMixin, V3Mixin, DetailView):
-    """Another user's profile page, at /users/<pk>/.
+    """Another user's profile page, at /users/<routing-key>/.
 
     V3-only: with no `template_name`, `V3Mixin` 404s the route while the v3
     flag is off. Deactivated accounts (which is what account deletion leaves
-    behind) are excluded from the queryset rather than staying publicly
-    reachable."""
+    behind) 404 rather than staying publicly reachable."""
 
     model = User
-    queryset = User.objects.filter(is_active=True)
     v3_template_name = "v3/user_profile_page.html"
     # Not the default "user": that would shadow the request user the site
     # chrome (header avatar, nav) renders from.
     context_object_name = "profile_user"
+
+    def get(self, request, *args, **kwargs):
+        self.routing_key = get_object_or_404(
+            UserProfileRoutingKey.objects.select_related("user"),
+            routing_key=kwargs["routing_key"],
+            user__is_active=True,
+        )
+        # Superseded keys are kept rather than deleted, so one still resolves to
+        # its owner. Redirect it instead of serving the same profile at two
+        # URLs, which is also what makes a shared link survive a rename.
+        canonical = self.routing_key.user.profile_routing_key
+        if canonical is not None and canonical.pk != self.routing_key.pk:
+            return HttpResponsePermanentRedirect(
+                self.routing_key.user.get_absolute_url()
+            )
+        return super().get(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return self.routing_key.user
 
     def get_v3_context_data(self, **kwargs):
         context = super().get_v3_context_data(**kwargs)
