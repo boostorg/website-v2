@@ -12,6 +12,7 @@ from django.views.generic import DetailView, FormView
 from django.views.generic.base import TemplateView
 from django.utils import timezone
 from django.conf import settings
+from django.db import transaction
 from django import forms
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
@@ -170,7 +171,8 @@ class CurrentUserProfileView(
                 initial=self.get_v3_edit_initial(),
             )
         saved_section = self.request.GET.get("saved")
-        return {
+        user = self.request.user
+        ctx = {
             "user_profile_form": form,
             "SLACK_PROFILE_URL_PREFIX": SLACK_PROFILE_URL_PREFIX,
             "biography_max_length": User.BIOGRAPHY_MAX_LENGTH,
@@ -205,6 +207,23 @@ class CurrentUserProfileView(
                 },
             ],
         }
+        # Delete-account card: the modal schedules deletion, and once
+        # scheduled the card swaps to a single "Cancel deletion" control.
+        # A failed confirmation redirects back here with ?delete_error=1 and
+        # reopens the modal, which renders this inline on the verify field.
+        if self.request.GET.get("delete_error"):
+            ctx["delete_account_error"] = DELETE_CONFIRM_ERROR
+        ctx["delete_permanently_at"] = user.delete_permanently_at
+        grace_days = settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS
+        ctx["ACCOUNT_DELETION_GRACE_PERIOD_DAYS"] = grace_days
+        ctx["delete_schedule_warning"] = (
+            f"Your account will be scheduled for deletion in {grace_days} "
+            f"{'day' if grace_days == 1 else 'days'}. You can cancel the "
+            "deletion before then."
+        )
+        ctx["profile_delete_url"] = reverse("profile-delete")
+        ctx["postorius_url"] = settings.POSTORIUS_URL
+        return ctx
 
     def get_v3_context_data(self, **kwargs):
         user = self.request.user
@@ -953,6 +972,22 @@ class UserAvatar(TemplateView):
         return response
 
 
+# Confirmation-phrase error shown inline in the delete modal.
+DELETE_CONFIRM_ERROR = DeleteAccountForm.CONFIRM_ERROR
+
+
+def _v3_profile_edit_url(fragment="", error=False):
+    """Edit-profile URL used as the V3 return target for the delete flow.
+
+    The optional fragment reopens the relevant :target modal after a redirect
+    (e.g. when confirmation fails), so the flow works without JavaScript.
+    ``error=True`` flags a failed confirmation so the reopened modal can render
+    the error inline instead of relying on a global message banner.
+    """
+    query = "?edit=true&delete_error=1" if error else "?edit=true"
+    return f"{reverse('profile-account')}{query}{fragment}"
+
+
 class DeleteUserView(LoginRequiredMixin, FormView):
     template_name = "users/delete.html"
     success_url = reverse_lazy("profile-account")
@@ -966,8 +1001,36 @@ class DeleteUserView(LoginRequiredMixin, FormView):
         user.delete_permanently_at = timezone.now() + datetime.timedelta(
             days=settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS
         )
+        if flag_is_active(self.request, "v3"):
+            user.deletion_extended_scrub = True
+            login_url = self.request.build_absolute_uri(reverse("account_login"))
+            scheme = self.request.scheme
+            host = self.request.get_host()
+            # Persist the schedule and enqueue the confirmation email atomically:
+            # the task is published only after the row commits (mirroring
+            # delete_account), so a rolled-back save never enqueues an email.
+            with transaction.atomic():
+                user.save()
+                transaction.on_commit(
+                    lambda: tasks.send_account_deletion_scheduled_email.delay(
+                        email=user.email,
+                        first_name=user.first_name,
+                        grace_days=settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS,
+                        login_url=login_url,
+                        scheme=scheme,
+                        host=host,
+                    )
+                )
+            return HttpResponseRedirect(_v3_profile_edit_url())
         user.save()
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        if flag_is_active(self.request, "v3"):
+            return HttpResponseRedirect(
+                _v3_profile_edit_url("#delete-account-dialog", error=True)
+            )
+        return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -986,9 +1049,22 @@ class CancelDeletionView(LoginRequiredMixin, SuccessMessageMixin, FormView):
     def get_object(self):
         return self.request.user
 
+    def get_success_url(self):
+        if flag_is_active(self.request, "v3"):
+            return _v3_profile_edit_url()
+        return super().get_success_url()
+
+    def get_success_message(self, cleaned_data):
+        # V3 relies on the edit-page state (the scheduled banner disappears) for
+        # feedback, so suppress the legacy success banner. Legacy is unchanged.
+        if flag_is_active(self.request, "v3"):
+            return ""
+        return super().get_success_message(cleaned_data)
+
     def form_valid(self, form):
         user = self.get_object()
         user.delete_permanently_at = None
+        user.deletion_extended_scrub = False
         user.save()
         return super().form_valid(form)
 
@@ -1004,6 +1080,6 @@ class DeleteImmediatelyView(LoginRequiredMixin, SuccessMessageMixin, FormView):
 
     def form_valid(self, form):
         user = self.get_object()
-        user.delete_account()
+        user.delete_account(extended_scrub=flag_is_active(self.request, "v3"))
         auth.logout(self.request)
         return super().form_valid(form)

@@ -4,8 +4,9 @@ from datetime import timedelta
 import structlog
 
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives, send_mail
 from django.db.models import Q
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.conf import settings
 
@@ -80,9 +81,13 @@ def clear_tokens():
 
 @shared_task
 def do_scheduled_user_deletions():
+    # Reuse the scrub mode captured when the deletion was scheduled: V3
+    # requests set deletion_extended_scrub so the grace-period delete applies
+    # the same extended PII scrub as the V3 immediate delete; legacy requests
+    # leave it False and keep the narrow scrub.
     users = User.objects.filter(delete_permanently_at__lte=timezone.now())
     for user in users:
-        user.delete_account()
+        user.delete_account(extended_scrub=user.deletion_extended_scrub)
 
 
 @shared_task
@@ -93,6 +98,38 @@ def send_account_deleted_email(email):
         settings.DEFAULT_FROM_EMAIL,
         [email],
     )
+
+
+@shared_task
+def send_account_deletion_scheduled_email(
+    email, first_name, grace_days, login_url, scheme, host
+):
+    """Confirm a scheduled deletion and explain how to cancel it.
+
+    Absolute URLs (login CTA, logo link) are built in the view where the
+    request is available and passed in, since a Celery task has no request.
+    """
+    context = {
+        "first_name": first_name,
+        "grace_days": grace_days,
+        "action_url": login_url,
+        "postorius_url": settings.POSTORIUS_URL,
+        "scheme": scheme,
+        "host": host,
+    }
+    subject = render_to_string(
+        "emails/account_deletion_scheduled_subject.txt", context
+    ).strip()
+    text_body = render_to_string("emails/account_deletion_scheduled.txt", context)
+    html_body = render_to_string("emails/account_deletion_scheduled.html", context)
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=text_body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[email],
+    )
+    msg.attach_alternative(html_body, "text/html")
+    msg.send()
 
 
 @shared_task

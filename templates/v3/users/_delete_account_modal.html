@@ -1,0 +1,79 @@
+{% comment %}
+  Delete-account dialog (V3).
+
+  A :target-driven modal (no JavaScript required) reusing the shared
+  .dialog-modal shell. It wraps a real POST form so the flow degrades
+  gracefully: the trigger <a href="#{{ dialog_id }}"> opens it, the server
+  validates the confirmation phrase, and on failure the view redirects back
+  with #{{ dialog_id }} so the modal reopens with the error message.
+
+  Layout mirrors the Figma spec: a light-red container holds a white,
+  rounded inner card whose sections are separated by full-bleed dividers.
+
+  Progressive enhancement: Alpine keeps the destructive button disabled until
+  the confirmation phrase is typed exactly. With JS off the button stays
+  enabled and the server validates the phrase.
+
+  Variables:
+    dialog_id     (required): unique id / :target anchor for this dialog.
+    title         (required): heading text.
+    warning       (required): red warning line shown under the header.
+    action_url    (required): POST target (schedule or immediate deletion).
+    submit_label  (required): label for the destructive submit button.
+    postorius_url (required): external Postorius URL for managing subscriptions.
+    error         (optional): confirmation error rendered inline on the field
+                              (set after a failed no-JS submission).
+{% endcomment %}
+<div class="dialog-modal delete-account-modal" id="{{ dialog_id }}">
+  <a class="dialog-modal__backdrop" href="#_" tabindex="-1" aria-label="Close dialog"></a>
+  <div class="dialog-modal__container"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="{{ dialog_id }}-title"
+       aria-describedby="{{ dialog_id }}-desc">
+    <form method="post"
+          action="{{ action_url }}"
+          class="delete-account-modal__form"
+          x-data="{
+                  confirmText: '',
+                  get confirmed() { return this.confirmText.trim() === 'delete my account'; }
+                  }"
+          @submit="if (!confirmed) $event.preventDefault()">
+      {% csrf_token %}
+      <div class="dialog-modal__header delete-account-modal__header">
+        <h2 class="dialog-modal__title" id="{{ dialog_id }}-title">{{ title }}</h2>
+        <a class="dialog-modal__close"
+           role="button"
+           href="#_"
+           aria-label="Close dialog">
+          {% include "includes/icon.html" with icon_name="close" icon_class="dialog-modal__close-icon" icon_size=24 %}
+        </a>
+      </div>
+      <p class="delete-account-modal__warning" id="{{ dialog_id }}-desc">{{ warning }}</p>
+      <div class="delete-account-modal__body">
+        <div class="delete-account-modal__card">
+          <div class="delete-account-modal__section">
+            <p class="delete-account-modal__summary-title">Deleting your account will:</p>
+            <ul class="delete-account-modal__list">
+              <li>Anonymize your profile (name, email, photo, GitHub username, and links)</li>
+              <li>Disconnect your GitHub/Google sign-ins and remove your saved email addresses</li>
+              <li>Remove your notification preferences</li>
+            </ul>
+            <p class="delete-account-modal__note">Posts and contributions you've made will remain on the site but will no longer be linked to you.</p>
+            <p class="delete-account-modal__note">You'll still be able to manage your mailing list subscriptions through <a class="delete-account-modal__link" href="{{ postorius_url }}" target="_blank" rel="noopener noreferrer">Postorius</a>.</p>
+          </div>
+          <hr class="delete-account-modal__divider" aria-hidden="true" />
+          <div class="delete-account-modal__section" @input="confirmText = $event.target.value">
+            {% include "v3/includes/_field_text.html" with name="verify" type="text" label='To confirm, type "delete my account"' placeholder="delete my account" aria_label="Type delete my account to confirm" error=error only %}
+          </div>
+        </div>
+      </div>
+      <div class="dialog-modal__buttons">
+        <a href="#_" class="btn btn-secondary btn-flex">Cancel</a>
+        <button type="submit"
+                class="btn btn-error btn-flex"
+                :disabled="!confirmed">{{ submit_label }}</button>
+      </div>
+    </form>
+  </div>
+</div>

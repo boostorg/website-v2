@@ -1,0 +1,135 @@
+.delete-account-modal .dialog-modal__container {
+  background-color: var(--color-surface-page);
+  background-image: linear-gradient(
+    var(--color-surface-error-weak),
+    var(--color-surface-error-weak)
+  );
+}
+
+.delete-account-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  width: 100%;
+}
+
+.delete-account-modal__header {
+  background-color: transparent;
+}
+
+.delete-account-modal__warning {
+  margin: 0;
+  padding: 0 var(--space-large);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-error-emphasis);
+}
+
+.delete-account-modal__body {
+  padding: 0 var(--space-large);
+}
+
+.delete-account-modal__card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface-weak);
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+}
+
+.delete-account-modal__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  padding: var(--space-large);
+}
+
+.delete-account-modal__summary-title,
+.delete-account-modal__note {
+  padding: 0;
+}
+
+.delete-account-modal__summary-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-primary);
+}
+
+.delete-account-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+}
+
+.delete-account-modal__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-large);
+  padding: 0;
+}
+
+.delete-account-modal__list li::before {
+  content: "";
+  flex-shrink: 0;
+  width: 3px;
+  height: 3px;
+  margin-top: 0.5em;
+  border-radius: var(--border-radius-xs);
+  background-color: var(--color-text-tertiary);
+}
+
+.delete-account-modal__note {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  color: var(--color-text-tertiary);
+}
+
+.delete-account-modal__link {
+  color: var(--color-text-link-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.delete-account-modal__divider {
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background-color: var(--color-stroke-weak);
+}
+
+.delete-account-modal .btn-secondary,
+.delete-account-modal .btn-secondary:hover,
+.delete-account-modal .btn-secondary[data-hover] {
+  background-color: transparent;
+}
+
+.delete-account-modal .btn-error,
+.delete-account-modal .btn-error:hover,
+.delete-account-modal .btn-error[data-hover] {
+  background-color: var(--color-surface-error-strong);
+  border-color: var(--color-surface-error-strong);
+  color: var(--color-text-reversed);
+}
+
+.delete-account-modal .btn-error:disabled {
+  opacity: 0.45;
+}

@@ -382,3 +382,17 @@
         width: 528px;
     }
 }
+
+/* Delete-account card actions: holds either the Cancel-deletion button or the
+   Delete-account trigger, never both. */
+.user-profile__delete-account-actions {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-default);
+    align-items: center;
+}
+
+.user-profile__delete-inline-form {
+    margin: 0;
+    display: contents;
+}

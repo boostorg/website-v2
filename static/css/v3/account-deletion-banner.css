@@ -1,0 +1,97 @@
+/**
+ * Account deletion banner (V3)
+ *
+ * Site-wide banner shown while a logged-in user's account is scheduled for
+ * deletion (rendered from base.html behind the v3 flag). It is `position: sticky`
+ * at the top so it sits above the navbar and, being in normal document flow,
+ * pushes the page content down (nothing is hidden behind it). Red error styling
+ * via semantic tokens (light/dark handled by semantics.css + themes.css).
+ *
+ * Only "Cancel deletion" is offered - immediate deletion is not exposed in V3.
+ */
+.deletion-banner {
+  position: sticky;
+  top: 0;
+  z-index: 1100;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-large);
+  width: 100%;
+  padding: var(--space-default) var(--space-large);
+  box-sizing: border-box;
+  background-color: var(--color-surface-error-strong);
+  color: var(--color-text-reversed);
+}
+
+.deletion-banner__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-default) var(--space-large);
+}
+
+.deletion-banner__message {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  color: var(--color-text-reversed);
+}
+
+.deletion-banner__form {
+  margin: 0;
+}
+
+.deletion-banner__cancel {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  color: var(--color-text-reversed);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.deletion-banner__cancel:hover {
+  opacity: 0.85;
+}
+
+.deletion-banner__close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs);
+  background: transparent;
+  border: 0;
+  border-radius: var(--border-radius-s);
+  color: var(--color-icon-reverse);
+  cursor: pointer;
+}
+
+.deletion-banner__close:hover {
+  opacity: 0.7;
+}
+
+.deletion-banner__close-icon {
+  width: 16px;
+  height: 16px;
+  fill: var(--color-icon-reverse);
+}
+
+@media (max-width: 767px) {
+  .deletion-banner {
+    align-items: flex-start;
+  }
+
+  .deletion-banner__body {
+    justify-content: flex-start;
+  }
+}

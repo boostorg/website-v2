@@ -196,12 +196,14 @@ class UserProfilePhotoForm(forms.ModelForm):
 
 
 class DeleteAccountForm(forms.Form):
+    CONFIRM_ERROR = 'Please enter "delete my account"'
+
     verify = forms.CharField(help_text='To verify, type "delete my account" above.')
 
     def clean_verify(self):
         verify = self.cleaned_data["verify"]
         if self.cleaned_data["verify"] != "delete my account":
-            raise forms.ValidationError('Please enter "delete my account"')
+            raise forms.ValidationError(self.CONFIRM_ERROR)
         return verify
 
 

@@ -1,0 +1,36 @@
+{% extends "emails/base_email.html" %}
+{% load custom_static %}
+
+{% comment %}
+  Sent when a user schedules their account for deletion (V3 flow). Subject:
+  "Your account is scheduled for deletion" (see
+  account_deletion_scheduled_subject.txt).
+  Context: first_name, grace_days, action_url (login URL used as the CTA),
+  postorius_url, scheme, host.
+{% endcomment %}
+
+{% block title %}Your account is scheduled for deletion{% endblock %}
+
+{% block preheader %}Your account is scheduled for deletion in {{ grace_days }} day{{ grace_days|pluralize }}. You can cancel anytime before then by logging back in.{% endblock %}
+
+{% block card_title %}Account scheduled for deletion{% endblock %}
+
+{% block card_body %}
+  <p style="margin:0;">Hi {{ first_name|default:"there" }},</p>
+  <p style="margin:14px 0 0 0;">We've received your request to delete your account. It's now scheduled for deletion in {{ grace_days }} day{{ grace_days|pluralize }}.</p>
+  <p style="margin:14px 0 0 0;">You can cancel this anytime before then by logging back in.</p>
+  <p style="margin:18px 0 8px 0;">What happens when deletion completes:</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin:0 0 6px 0;">Your profile (name, email, photo, GitHub username, and links) will be anonymized</li>
+    <li style="margin:0 0 6px 0;">Your GitHub/Google sign-ins will be disconnected and saved email addresses removed</li>
+    <li style="margin:0;">Your notification preferences will be removed</li>
+  </ul>
+  <p style="margin:14px 0 0 0;">Posts and contributions you've made will remain on the site but will no longer be linked to you.</p>
+  <p style="margin:14px 0 0 0;">If you have mailing list subscriptions, you can still manage those through <a href="{{ postorius_url }}" style="color:#050816;text-decoration:underline;">Postorius</a>.</p>
+  <p style="margin:14px 0 0 0;">If you didn't request this, log in and cancel the deletion before the {{ grace_days }} day{{ grace_days|pluralize }} are up.</p>
+  <p style="margin:18px 0 0 0;">Thanks,<br>The Boost Team</p>
+{% endblock %}
+
+{% block cta_label %}Log in to cancel{% endblock %}
+
+{% block footer_links %}{% endblock %}

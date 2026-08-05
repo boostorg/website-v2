@@ -304,20 +304,34 @@ class User(BaseUser):
     # If non-null, the user has requested deletion but the grace period has not
     # elapsed.
     delete_permanently_at = models.DateTimeField(null=True, editable=False)
+    # Remembers whether the pending deletion was requested through the V3 flow,
+    # so the grace-period task can apply the same extended PII scrub the V3
+    # immediate delete uses. Legacy requests leave this False.
+    deletion_extended_scrub = models.BooleanField(default=False, editable=False)
 
-    def delete_cached_thumbnail(self):
-        """Delete the cached ImageKit thumbnail so it regenerates on next access."""
-        if not self.profile_image:
+    def _delete_cached_spec(self, source_field, spec_field):
+        """Delete a cached ImageKit spec file so it regenerates on next access."""
+        if not getattr(self, source_field):
             return
         try:
             from imagekit.cachefiles.backends import CacheFileState
 
-            thumb = self.image_thumbnail
-            if thumb.name:
-                thumb.storage.delete(thumb.name)
-            thumb.cachefile_backend.set_state(thumb, CacheFileState.DOES_NOT_EXIST)
+            cache_file = getattr(self, spec_field)
+            if cache_file.name:
+                cache_file.storage.delete(cache_file.name)
+            cache_file.cachefile_backend.set_state(
+                cache_file, CacheFileState.DOES_NOT_EXIST
+            )
         except (OSError, AttributeError):
-            logger.debug("Failed to invalidate thumbnail cache", exc_info=True)
+            logger.debug("Failed to invalidate %s cache", spec_field, exc_info=True)
+
+    def delete_cached_thumbnail(self):
+        """Delete the cached ImageKit thumbnail so it regenerates on next access."""
+        self._delete_cached_spec("profile_image", "image_thumbnail")
+
+    def delete_cached_hq_render(self):
+        """Delete the cached full-size render of the high-quality image."""
+        self._delete_cached_spec("hq_image", "hq_image_render")
 
     def save_image_from_provider(self, avatar_url):
         from django.core.files.base import ContentFile
@@ -430,26 +444,60 @@ class User(BaseUser):
         return User.objects.filter(github_username=github_user).first()
 
     @transaction.atomic
-    def delete_account(self):
+    def delete_account(self, extended_scrub=False):
         from . import tasks
 
         email = self.email
         transaction.on_commit(lambda: tasks.send_account_deleted_email.delay(email))
+
+        # Remove linked auth + preference records. Manager-level deletes are
+        # idempotent, so a second run (immediate delete racing the scheduled
+        # task) is a harmless no-op.
         self.socialaccount_set.all().delete()
-        self.preferences.delete()
         self.emailaddress_set.all().delete()
+        Preferences.objects.filter(user=self).delete()
+
+        # Scrub credentials, profile identity and public PII.
         self.is_active = False
         self.set_unusable_password()
-        self.display_name = "John Doe"
         self.first_name = "John"
         self.last_name = "Doe"
         self.display_name = "John Doe"
         self.email = "deleted-{}@example.com".format(uuid.uuid4())
+
+        # Drop the cached avatar render while its source field is still set.
         self.delete_cached_thumbnail()
-        image = self.profile_image
-        transaction.on_commit(lambda: image.delete())
-        self.profile_image = None
+        image_fields = ["profile_image"]
+
+        # These records, fields and files are only scrubbed for the V3 deletion
+        # flow - gating them keeps legacy (flag-off) deletion byte-identical to
+        # production.
+        if extended_scrub:
+            # The local mailing-list rows store the user's email. We
+            # deliberately do NOT call the Mailman/Postorius API to unsubscribe
+            # - list membership is left for the user to manage in Postorius.
+            self.mailing_list_subscriptions.all().delete()
+            LastSeen.objects.filter(user=self).delete()
+            self.badges.clear()
+
+            self.github_username = ""
+            self.profile_links = {}
+            self.indicate_last_login_method = False
+            self.image_uploaded = False
+
+            self.delete_cached_hq_render()
+            image_fields.append("hq_image")
+
+        # File deletes are deferred to on_commit so a rolled-back transaction
+        # leaves them intact.
+        for field_name in image_fields:
+            image = getattr(self, field_name)
+            if image:
+                transaction.on_commit(lambda img=image: img.delete(save=False))
+            setattr(self, field_name, None)
+
         self.delete_permanently_at = None
+        self.deletion_extended_scrub = extended_scrub
         self.save()
 
     def __str__(self):

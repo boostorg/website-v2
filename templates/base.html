@@ -362,6 +362,11 @@
         class="h-screen {% flag "v3" %}v3{% else %}bg-gray-200 dark:bg-black{% endflag %}{% if DEBUG %} DEBUG{% endif %}" {% block body_id %}{% endblock %}>
          <div class="modal-overlay" id="modalOverlay"><div class="modal-content"><iframe id="modalFrame" class="w-full h-full rounded-xl m-0 p-0"></iframe><div class="modal-close" id="modalClose" onclick="closeModal()"><i class="fa-solid fa-xmark fa-lg"></i></div></div></div>
       {% flag "v3" %}
+        {% if request.user.is_authenticated and request.user.delete_permanently_at %}
+          {% include "v3/includes/_account_deletion_banner.html" %}
+        {% endif %}
+      {% endflag %}
+      {% flag "v3" %}
       <div class="bg-slate text-white text-center py-2 font-semibold">v3 flag enabled</div>
       {% endflag %}
       {% block main_content_wrapper %}
@@ -382,6 +387,7 @@
       <div class="w-full">
         {% block messages %}{% include "partials/messages.html" %}{% endblock messages %}
       </div>
+      {% flag "v3" %}{% else %}
       {% if request.user.is_authenticated and request.user.delete_permanently_at %}
       <div id="messages" class="w-full text-center transition-opacity" x-data="{show: true}">
         <div x-show="show" class="mx-auto text-left items-center text-white rounded text-base px-3 py-2 bg-red-500 fade show">
@@ -400,6 +406,7 @@
         </div>
       </div>
       {% endif %}
+      {% endflag %}
 
       <div class="md:px-0 min-vh-110">
       {% block content_wrapper %}

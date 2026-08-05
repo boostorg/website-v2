@@ -63,6 +63,12 @@ TEMPLATES = {
         "html": "emails/unknown_account.html",
         "action_url": "https://www.boost.org/v3/accounts/signup/",
     },
+    "account_deletion_scheduled": {
+        "subject": "emails/account_deletion_scheduled_subject.txt",
+        "text": "emails/account_deletion_scheduled.txt",
+        "html": "emails/account_deletion_scheduled.html",
+        "action_url": "https://www.boost.org/accounts/login/",
+    },
 }
 
 # Matches the URL of any email image, e.g. src="/static/static-large/img/emails/x.png"
@@ -237,6 +243,9 @@ def command(
             "action_url": spec["action_url"],
             "preferences_url": f"{base_url}/account/preferences",
             "unsubscribe_url": f"{base_url}/account/unsubscribe",
+            # Account-deletion-scheduled email context.
+            "grace_days": settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS,
+            "postorius_url": settings.POSTORIUS_URL,
             # Link lifetimes shown in the email bodies, sourced from the same
             # settings the real flows enforce (allauth email confirmation in
             # days, Django's password reset token timeout in seconds).
