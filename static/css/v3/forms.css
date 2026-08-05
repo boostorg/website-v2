@@ -394,7 +394,7 @@
   max-height: 280px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-icon-primary) var(--color-surface-strong);
+  scrollbar-color: var(--color-stroke-mid) var(--color-surface-strong);
 }
 
 .dropdown__item {

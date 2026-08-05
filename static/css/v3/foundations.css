@@ -17,7 +17,7 @@ body.v3,
 html.v3 *,
 body.v3 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary-grey-500) transparent;
+  scrollbar-color: var(--color-stroke-mid) var(--color-surface-strong);
 }
 
 /* Scroll regions inside the page keep their scrollbar hidden until hovered or
@@ -31,7 +31,7 @@ body.v3 * {
   }
 
   body.v3 *:is(:hover, :focus, :focus-within) {
-    scrollbar-color: var(--color-primary-grey-500) transparent;
+    scrollbar-color: var(--color-stroke-mid) var(--color-surface-strong);
   }
 }
 
