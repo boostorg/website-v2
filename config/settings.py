@@ -133,6 +133,7 @@ INSTALLED_APPS += [
 
 AUTH_USER_MODEL = "users.User"
 CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = "Lax"
 # See https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins
 csrf_trusted_origins = env.list(
     "CSRF_TRUSTED_ORIGINS", default=["http://0.0.0.0", "http://localhost"]
@@ -254,6 +255,10 @@ SESSION_COOKIE_NAME = "config-sessionid"
 
 # Increase default cookie age from 2 to 12 weeks
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7 * 12
+
+# Not "Strict": the social auth providers redirect back cross-site, and that
+# request must still carry the session cookie for the callback to resolve.
+SESSION_COOKIE_SAMESITE = "Lax"
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
