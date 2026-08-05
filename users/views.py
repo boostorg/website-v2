@@ -129,7 +129,7 @@ class PublicUserProfileView(V3UserProfileContextMixin, V3Mixin, DetailView):
     context_object_name = "profile_user"
 
     def get(self, request, *args, **kwargs):
-        self.routing_key = get_object_or_404(
+        self.requested_key = get_object_or_404(
             UserProfileRoutingKey.objects.select_related("user"),
             routing_key=kwargs["routing_key"],
             user__is_active=True,
@@ -137,15 +137,15 @@ class PublicUserProfileView(V3UserProfileContextMixin, V3Mixin, DetailView):
         # Superseded keys are kept rather than deleted, so one still resolves to
         # its owner. Redirect it instead of serving the same profile at two
         # URLs, which is also what makes a shared link survive a rename.
-        canonical = self.routing_key.user.profile_routing_key
-        if canonical is not None and canonical.pk != self.routing_key.pk:
+        canonical = self.requested_key.user.profile_routing_key
+        if canonical is not None and canonical.pk != self.requested_key.pk:
             return HttpResponsePermanentRedirect(
-                self.routing_key.user.get_absolute_url()
+                self.requested_key.user.get_absolute_url()
             )
         return super().get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        return self.routing_key.user
+        return self.requested_key.user
 
     def get_v3_context_data(self, **kwargs):
         context = super().get_v3_context_data(**kwargs)
