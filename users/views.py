@@ -294,13 +294,6 @@ class CurrentUserProfileView(
                 if self.request.GET.get("ce_alert")
                 else ""
             ),
-            "badge_tiers": [
-                {"tier": "1", "name": "Bronze"},
-                {"tier": "2", "name": "Silver"},
-                {"tier": "3", "name": "Gold"},
-                {"tier": "4", "name": "Platinum"},
-                {"tier": "5", "name": "Diamond"},
-            ],
             "account_connections": [],
         }
         # Delete-account card: the modal schedules deletion, and once

@@ -316,12 +316,6 @@ class V3UserProfileForm(forms.Form):
     delete_avatar = forms.BooleanField(required=False)
 
     role = forms.ChoiceField(choices=[], required=False, label="Your Role")
-    select_title = forms.ChoiceField(
-        choices=[],
-        disabled=True,
-        widget=forms.Select(attrs={"placeholder": "Unlock a badge to pick a title"}),
-        label="Select Title",
-    )
     hide_github = forms.BooleanField(
         label="Hide your GitHub activity from your profile",
         required=False,
