@@ -605,6 +605,9 @@ class CurrentUserProfileView(
             "override_commit_author_name"
         ]
         user.save()
+        # Only mints when the name actually changed; this handler also runs for
+        # country and the toggles, and every mint moves the user's public URL.
+        UserProfileRoutingKey.objects.sync_for(user)
 
     def _save_v3_email_preferences_section(self, user, form):
         """Save the v3 page's email-preference checkboxes. The v3 page only
