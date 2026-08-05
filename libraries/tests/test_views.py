@@ -264,13 +264,53 @@ def test_library_detail_404(library, old_version, tp):
     tp.response_404(response)
 
 
+@waffle.testutils.override_flag("v3", active=False)
 def test_library_detail_missing_version(library, old_version, tp):
-    # custom error due to no existing version
+    # custom error due to no existing version; pinned to the legacy template now
+    # that v3 renders its own empty state
     url = tp.reverse("library-detail", old_version.display_name, library.slug)
     response = tp.get(url)
     assert (
         "There was no version of the Boost.MultiArray library in the 1.70.0 version of "
         "Boost." in response.content.decode("utf-8")
+    )
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_missing_version_v3_empty_state(
+    library_version, old_version, tp
+):
+    """The v3 subpage swaps in the empty state, pointing at the current release."""
+    library = library_version.library
+    url = tp.reverse("library-detail", old_version.display_name, library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+    tp.assertContext("library_version_missing", True)
+    tp.assertContext(
+        "library_version_missing_description",
+        "There is no version of the Boost.MultiArray library for Boost 1.70.0. "
+        "The first release of Boost.MultiArray library was version 1.79.0.",
+    )
+    tp.assertContext("library_version_missing_cta_label", "Switch to latest (1.79.0)")
+    tp.assertContext(
+        "library_version_missing_cta_url",
+        tp.reverse("library-detail", "latest", library.slug),
+    )
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_missing_version_v3_cta_targets_newest_available(
+    library, version, old_version, tp
+):
+    """A library dropped from Boost sends the visitor to its last release, not latest."""
+    baker.make("libraries.LibraryVersion", library=library, version=old_version)
+    url = tp.reverse("library-detail", version.display_name, library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+    tp.assertContext("library_version_missing_cta_label", "Switch to 1.70.0")
+    tp.assertContext(
+        "library_version_missing_cta_url",
+        tp.reverse("library-detail", old_version.slug, library.slug),
     )
 
 

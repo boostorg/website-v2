@@ -179,6 +179,8 @@
   display: none;
 }
 
+/* Shared by the home hero and any base hero passing a cta_label/cta_url
+   (e.g. the library-unavailable variant), so the selector stays unscoped. */
 .hero__actions {
   display: flex;
   flex-direction: row;
@@ -775,6 +777,58 @@ html.dark .hero__links .btn-icon-library:hover {
    take over so the background scene shows through, same as community. */
 .hero--release.hero--no-image {
   background: var(--color-surface-weak-accent-yellow);
+}
+
+/* Library unavailable in the selected release (library subpage empty state):
+   the illustration sits on the page surface rather than the accent background
+   the other image heroes use. */
+.hero--library-unavailable,
+.dark .hero--library-unavailable {
+  background-color: var(--color-surface-page);
+}
+
+/* Raise the base hero's 662px cap so the flex split against the illustration
+   sets the text width instead (~700px at 1440px, matching Figma), which breaks
+   the 64px headline after "records" onto a second line. */
+.hero--library-unavailable .hero__content {
+  max-width: 830px;
+  gap: var(--space-xl);
+}
+
+/* Figma spaces headline, sentence and CTA evenly at 32px; the base hero packs
+   the headline and sentence tighter. */
+.hero--library-unavailable .hero__text-block {
+  gap: var(--space-xl);
+}
+
+/* Figma sits the illustration flush with the bottom of the block. The empty
+   state's copy is longer than a library hero's, so the block's fixed height
+   becomes a floor — otherwise the CTA overflows onto the version alert once the
+   headline wraps to three lines in the tablet band. */
+.hero--library-unavailable .hero__block {
+  padding-bottom: 0;
+  height: auto;
+  min-height: var(--hero-block-height);
+}
+
+/* The blend below composites against this box, not against .hero: .hero__block
+   opens a stacking context (position/z-index), which closes the blending group
+   above the section's background. Repeating the surface color here gives the
+   illustration the backdrop it needs to blend into. */
+.hero--library-unavailable .hero__image {
+  align-self: flex-end;
+  background-color: var(--color-surface-page);
+}
+
+/* The illustration ships on an opaque plate (white in the light export, black in
+   the dark one), so blend it away — otherwise its edge shows as a panel against
+   the page surface. Matches the multiply blend in Figma. */
+.hero--library-unavailable .hero__img--light {
+  mix-blend-mode: multiply;
+}
+
+.hero--library-unavailable .hero__img--dark {
+  mix-blend-mode: screen;
 }
 
 /* ----- Hero variants: tablet ----- */
