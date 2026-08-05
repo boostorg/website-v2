@@ -57,7 +57,14 @@ class V3UserProfileContextMixin:
                 "url": edit_profile_url(),
                 "icon": "pixel-pencil",
             }
-        return {"label": "Share Profile", "url": "#", "icon": "pixel-share"}
+        # A real href rather than "#": share-profile.js copies it to the
+        # clipboard, and with JS off the button still leads somewhere sensible.
+        return {
+            "label": "Share Profile",
+            "url": user.get_absolute_url(),
+            "icon": "pixel-share",
+            "extra_classes": "js-copy-profile-url",
+        }
 
     def get_v3_profile_link_buttons(self, user):
         """Header buttons for the public profile links the user has set.

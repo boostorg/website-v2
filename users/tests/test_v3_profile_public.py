@@ -239,3 +239,34 @@ def test_profile_user_route_does_not_shadow_the_literal_users_routes(user, tp):
     with tp.login(user):
         tp.response_200(tp.get("profile-account"))
     assert tp.reverse("user-avatar") == "/users/avatar/"
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_share_button_carries_the_profile_url(other_user, tp):
+    """Share copies the profile URL client-side, so the href has to be the real
+    URL rather than "#" -- which also leaves a working link with JS off."""
+    response = tp.get(
+        "profile-user", routing_key=other_user.profile_routing_key.routing_key
+    )
+    share = [link for link in response.context["top_links"] if link["label"] == "Share"]
+    assert share, "a visitor should see the Share button"
+    assert share[0]["url"] == other_user.get_absolute_url()
+    assert share[0]["extra_classes"] == "js-copy-profile-url"
+
+    content = response.content.decode()
+    assert f'href="{other_user.get_absolute_url()}"' in content
+    assert "js-copy-profile-url" in content
+    assert "share-profile.js" in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_owner_gets_edit_profile_instead_of_share(user, tp):
+    """The trailing button follows who is looking, so the owner has nothing to
+    copy here."""
+    with tp.login(user):
+        response = tp.get(
+            "profile-user", routing_key=user.profile_routing_key.routing_key
+        )
+    labels = [link["label"] for link in response.context["top_links"]]
+    assert "Edit Profile" in labels
+    assert "Share" not in labels
