@@ -309,12 +309,6 @@ class V3UserProfileForm(forms.Form):
     role = forms.ChoiceField(
         choices=[(0, "C++ Alliance Board Member")], label="Your Role"
     )
-    select_title = forms.ChoiceField(
-        choices=[],
-        disabled=True,
-        widget=forms.Select(attrs={"placeholder": "Unlock a badge to pick a title"}),
-        label="Select Title",
-    )
     hide_github = forms.BooleanField(
         label="Hide your GitHub activity from your profile",
         required=False,

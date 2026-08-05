@@ -181,13 +181,6 @@ class CurrentUserProfileView(
             "saved_sections": {
                 key: key == saved_section for key in self.V3_EDIT_SECTIONS
             },
-            "badge_tiers": [
-                {"tier": "1", "name": "Bronze"},
-                {"tier": "2", "name": "Silver"},
-                {"tier": "3", "name": "Gold"},
-                {"tier": "4", "name": "Platinum"},
-                {"tier": "5", "name": "Diamond"},
-            ],
             "account_connections_mixed": [
                 {
                     "platform": "github",
