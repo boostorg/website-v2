@@ -115,7 +115,11 @@
            aria-describedby="field-{{ name }}-help"
            {% endif %}
            {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q" {% if dispatch_field_change %}@input.debounce.150ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% elif max_chars %}x-model="value"{% endif %}>
-    {% if submit_icon %}
+    {% if disabled %}
+      <span class="field__icon" aria-hidden="true">
+        {% include "includes/icon.html" with icon_name="lock" icon_class="field__icon" icon_size=16 icon_viewbox="0 0 16 16" %}
+      </span>
+    {% elif submit_icon %}
       <button type="submit"
               class="field__submit"
               aria-label="{{ submit_label|default:'Submit' }}"
