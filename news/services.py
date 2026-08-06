@@ -45,7 +45,12 @@ def _entry_to_post_card(entry: Entry) -> dict:
         "tag": "",
         "author": {
             "name": getattr(author, "display_name", None) or str(author),
-            "profile_url": None,
+            # A deactivated author's profile 404s, so it is left unlinked.
+            "profile_url": (
+                author.get_absolute_url()
+                if getattr(author, "is_active", False)
+                else None
+            ),
             "role": author.role,
             "avatar_url": (
                 author.get_avatar_url() if hasattr(author, "get_avatar_url") else ""
@@ -61,6 +66,8 @@ def _get_entry_post_cards(limit: int) -> list[dict]:
         Entry.objects.published()
         .filter(deleted_at__isnull=True)
         .select_related("author")
+        # The card links the author's profile, which reads their routing keys.
+        .prefetch_related("author__profile_routing_keys")
         .order_by("-publish_at")[:limit]
     )
     return [_entry_to_post_card(entry) for entry in queryset]

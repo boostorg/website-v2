@@ -284,7 +284,7 @@ class Entry(models.Model):
             "date": self.publish_at,
             "category": category,
             "tag": "",
-            "author": self.author.to_v3_profile_dict(),
+            "author": self.author.to_v3_profile_dict(link_profile=True),
         }
 
     def can_view(self, user):

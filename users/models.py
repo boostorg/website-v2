@@ -601,12 +601,17 @@ class User(BaseUser):
             return ca.avatar_url
         return ""
 
-    def to_v3_profile_dict(self, role=None):
-        """Dict shape consumed by `v3/includes/_user_profile.html`."""
+    def to_v3_profile_dict(self, role=None, link_profile=False):
+        """Dict shape consumed by `v3/includes/_user_profile.html`.
+
+        A deactivated account's profile 404s, so it is never linked.
+        """
         featured = self.featured_badge
         return {
             "name": self.display_name or str(self),
-            "profile_url": None,
+            "profile_url": (
+                self.get_absolute_url() if link_profile and self.is_active else None
+            ),
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
             "badge": featured["icon"] if featured else None,
@@ -658,6 +663,13 @@ class User(BaseUser):
     @cached_property
     def name(self):
         return self.display_name
+
+    @cached_property
+    def profile_url(self):
+        """Satisfies `v3/includes/_user_profile.html`'s author.profile_url when a
+        User is passed to it directly, as the v3 posts list does with
+        Entry.author. Deactivated accounts 404, so they stay unlinked."""
+        return self.get_absolute_url() if self.is_active else None
 
     @cached_property
     def avatar_url(self):

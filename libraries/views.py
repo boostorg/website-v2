@@ -188,7 +188,11 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
     Boost version, or default to the current version."""
 
     queryset = LibraryVersion.objects.prefetch_related(
-        "authors", "library", "library__categories"
+        # author_details links the author's profile, which reads their routing
+        # keys. Prefetched so a page of libraries stays at one query for them.
+        "authors__profile_routing_keys",
+        "library",
+        "library__categories",
     ).defer("data")
     ordering = "library__name"
     template_name = "libraries/grid_list.html"

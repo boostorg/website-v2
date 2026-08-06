@@ -215,3 +215,22 @@ def test_merge_author_reassigns_emaildata():
     assert sum(authors[0].emaildata_set.all().values_list("count", flat=True)) == 200
     # total should stay the same
     assert EmailData.objects.all().aggregate(total=Sum("count"))["total"] == 1000
+
+
+def test_author_details_links_the_author_profile(library_version):
+    author = baker.make("users.User", display_name="Jane Doe", image=None)
+    library_version.authors.add(author)
+    assert library_version.author_details["profile_url"] == author.get_absolute_url()
+
+
+def test_author_details_does_not_link_a_deactivated_author(library_version):
+    """Their profile 404s, so the library card shows the name unlinked."""
+    author = baker.make(
+        "users.User", display_name="Jane Doe", image=None, is_active=False
+    )
+    library_version.authors.add(author)
+    assert library_version.author_details["profile_url"] is None
+
+
+def test_author_details_without_an_author(library_version):
+    assert library_version.author_details["profile_url"] is None
