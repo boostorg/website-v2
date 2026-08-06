@@ -1,3 +1,59 @@
+import pytest
+
+from django.urls import reverse
+
+
+@pytest.mark.parametrize("method", ["put", "patch", "delete"])
+def test_user_api_detail_write_rejected_for_anonymous(method, user, tp):
+    """Anonymous callers can't edit or delete another member's record."""
+    res = getattr(tp.client, method)(
+        reverse("users-detail", kwargs={"pk": user.pk}),
+        data={"display_name": "outsider"},
+        content_type="application/json",
+    )
+    tp.response_403(res)
+    user.refresh_from_db()
+    assert user.display_name == "Regular User"
+
+
+@pytest.mark.parametrize("method", ["put", "patch", "delete"])
+def test_user_api_detail_write_rejected_for_regular_user(method, user, super_user, tp):
+    """A logged-in member can't reach another member's record with any write
+    method. PATCH used to pass the permission check where PUT/DELETE did not."""
+    with tp.login(user):
+        res = getattr(tp.client, method)(
+            reverse("users-detail", kwargs={"pk": super_user.pk}),
+            data={"display_name": "outsider"},
+            content_type="application/json",
+        )
+    tp.response_403(res)
+    super_user.refresh_from_db()
+    assert super_user.display_name == "Super User"
+
+
+def test_user_api_create_rejected_for_regular_user(user, tp):
+    with tp.login(user):
+        res = tp.client.post(
+            reverse("users-list"),
+            data={"email": "outsider@example.com", "display_name": "outsider"},
+            content_type="application/json",
+        )
+    tp.response_403(res)
+
+
+def test_user_api_patch_allowed_for_staff(user, staff_user, tp):
+    """Staff writes still work — the tightened check only closes the member path."""
+    with tp.login(staff_user):
+        res = tp.client.patch(
+            reverse("users-detail", kwargs={"pk": user.pk}),
+            data={"display_name": "Renamed By Staff"},
+            content_type="application/json",
+        )
+    tp.response_200(res)
+    user.refresh_from_db()
+    assert user.display_name == "Renamed By Staff"
+
+
 # from django.urls import reverse
 # from faker import Faker
 # from rest_framework.test import APIClient
