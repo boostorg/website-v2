@@ -346,9 +346,12 @@ SUB_LIBRARIES = {
 # List of versions for which we know docs are missing
 VERSION_DOCS_MISSING = ["boost-1.33.0"]
 
+# File paths where library description content might be stored, in priority order.
+DESCRIPTION_FILES = ["doc/library-detail.adoc", "README.md", "README.adoc"]
+
 # This constant is for library-versions missing a README
 README_MISSING = (
-    "⚠️ This library has no README.md or library-details.adoc; "
+    "⚠️ This library has no README file or library-detail.adoc; "
     "consider contributing one."
 )
 
