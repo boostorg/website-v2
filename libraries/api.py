@@ -1,5 +1,6 @@
 from django.db.models import Q
 
+from rest_framework import mixins
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework import serializers
@@ -19,7 +20,14 @@ class LibrarySearchSerializer(serializers.ModelSerializer):
         )
 
 
-class LibrarySearchView(viewsets.ModelViewSet):
+class LibrarySearchView(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Read-only list endpoint for library search.
+
+    Only `list` is routed; every other method returns 405. No caller remains
+    in the codebase — the search box that used this is commented out in
+    `libraries/includes/library_preferences.html`.
+    """
+
     model = Library
     serializer_class = LibrarySearchSerializer
     permission_classes = [permissions.AllowAny]
