@@ -1,0 +1,170 @@
+{% comment %}
+  V3 display-badge picker.
+
+  A dropdown whose rows are richer than _field_dropdown.html can render: badge icon,
+  badge name and a per-tier phrase, with unearned rows dimmed and locked.
+
+  Variables:
+    name        (required) — input name attribute
+    options     (required) — rows from badges.display.badge_options(user): dicts of
+                             value, name, detail, icon, rank, selectable
+    label       (optional) — label text
+    placeholder (optional) — trigger text when nothing is selected
+    selected    (optional) — value (UserBadge pk) of the pre-selected row
+    help_text   (optional) — help text below the field
+    error       (optional) — error message (activates error state)
+    extra_class (optional) — additional classes on the wrapper
+
+  Exactly one of the <select> and the hidden input is ever enabled, so only one
+  value is submitted. The no-JS <select> spells the rank out ("Bronze Documenter
+  - ...") because an option cannot carry an icon; the trigger shows the icon, so
+  its data-label leaves the rank to it. choose() dispatches input so the section
+  form's Save button leaves its saved state (see createSectionForm in
+  user_profile_edit.html).
+
+  Usage:
+    {% include "v3/includes/_field_badge_select.html" with name="display_badge" label="Display Badge" options=badge_options placeholder="Unlock a badge to display on profile" %}
+{% endcomment %}
+<div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+  {# djlint:off #}
+     x-data="{
+       jsReady: false,
+       open: false,
+       selected: '{{ selected|default:'' }}',
+       selectedLabel: '',
+       init() {
+         this.jsReady = true;
+         if (this.selected) {
+           this.$refs.list.querySelectorAll('[data-value]').forEach(el => {
+             if (el.dataset.value === this.selected) this.selectedLabel = el.dataset.label;
+           });
+         }
+       },
+       choose(value, label) {
+         this.selected = value;
+         this.selectedLabel = label;
+         this.open = false;
+         this.$refs.trigger.focus();
+         this.$dispatch('input');
+       },
+       focusNext(el) {
+         let n = el.nextElementSibling;
+         while (n && !n.hasAttribute('data-value')) n = n.nextElementSibling;
+         if (n) n.focus();
+       },
+       focusPrev(el) {
+         let p = el.previousElementSibling;
+         while (p && !p.hasAttribute('data-value')) p = p.previousElementSibling;
+         if (p) p.focus();
+         else this.$refs.trigger.focus();
+       },
+       firstOption() {
+         return this.$refs.list.querySelector('[data-value]');
+       }
+     }">
+  {# djlint:on #}
+  {% if label %}<label class="field__label" id="field-{{ name }}-label">{{ label }}</label>{% endif %}
+  <select class="field__select"
+          name="{{ name }}"
+          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+          {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
+          x-show="!jsReady"
+          :disabled="jsReady">
+    {% comment %} Only when nothing is selected, so the <select> cannot clear a
+    choice either - there is no clear control on the JS side. {% endcomment %}
+    {% if not selected %}<option value="">{{ placeholder|default:"Select a badge" }}</option>{% endif %}
+    {% for option in options %}
+      <option value="{{ option.value }}"
+              {% if not option.selectable %}disabled{% endif %}
+              {% if option.value and option.value|stringformat:"s" == selected|stringformat:"s" %}selected{% endif %}>
+        {{ option.rank }} {{ option.name }} — {{ option.detail }}
+      </option>
+    {% endfor %}
+  </select>
+  <div class="dropdown badge-select" :class="{ 'dropdown--open': open, 'dropdown--has-value': selected }" x-cloak>
+    <div class="dropdown__trigger"
+         role="button"
+         x-ref="trigger"
+         @click="open = !open"
+         @keydown.enter.prevent="open = !open"
+         @keydown.space.prevent="open = !open"
+         @keydown.escape.prevent="open = false"
+         @keydown.arrow-down.prevent="open = true; $nextTick(() => firstOption()?.focus())"
+         :aria-expanded="open"
+         aria-haspopup="listbox"
+         tabindex="0"
+         {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+         {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
+      <span class="dropdown__trigger-text badge-select__trigger" x-show="selected" x-cloak>
+        {% for option in options %}
+          {% if option.selectable %}
+            <span class="badge-select__trigger-icon" x-show="selected === '{{ option.value }}'" x-cloak>
+              {% include "v3/includes/_badge_v3.html" with token=option.icon label=option.rank|add:" "|add:option.name size="small" only %}
+            </span>
+          {% endif %}
+        {% endfor %}
+        <span class="badge-select__trigger-label" x-text="selectedLabel"></span>
+      </span>
+      <span class="dropdown__trigger-text dropdown__trigger-placeholder"
+            x-show="!selected">{{ placeholder|default:"Select a badge" }}</span>
+      {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
+    </div>
+    <div class="dropdown__panel"
+         x-show="open"
+         @click.away="open = false"
+         @keydown.escape.prevent="open = false; $refs.trigger.focus()"
+         x-transition:enter="transition ease-out duration-100"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-75"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         style="display: none"
+         role="listbox"
+         {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
+      <div class="dropdown__list" x-ref="list">
+        {% for option in options %}
+          {% if option.selectable %}
+            <div class="dropdown__item badge-select__row"
+                 :class="{ 'dropdown__item--selected': selected === '{{ option.value }}' }"
+                 role="option"
+                 :aria-selected="selected === '{{ option.value }}'"
+                 data-value="{{ option.value }}"
+                 data-label="{{ option.name }} — {{ option.detail }}"
+                 @click="choose('{{ option.value }}', $el.dataset.label)"
+                 @keydown.enter.prevent="choose('{{ option.value }}', $el.dataset.label)"
+                 @keydown.space.prevent="choose('{{ option.value }}', $el.dataset.label)"
+                 @keydown.arrow-down.prevent="focusNext($el)"
+                 @keydown.arrow-up.prevent="focusPrev($el)"
+                 tabindex="0">
+              {% include "v3/includes/_badge_v3.html" with token=option.icon label=option.rank|add:" "|add:option.name size="small" only %}
+              <span class="badge-select__name">{{ option.name }}</span>
+              <span class="badge-select__detail">{{ option.detail }}</span>
+            </div>
+          {% else %}
+            <div class="dropdown__item dropdown__item--disabled badge-select__row"
+                 role="option"
+                 aria-selected="false"
+                 aria-disabled="true">
+              {% include "v3/includes/_badge_v3.html" with token=option.icon label=option.rank|add:" "|add:option.name size="small" only %}
+              <span class="badge-select__name">{{ option.name }}</span>
+              <span class="badge-select__detail">{{ option.detail }}</span>
+              <span class="badge-select__lock" aria-hidden="true">
+                {% include "includes/icon.html" with icon_name="lock" icon_size=16 icon_viewbox="0 0 16 16" only %}
+              </span>
+            </div>
+          {% endif %}
+        {% endfor %}
+        {% if not options %}
+          <div class="dropdown__empty">No badges are configured yet</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <input type="hidden" name="{{ name }}" :value="selected" disabled :disabled="!jsReady">
+  {% if error %}
+    <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+  {% elif help_text %}
+    <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+  {% endif %}
+</div>
