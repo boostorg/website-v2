@@ -7,10 +7,10 @@
     avatar_variant  (string, optional)  - Avatar color variant (yellow|green|teal). Default "yellow".
     badge_name      (string, optional)  - Featured achievement label text, e.g. "Bug Catcher"
     badge           (string, optional)  - Featured achievement token, e.g. "badge-tier-3", "star-tier-1", "boost-day"
-    tenure_badge     (dict, optional)   - {"token", "label"}; tenure medal rendered beside the role.
-    boost_day_badge  (dict, optional)   - {"token", "label"}; rendered beside the username.
-                                          Both mirror the User properties of the same name and the
-                                          placement used by _user_profile.html.
+    tenure_badge     (dict, optional)   - {"token", "label"}; tenure star.
+    boost_day_badge  (dict, optional)   - {"token", "label"}; Boost Day icon.
+                                          Both render beside the username, star first. They mirror the User properties of the
+                                          same name and the placement used by _user_profile.html.
     member_since    (string, optional)  - Membership year, e.g. "2008"
     role            (string, optional)  - Role text, e.g. "C++ Alliance Board Member"
     flag_emoji      (string, optional)  - Country flag emoji, e.g. "🇺🇸". Omit to hide flag overlay.
@@ -59,8 +59,15 @@
   <div class="user-card__info">
     <span class="user-card__name-group">
       <span class="user-card__username">{{ username }}</span>
-      {% if boost_day_badge %}
-        {% include "v3/includes/_badge_v3.html" with token=boost_day_badge.token label=boost_day_badge.label size="medium" only %}
+      {% if tenure_badge or boost_day_badge %}
+        <span class="user-card__badges">
+          {% if tenure_badge %}
+            {% include "v3/includes/_badge_v3.html" with token=tenure_badge.token label=tenure_badge.label size="large" only %}
+          {% endif %}
+          {% if boost_day_badge %}
+            {% include "v3/includes/_badge_v3.html" with token=boost_day_badge.token label=boost_day_badge.label size="large" only %}
+          {% endif %}
+        </span>
       {% endif %}
     </span>
 
@@ -78,12 +85,7 @@
     {% endif %}
 
     {% if role %}
-      <span class="user-card__role-group">
-        <span class="user-card__role">{{ role }}</span>
-        {% if tenure_badge %}
-          {% include "v3/includes/_badge_v3.html" with token=tenure_badge.token label=tenure_badge.label size="small" only %}
-        {% endif %}
-      </span>
+      <span class="user-card__role">{{ role }}</span>
     {% endif %}
   </div>
 
