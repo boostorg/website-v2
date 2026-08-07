@@ -13,11 +13,11 @@ from django.utils import timezone
 from core.constants import BadgeToken
 
 TENURE_TIERS = (
-    (2, BadgeToken.TIER_1),  # bronze
-    (5, BadgeToken.TIER_2),  # silver
-    (10, BadgeToken.TIER_3),  # gold
-    (15, BadgeToken.TIER_4),  # diamond
-    (20, BadgeToken.TIER_5),  # platinum
+    (2, BadgeToken.STAR_TIER_1),  # bronze
+    (5, BadgeToken.STAR_TIER_2),  # silver
+    (10, BadgeToken.STAR_TIER_3),  # gold
+    (15, BadgeToken.STAR_TIER_4),  # diamond
+    (20, BadgeToken.STAR_TIER_5),  # platinum
 )
 
 

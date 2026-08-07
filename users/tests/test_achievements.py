@@ -49,16 +49,16 @@ def test_tenure_years_without_join_date():
     [
         (0, None),
         (1, None),
-        (2, BadgeToken.TIER_1),
-        (4, BadgeToken.TIER_1),
-        (5, BadgeToken.TIER_2),
-        (9, BadgeToken.TIER_2),
-        (10, BadgeToken.TIER_3),
-        (14, BadgeToken.TIER_3),
-        (15, BadgeToken.TIER_4),
-        (19, BadgeToken.TIER_4),
-        (20, BadgeToken.TIER_5),
-        (99, BadgeToken.TIER_5),
+        (2, BadgeToken.STAR_TIER_1),
+        (4, BadgeToken.STAR_TIER_1),
+        (5, BadgeToken.STAR_TIER_2),
+        (9, BadgeToken.STAR_TIER_2),
+        (10, BadgeToken.STAR_TIER_3),
+        (14, BadgeToken.STAR_TIER_3),
+        (15, BadgeToken.STAR_TIER_4),
+        (19, BadgeToken.STAR_TIER_4),
+        (20, BadgeToken.STAR_TIER_5),
+        (99, BadgeToken.STAR_TIER_5),
     ],
 )
 def test_tenure_tier_token(years, expected):
@@ -73,7 +73,7 @@ def test_tenure_badge_below_first_tier():
 def test_tenure_badge_token_and_label():
     joined = datetime.date(2019, 6, 15)
     assert tenure_badge(joined, datetime.date(2026, 6, 15)) == {
-        "token": "badge-tier-2",
+        "token": "star-tier-2",
         "label": "Boost Member for 7 years",
     }
 
@@ -81,7 +81,7 @@ def test_tenure_badge_token_and_label():
 def test_tenure_badge_reflects_highest_tier_reached():
     joined = datetime.date(2001, 1, 1)
     badge = tenure_badge(joined, datetime.date(2026, 6, 15))
-    assert badge["token"] == "badge-tier-5"
+    assert badge["token"] == "star-tier-5"
     assert badge["label"] == "Boost Member for 25 years"
 
 
@@ -147,7 +147,7 @@ def test_profile_badges_both_on_anniversary():
     joined = datetime.date(2010, 6, 15)
     assert profile_badges(joined, datetime.date(2026, 6, 15)) == {
         "tenure_badge": {
-            "token": "badge-tier-4",
+            "token": "star-tier-4",
             "label": "Boost Member for 16 years",
         },
         "boost_day_badge": {"token": "boost-day", "label": "Happy 16th Boost Day"},
@@ -157,7 +157,7 @@ def test_profile_badges_both_on_anniversary():
 def test_profile_badges_medal_only_off_anniversary():
     joined = datetime.date(2010, 6, 15)
     badges = profile_badges(joined, datetime.date(2026, 6, 16))
-    assert badges["tenure_badge"]["token"] == "badge-tier-4"
+    assert badges["tenure_badge"]["token"] == "star-tier-4"
     assert badges["boost_day_badge"] is None
 
 
@@ -183,7 +183,7 @@ LONG_TENURED = datetime.datetime(1990, 1, 1, tzinfo=datetime.timezone.utc)
 
 def test_user_badge_properties(user):
     user.date_joined = LONG_TENURED
-    assert user.tenure_badge["token"] == "badge-tier-5"
+    assert user.tenure_badge["token"] == "star-tier-5"
     assert user.boost_day_badge is None
 
 
@@ -195,7 +195,7 @@ def test_user_badge_properties_empty_for_new_account(user):
 def test_to_v3_profile_dict_carries_badges(user):
     user.date_joined = LONG_TENURED
     profile = user.to_v3_profile_dict()
-    assert profile["tenure_badge"]["token"] == "badge-tier-5"
+    assert profile["tenure_badge"]["token"] == "star-tier-5"
     assert profile["tenure_badge"]["label"].startswith("Boost Member for ")
     assert profile["boost_day_badge"] is None
 
@@ -214,16 +214,18 @@ def test_user_profile_template_renders_raw_user(user):
     """
     user.date_joined = LONG_TENURED
     html = render_to_string("v3/includes/_user_profile.html", {"author": user})
-    assert "tier-5.png" in html
+    assert "star-tier-5.png" in html
 
 
 def test_user_profile_template_badge_placement():
-    """Boost Day renders before the role, the tenure medal after it."""
+    """Star then Boost Day, both beside the name and ahead of the role."""
     today = datetime.date(2026, 7, 28)
     badges = profile_badges(datetime.date(2006, 7, 28), today)
     html = render_to_string(
         "v3/includes/_user_profile.html",
         {"author": {"name": "javier", "role": "Contributor", **badges}},
     )
-    role = html.index("user-profile__role")
-    assert html.index("boost_day.png") < role < html.index("tier-5.png")
+    star = html.index("star-tier-5.png")
+    boost_day = html.index("boost_day.png")
+    assert star < boost_day < html.index("user-profile__role")
+    assert html.index("user-profile__badges") < star

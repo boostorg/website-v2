@@ -39,8 +39,8 @@
   With bio: the name group shrinks to fit-content,
   so all items sit inline on one row.
 
-  The name group keeps the name and the Boost Day icon together,
-  so that icon always stays next to the name.
+  The name group keeps the name, the tenure star and the Boost Day
+  icon together, so they always stay next to the name.
 */
 
 .user-profile__header {
@@ -62,7 +62,7 @@
 .user-profile__name-group {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-default);
+  gap: var(--space-xs);
   min-width: 0;
   width: 100%;
   text-decoration: none;
@@ -70,6 +70,13 @@
 
 .user-profile--has-bio .user-profile__name-group {
   width: auto;
+}
+
+/* The star and the Boost Day icon sit flush against each other. */
+.user-profile__badges {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .user-profile__role,

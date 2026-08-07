@@ -7,13 +7,14 @@
                                        passed as a mark_safe'd HTML string (testimonial cards
                                        use this to embed a hyperlink in the role).
     - avatar_url (string) — URL to avatar image
-    - boost_day_badge    (dict, optional)   — {"token", "label"}; rendered beside the name.
-    - tenure_badge       (dict, optional)   — {"token", "label"}; rendered beside the role,
-                                              per Figma node 5942:11222.
-                                              Both key names match the User properties of the
-                                              same name, so a raw User instance works as
-                                              `author` too. Do not collapse them into `badges`,
-                                              which collides with the User.badges m2m.
+    - tenure_badge       (dict, optional)   — {"token", "label"}; tenure star.
+    - boost_day_badge    (dict, optional)   — {"token", "label"}; Boost Day icon.
+                                              Both render beside the name, star first, per
+                                              Figma node 6994:38640. The key names match the
+                                              User properties of the same name, so a raw User
+                                              instance works as `author` too. Do not collapse
+                                              them into `badges`, which collides with the
+                                              User.badges m2m.
     - badge              (string, optional) — Legacy single badge token, e.g. "badge-tier-3",
                                               "star-tier-1". Used only when the matching slot
                                               above is empty: `star-*` renders beside the name,
@@ -48,8 +49,15 @@
             <span class="user-profile__name">{{ author.name }}</span>
           {% endif %}
         {% endif %}
-        {% if author.boost_day_badge %}
-          {% include "v3/includes/_badge_v3.html" with token=author.boost_day_badge.token label=author.boost_day_badge.label size="small" only %}
+        {% if author.tenure_badge or author.boost_day_badge %}
+          <span class="user-profile__badges">
+            {% if author.tenure_badge %}
+              {% include "v3/includes/_badge_v3.html" with token=author.tenure_badge.token label=author.tenure_badge.label size="small" only %}
+            {% endif %}
+            {% if author.boost_day_badge %}
+              {% include "v3/includes/_badge_v3.html" with token=author.boost_day_badge.token label=author.boost_day_badge.label size="small" only %}
+            {% endif %}
+          </span>
         {% elif author.badge|slice:":5" == "star-" %}
           {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size="small" only %}
         {% endif %}
@@ -57,9 +65,7 @@
       {% if author.role %}
         <span class="user-profile__role">{{ author.role }}</span>
       {% endif %}
-      {% if author.tenure_badge %}
-        {% include "v3/includes/_badge_v3.html" with token=author.tenure_badge.token label=author.tenure_badge.label size="small" only %}
-      {% elif author.badge and author.badge|slice:":5" != "star-" %}
+      {% if author.badge and author.badge|slice:":5" != "star-" %}
         {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size="small" only %}
       {% endif %}
       {% if author.achievement_count %}
