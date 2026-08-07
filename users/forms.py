@@ -9,6 +9,7 @@ from allauth.account.forms import ResetPasswordKeyForm, SignupForm
 from django_countries import countries
 
 from .models import Preferences
+from badges.models import UserBadge
 from core.validators import max_file_size_validator
 from news.models import NEWS_MODELS
 from news.acl import can_approve
@@ -247,6 +248,10 @@ class V3UserProfileForm(forms.Form):
         self._user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
         self.fields["country"].choices = [("", "No country")] + list(countries)
+        if self._user is not None:
+            self.fields["display_badge"].queryset = UserBadge.objects.active().filter(
+                user=self._user
+            )
         if links:
             self.link_formset = V3ProfileLinkFormset(
                 initial=[
@@ -308,6 +313,11 @@ class V3UserProfileForm(forms.Form):
 
     role = forms.ChoiceField(
         choices=[(0, "C++ Alliance Board Member")], label="Your Role"
+    )
+    display_badge = forms.ModelChoiceField(
+        queryset=UserBadge.objects.none(),
+        required=False,
+        label="Display Badge",
     )
     hide_github = forms.BooleanField(
         label="Hide your GitHub activity from your profile",

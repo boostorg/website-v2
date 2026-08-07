@@ -906,3 +906,90 @@
 .field__checklist-item--fail .icon {
   color: var(--color-text-error);
 }
+
+/* ========== Badge select (display-badge picker) ========== */
+
+/* Drives the max-height too, so the list is a whole number of rows. */
+.badge-select {
+  --badge-select-item-height: 40px;
+}
+
+/* Columns are icon, name, detail, lock. Rows span them as a subgrid so the name
+   track is sized across every row and the details line up. */
+.badge-select .dropdown__list {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  grid-auto-rows: var(--badge-select-item-height);
+  column-gap: var(--space-default);
+  max-height: calc(var(--badge-select-item-height) * 6);
+}
+
+.badge-select .dropdown__empty {
+  grid-column: 1 / -1;
+}
+
+.badge-select__row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  height: var(--badge-select-item-height);
+}
+
+.badge-select__name {
+  color: var(--color-text-secondary);
+}
+
+/* min-width: 0 so the track can shrink below its content and ellipsis. */
+.badge-select__detail {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-tertiary);
+}
+
+/* The trigger holds an icon beside the label, so the ellipsis moves off it and
+   onto the label - text-overflow does nothing on a flex container. */
+.badge-select__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-default);
+}
+
+.badge-select__trigger-icon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.badge-select__trigger-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge-select__lock {
+  display: flex;
+  align-items: center;
+  color: var(--color-icon-secondary);
+}
+
+/* Drops .dropdown__item--disabled's opacity, which would fade the badge icon with
+   everything else; the text is dimmed on its own below. :hover/:focus are restated
+   because the base rule clears the background on both. */
+.badge-select__row.dropdown__item--disabled,
+.badge-select__row.dropdown__item--disabled:hover,
+.badge-select__row.dropdown__item--disabled:focus {
+  opacity: 1;
+  background-color: var(--color-surface-mid);
+}
+
+.badge-select__row.dropdown__item--disabled .badge-select__name {
+  color: var(--color-text-tertiary);
+}
+
+/* visibility: hidden still generates a box, and the tooltip sits below its icon,
+   so on the last row it adds scroll height the list renders as empty space. */
+.badge-select .badge-v3__label {
+  display: none;
+}
