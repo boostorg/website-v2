@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from django.conf import settings
+from django.template.defaultfilters import capfirst
 from django.urls import NoReverseMatch, reverse
 
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -109,7 +110,9 @@ def selected_version(request):
         version = header_data.most_recent
 
     is_non_latest = _is_non_latest_version(url_version_slug, cookie_slug)
-    label = version.display_name if (is_non_latest and version) else "Latest"
+    # capfirst so the "master"/"develop" branch names render as "Master"/"Develop";
+    # numeric release names are unaffected.
+    label = capfirst(version.display_name) if (is_non_latest and version) else "Latest"
 
     latest_href = ""
     if is_url_driven and resolver_match and resolver_match.view_name:

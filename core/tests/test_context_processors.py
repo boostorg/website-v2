@@ -3,6 +3,7 @@ from types import SimpleNamespace
 import pytest
 from django.test import RequestFactory
 from django.urls import ResolverMatch
+from model_bakery import baker
 
 from core.context_processors import (
     active_nav_item,
@@ -147,3 +148,26 @@ def test_selected_version_no_resolver_match(rf):
     ctx = selected_version(request)
     assert ctx["selected_version_is_url_driven"] is False
     assert ctx["selected_version_label"] == "Latest"
+
+
+@pytest.mark.parametrize(
+    "branch,expected_label",
+    [("master", "Master"), ("develop", "Develop")],
+)
+def test_selected_version_label_capitalizes_branch_names(
+    db, rf, branch, expected_label
+):
+    """Branch versions are excluded from the header dropdown options, so the
+    label comes from the DB fallback — it must still read "Master"/"Develop"."""
+    baker.make("versions.Version", name=branch, slug=branch, fully_imported=True)
+    request = rf.get(f"/library/{branch}/foo/")
+    _stub_header_data(request)
+    _attach_resolver(
+        request,
+        route="library/<boostversionslug:version_slug>/<slug:library_slug>/",
+        kwargs={"version_slug": branch, "library_slug": "foo"},
+        view_name="library-detail",
+    )
+    ctx = selected_version(request)
+    assert ctx["selected_version_is_non_latest"] is True
+    assert ctx["selected_version_label"] == expected_label
