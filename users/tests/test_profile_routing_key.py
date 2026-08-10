@@ -215,26 +215,19 @@ def test_linking_a_second_provider_does_not_mint_again():
     assert user.profile_routing_keys.latest().routing_key.startswith("jane-doe-")
 
 
-def test_to_v3_profile_dict_does_not_link_by_default():
-    """Contributor lists mix these dicts with account-less CommitAuthor ones,
-    so linking is opt-in per call site."""
+def test_to_v3_profile_dict_links_the_profile():
     user = baker.make("users.User", display_name="Jane Doe", image=None)
-    assert user.to_v3_profile_dict()["profile_url"] is None
-
-
-def test_to_v3_profile_dict_links_when_asked():
-    user = baker.make("users.User", display_name="Jane Doe", image=None)
-    profile = user.to_v3_profile_dict(link_profile=True)
+    profile = user.to_v3_profile_dict()
     assert profile["profile_url"] == user.get_absolute_url()
     assert profile["profile_url"].startswith("/users/jane-doe-")
 
 
-def test_to_v3_profile_dict_never_links_a_deactivated_account():
+def test_to_v3_profile_dict_does_not_link_a_deactivated_account():
     """Their profile 404s, so a link would be broken."""
     user = baker.make(
         "users.User", display_name="Jane Doe", image=None, is_active=False
     )
-    assert user.to_v3_profile_dict(link_profile=True)["profile_url"] is None
+    assert user.to_v3_profile_dict()["profile_url"] is None
 
 
 def test_profile_url_property_links_an_active_user():

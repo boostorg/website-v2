@@ -601,17 +601,16 @@ class User(BaseUser):
             return ca.avatar_url
         return ""
 
-    def to_v3_profile_dict(self, role=None, link_profile=False):
+    def to_v3_profile_dict(self, role=None):
         """Dict shape consumed by `v3/includes/_user_profile.html`.
 
-        A deactivated account's profile 404s, so it is never linked.
+        A deactivated account's profile 404s, so `profile_url` leaves it
+        unlinked.
         """
         featured = self.featured_badge
         return {
             "name": self.display_name or str(self),
-            "profile_url": (
-                self.get_absolute_url() if link_profile and self.is_active else None
-            ),
+            "profile_url": self.profile_url,
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
             "badge": featured["icon"] if featured else None,

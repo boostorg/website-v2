@@ -234,3 +234,47 @@ def test_author_details_does_not_link_a_deactivated_author(library_version):
 
 def test_author_details_without_an_author(library_version):
     assert library_version.author_details["profile_url"] is None
+
+
+def test_commit_author_links_a_claimed_boost_profile():
+    """A contributor who has claimed an account gets their profile, not GitHub."""
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    author = baker.make(
+        CommitAuthor,
+        name="Jane Doe",
+        user=user,
+        github_profile_url="https://github.com/janedoe",
+    )
+    assert author.to_v3_profile_dict()["profile_url"] == user.get_absolute_url()
+
+
+def test_commit_author_falls_back_to_github_without_a_boost_profile():
+    """Most contributors are git-only; GitHub is all the site knows of them."""
+    author = baker.make(
+        CommitAuthor,
+        name="Jane Doe",
+        user=None,
+        github_profile_url="https://github.com/janedoe",
+    )
+    assert author.to_v3_profile_dict()["profile_url"] == "https://github.com/janedoe"
+
+
+def test_commit_author_falls_back_to_github_for_a_deactivated_account():
+    """The Boost profile 404s, but the GitHub page still resolves."""
+    user = baker.make(
+        "users.User", display_name="Jane Doe", image=None, is_active=False
+    )
+    author = baker.make(
+        CommitAuthor,
+        name="Jane Doe",
+        user=user,
+        github_profile_url="https://github.com/janedoe",
+    )
+    assert author.to_v3_profile_dict()["profile_url"] == "https://github.com/janedoe"
+
+
+def test_commit_author_with_neither_profile_is_unlinked():
+    author = baker.make(
+        CommitAuthor, name="Jane Doe", user=None, github_profile_url=None
+    )
+    assert author.to_v3_profile_dict()["profile_url"] is None

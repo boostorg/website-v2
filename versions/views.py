@@ -144,6 +144,10 @@ class VersionDetail(
                 count=Count("commit", filter=Q(commit__in=version_commits)),
             )
             .filter(count__gte=1)
+            # A claimed contributor links to their Boost profile, which reads
+            # the user and their routing keys.
+            .select_related("user")
+            .prefetch_related("user__profile_routing_keys")
             .order_by("-count")
         )
         return qs
