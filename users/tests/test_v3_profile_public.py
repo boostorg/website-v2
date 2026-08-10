@@ -77,13 +77,15 @@ def test_public_profile_hides_every_section_with_no_data(user, tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_own_profile_header_buttons_have_edit_but_no_share(user, tp):
-    """Owners get Edit Profile where visitors get Share Profile."""
+def test_own_profile_header_buttons_end_with_edit_then_share(user, tp):
+    """Owners get Edit Profile and Share Profile, in that order, Share last."""
     with tp.login(user):
         response = tp.get("profile-account")
-    buttons = {link["label"]: link["url"] for link in response.context["top_links"]}
-    assert "Share Profile" not in buttons
+    links = response.context["top_links"]
+    buttons = {link["label"]: link["url"] for link in links}
     assert buttons["Edit Profile"] == f"{tp.reverse('profile-account')}?edit=true"
+    assert buttons["Share Profile"] == user.get_absolute_url()
+    assert [link["label"] for link in links[-2:]] == ["Edit Profile", "Share Profile"]
 
 
 @waffle.testutils.override_flag("v3", active=True)
@@ -151,14 +153,14 @@ def test_profile_user_route_shows_share_to_a_visitor(user, other_user, tp):
 @waffle.testutils.override_flag("v3", active=True)
 def test_profile_user_route_shows_edit_to_the_owner(user, tp):
     """Reaching your own profile by its public URL still offers Edit Profile:
-    the button follows who is looking, not which route was used."""
+    the button follows who is looking, not which route was used. Share Profile
+    is there either way."""
     with tp.login(user):
         response = tp.get(
             "profile-user", routing_key=user.profile_routing_key.routing_key
         )
     labels = [link["label"] for link in response.context["top_links"]]
-    assert "Edit Profile" in labels
-    assert "Share Profile" not in labels
+    assert labels[-2:] == ["Edit Profile", "Share Profile"]
 
 
 @waffle.testutils.override_flag("v3", active=True)
@@ -243,13 +245,17 @@ def test_profile_user_route_does_not_shadow_the_literal_users_routes(user, tp):
 
 @waffle.testutils.override_flag("v3", active=True)
 def test_share_button_carries_the_profile_url(other_user, tp):
-    """Share copies the profile URL client-side, so the href has to be the real
+    """Share Profile copies the profile URL client-side, so the href has to be the
     URL rather than "#" -- which also leaves a working link with JS off."""
     response = tp.get(
         "profile-user", routing_key=other_user.profile_routing_key.routing_key
     )
-    share = [link for link in response.context["top_links"] if link["label"] == "Share"]
-    assert share, "a visitor should see the Share button"
+    share = [
+        link
+        for link in response.context["top_links"]
+        if link["label"] == "Share Profile"
+    ]
+    assert share, "a visitor should see the Share Profile button"
     assert share[0]["url"] == other_user.get_absolute_url()
     assert share[0]["extra_classes"] == "js-copy-profile-url"
 
@@ -260,13 +266,18 @@ def test_share_button_carries_the_profile_url(other_user, tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_owner_gets_edit_profile_instead_of_share(user, tp):
-    """The trailing button follows who is looking, so the owner has nothing to
-    copy here."""
+def test_owner_share_button_copies_the_public_url_not_the_edit_url(user, tp):
+    """The owner's Share Profile sits next to Edit Profile, so it has to copy the
+    profile URL a visitor would use rather than the edit page."""
     with tp.login(user):
         response = tp.get(
             "profile-user", routing_key=user.profile_routing_key.routing_key
         )
-    labels = [link["label"] for link in response.context["top_links"]]
-    assert "Edit Profile" in labels
-    assert "Share" not in labels
+    share = next(
+        link
+        for link in response.context["top_links"]
+        if link["label"] == "Share Profile"
+    )
+    assert share["url"] == user.get_absolute_url()
+    assert "edit=true" not in share["url"]
+    assert share["extra_classes"] == "js-copy-profile-url"

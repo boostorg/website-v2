@@ -10,9 +10,9 @@ class V3UserProfileContextMixin:
     the logged-in user's own (non-editable) view of their profile.
 
     Both pages render `v3/user_profile_page.html` from the same data. They
-    differ only in the header button trailing the profile links: visitors get
-    Share Profile, the profile's owner gets Edit Profile (see
-    `get_trailing_button()`), and only the owner's view carries the account
+    differ only in the buttons trailing the profile links: everyone gets Share
+    Profile, the profile's owner also gets Edit Profile ahead of it (see
+    `get_trailing_buttons()`), and only the owner's view carries the account
     connections card.
     """
 
@@ -43,35 +43,40 @@ class V3UserProfileContextMixin:
             return f"https://{value}"
         return None
 
-    def get_trailing_button(self, user):
-        """The header button that follows the profile links.
+    def get_trailing_buttons(self, user):
+        """The header buttons that follow the profile links.
 
-        Owners get Edit Profile in place of Share Profile, on both
-        `/users/me/` and their own `/users/<pk>/` page, so the affordance
-        follows who is looking rather than which route was used. Share
-        Profile is therefore only ever reachable on someone else's public
-        profile."""
+        Everyone can share a profile, so Share Profile comes last for owner and
+        visitor alike. Owners additionally get Edit Profile ahead of it, on both
+        `/users/me/` and their own `/users/<routing-key>/` page, so the
+        affordance follows who is looking rather than which route was used."""
+        buttons = []
         if user == self.request.user:
-            return {
-                "label": "Edit Profile",
-                "url": edit_profile_url(),
-                "icon": "pixel-pencil",
-            }
+            buttons.append(
+                {
+                    "label": "Edit Profile",
+                    "url": edit_profile_url(),
+                    "icon": "pixel-pencil",
+                }
+            )
         # A real href rather than "#": share-profile.js copies it to the
         # clipboard, and with JS off the button still leads somewhere sensible.
-        return {
-            "label": "Share Profile",
-            "url": user.get_absolute_url(),
-            "icon": "pixel-share",
-            "extra_classes": "js-copy-profile-url",
-        }
+        buttons.append(
+            {
+                "label": "Share Profile",
+                "url": user.get_absolute_url(),
+                "icon": "pixel-share",
+                "extra_classes": "js-copy-profile-url",
+            }
+        )
+        return buttons
 
     def get_v3_profile_link_buttons(self, user):
         """Header buttons for the public profile links the user has set.
 
         Links with no (or an unsafe) value are omitted, since only populated
         links are shown publicly. The list always ends with the trailing
-        button."""
+        buttons."""
         links = user.profile_links or {}
         buttons = []
         for key, label, icon in self.V3_PROFILE_LINK_BUTTONS:
@@ -85,7 +90,7 @@ class V3UserProfileContextMixin:
                 if url is None:
                     continue
             buttons.append({"label": label, "url": url, "icon": icon})
-        buttons.append(self.get_trailing_button(user))
+        buttons.extend(self.get_trailing_buttons(user))
         return buttons
 
     def get_v3_public_context(self, user):
