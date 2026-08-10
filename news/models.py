@@ -299,6 +299,12 @@ class Entry(models.Model):
     def author_needs_moderation(self):
         return acl.author_needs_moderation(self)
 
+    def edit_url(self):
+        return reverse("news-update", kwargs={"slug": self.slug})
+
+    def delete_url(self):
+        return reverse("news-delete", kwargs={"slug": self.slug})
+
 
 class News(Entry):
     news_type = "news"

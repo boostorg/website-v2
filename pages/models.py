@@ -4,6 +4,7 @@ from wagtail.fields import StreamField
 
 from django.core.paginator import Paginator
 from django.db import models
+from django.urls import reverse_lazy
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.timezone import localtime, now
@@ -249,7 +250,6 @@ class PostPage(BasePage):
         ctx["user_can_edit"] = self.user_can_edit(request.user)
         ctx["user_can_delete"] = self.user_can_delete(request.user)
         ctx["user_can_approve"] = False
-        print(request.user.groups.first().name)
 
         return ctx
 
@@ -267,6 +267,17 @@ class PostPage(BasePage):
             set_thumbnail_for_video_page.delay(self.pk)
 
         return result
+
+    def get_preview_context(self, request, mode_name):
+        ctx = super().get_preview_context(request, mode_name)
+        ctx["is_preview"] = True
+        return ctx
+
+    def edit_url(self):
+        return reverse_lazy("v3-news-edit", kwargs={"slug": self.slug})
+
+    def delete_url(self):
+        return reverse_lazy("v3-news-delete", kwargs={"slug": self.slug})
 
     @cached_property
     def use_summary(self):

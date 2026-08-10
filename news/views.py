@@ -41,6 +41,8 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 from wagtail.blocks import Block
 from wagtail.images.models import Image
 from wagtail.models import Page
+from waffle import flag_is_active
+
 
 from core.mixins import V3Mixin
 from pages.blocks import NEWS_BLOCK, BLOG_BLOCK, LINK_BLOCK, VIDEO_BLOCK
@@ -883,7 +885,17 @@ class V3AllTypesEditView(V3AllTypesCreateView):
         return self.render_to_response(context)
 
 
-class V3DeletePostView(V3Mixin, LoginRequiredMixin, View):
+class V3DeletePostView(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        """
+        v3 mixin doesn't work for this view, since it has no template. Temporarily override the
+        view to require v3 access
+        """
+        if flag_is_active(request, "v3"):
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            raise Http404
+
     def post(self, request, **kwargs):
         slug = kwargs.get("slug")
         if not slug:
