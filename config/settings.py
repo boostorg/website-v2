@@ -593,7 +593,7 @@ SERVER_EMAIL = "errors@cppalliance.org"
 # real users without those users receiving anything. Enabled per environment in
 # the Helm values files; never valid in production.
 CATCH_ALL_EMAIL = env.bool("CATCH_ALL_EMAIL", default=False)
-DEPLOYMENT_ENVIRONMENT = env("X_DEPLOYMENT_ENV", default="production")
+DEPLOYMENT_ENVIRONMENT = env("X_DEPLOYMENT_ENV", default="")
 
 if CATCH_ALL_EMAIL and DEPLOYMENT_ENVIRONMENT == "production":
     raise ImproperlyConfigured("CATCH_ALL_EMAIL must not be enabled in production")
