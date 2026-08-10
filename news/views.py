@@ -739,7 +739,7 @@ class V3AllTypesEditView(V3AllTypesCreateView):
 
     def get_v3_context_data(self, **kwargs):
         page = self._page
-        context = super().get_context_data(**kwargs)
+        context = super().get_v3_context_data(**kwargs)
         context["related_libraries"] = list(
             page.tags.all().values_list("slug", flat=True)
         )
@@ -867,7 +867,7 @@ class V3AllTypesEditView(V3AllTypesCreateView):
                 context = self.get_context_data(
                     form=form,
                     post_type_selected=post_type,
-                    selected_libraries=post_data.getlist("related_libraries"),
+                    related_libraries=post_data.getlist("related_libraries"),
                 )
                 return self.render_to_response(context)
 
@@ -883,7 +883,7 @@ class V3AllTypesEditView(V3AllTypesCreateView):
         return self.render_to_response(context)
 
 
-class V3DeletePostView(View):
+class V3DeletePostView(V3Mixin, LoginRequiredMixin, View):
     def post(self, request, **kwargs):
         slug = kwargs.get("slug")
         if not slug:

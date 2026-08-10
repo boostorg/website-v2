@@ -47,7 +47,11 @@
     </div>
     {% endif %}
     <div class="dialog-modal__buttons">
-      {% include "v3/includes/_button.html" with label=primary_label style=primary_style|default:"primary" type=submit|default:"" url=primary_url extra_classes="btn-flex" %}
+      {% if submit %}
+        {% include "v3/includes/_button.html" with label=primary_label style=primary_style|default:"primary" type="submit" url=primary_url extra_classes="btn-flex" %}
+      {% else %}
+        {% include "v3/includes/_button.html" with label=primary_label style=primary_style|default:"primary" type="button" url=primary_url extra_classes="btn-flex" %}
+      {% endif %}
       {% include "v3/includes/_button.html" with label=secondary_label url=secondary_url|default:"#_" style=secondary_style|default:"secondary" extra_classes="btn-flex" %}
     </div>
   </div>

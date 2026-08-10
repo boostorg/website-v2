@@ -247,7 +247,10 @@ class PostPage(BasePage):
         ctx["object"] = self.specific
         ctx["post_author"] = self.author
         ctx["user_can_edit"] = self.user_can_edit(request.user)
-        ctx["user_can_delete"] = request.user == self.author
+        ctx["user_can_delete"] = self.user_can_delete(request.user)
+        ctx["user_can_approve"] = False
+        print(request.user.groups.first().name)
+
         return ctx
 
     def save(self, *args, **kwargs):
@@ -363,7 +366,7 @@ class PostPage(BasePage):
         return self.owner == user and self._in_edit_window()
 
     def user_can_delete(self, user):
-        return self.owner == user
+        return self.owner == user and self._in_edit_window()
 
     content_panels = BasePage.content_panels + [
         "tags",

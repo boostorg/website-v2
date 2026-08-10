@@ -24,7 +24,6 @@
             {% if user_can_approve %}
               <form method="POST" action="{% url 'news-approve' object.slug %}" class="post-detail__approve-form">
                 {% csrf_token %}
-                {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
                 {% include "v3/includes/_button.html" with label="Approve" type="submit" style="green" %}
               </form>
             {% else %}
