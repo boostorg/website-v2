@@ -695,14 +695,6 @@ class V3AllTypesEditView(V3AllTypesCreateView):
         ctx = {}
         ctx["edit"] = True
         ctx["title"] = "Edit Post"
-        ctx["publish_at_initial"] = localtime(now()).strftime("%Y-%m-%dT%H:%M")
-        ctx["related_libraries_options"] = [
-            (
-                library.slug,
-                library.name,
-            )
-            for library in Library.objects.all().order_by("name")
-        ]
 
         if not page:
             return ctx
