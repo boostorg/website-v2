@@ -216,6 +216,14 @@
     box-sizing: border-box;
 }
 
+/* Rendered as a <span> when the testimonial has no body to open, so :disabled
+   does not apply — mirror the .btn:disabled treatment here. */
+.testimonial-card__cta[aria-disabled="true"] {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: default;
+}
+
 .testimonial-card__author-role-text {
     color: var(--color-text-secondary);
 }

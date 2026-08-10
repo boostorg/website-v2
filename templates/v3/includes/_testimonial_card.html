@@ -8,12 +8,15 @@
     testimonials   (list, optional)    — list of testimonial objects with:
       - quote      (string, optional)  — testimonial text to display
       - author     (object, optional)  — passed to _user_profile.html (see that template for fields)
-      - slug       (string, optional)  — when set, the quote bubble becomes a
-                                         link to "#{slug}", opening a matching
-                                         Content Modal via :target.
-      - content    (HTML, optional)    — when set on at least the first item,
-                                         the matching Content Modal group is
-                                         bundled below the card.
+      - slug       (string, optional)  — when set alongside content, the quote
+                                         bubble becomes a link to "#{slug}",
+                                         opening a matching Content Modal via
+                                         :target.
+      - content    (HTML, optional)    — full text shown in the modal. Items
+                                         carrying content get a Content Modal
+                                         bundled below the card; items without
+                                         it keep a plain quote bubble and a
+                                         disabled "Read more".
 
   Usage:
     {% include "v3/includes/_testimonial_card.html" with heading="Testimonials" testimonials=testimonials %}
@@ -109,7 +112,7 @@
           {% if testimonials %}
             {% for testimonial in testimonials %}
               <li class="testimonial-card__list-item">
-                {% if testimonial.slug %}<a class="testimonial-card__quote-link" href="#{{ testimonial.slug }}">{% else %}<div>{% endif %}
+                {% if testimonial.slug and testimonial.content %}<a class="testimonial-card__quote-link" href="#{{ testimonial.slug }}">{% else %}<div>{% endif %}
                   <div class="testimonial-card__text-wrapper">
                     <div class="testimonial-card__text">{{ testimonial.quote }}</div>
                   </div>
@@ -118,7 +121,7 @@
                       <path class="testimonial-card__text-tail" d="M0 0H32L3.41421 28.5858C2.15428 29.8457 0 28.9534 0 27.1716V0Z" />
                     </svg>
                   </div>
-                {% if testimonial.slug %}</a>{% else %}</div>{% endif %}
+                {% if testimonial.slug and testimonial.content %}</a>{% else %}</div>{% endif %}
                 {% include "v3/includes/_user_profile.html" with author=testimonial.author new_tab=True only %}
               </li>
             {% endfor %}
@@ -129,20 +132,31 @@
 
   <hr class="card__hr" aria-hidden="true" />
 
-  {% comment %} One CTA per slide; targets the same modal slug as the quote-bubble link. {% endcomment %}
+  {% comment %}
+    One CTA per slide; targets the same modal slug as the quote-bubble link.
+    Items without content have no modal to open, so their CTA stays in place
+    but renders disabled.
+  {% endcomment %}
   {% for testimonial in testimonials %}
     {% if testimonial.slug %}
-      <a href="#{{ testimonial.slug }}"
-         class="btn btn-primary testimonial-card__cta testimonial-card__cta--{{ forloop.counter }}"
-         aria-label="Read more about {{ testimonial.title }}">
-        Read more
-      </a>
+      {% if testimonial.content %}
+        <a href="#{{ testimonial.slug }}"
+           class="btn btn-primary testimonial-card__cta testimonial-card__cta--{{ forloop.counter }}"
+           aria-label="Read more about {{ testimonial.title }}">
+          Read more
+        </a>
+      {% else %}
+        <span class="btn btn-primary testimonial-card__cta testimonial-card__cta--{{ forloop.counter }}"
+              role="link"
+              aria-disabled="true"
+              aria-label="Read more about {{ testimonial.title }}">
+          Read more
+        </span>
+      {% endif %}
     {% endif %}
   {% endfor %}
 </section>
 
 {% comment %} Modals rendered as siblings of the card so :target wires up the quote-bubble links. {% endcomment %}
-{% if testimonials.0.content %}
-  {% include "v3/includes/_content_modal_group.html" with items=testimonials only %}
-{% endif %}
+{% include "v3/includes/_content_modal_group.html" with items=testimonials only %}
 {% endwith %}

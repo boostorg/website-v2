@@ -8,8 +8,13 @@
                           subtitle (optional), prev_url, next_url.
                           Caller is responsible for slug stability and for
                           setting prev_url / next_url to "" at endpoints.
+                          Items with empty content are skipped rather than
+                          rendered as an empty modal, so callers may pass a
+                          mixed list and keep the ordering intact.
     close_url (optional): close target. Defaults to "#_".
 {% endcomment %}
 {% for item in items %}
-  {% include "v3/includes/_content_modal.html" with modal_id=item.slug title=item.title subtitle=item.subtitle content=item.content prev_url=item.prev_url next_url=item.next_url close_url=close_url only %}
+  {% if item.content %}
+    {% include "v3/includes/_content_modal.html" with modal_id=item.slug title=item.title subtitle=item.subtitle content=item.content prev_url=item.prev_url next_url=item.next_url close_url=close_url only %}
+  {% endif %}
 {% endfor %}
