@@ -3,7 +3,7 @@ import re
 import uuid
 from datetime import timedelta
 from typing import Self
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 from django.core.cache import caches
 from django.db import models, transaction
@@ -31,7 +31,7 @@ from libraries.managers import (
 )
 from mailing_list.models import EmailData
 from versions.models import ReportConfiguration
-from .constants import LIBRARY_GITHUB_URL_OVERRIDES
+from .constants import LATEST_RELEASE_URL_PATH_STR, LIBRARY_GITHUB_URL_OVERRIDES
 
 from .utils import (
     generate_random_string,
@@ -66,6 +66,21 @@ class Category(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         return super(Category, self).save(*args, **kwargs)
+
+    def get_filter_url(self, version_slug=LATEST_RELEASE_URL_PATH_STR):
+        """URL to the libraries list filtered by this category.
+
+        e.g. /libraries/1.90.0/list/?category=asynchronous — the query-param
+        form the list/grid category filter reads. Single source of truth for
+        category-tag links; returns "#" when the category has no slug.
+        """
+        if not self.slug:
+            return "#"
+        base = reverse(
+            "libraries-list",
+            kwargs={"version_slug": version_slug, "library_view_str": "list"},
+        )
+        return f"{base}?{urlencode({'category': self.slug})}"
 
 
 class CommitAuthor(models.Model):
@@ -276,6 +291,15 @@ class Library(models.Model):
         blank=True,
         null=True,
         help_text="The URL of the library's GitHub repository.",
+    )
+    slack_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text=(
+            "URL of the dedicated Slack channel for this library. "
+            "Falls back to the general Boost Slack when blank."
+        ),
     )
     versions = models.ManyToManyField(
         "versions.Version", through="libraries.LibraryVersion", related_name="libraries"
@@ -531,6 +555,24 @@ class LibraryVersion(models.Model):
     )
     data = models.JSONField(
         default=dict, help_text="Contains the libraries.json for this library-version"
+    )
+    website_adoc_source = models.TextField(
+        null=True,
+        blank=True,
+        help_text=(
+            "Raw meta/website.adoc for this version (the source of truth). "
+            "Editing this and saving re-derives website_adoc."
+        ),
+    )
+    website_adoc = models.JSONField(
+        null=True,
+        blank=True,
+        help_text=(
+            "Parsed content of the library's optional meta/website.adoc "
+            "(About, Playground, Designed for, Links, Install, Benchmarks, "
+            "Freeform), derived from website_adoc_source. Null when the repo "
+            "has no website.adoc for this version."
+        ),
     )
     # stats from git stored between x.x.0 versions
     insertions = models.IntegerField(default=0)

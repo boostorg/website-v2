@@ -18,6 +18,8 @@ from django.conf import settings
 from django.db.models import Count, F, QuerySet
 from django.db.models.functions import Lower
 from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 from libraries.constants import (
@@ -487,6 +489,47 @@ def apply_collective_author_overrides(author_dicts):
             author["profile_url"] = None
             author["role"] = None
     return author_dicts
+
+
+def designed_for_html(items):
+    """Render website.adoc [#designed-for] items as an HTML fragment.
+
+    Each item becomes an <h3> heading + optional <p> description, for display
+    in the shared markdown card. Dynamic text is escaped via format_html.
+    """
+    if not items:
+        return ""
+    parts = []
+    for item in items:
+        parts.append(format_html("<h3>{}</h3>", item.get("heading") or ""))
+        if item.get("description"):
+            parts.append(format_html("<p>{}</p>", item["description"]))
+    return mark_safe("".join(parts))
+
+
+def benchmark_sets(benchmarks):
+    """Map website.adoc [#benchmarks] charts to _stats_benchmarks `sets`.
+
+    Each chart becomes a set; bar widths (`width_pct`, 0-100) are normalized to
+    that chart's largest value. The chart's unit is folded into the set title
+    since the component has no separate unit/caption slot.
+    """
+    sets = []
+    for chart in benchmarks or []:
+        rows_data = chart.get("data") or []
+        max_value = max((row.get("value") or 0 for row in rows_data), default=0)
+        rows = []
+        for row in rows_data:
+            value = row.get("value") or 0
+            width_pct = round(value / max_value * 100, 2) if max_value else 0
+            rows.append(
+                {"label": row.get("label"), "value": value, "width_pct": width_pct}
+            )
+        title = chart.get("title") or ""
+        if chart.get("unit"):
+            title = f"{title} ({chart['unit']})"
+        sets.append({"title": title, "rows": rows})
+    return sets
 
 
 def build_library_intro_context(

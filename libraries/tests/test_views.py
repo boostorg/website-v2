@@ -7,7 +7,100 @@ from model_bakery import baker
 
 from ..constants import README_MISSING
 from ..models import Library
+from ..utils import benchmark_sets, designed_for_html
+from ..views import _build_quick_start_links, _is_boost_url
 from versions.models import Version
+
+
+@pytest.mark.parametrize(
+    "url,expected",
+    [
+        ("https://www.boost.org/doc/libs/1_90_0/libs/x/use.html", True),
+        ("https://boost.org/anything", True),
+        ("https://github.com/boostorg/beast/blob/x.cpp", True),
+        ("https://github.com/someone/beast", False),
+        ("https://evil.example.com/boost.org", False),
+        ("ftp://boost.org/x", False),
+        ("", False),
+        (None, False),
+    ],
+)
+def test_is_boost_url(url, expected):
+    assert _is_boost_url(url) is expected
+
+
+def test_build_quick_start_links_validates_and_falls_back():
+    docs = "/doc/libs/1_90_0/libs/x/index.html"
+    links = {
+        "common_use_case_url": "https://www.boost.org/doc/libs/x/use.html",
+        "code_example_url": "https://evil.example.com/x",  # rejected -> docs
+    }
+    result = _build_quick_start_links(docs, links)
+    assert result == [
+        {
+            "label": "Common use cases",
+            "url": "https://www.boost.org/doc/libs/x/use.html",
+        },
+        {"label": "Code examples", "url": docs},
+    ]
+
+
+def test_designed_for_html_empty():
+    assert designed_for_html(None) == ""
+    assert designed_for_html([]) == ""
+
+
+def test_designed_for_html_renders_and_escapes():
+    html = designed_for_html(
+        [
+            {"heading": "Fast <parsing>", "description": "Handles 1M ops."},
+            {"heading": "Header-only", "description": ""},
+        ]
+    )
+    # headings + descriptions become h3/p, dynamic text is escaped
+    assert "<h3>Fast &lt;parsing&gt;</h3>" in html
+    assert "<p>Handles 1M ops.</p>" in html
+    assert "<h3>Header-only</h3>" in html
+    # no <p> emitted for the empty description
+    assert html.count("<p>") == 1
+
+
+def test_benchmark_sets_normalizes_widths():
+    assert benchmark_sets(None) == []
+    sets = benchmark_sets(
+        [
+            {
+                "title": "Throughput",
+                "unit": "req/s",
+                "data": [
+                    {"label": "Boost", "value": 1200},
+                    {"label": "Other", "value": 600},
+                ],
+            }
+        ]
+    )
+    assert sets == [
+        {
+            "title": "Throughput (req/s)",  # unit folded into title
+            "rows": [
+                {"label": "Boost", "value": 1200, "width_pct": 100.0},
+                {"label": "Other", "value": 600, "width_pct": 50.0},
+            ],
+        }
+    ]
+
+
+def test_benchmark_sets_all_zero_values():
+    sets = benchmark_sets([{"title": "T", "data": [{"label": "a", "value": 0}]}])
+    assert sets[0]["rows"][0]["width_pct"] == 0
+
+
+def test_build_quick_start_links_no_adoc_links_uses_docs():
+    docs = "/doc/libs/1_90_0/libs/x/index.html"
+    assert _build_quick_start_links(docs, None) == [
+        {"label": "Common use cases", "url": docs},
+        {"label": "Code examples", "url": docs},
+    ]
 
 
 def test_library_list(library_version, tp, url_name="libraries", request_kwargs=None):

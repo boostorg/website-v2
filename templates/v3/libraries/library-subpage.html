@@ -10,45 +10,73 @@
 
 {% block content %}
 
+{% if library_version_missing %}
+  {% comment %} TODO: Extract this to a separate template & implement UI for empty state {% endcomment %}
+  <div style="margin: 10rem auto; max-width: 40rem; text-align: center;">
+    <h1 class="library-no-version__title">No library records available for this version.</h1>
+    <p class="library-no-version__description">There is no version of the <b>{{ object.display_name }}</b> library for Boost {{ selected_version.display_name }}. The first release of <b>{{ object.display_name }}</b> library was version <b>{{ object.first_boost_version.display_name }}</b>.</p>
+  </div>
+{% else %}
   {% with cpp_ver=library_version.get_cpp_standard_minimum_display|default:"C++03" %}
-    {% with added_text=object.first_boost_version.display_name %}
       {% if is_flagship_lib %}
-        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver added_text=added_text doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url is_flagship_lib=True hero_image_url_light=library_hero_image_url_light hero_image_url_dark=library_hero_image_url_dark %}
+        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver first_boost_version=object.first_boost_version.display_name doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url is_flagship_lib=True hero_image_url_light=library_hero_image_url_light hero_image_url_dark=library_hero_image_url_dark %}
       {% else %}
-        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver added_text=added_text doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url %}
+        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver first_boost_version=object.first_boost_version.display_name doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url %}
       {% endif %}
-    {% endwith %}
   {% endwith %}
 
   <div class="library-subpage-container">
     <div class="card-masonry-top">
-      <div class="masonry-col masonry-col--1">
-        <div class="item-a">
-          {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description=library_version.description|default:object.description code=library_about_code language="cpp" card_variant="neutral" button_text="Explore examples" button_url=documentation_url|default:"#" button_aria_label="Explore examples for "|add:object.display_name %}
-        </div>
+      {% if website_adoc.about %}
+      <div class="item-a">
+        {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description=website_adoc.about.blurb code=website_adoc.about.code.code language=website_adoc.about.code.language card_variant="neutral" button_text="Explore examples" button_url=documentation_url|default:"#" button_aria_label="Explore examples for "|add:object.display_name %}
       </div>
-      <div class="masonry-col masonry-col--2">
-        <div class="item-b">
-          {% include "v3/includes/_quick_start_card.html" with heading="Quick Start" links=quick_start_links %}
-        </div>
-        <div class="item-c">
-          {% include "v3/includes/_code_block_card.html" with heading="Install" description="Get started with header-only libraries" code=library_install_code language="bash" card_variant="teal" %}
-        </div>
-        <div class="item-e">
-          {% include "v3/includes/_dependencies_card.html" with dependencies=dependencies_list %}
-        </div>
+      {% endif %}
+
+      {% if benchmark_sets %}
+      <div class="item-g">
+        {% include "v3/includes/_stats_benchmarks.html" with heading="Benchmarks" sets=benchmark_sets theme="green"%}
       </div>
-      <div class="masonry-col masonry-col--3">
-        <div class="item-d item-d--desktop">
-          {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="release" contributors=this_release_contributors heading_level="2" %}
+      {% endif %}
+
+      <div class="item-b">
+        {% include "v3/includes/_quick_start_card.html" with heading="Quick Start" links=quick_start_links %}
+      </div>
+
+      <div class="item-e">
+        {% include "v3/includes/_dependencies_card.html" with dependencies=dependencies_list %}
+      </div>
+
+      {% if website_adoc.designed_for %}
+      <div class="item-f">
+        {% include "v3/includes/_markdown_card.html" with title="This library is designed for" html=designed_for_html %}
+      </div>
+      {% endif %}
+
+      {% if website_adoc.freeform %}
+        <div class="library-subpage__freeform">
+          {% include "v3/includes/_markdown_card.html" with title=website_adoc.freeform.heading html=website_adoc.freeform.html %}
         </div>
+      {% endif %}
+
+      {% if website_adoc.install %}
+      <div class="item-c">
+        {% include "v3/includes/_code_block_card.html" with heading="Install" description=website_adoc.install.blurb code=website_adoc.install.code.code language=website_adoc.install.code.language card_variant="teal" %}
+      </div>
+      {% endif %}
+
+      <div class="item-d">
+        {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="release" contributors=this_release_contributors heading_level="2" %}
       </div>
     </div>
 
-    <div class="card-masonry-bottom">
-      <div class="item-d item-d--tablet">
-        {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="all" contributors=this_release_contributors heading_level="2" %}
+    {% if description %}
+      <div class="library-subpage__documentation">
+        {% include "v3/includes/_markdown_card.html" with title="Documentation" html=description %}
       </div>
+    {% endif %}
+
+    <div class="card-masonry-bottom">
       <div class="item-a">
         {% include "v3/includes/_post_card.html" with heading="Latest "|add:object.display_name|add:" posts" items=library_posts variant="card" theme="teal" layout="horizontal" primary_cta_label="View all posts" primary_cta_url="/news/" %}
       </div>
@@ -63,4 +91,5 @@
       </div>
     {% endif %}
   </div>
+{% endif %}
 {% endblock %}

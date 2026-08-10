@@ -11,6 +11,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
+from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
@@ -21,6 +22,7 @@ from celery.result import AsyncResult
 from core.admin_filters import StaffUserCreatedByFilter
 from config.celery import app
 from libraries.forms import CreateReportForm, CreateReportFullForm
+from libraries.website_adoc import build_website_adoc, website_adoc_section_statuses
 from reports.generation import determine_versions
 from versions.models import Version
 from versions.tasks import import_all_library_versions
@@ -54,6 +56,7 @@ from .tasks import (
     update_issues,
     update_libraries,
     update_library_version_documentation_urls_all_versions,
+    update_library_version_website_adoc,
 )
 from .utils import generate_release_report_filename
 
@@ -580,6 +583,40 @@ class LibraryVersionAdmin(admin.ModelAdmin):
     search_fields = ["library__name", "version__name"]
     change_list_template = "admin/libraryversion_change_list.html"
     autocomplete_fields = ["authors", "maintainers", "dependencies"]
+    # website_adoc is derived from website_adoc_source on save (see save_model),
+    # so hide the parsed JSON; the section-status view shows what will render and
+    # admins can open the library page to see the result.
+    exclude = ["website_adoc"]
+    readonly_fields = ["website_adoc_sections"]
+
+    _SECTION_STATUS_DISPLAY = {
+        "rendered": ("✅", "#1a7f37", "shows on the page"),
+        "omitted": ("⚠️", "#b32d2d", "authored but won't show"),
+        "absent": ("⚪", "#888", "not in the file"),
+    }
+
+    @admin.display(description="website.adoc sections")
+    def website_adoc_sections(self, obj):
+        """Per-section render status — rendered / authored-but-omitted / absent."""
+        rows = []
+        for section in website_adoc_section_statuses(obj.website_adoc):
+            icon, color, note = self._SECTION_STATUS_DISPLAY[section["status"]]
+            detail = f"{note} ({section['reason']})" if section["reason"] else note
+            rows.append((icon, color, section["label"], detail))
+        return format_html(
+            '<ul style="margin:0;list-style:none;padding:0;">{}</ul>',
+            format_html_join(
+                "",
+                "<li>{} <strong>{}</strong> "
+                '<span style="color:{};">— {}</span></li>',
+                ((icon, label, color, detail) for icon, color, label, detail in rows),
+            ),
+        )
+
+    def save_model(self, request, obj, form, change):
+        """Re-derive the parsed website_adoc from the edited raw source."""
+        obj.website_adoc = build_website_adoc(obj.website_adoc_source)
+        super().save_model(request, obj, form, change)
 
     def get_urls(self):
         urls = super().get_urls()
@@ -588,6 +625,11 @@ class LibraryVersionAdmin(admin.ModelAdmin):
                 "update_docs_urls/",
                 self.admin_site.admin_view(self.update_docs_urls),
                 name="update_docs_urls",
+            ),
+            path(
+                "update_website_adoc/",
+                self.admin_site.admin_view(self.update_website_adoc),
+                name="update_website_adoc",
             ),
         ]
         return my_urls + urls
@@ -601,6 +643,12 @@ class LibraryVersionAdmin(admin.ModelAdmin):
             Documentation links are being refreshed.
         """,
         )
+        return HttpResponseRedirect("../")
+
+    def update_website_adoc(self, request):
+        """Run the task to refresh parsed meta/website.adoc content."""
+        update_library_version_website_adoc.delay()
+        self.message_user(request, "website.adoc content is being refreshed.")
         return HttpResponseRedirect("../")
 
 

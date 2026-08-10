@@ -44,6 +44,8 @@ from libraries.utils import (
     get_prioritized_version,
     set_selected_boost_version,
     modernize_boost_slug,
+    designed_for_html,
+    benchmark_sets,
 )
 from mailing_list import constants
 from versions.models import Version, docs_path_to_boost_name
@@ -655,14 +657,7 @@ class LearnPageView(MailingListCardMixin, V3Mixin, TemplateView):
                     "description": category.short_description,
                     "badge_count": category.library_count,
                     "cta_label": "Start here",
-                    "cta_href": reverse(
-                        "libraries-list",
-                        kwargs={
-                            "version_slug": LATEST_RELEASE_URL_PATH_STR,
-                            "library_view_str": "list",
-                            "category_slug": category.slug,
-                        },
-                    ),
+                    "cta_href": category.get_filter_url(),
                 }
             )
         return cards
@@ -2003,6 +1998,45 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "action_url": "#",
             },
         ]
+        context["designed_for_demo_html"] = designed_for_html(
+            [
+                {
+                    "heading": "High-throughput parsing",
+                    "description": "Handles millions of messages per second with "
+                    "near-zero allocations on the hot path.",
+                },
+                {
+                    "heading": "Header-only",
+                    "description": "Add Boost to your include path — no separate "
+                    "build step required.",
+                },
+                {
+                    "heading": "Standards-tracking",
+                    "description": "APIs mirror the C++ standard where applicable.",
+                },
+            ]
+        )
+        context["benchmark_demo_sets"] = benchmark_sets(
+            [
+                {
+                    "title": "Throughput",
+                    "unit": "req/s",
+                    "data": [
+                        {"label": "Boost.Example", "value": 1200},
+                        {"label": "Alternative A", "value": 800},
+                        {"label": "Alternative B", "value": 450},
+                    ],
+                },
+                {
+                    "title": "Latency",
+                    "unit": "µs",
+                    "data": [
+                        {"label": "Boost.Example", "value": 12},
+                        {"label": "Alternative A", "value": 30},
+                    ],
+                },
+            ]
+        )
         context["markdown_data"] = {
             "title": "Markdown Block",
             "markdown": dedent("""

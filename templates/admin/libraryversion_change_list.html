@@ -6,6 +6,7 @@
     {% block object-tools-items %}
         {{ block.super }}
         <li><a href="{% url 'admin:update_docs_urls' %}" class="addlink">{% trans "Refresh Documentation Links" %}</a></li>
+        <li><a href="{% url 'admin:update_website_adoc' %}" class="addlink">{% trans "Refresh website.adoc" %}</a></li>
     {% endblock %}
 </ul>
 {% endblock %}

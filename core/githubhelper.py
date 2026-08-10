@@ -331,6 +331,26 @@ class GithubAPIClient:
         else:
             return response.json()
 
+    def get_website_adoc(self, repo_slug: str, tag: str = "develop"):
+        """Retrieve a library's optional 'meta/website.adoc'.
+
+        Many libraries might not ship this file, so it will returns None quietly if not found.
+        See libraries/website_adoc.py for the parser and the file's contract.
+
+        :param repo_slug: str, the repository slugs
+        :param tag: str, the Git tag
+        :return: bytes, the file content, or None if it doesn't exist
+        """
+        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/{tag}/meta/website.adoc"  # noqa
+
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+        except requests.exceptions.RequestException:
+            self.logger.info("website_adoc_not_found", repo=repo_slug, tag=tag)
+            return None
+        return response.content
+
     def get_file_content(
         self,
         repo_slug: str = None,

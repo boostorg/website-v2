@@ -1,4 +1,6 @@
 import datetime
+from urllib.parse import urlparse
+
 import structlog
 
 from django.contrib import messages
@@ -13,9 +15,8 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, FormView, TemplateView
 
-from core.constants import SLACK_URL
+from core.constants import SLACK_JOIN_URL
 from core.githubhelper import GithubAPIClient
-from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
 from mailing_list.mixins import MailingListCardMixin
 from core.mock_data import SharedResources
@@ -25,6 +26,7 @@ from versions.models import Version
 
 from .constants import README_MISSING
 from .forms import CommitAuthorEmailForm
+from .godbolt import build_compiler_explorer_url
 from .mixins import VersionAlertMixin, BoostVersionMixin, ContributorMixin
 from .models import (
     Category,
@@ -47,6 +49,8 @@ from .utils import (
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
     group_libraries_by_tier,
+    designed_for_html,
+    benchmark_sets,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
@@ -56,16 +60,41 @@ logger = structlog.get_logger()
 # ── V3 context helpers ─────────────────────────────────────────────────────
 
 
-def _build_quick_start_links(documentation_url, github_url, github_issues_url):
-    """Build the quick-start links list for the V3 library hero card."""
-    links = []
-    if documentation_url:
-        links.append({"label": "Documentation", "url": documentation_url})
-    if github_url:
-        links.append({"label": "Source Code", "url": github_url})
-    if github_issues_url:
-        links.append({"label": "GitHub Issues", "url": github_issues_url})
-    return links
+def _is_boost_url(url):
+    """True when `url` points at a Boost-owned location (boost.org or
+    github.com/boostorg). Guards the maintainer-supplied Quick Start links so a
+    stray/off-site URL falls back to the documentation link instead."""
+    if not url:
+        return False
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        return False
+    host = (parsed.hostname or "").lower()
+    if host == "boost.org" or host.endswith(".boost.org"):
+        return True
+    if host in ("github.com", "www.github.com"):
+        return parsed.path.lower().lstrip("/").startswith("boostorg/")
+    return False
+
+
+def _build_quick_start_links(documentation_url, links):
+    """Build the Quick Start card links from website.adoc's [#links] section.
+
+    "Common use cases" and "Code examples" come from the maintainer's
+    :common-use-case-url: / :code-example-url:. Each is used only if it is a
+    valid Boost URL; otherwise it falls back to the documentation link.
+    """
+    links = links or {}
+    result = []
+    common = links.get("common_use_case_url")
+    example = links.get("code_example_url")
+    common_url = common if _is_boost_url(common) else documentation_url
+    example_url = example if _is_boost_url(example) else documentation_url
+    if common_url:
+        result.append({"label": "Common use cases", "url": common_url})
+    if example_url:
+        result.append({"label": "Code examples", "url": example_url})
+    return result
 
 
 def _build_dependencies_list(current_dependencies, version_str):
@@ -81,6 +110,38 @@ def _build_dependencies_list(current_dependencies, version_str):
             url = "#"
         result.append({"name": dep.name, "url": url})
     return result
+
+
+def _build_release_contributors(context):
+    """Build the "Contributors: This Release" profile list from the context
+    populated by ContributorMixin: authors + maintainers + new and returning
+    commit contributors, each tagged with its display role."""
+    return (
+        [u.to_v3_profile_dict("Author") for u in context.get("authors", [])]
+        + [u.to_v3_profile_dict("Maintainer") for u in context.get("maintainers", [])]
+        + [
+            a.to_v3_profile_dict("New Contributor")
+            for a in context.get("top_contributors_release_new", [])
+        ]
+        + [
+            a.to_v3_profile_dict("Contributor")
+            for a in context.get("top_contributors_release_old", [])
+        ]
+    )
+
+
+def _build_compiler_explorer_link(website_adoc, selected_version):
+    """Build the "Edit in Compiler Explorer" Quick Start link from website.adoc's
+    [#playground] code. Returns None when there's no playground code or godbolt
+    can't produce a URL."""
+    playground = website_adoc.get("playground")
+    if not (playground and playground.get("code")):
+        return None
+    boost_version = selected_version.display_name if selected_version else ""
+    url = build_compiler_explorer_url(playground["code"], boost_version)
+    if not url:
+        return None
+    return {"label": "Edit in Compiler Explorer", "url": url}
 
 
 class LibraryListDispatcher(View):
@@ -479,6 +540,11 @@ class LibraryDetail(
                 library=self.object, version=context["selected_version"]
             )
         except LibraryVersion.DoesNotExist:
+            # No LibraryVersion for the selected release (e.g. viewing a version
+            # older than the library's first release). Flag it so the v3 template
+            # renders a placeholder instead of an empty subpage.
+            # TODO: replace with a designed empty-state (separate ticket).
+            context["library_version_missing"] = True
             return context
 
         context["library_version"] = library_version
@@ -514,42 +580,35 @@ class LibraryDetail(
 
     def get_v3_context_data(self, **kwargs):
         context = {**kwargs}
-        base_context = context
 
-        version_str = base_context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
+        version_str = context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
 
-        context["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS
-        context["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
-        context["library_about_code"] = SharedResources.library_about_code
-        context["library_install_code"] = SharedResources.library_install_code
-        context["slack_url"] = SLACK_URL
+        library_version = context.get("library_version")
+        context["website_adoc"] = getattr(library_version, "website_adoc", None) or {}
+        context["designed_for_html"] = designed_for_html(
+            context["website_adoc"].get("designed_for")
+        )
+        context["benchmark_sets"] = benchmark_sets(
+            context["website_adoc"].get("benchmarks")
+        )
+        context["slack_url"] = self.object.slack_url or SLACK_JOIN_URL
 
         context["category_tags_v3"] = [
-            {
-                "label": cat.name,
-                "url": (
-                    reverse(
-                        "libraries-list",
-                        kwargs={
-                            "version_slug": version_str,
-                            "library_view_str": "grid",
-                            "category_slug": cat.slug,
-                        },
-                    )
-                    if cat.slug
-                    else "#"
-                ),
-            }
+            {"label": cat.name, "url": cat.get_filter_url(version_str)}
             for cat in self.object.categories.all().order_by("name")
         ]
 
         context["quick_start_links"] = _build_quick_start_links(
-            base_context.get("documentation_url"),
-            base_context.get("github_url") or self.object.github_url,
-            getattr(self.object, "github_issues_url", None),
+            context.get("documentation_url"),
+            context["website_adoc"].get("links"),
         )
+        compiler_explorer_link = _build_compiler_explorer_link(
+            context["website_adoc"], context.get("selected_version")
+        )
+        if compiler_explorer_link:
+            context["quick_start_links"].append(compiler_explorer_link)
 
-        dep_diff = base_context.get("dependency_diff", {})
+        dep_diff = context.get("dependency_diff", {})
         context["dependencies_list"] = _build_dependencies_list(
             dep_diff.get("current_dependencies") or [],
             version_str,
@@ -557,30 +616,21 @@ class LibraryDetail(
 
         context["library_posts"] = get_latest_post_cards(limit=3)
 
-        this_release = (
-            [u.to_v3_profile_dict("Author") for u in base_context.get("authors", [])]
-            + [
-                u.to_v3_profile_dict("Maintainer")
-                for u in base_context.get("maintainers", [])
-            ]
-            + [
-                a.to_v3_profile_dict("New Contributor")
-                for a in base_context.get("top_contributors_release_new", [])
-            ]
-            + [
-                a.to_v3_profile_dict("Contributor")
-                for a in base_context.get("top_contributors_release_old", [])
-            ]
-        )
+        this_release = _build_release_contributors(context)
         context["this_release_contributors"] = (
             apply_collective_author_overrides(this_release)
             or SharedResources.library_release_contributors
         )
 
-        all_time = [
-            a.to_v3_profile_dict("Contributor")
-            for a in base_context.get("previous_contributors", [])
-        ]
+        all_time = (
+            self.build_all_contributors(
+                library_version,
+                context.get("authors", []),
+                context.get("maintainers", []),
+            )
+            if library_version
+            else []
+        )
         context["all_time_contributors"] = (
             apply_collective_author_overrides(all_time)
             or SharedResources.library_all_contributors

@@ -1,21 +1,12 @@
 /*
-  Library Subpage layout — nested flex columns (independent column heights).
+  Library Subpage layout.
 
-  Three breakpoints:
-    Mobile  < 768px    — single stacked column
-    Tablet  768–1279px — two columns (col-1 + col-2 visible; col-3 hidden)
-    Desktop ≥ 1280px   — three columns (col-3 visible; tablet duplicates hidden)
+  .card-masonry-top: CSS multi-column masonry. Cards flow and pack into as many
+  columns as fit (column-width var(--subpage-col-min)), so the layout auto-
+  rearranges 3 → 2 → 1 columns by available width — no strict breakpoints, no
+  grid row-stretching gaps. Reading order flows down each column, then across.
 
-  Masonry-top columns:
-    col-1 : About  (+ Contributors at tablet only)
-    col-2 : Quick Start, Install  (+ Dependencies at tablet only)
-    col-3 : Contributors, Dependencies  (desktop only)
-
-  Contributors and Dependencies are intentionally duplicated in the DOM so each
-  breakpoint can render them in the correct column while keeping each column's
-  height independent (avoids grid row-stretching gaps when About is very tall).
-
-  Masonry-bottom: posts 2/3, mailing 1/3 at tablet and desktop.
+  .card-masonry-bottom: posts 2/3 + mailing list 1/3 (grid), stacking on mobile.
 
   All widths, gaps, and spacing derive from design tokens.
 */
@@ -47,21 +38,19 @@ body:has(.is_flagship) .library-subpage-container {
 
 /* ── Top card masonry ────────────────────────────────────────────────────── */
 
-/* Outer row: flex so each column gets independent height (no row stretching). */
+/* Multi-column masonry: cards pack into as many columns as fit at this width.
+   --subpage-col-min is the target column width — with the 1440px container and
+   16px gaps it yields 3 columns on desktop, 2 on tablet, 1 on mobile. */
 .card-masonry-top {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: var(--space-card);
+  --subpage-col-min: 22rem; /* Hand-picked value that accommodates 3->2->1 column flow at desktop->tablet->mobile breakpoints. */
+  columns: var(--subpage-col-min);
+  column-gap: var(--space-card);
 }
 
-/* Each column: flex-column stack of cards, equal width, cards pack to top. */
-.card-masonry-top > .masonry-col {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-card);
+/* Keep each card whole within a column and space stacked cards vertically. */
+.card-masonry-top > * {
+  break-inside: avoid;
+  margin-bottom: var(--space-card);
 }
 
 /* ── Bottom card row (desktop/tablet: posts 2/3, mailing 1/3) ────────────── */
@@ -69,16 +58,13 @@ body:has(.is_flagship) .library-subpage-container {
 .card-masonry-bottom {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-areas:
-    "d d d"
-    "a a b";
+  grid-template-areas: "a a b";
   row-gap: var(--space-card);
   column-gap: var(--space-card);
 }
 
 .card-masonry-bottom .item-a { grid-area: a; }
 .card-masonry-bottom .item-b { grid-area: b; }
-.card-masonry-bottom .item-d { grid-area: d; }
 
 /* ── Card max-width overrides ────────────────────────────────────────────── */
 
@@ -90,32 +76,37 @@ body:has(.is_flagship) .library-subpage-container {
 .card-masonry-top .contributors-list,
 .card-masonry-top .markdown-card,
 .card-masonry-top .quick-start-card,
+.card-masonry-top .stats--benchmarks,
 .card-masonry-bottom > div > .card,
 .card-masonry-bottom > div > .basic-card,
 .card-masonry-bottom > div > .card-group,
 .card-masonry-bottom > div > .post-card,
+.library-subpage__documentation > .markdown-card,
+.library-subpage__freeform > .markdown-card,
 .library-subpage__all-contributors > .contributors-list {
   max-width: 100%;
   width: 100%;
 }
 
-/* ── Desktop (≥ 1280px): show col-3, hide tablet-only duplicates ─────────── */
-
-@media (min-width: 1280px) {
-  .item-d--tablet {
-    display: none;
-  }
+/* Benchmark card sizes like the other cards: fill the column width, grow to
+   fit its content (override the component's fixed 460px / 420px cap). */
+.card-masonry-top .stats--benchmarks {
+  height: auto;
+  max-height: none;
 }
 
-/* ── Tablet (768px – 1279px): hide col-3 and its desktop-only duplicates ─── */
-
-@media (min-width: 768px) and (max-width: 1279px) {
-  .card-masonry-top > .masonry-col--3 {
-    display: none;
-  }
+.library-subpage__documentation > .markdown-card {
+  max-height: 572px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ── Mobile (< 768px): stack columns vertically, hide col-3 duplicates ───── */
+.library-subpage__documentation > .markdown-card .markdown-content {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* ── Mobile (< 768px): tighter padding, stack the bottom row ─────────────── */
 
 @media (max-width: 767px) {
   .library-subpage-container {
@@ -127,19 +118,25 @@ body:has(.is_flagship) .library-subpage-container {
     padding: var(--space-large) var(--space-default);
   }
 
+  /* Single column on mobile — use flex so `order` controls card sequence
+     (multi-column children don't respond to `order`). */
   .card-masonry-top {
+    display: flex;
     flex-direction: column;
-    align-items: stretch;
   }
 
-  .card-masonry-top > .masonry-col--3 {
-    display: none;
-  }
+  .card-masonry-top .item-a { order: 1; }  /* About */
+  .card-masonry-top .item-b { order: 2; }  /* Quick Start */
+  .card-masonry-top .item-c { order: 3; }  /* Install */
+  .card-masonry-top .item-g { order: 4; }  /* Benchmarks */
+  .card-masonry-top .item-e { order: 5; }  /* Dependencies */
+  .card-masonry-top .item-d { order: 6; }  /* Contributors: This Release */
+  .card-masonry-top .item-f { order: 7; }  /* Designed for */
+  .card-masonry-top .library-subpage__freeform { order: 8; }  /* Freeform */
 
   .card-masonry-bottom {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "d"
       "a"
       "b";
   }

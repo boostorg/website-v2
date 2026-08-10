@@ -1,5 +1,5 @@
 .stats {
-  --stats-space: 24px;
+  --stats-space: var(--space-large);
   font-family: var(--font-sans);
   color: var(--color-text-primary);
   background: var(--color-bg-secondary);
@@ -159,7 +159,8 @@
 
 .stats--benchmarks {
   width: 460px;
-  height: 420px;
+  max-height: 420px;
+  overflow-y: auto;
 }
 
 .stats__set {
@@ -172,6 +173,7 @@
 
 .stats__set-title {
   margin: 0 0 var(--space-s) 0;
+  padding: 0;
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-relaxed);
@@ -195,6 +197,7 @@
 .stats__set-label {
   flex: 0 0 82px;
   margin: 0;
+  padding: 0;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-default);

@@ -77,6 +77,12 @@ def setup_periodic_tasks(sender, **kwargs):
         app.signature("libraries.tasks.update_library_version_dependencies"),
     )
 
+    # Refresh parsed meta/website.adoc for the current release. Daily at 8:35 AM
+    sender.add_periodic_task(
+        crontab(hour=8, minute=35),
+        app.signature("libraries.tasks.update_library_version_website_adoc"),
+    )
+
     # Clear the static content database cache. Executes daily at 4:05 AM.
     sender.add_periodic_task(
         crontab(hour=4, minute=5),

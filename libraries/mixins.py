@@ -2,7 +2,7 @@ import re
 
 import structlog
 
-from django.db.models import Count, Exists, OuterRef
+from django.db.models import Count, Exists, OuterRef, Q
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
@@ -340,3 +340,48 @@ class ContributorMixin:
         if exclude:
             qs = qs.exclude(id__in=exclude)
         return qs
+
+    def build_all_contributors(self, library_version, authors, maintainers):
+        """All Contributors: authors + maintainers + commit contributors from the
+        first release up to and including the selected version.
+
+        Deduplication is identity-based only: linked authors/maintainers are
+        excluded from the commit-author rows by CommitAuthor id (never by name),
+        so an author who hasn't yet claimed their commit email may appear twice
+        until linked. `authors` and `maintainers` must already be patched via patch_commit_authors.
+        """
+        author_ca_ids = [
+            u.commitauthor.id
+            for u in authors
+            if getattr(getattr(u, "commitauthor", None), "id", None)
+        ]
+        maintainer_ca_ids = [
+            u.commitauthor.id
+            for u in maintainers
+            if getattr(getattr(u, "commitauthor", None), "id", None)
+        ]
+        # Minor releases up to the selected version, plus the selected version
+        # itself so patch/beta builds keep their own contributors. master/develop
+        # have no numeric version, so they sit ahead of every release — count all
+        # minor releases (an unbounded version_array__lte would match none).
+        applicable_versions = Version.objects.minor_versions()
+        selected_parts = library_version.version.cleaned_version_parts_int
+        if selected_parts:
+            applicable_versions = applicable_versions.filter(
+                version_array__lte=selected_parts
+            )
+        library_versions = LibraryVersion.objects.filter(
+            Q(library=library_version.library, version__in=applicable_versions)
+            | Q(pk=library_version.pk)
+        )
+        contributors = (
+            CommitAuthor.humans.filter(commit__library_version__in=library_versions)
+            .exclude(id__in=author_ca_ids + maintainer_ca_ids)
+            .annotate(count=Count("commit"))
+            .order_by("-count")
+        )
+        return (
+            [u.to_v3_profile_dict("Author") for u in authors]
+            + [u.to_v3_profile_dict("Maintainer") for u in maintainers]
+            + [c.to_v3_profile_dict("Contributor") for c in contributors]
+        )
