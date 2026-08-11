@@ -393,8 +393,9 @@ Inputs:
           </div>
       </section>
     <form action="" method="get">
-      <div id="library-page-filter-container" class="mb-xl">
+      <div id="library-page-filter-container" class="mb-xl library-page__filter-row">
         {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields clear_url=library_filter_clear_url %}
+        {% include 'v3/includes/_branch_buttons.html' %}
       </div>
     </form>
     {% if library_view_str == 'list' %}
