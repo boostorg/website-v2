@@ -1004,7 +1004,7 @@ class UserProfileRoutingKeyManager(models.Manager):
 
     def mint_for(self, user):
         """Create and return a new canonical routing key for `user`."""
-        for _ in range(self.MINT_ATTEMPTS):
+        for _attempt in range(self.MINT_ATTEMPTS):
             key = generate_routing_key(user.display_name, self.model.KEY_MAX_LENGTH)
             try:
                 # Each attempt gets its own savepoint: an IntegrityError would
