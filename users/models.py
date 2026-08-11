@@ -990,6 +990,14 @@ class UserProfileRoutingKeyManager(models.Manager):
         stem = routing_key_base(user.display_name, stem_length)
         return stem or ROUTING_KEY_FALLBACK_BASE
 
+    def current_for(self, user):
+        """The key `user`'s profile URL uses today, or None if they have none."""
+        return self.filter(user=user).order_by("-created", "-pk").first()
+
+    def matches_display_name(self, key, user):
+        """Whether `key` was minted from `user`'s current display name."""
+        return key is not None and key.base == self.expected_base(user)
+
     def sync_for(self, user):
         """Mint a key for `user` only if their current one no longer fits.
 
@@ -997,8 +1005,8 @@ class UserProfileRoutingKeyManager(models.Manager):
         social account, or saving an unrelated profile field — and minting
         unconditionally there would move a user's public URL for no reason.
         """
-        current = self.filter(user=user).order_by("-created", "-pk").first()
-        if current is not None and current.base == self.expected_base(user):
+        current = self.current_for(user)
+        if self.matches_display_name(current, user):
             return current
         return self.mint_for(user)
 
