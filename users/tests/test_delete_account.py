@@ -29,7 +29,9 @@ def test_delete_account_scrubs_pii_and_identity(
     user.image_uploaded = True
     user.save()
     user.hq_image.save("hq.png", ContentFile(b"hq-image-bytes"), save=True)
-    user.badges.add(baker.make("users.Badge"))
+    tier = baker.make("badges.BadgeTier")
+    baker.make("badges.UserAchievement", user=user, achievement=tier.badge.achievement)
+    baker.make("badges.UserBadge", user=user, badge=tier.badge, tier=tier)
 
     original_email = user.email
     original_id = user.id
@@ -54,7 +56,9 @@ def test_delete_account_scrubs_pii_and_identity(
     assert user.image_uploaded is False
     assert not user.profile_image
     assert not user.hq_image
+    # The grants go with the badges, or the next recalculation re-awards them.
     assert user.badges.count() == 0
+    assert user.achievements.count() == 0
     assert user.delete_permanently_at is None
 
 

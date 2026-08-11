@@ -476,7 +476,10 @@ class User(BaseUser):
             # - list membership is left for the user to manage in Postorius.
             self.mailing_list_subscriptions.all().delete()
             LastSeen.objects.filter(user=self).delete()
-            self.badges.clear()
+            # Badges are derived from the grants, so dropping only the badges
+            # would leave the next recalculation free to re-award them.
+            self.badges.all().delete()
+            self.achievements.all().delete()
 
             self.github_username = ""
             self.profile_links = {}
