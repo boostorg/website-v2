@@ -9,7 +9,7 @@ from django.utils import timezone
 from model_bakery import baker
 
 from badges.enums import BadgeLabel, TierRank
-from badges.models import BadgeTier, RevocationSource, UserAchievement, UserBadge
+from badges.models import Badge, BadgeTier, RevocationSource, UserAchievement, UserBadge
 from badges.services import (
     achievement_pairs,
     deactivate_tier,
@@ -301,6 +301,24 @@ def test_tier_with_earned_badge_cannot_be_hard_deleted(
     bronze_tier = badge.tiers.get(rank=TierRank.BRONZE)
     with pytest.raises(ProtectedError):
         bronze_tier.delete()
+
+
+def test_badge_with_an_awarded_tier_cannot_be_deleted(
+    plain_user, badge, achievement, grant_achievement
+):
+    """Deleting a badge cascades onto its tiers and hits the same protection.
+
+    Which is why the badge admin refuses deletion outright rather than offering a
+    confirmation page that could only ever fail. The collector raises while it is
+    still collecting, so nothing is removed - not the badge, not its tiers.
+    """
+    grant_achievement(plain_user, achievement, count=1)
+
+    with pytest.raises(ProtectedError):
+        Badge.objects.filter(pk=badge.pk).delete()
+
+    assert Badge.objects.filter(pk=badge.pk).exists()
+    assert badge.tiers.count() == 3
 
 
 def test_recalculation_noop_when_user_or_achievement_gone(
