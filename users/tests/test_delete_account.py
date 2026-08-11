@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.utils import timezone
 
+from badges.enums import BadgeLabel, TierRank
 from mailing_list.models import SubscriptionStatus, UserMailingListSubscription
 from ..models import LastSeen, Preferences
 
@@ -73,8 +74,20 @@ def test_extended_scrub_leaves_no_badges_behind_across_achievements(
     at 0 is met by a member with no grants at all. Deleting the badges last is
     what keeps such an award from landing in an account already scrubbed of them.
     """
-    earned = baker.make("badges.BadgeTier", threshold=1)
-    free = baker.make("badges.BadgeTier", threshold=0)
+    # Labels and ranks are pinned because ``Badge.label`` is unique over a
+    # handful of choices, and two randomly filled badges collide.
+    earned = baker.make(
+        "badges.BadgeTier",
+        badge__label=BadgeLabel.MAINTAINER,
+        rank=TierRank.BRONZE,
+        threshold=1,
+    )
+    free = baker.make(
+        "badges.BadgeTier",
+        badge__label=BadgeLabel.DOCUMENTER,
+        rank=TierRank.BRONZE,
+        threshold=0,
+    )
     for tier in (earned, free):
         baker.make(
             "badges.UserAchievement", user=user, achievement=tier.badge.achievement
