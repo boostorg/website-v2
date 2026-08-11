@@ -673,7 +673,11 @@ class CurrentUserProfileView(
     def update_profile(self, form, request):
         """Update the profile of the user."""
         if form.is_valid():
-            form.save()
+            user = form.save()
+            # This form carries display_name too, so a rename here has to mint a
+            # key just as the v3 handler does. Without it, anyone renaming while
+            # the v3 flag is off keeps a profile URL built from their old name.
+            UserProfileRoutingKey.objects.sync_for(user)
             messages.success(request, "Your profile was successfully updated.")
         else:
             for error in form.errors.values():

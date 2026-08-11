@@ -308,3 +308,48 @@ def test_profile_url_is_none_when_the_patched_commit_author_has_no_github():
     )
     user.commitauthor = SimpleNamespace(github_profile_url="")
     assert user.profile_url is None
+
+
+def test_v2_profile_form_rename_mints_a_key(user, tp):
+    """The legacy profile page carries display_name too, so renaming there has
+    to move the profile URL just as the v3 page does. Without this, anyone
+    renaming while the v3 flag is off keeps a URL built from their old name."""
+    before = user.profile_routing_keys.get().routing_key
+
+    with tp.login(user):
+        tp.post(
+            tp.reverse("profile-account"),
+            data={
+                "update_profile": "true",
+                "email": user.email,
+                "display_name": "Renamed Person",
+            },
+            follow=True,
+        )
+
+    user.refresh_from_db()
+    assert user.display_name == "Renamed Person"
+    keys = list(user.profile_routing_keys.order_by("created"))
+    assert len(keys) == 2, "the rename should append a key, not replace one"
+    assert keys[0].routing_key == before
+    assert keys[1].routing_key.startswith("renamed-person-")
+    assert user.get_absolute_url() == f"/users/{keys[1].routing_key}/"
+
+
+def test_v2_profile_form_save_without_a_rename_keeps_the_url(user, tp):
+    """Saving the legacy form with the name untouched must not move the URL."""
+    before = user.profile_routing_keys.get().routing_key
+
+    with tp.login(user):
+        tp.post(
+            tp.reverse("profile-account"),
+            data={
+                "update_profile": "true",
+                "email": user.email,
+                "display_name": user.display_name,
+            },
+            follow=True,
+        )
+
+    assert user.profile_routing_keys.count() == 1
+    assert user.profile_routing_keys.get().routing_key == before
