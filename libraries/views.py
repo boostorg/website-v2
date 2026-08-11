@@ -43,6 +43,7 @@ from .models import (
 from .utils import (
     address_already_proven_by,
     apply_collective_author_overrides,
+    prefer_boost_profile_links,
     get_view_from_cookie,
     set_view_in_cookie,
     get_prioritized_library_view,
@@ -633,7 +634,7 @@ class LibraryDetail(
 
         this_release = _build_release_contributors(context)
         context["this_release_contributors"] = (
-            apply_collective_author_overrides(this_release)
+            apply_collective_author_overrides(prefer_boost_profile_links(this_release))
             or SharedResources.library_release_contributors
         )
 
@@ -647,7 +648,7 @@ class LibraryDetail(
             else []
         )
         context["all_time_contributors"] = (
-            apply_collective_author_overrides(all_time)
+            apply_collective_author_overrides(prefer_boost_profile_links(all_time))
             or SharedResources.library_all_contributors
         )
 

@@ -665,10 +665,31 @@ class User(BaseUser):
 
     @cached_property
     def profile_url(self):
-        """Satisfies `v3/includes/_user_profile.html`'s author.profile_url when a
+        """Where this user's name and avatar should link.
+
+        Satisfies `v3/includes/_user_profile.html`'s author.profile_url when a
         User is passed to it directly, as the v3 posts list does with
-        Entry.author. Deactivated accounts 404, so they stay unlinked."""
-        return self.get_absolute_url() if self.is_active else None
+        Entry.author.
+
+        Unclaimed accounts are stubs the library importer minted to stand in for
+        historical authors: nobody can log into them and their profile page is an
+        empty shell, so their GitHub page (when known) is the more useful
+        destination. Deactivated accounts stay unlinked entirely. Their profile
+        404s, and an account someone deleted is not one to redirect around.
+        """
+        if not self.is_active:
+            return None
+        if self.claimed:
+            return self.get_absolute_url()
+        # A stub's own github_username is usually empty, but the CommitAuthor
+        # that `patch_commit_authors()` attaches to author and maintainer rows
+        # often knows it. Absent both, there is nowhere to send anyone.
+        commit_author = getattr(self, "commitauthor", None)
+        return (
+            self.github_profile_url
+            or getattr(commit_author, "github_profile_url", "")
+            or None
+        )
 
     @cached_property
     def avatar_url(self):

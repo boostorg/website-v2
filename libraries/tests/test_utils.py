@@ -2,6 +2,7 @@ import os
 import pytest
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from model_bakery import baker
 
 from libraries.utils import (
     conditional_batched,
@@ -10,6 +11,7 @@ from libraries.utils import (
     generate_release_report_filename,
     get_first_last_day_last_month,
     parse_date,
+    prefer_boost_profile_links,
     update_base_tag,
     version_within_range,
     write_content_to_tempfile,
@@ -406,3 +408,81 @@ def test_modernize_boost_slug():
     old_slug = "1_81_0"
     new_slug = "boost-1-81-0"
     assert new_slug == modernize_boost_slug(old_slug)
+
+
+@pytest.mark.django_db
+class TestPreferBoostProfileLinks:
+    """`CommitAuthor.user` is only filled in by an email match, so a contributor
+    who commits under a different address keeps a GitHub link despite having an
+    account. GitHub username is the second signal for the same identity.
+    """
+
+    def author_dict(self, github_username):
+        return {
+            "name": "Jane Doe",
+            "profile_url": f"https://github.com/{github_username}",
+            "role": "Contributor",
+            "avatar_url": "",
+            "badge": None,
+            "bio": None,
+        }
+
+    def test_repoints_github_link_at_a_claimed_profile(self):
+        user = baker.make(
+            "users.User", display_name="Jane Doe", image=None, github_username="janedoe"
+        )
+        rows = [self.author_dict("janedoe")]
+        prefer_boost_profile_links(rows)
+        assert rows[0]["profile_url"] == user.get_absolute_url()
+
+    def test_matches_github_username_case_insensitively(self):
+        user = baker.make(
+            "users.User", display_name="Jane Doe", image=None, github_username="JaneDoe"
+        )
+        rows = [self.author_dict("janedoe")]
+        prefer_boost_profile_links(rows)
+        assert rows[0]["profile_url"] == user.get_absolute_url()
+
+    def test_leaves_an_unclaimed_stub_on_github(self):
+        baker.make(
+            "users.User",
+            display_name="Beman Dawes",
+            image=None,
+            claimed=False,
+            github_username="Beman",
+        )
+        rows = [self.author_dict("Beman")]
+        prefer_boost_profile_links(rows)
+        assert rows[0]["profile_url"] == "https://github.com/Beman"
+
+    def test_leaves_a_deactivated_account_on_github(self):
+        baker.make(
+            "users.User",
+            display_name="Jane Doe",
+            image=None,
+            is_active=False,
+            github_username="janedoe",
+        )
+        rows = [self.author_dict("janedoe")]
+        prefer_boost_profile_links(rows)
+        assert rows[0]["profile_url"] == "https://github.com/janedoe"
+
+    def test_leaves_rows_with_no_matching_account_alone(self):
+        rows = [self.author_dict("nobody"), {"name": "X", "profile_url": None}]
+        prefer_boost_profile_links(rows)
+        assert rows[0]["profile_url"] == "https://github.com/nobody"
+        assert rows[1]["profile_url"] is None
+
+    def test_resolves_the_whole_list_in_one_query(self, django_assert_num_queries):
+        for i in range(3):
+            baker.make(
+                "users.User",
+                display_name=f"User {i}",
+                image=None,
+                github_username=f"user{i}",
+            )
+        rows = [self.author_dict(f"user{i}") for i in range(3)]
+        # One for the users, one for their prefetched routing keys.
+        with django_assert_num_queries(2):
+            prefer_boost_profile_links(rows)
+        assert all(r["profile_url"].startswith("/users/") for r in rows)

@@ -241,3 +241,70 @@ def test_profile_url_property_is_none_for_a_deactivated_user():
         "users.User", display_name="Jane Doe", image=None, is_active=False
     )
     assert user.profile_url is None
+
+
+def test_profile_url_prefers_github_for_an_unclaimed_stub():
+    """The library importer mints these to stand in for historical authors, so
+    their profile page is an empty shell nobody can log into."""
+    user = baker.make(
+        "users.User",
+        display_name="Beman Dawes",
+        image=None,
+        claimed=False,
+        github_username="Beman",
+    )
+    assert user.profile_url == "https://github.com/Beman"
+
+
+def test_profile_url_is_none_for_an_unclaimed_stub_without_github():
+    user = baker.make(
+        "users.User",
+        display_name="Beman Dawes",
+        image=None,
+        claimed=False,
+        github_username="",
+    )
+    assert user.profile_url is None
+
+
+def test_profile_url_ignores_github_for_a_deactivated_account():
+    """A deleted account should not be redirected around, only dropped."""
+    user = baker.make(
+        "users.User",
+        display_name="Jane Doe",
+        image=None,
+        is_active=False,
+        github_username="janedoe",
+    )
+    assert user.profile_url is None
+
+
+def test_profile_url_uses_the_patched_commit_author_github():
+    """Author and maintainer rows carry a CommitAuthor attached by
+    patch_commit_authors(); for a stub whose own github_username is blank, that
+    is the only GitHub URL available."""
+    from types import SimpleNamespace
+
+    user = baker.make(
+        "users.User",
+        display_name="Peter Dimov",
+        image=None,
+        claimed=False,
+        github_username="",
+    )
+    user.commitauthor = SimpleNamespace(github_profile_url="https://github.com/pdimov")
+    assert user.profile_url == "https://github.com/pdimov"
+
+
+def test_profile_url_is_none_when_the_patched_commit_author_has_no_github():
+    from types import SimpleNamespace
+
+    user = baker.make(
+        "users.User",
+        display_name="Beman Dawes",
+        image=None,
+        claimed=False,
+        github_username="",
+    )
+    user.commitauthor = SimpleNamespace(github_profile_url="")
+    assert user.profile_url is None

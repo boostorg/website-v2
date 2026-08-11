@@ -842,9 +842,7 @@ class LibraryVersion(models.Model):
         return {
             "name": author.display_name if author else "Unknown",
             "role": "Author",
-            "profile_url": (
-                author.get_absolute_url() if author and author.is_active else None
-            ),
+            "profile_url": author.profile_url if author else None,
             "avatar_url": author.get_avatar_url() if author else "",
             "badge_url": large_static("img/v3/badges/badge-first-place.png"),
         }
