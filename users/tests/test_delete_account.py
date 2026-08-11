@@ -63,6 +63,32 @@ def test_delete_account_scrubs_pii_and_identity(
 
 
 @pytest.mark.django_db
+def test_extended_scrub_leaves_no_badges_behind_across_achievements(
+    user, django_capture_on_commit_callbacks
+):
+    """Every badge goes, whatever the grant deletions recalculate on the way out.
+
+    Dropping a ``UserAchievement`` recalculates that member's badges
+    synchronously, and nothing constrains a tier's threshold above zero - a tier
+    at 0 is met by a member with no grants at all. Deleting the badges last is
+    what keeps such an award from landing in an account already scrubbed of them.
+    """
+    earned = baker.make("badges.BadgeTier", threshold=1)
+    free = baker.make("badges.BadgeTier", threshold=0)
+    for tier in (earned, free):
+        baker.make(
+            "badges.UserAchievement", user=user, achievement=tier.badge.achievement
+        )
+    assert user.badges.count() == 2
+
+    with django_capture_on_commit_callbacks(execute=True):
+        user.delete_account(extended_scrub=True)
+
+    assert user.achievements.count() == 0
+    assert user.badges.count() == 0
+
+
+@pytest.mark.django_db
 def test_delete_account_removes_preferences(user, django_capture_on_commit_callbacks):
     """Preferences are removed on deletion in both flows."""
     assert Preferences.objects.filter(user=user).exists()
