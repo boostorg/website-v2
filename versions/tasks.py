@@ -223,6 +223,10 @@ def import_version(
     # Save the response we got from Github, if present
     if perform_upsert:
         version, created = _upsert_version_from_tag(tag, base_url, beta, full_release)
+    else:
+        # The version was already upserted by the caller (import_versions flow).
+        version = Version.objects.with_partials().get(name=name)
+        created = False
 
     logger.info(f"import_versions_version {created=} {name=} {version.pk} ")
 

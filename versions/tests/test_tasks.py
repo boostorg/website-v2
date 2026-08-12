@@ -1,7 +1,7 @@
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 from versions.models import Version
-from versions.tasks import get_release_date_for_version, skip_tag
+from versions.tasks import get_release_date_for_version, import_version, skip_tag
 from libraries.management.commands.release_tasks import ReleaseTasksManager
 
 import pytest
@@ -51,6 +51,24 @@ def test_skip_tag(version):
 
     # Assert a random tag name is not skipped
     assert skip_tag("sample") is False
+
+
+@pytest.mark.django_db
+@patch("versions.tasks.import_library_versions")
+@patch("versions.tasks.import_release_downloads")
+def test_import_version_without_upsert(downloads_mock, library_versions_mock, version):
+    """
+    Regression test: when called with perform_upsert=False (as the
+    import_versions release flow does), import_version must load the
+    already-upserted Version instead of crashing on unbound locals.
+    """
+    import_version.run(
+        name=version.name,
+        tag={"name": version.name},
+        perform_upsert=False,
+    )
+    downloads_mock.assert_called_once_with(version.pk)
+    library_versions_mock.assert_called_once_with(version.name, token=None)
 
 
 @pytest.mark.django_db
