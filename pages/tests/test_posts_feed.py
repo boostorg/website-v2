@@ -415,3 +415,36 @@ def test_feed_does_not_scale_queries_with_post_count(
     # plus two for the tags would put it past 30.
     with django_assert_max_num_queries(16):
         tp.get(feed_url)
+
+
+class TestLegacyFeedRedirect:
+    """Under v3 the legacy Entry lists forward to the new feed, so inbound
+    links (bookmarks, search results, older notification emails) still land
+    somewhere useful instead of on a page nothing in the v3 UI points at."""
+
+    def test_redirects_to_the_feed(self, tp, feed_url):
+        response = tp.get("news")
+
+        tp.response_302(response)
+        assert response.url == feed_url
+
+    def test_redirect_carries_the_post_type(self, tp, feed_url):
+        """Each legacy list names one type, so /news/video/ arrives filtered
+        rather than at the top of an unfiltered feed."""
+        response = tp.get("news-video-list")
+
+        tp.response_302(response)
+        assert response.url == f"{feed_url}?type=video"
+
+    def test_redirect_is_temporary(self, tp, feed_url):
+        """A cached 301 would strand v2 visitors if the flag is switched off."""
+        assert tp.get("news").status_code == 302
+
+    def test_no_redirect_without_the_flag(self, tp, feed_url):
+        with waffle.testutils.override_flag("v3", active=False):
+            tp.response_200(tp.get("news"))
+
+    def test_no_redirect_without_an_index_page(self, tp, wagtail_site):
+        """Without an index page `posts_feed_url` falls back to this very view,
+        so redirecting would loop until the browser gives up."""
+        tp.response_200(tp.get("news"))

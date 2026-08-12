@@ -2,12 +2,13 @@ from types import SimpleNamespace
 
 import pytest
 from django.test import RequestFactory
-from django.urls import ResolverMatch
+from django.urls import ResolverMatch, reverse
 from model_bakery import baker
 
 from core.context_processors import (
     active_nav_item,
     current_version,
+    header_context,
     selected_version,
 )
 from libraries.constants import SELECTED_BOOST_VERSION_COOKIE_NAME
@@ -171,3 +172,25 @@ def test_selected_version_label_capitalizes_branch_names(
     ctx = selected_version(request)
     assert ctx["selected_version_is_non_latest"] is True
     assert ctx["selected_version_label"] == expected_label
+
+
+@pytest.mark.django_db
+def test_header_context_exposes_the_posts_feed_url(rf, post_index_page, wagtail_site):
+    """The homepage's "View all posts" CTA reads this key, so it stays in step
+    with the header nav instead of hardcoding a route."""
+    request = rf.get("/")
+    context = header_context(request)
+
+    posts_nav = next(link for link in context["nav_links"] if link.nav_id == "news")
+    assert context["posts_feed_url"] == post_index_page.url
+    assert posts_nav.url == context["posts_feed_url"]
+
+
+@pytest.mark.django_db
+def test_header_context_falls_back_when_no_index_page_exists(rf):
+    """Environments are provisioned with the index page by hand, so until one
+    is created the nav must point somewhere real rather than 404."""
+    request = rf.get("/")
+    context = header_context(request)
+
+    assert context["posts_feed_url"] == reverse("news")

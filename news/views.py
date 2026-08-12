@@ -46,6 +46,7 @@ from badges.display import active_badges_prefetch
 from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin
 from pages.blocks import NEWS_BLOCK, BLOG_BLOCK, LINK_BLOCK, VIDEO_BLOCK
+from pages.feed import posts_feed_url
 from pages.models import PostPage, PostIndexPage
 from pages.mixins import ContentTag
 from .acl import can_approve
@@ -163,7 +164,34 @@ class EntryListView(ListView):
             context["is_moderator"] = can_approve(self.request.user)
         return context
 
+    def _v3_feed_redirect(self, request):
+        """Where a v3 visitor on this legacy list should be sent, if anywhere.
+
+        Under v3 the feed lives at the PostIndexPage URL, so inbound links to
+        the Entry routes (bookmarks, search results, links in older
+        notification emails) are forwarded instead of landing on a page that
+        nothing in the v3 UI points at.
+
+        Returns None when the redirect must not happen: with the flag off, or
+        when the environment has no PostIndexPage, where `posts_feed_url`
+        falls back to this view's own URL and redirecting would loop.
+        """
+        if not flag_is_active(request, "v3"):
+            return None
+        feed_url = posts_feed_url(request)
+        if feed_url == reverse("news"):
+            return None
+        # Each subclass names the type it lists, so /news/video/ arrives at
+        # the new feed already filtered rather than at an unfiltered list.
+        if self.filter_value and self.filter_value != "all":
+            return f"{feed_url}?type={self.filter_value}"
+        return feed_url
+
     def dispatch(self, request, *args, **kwargs):
+        # Temporary (302), never permanent: the flag can be switched back off,
+        # and a cached 301 would strand v2 visitors on a 404.
+        if feed_url := self._v3_feed_redirect(request):
+            return redirect(feed_url)
         if post_filter := self.request.GET.get("post-filter"):
             match post_filter:
                 case "all":
