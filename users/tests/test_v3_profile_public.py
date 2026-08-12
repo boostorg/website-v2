@@ -1,5 +1,6 @@
 import pytest
 import waffle.testutils
+from django.urls import resolve
 from model_bakery import baker
 
 from users.models import UserProfileRoutingKey
@@ -237,10 +238,18 @@ def test_profile_user_route_404s_for_an_unknown_key(tp):
 @waffle.testutils.override_flag("v3", active=True)
 def test_profile_user_route_does_not_shadow_the_literal_users_routes(user, tp):
     """The slug converter matches "me" and "avatar", so those must resolve to
-    their own views rather than to a profile lookup."""
+    their own views rather than to a profile lookup.
+
+    Asserted by resolving the paths rather than reversing the names: reversing
+    only proves the names still generate these URLs, and would keep passing if
+    the slug route were moved above them and started swallowing requests."""
     with tp.login(user):
         tp.response_200(tp.get("profile-account"))
-    assert tp.reverse("user-avatar") == "/users/avatar/"
+
+    assert resolve("/users/avatar/").view_name == "user-avatar"
+    assert resolve("/users/me/").view_name == "profile-account"
+    # Anything that isn't a literal segment does reach the profile view.
+    assert resolve("/users/jane-doe-k3f9/").view_name == "profile-user"
 
 
 @waffle.testutils.override_flag("v3", active=True)

@@ -26,7 +26,7 @@ def test_mints_a_key_for_a_user_whose_name_changed_elsewhere():
     call_command("sync_profile_routing_keys")
 
     keys = list(user.profile_routing_keys.order_by("created"))
-    assert [k.routing_key for k in keys][0] == stale
+    assert keys[0].routing_key == stale
     assert keys[-1].routing_key.startswith("jane-smith-")
     assert user.profile_routing_keys.count() == 2
 
