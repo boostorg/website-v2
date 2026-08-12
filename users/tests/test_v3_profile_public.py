@@ -71,11 +71,11 @@ def test_public_profile_hides_every_section_with_no_data(user, tp):
 
 @waffle.testutils.override_flag("v3", active=True)
 def test_own_profile_header_buttons_have_edit_but_no_share(user, tp):
-    """Owners get Edit Profile where visitors get Share."""
+    """Owners get Edit Profile where visitors get Share Profile."""
     with tp.login(user):
         response = tp.get("profile-account")
     buttons = {link["label"]: link["url"] for link in response.context["top_links"]}
-    assert "Share" not in buttons
+    assert "Share Profile" not in buttons
     assert buttons["Edit Profile"] == f"{tp.reverse('profile-account')}?edit=true"
 
 
@@ -128,12 +128,12 @@ def test_profile_user_route_renders_another_users_profile(other_user, tp):
 
 @waffle.testutils.override_flag("v3", active=True)
 def test_profile_user_route_shows_share_to_a_visitor(user, other_user, tp):
-    """A visitor -- signed in or not -- gets the Share button, never the
-    owner's edit affordance."""
+    """A visitor -- signed in or not -- gets the Share Profile button, never
+    the owner's edit affordance."""
     with tp.login(user):
         response = tp.get("profile-user", pk=other_user.pk)
     labels = [link["label"] for link in response.context["top_links"]]
-    assert "Share" in labels
+    assert "Share Profile" in labels
     assert "Edit Profile" not in labels
 
 
@@ -145,7 +145,7 @@ def test_profile_user_route_shows_edit_to_the_owner(user, tp):
         response = tp.get("profile-user", pk=user.pk)
     labels = [link["label"] for link in response.context["top_links"]]
     assert "Edit Profile" in labels
-    assert "Share" not in labels
+    assert "Share Profile" not in labels
 
 
 @waffle.testutils.override_flag("v3", active=True)

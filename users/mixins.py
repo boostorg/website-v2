@@ -9,7 +9,7 @@ class V3UserProfileContextMixin:
 
     Both pages render `v3/user_profile_page.html` from the same data. They
     differ only in the header button trailing the profile links: visitors get
-    Share, the profile's owner gets Edit Profile (see
+    Share Profile, the profile's owner gets Edit Profile (see
     `get_trailing_button()`), and only the owner's view carries the account
     connections card.
     """
@@ -44,16 +44,18 @@ class V3UserProfileContextMixin:
     def get_trailing_button(self, user):
         """The header button that follows the profile links.
 
-        Owners get Edit Profile in place of Share, on both `/users/me/` and
-        their own `/users/<pk>/` page, so the affordance follows who is
-        looking rather than which route was used."""
+        Owners get Edit Profile in place of Share Profile, on both
+        `/users/me/` and their own `/users/<pk>/` page, so the affordance
+        follows who is looking rather than which route was used. Share
+        Profile is therefore only ever reachable on someone else's public
+        profile."""
         if user == self.request.user:
             return {
                 "label": "Edit Profile",
                 "url": edit_profile_url(),
                 "icon": "pixel-pencil",
             }
-        return {"label": "Share", "url": "#", "icon": "pixel-share"}
+        return {"label": "Share Profile", "url": "#", "icon": "pixel-share"}
 
     def get_v3_profile_link_buttons(self, user):
         """Header buttons for the public profile links the user has set.
