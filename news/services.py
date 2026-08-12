@@ -45,12 +45,10 @@ def _entry_to_post_card(entry: Entry) -> dict:
         "tag": "",
         "author": {
             "name": getattr(author, "display_name", None) or str(author),
-            # A deactivated author's profile 404s, so it is left unlinked.
-            "profile_url": (
-                author.get_absolute_url()
-                if getattr(author, "is_active", False)
-                else None
-            ),
+            # profile_url settles every account state in one place: a claimed
+            # account gets its profile, an unclaimed stub gets GitHub (its
+            # profile page is an empty shell), a deactivated one gets nothing.
+            "profile_url": getattr(author, "profile_url", None),
             "role": author.role,
             "avatar_url": (
                 author.get_avatar_url() if hasattr(author, "get_avatar_url") else ""
