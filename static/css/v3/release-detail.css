@@ -2,16 +2,6 @@
    Release Detail Page — v3
    ============================================ */
 
-/* Fill the viewport so the footer stays at the bottom on short pages */
-.releases-v3 {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.releases-v3 .min-vh-110 {
-  flex: 1 0 auto;
-}
 
 /* Hero styling (including the --release variant) lives in heros.css; header
    positioning is centralized in header.css (body.v3 .header). */

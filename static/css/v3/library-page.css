@@ -3,16 +3,6 @@
 
 /* === Page Layout === */
 
-.v3-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.v3-container > .min-vh-110 {
-    flex: 1 0 auto;
-    min-height: 0;
-}
 
 .library-page__container {
     padding: 0 var(--space-large);

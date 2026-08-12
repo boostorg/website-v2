@@ -156,3 +156,38 @@ html.v3 code {
   padding-left:var(--space-medium);
   padding-right:var(--space-medium);
 }
+
+/* ==========================================================================
+   Full-height page: the footer sits at the bottom of the viewport on pages
+   whose content is too short to fill it, instead of riding up under the last
+   card.
+
+   Driven from the body because that is the only element every v3 page shares:
+   base.html renders [optional flag banner] + [page wrapper], and the wrapper
+   itself is a template block that homepage, community, release detail, auth
+   and library subpages each swap out for their own. Growing the body's own
+   children also means the banner's height is accounted for automatically,
+   rather than each page guessing at `min-height: 100vh`.
+   ========================================================================== */
+
+body.v3 {
+  display: flex;
+  flex-direction: column;
+  /* Overrides .h-screen, which would otherwise cap the page at exactly one
+     viewport and let longer content spill out of the flex column. */
+  height: auto;
+  min-height: 100vh;
+}
+
+/* The page wrapper, whatever class the template gave it: it is the body child
+   holding the header, the content and the footer. */
+body.v3 > div:has(> .min-vh-110) {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
+
+/* The content wrapper between the header and the footer takes up the slack. */
+body.v3 > div > .min-vh-110 {
+  flex: 1 0 auto;
+}

@@ -9,7 +9,6 @@
 .auth-page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 }
 
 /* ── Error styling scoped to auth page ──────── */
