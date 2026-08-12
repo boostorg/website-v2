@@ -488,6 +488,46 @@
   padding-top: var(--space-hero-padding-top);
 }
 
+/* The header overlays the top of the page, so whatever comes first inside the
+   hero has to clear it. Normally that is .hero__block and its padding does the
+   work, but the version alert renders above the block, so the clearance moves up
+   to the section and the block gives its own back. The section's gap then spaces
+   the alert from the block. Clearance matches the reservation in header.css. */
+.hero:has(> .banner) {
+  /* 48px is .header's own --header-height. That custom property cannot be read
+     from out here: the value that reaches the hero is an unrelated legacy 2.5rem,
+     which silently under-reserves and tucks the alert under the header. The rest
+     of the footprint is the header's vertical padding. */
+  --hero-header-footprint: calc(48px + 2 * var(--space-default));
+  /* The alert lines up with the nav pill above it, so it takes the header's
+     own horizontal padding. */
+  --hero-banner-inset: var(--space-large);
+  padding-top: var(--hero-header-footprint);
+}
+
+/* Match the header's box so the alert and the nav share both edges: same 1440
+   container, same inset. Without this the banner runs the full width of the
+   section while the nav sits inset, and the two edges disagree. */
+.hero > .banner {
+  width: calc(100% - 2 * var(--hero-banner-inset));
+  max-width: calc(1440px - 2 * var(--hero-banner-inset));
+  margin-inline: auto;
+}
+
+/* Mirrors the header's own padding switch in header.css, which goes from
+   --space-default to --space-medium at this width. Without it the alert slides
+   under the taller tablet header. */
+@media (max-width: 990px) {
+  .hero:has(> .banner) {
+    --hero-header-footprint: calc(48px + 2 * var(--space-medium));
+    --hero-banner-inset: var(--space-medium);
+  }
+}
+
+.hero:has(> .banner) .hero__block {
+  padding-top: 0;
+}
+
 .hero--no-image .hero__block {
   align-items: center;
 }
