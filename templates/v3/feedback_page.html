@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% comment %}
+  Standalone beta feedback form.
+
+  Serves two purposes: the target the floating widget's launcher links to when
+  JavaScript is unavailable, and where a failed no-JS submission is re-rendered
+  so server-side errors are visible and fixable.
+
+  Context (feedback.views.FeedbackView):
+    form                  — FeedbackForm, bound on a failed submission
+    feedback_type_options — Feedback.Type.choices
+    page_url              — the page the submitter came from, carried through
+{% endcomment %}
+
+{% block title %}Send beta feedback{% endblock %}
+
+{% block content %}
+<div class="feedback-page">
+  <div class="feedback-page__inner">
+    <h1 class="feedback-page__title">How's the beta going?</h1>
+    <p class="feedback-page__intro">
+      Found a bug, or have an idea? Tell us anything you noticed while using the beta —
+      we read every note.
+    </p>
+
+    <form class="feedback-page__form"
+          method="post"
+          action="{% url 'feedback' %}"
+          enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="page_url" value="{{ page_url }}">
+
+      {% if form.non_field_errors %}
+        <p class="feedback-page__error" role="alert">{{ form.non_field_errors.0 }}</p>
+      {% endif %}
+
+      {% include "v3/includes/_field_dropdown.html" with name="feedback_type" label="What's this about?" options=feedback_type_options placeholder="Pick one" required=True selected=form.feedback_type.value|default_if_none:"" error=form.feedback_type.errors.0 exclude_from_clear=True %}
+
+      {% include "v3/includes/_field_textarea.html" with name="message" label="Tell us more" placeholder="What happened, or what would you change?" rows=8 required=True value=form.message.value|default_if_none:"" error=form.message.errors.0 %}
+
+      {% include "v3/includes/_field_file.html" with name="image" label="Add a screenshot" accept="image/png,image/jpeg" preview=True error=form.image.errors.0 help_text="Optional. PNG or JPEG, up to 2MB — a picture often saves us a lot of guesswork." %}
+
+      {% include "v3/includes/_button.html" with label="Send feedback" style="primary" type="submit" %}
+
+      <p class="feedback-page__disclosure">
+        Sent as {{ request.user.display_name }}, with your browser and current page info.
+      </p>
+    </form>
+  </div>
+</div>
+{% endblock %}

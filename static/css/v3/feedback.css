@@ -1,0 +1,249 @@
+/**
+ * Beta Feedback
+ *
+ * Floating widget rendered site-wide (templates/v3/includes/_feedback_widget.html)
+ * plus the standalone form page (templates/v3/feedback_page.html).
+ *
+ * Structure:
+ *   .feedback-widget            – fixed positioning context, bottom-right
+ *   .feedback-widget__launcher  – pill trigger; a link, so it works without JS
+ *   .feedback-widget__panel     – form panel anchored above the launcher
+ *   .feedback-page              – standalone form page (no-JS fallback target)
+ *
+ * Sits below .dialog-modal (z-index 10000) so modals always win.
+ */
+
+/* ============================================
+   WIDGET SHELL
+   ============================================ */
+.feedback-widget {
+  position: fixed;
+  right: var(--space-large);
+  bottom: var(--space-large);
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-small);
+}
+
+.feedback-widget p {
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================
+   LAUNCHER
+   ============================================ */
+.feedback-widget__launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-large) var(--space-large);
+  background-color: var(--color-surface-brand-accent-default);
+  color: var(--color-text-on-accent);
+  border-radius: var(--border-radius-xxl);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.feedback-widget__launcher:hover {
+  background-color: var(--color-surface-brand-accent-hovered);
+  color: var(--color-text-on-accent);
+  text-decoration: none;
+}
+
+.feedback-widget__launcher-icon {
+  display: block;
+  color: var(--color-icon-on-accent);
+}
+
+/* ============================================
+   PANEL
+   ============================================ */
+.feedback-widget__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  width: 380px;
+  max-width: calc(100vw - 2 * var(--space-default));
+  max-height: calc(100vh - 6 * var(--space-large));
+  overflow-y: auto;
+  padding: var(--space-large);
+  margin-top: var(--space-default);
+  background-color: var(--color-surface-page);
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-l);
+}
+
+.feedback-widget__header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-default);
+  margin: 0 calc(-1 * var(--space-large));
+  padding: 0 var(--space-large) var(--space-large);
+  border-bottom: 1px solid var(--color-stroke-weak);
+}
+
+.feedback-widget__title {
+  flex: 1 0 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-primary);
+}
+
+.feedback-widget__close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--color-icon-primary);
+  cursor: pointer;
+}
+
+.feedback-widget__close:hover {
+  color: var(--color-icon-secondary);
+}
+
+.feedback-widget__close-icon {
+  display: block;
+}
+
+.feedback-widget__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+}
+
+/* Extra breathing room between the last field and the submit button.
+   Adds to the flex gap rather than replacing it. */
+.feedback-widget__form .btn,
+.feedback-page__form .btn {
+  margin-top: var(--space-large);
+}
+
+/* ============================================
+   STATUS AND ERROR TEXT
+   ============================================ */
+.feedback-widget__sent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.feedback-widget__sent-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  color: var(--color-text-primary);
+}
+
+.feedback-widget__note {
+  margin: var(--space-default) 0 !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-default);
+  color: var(--color-text-secondary);
+}
+
+.feedback-widget__disclosure,
+.feedback-page__disclosure {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-default);
+  color: var(--color-text-tertiary);
+}
+
+.feedback-widget__error,
+.feedback-page__error {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-default);
+  color: var(--color-text-error);
+}
+
+/* Mobile: the panel spans the viewport rather than floating in a corner. */
+@media (max-width: 767px) {
+  .feedback-widget {
+    right: var(--space-default);
+    bottom: var(--space-default);
+    left: var(--space-default);
+    align-items: flex-end;
+  }
+
+  .feedback-widget__panel {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* ============================================
+   STANDALONE PAGE
+   ============================================ */
+
+body:has(.feedback-page) .v3-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body:has(.feedback-page) .v3-container > .min-vh-110 {
+  flex: 1;
+  min-height: 0;
+}
+
+.feedback-page {
+  padding: var(--space-xl) var(--space-default);
+}
+
+.feedback-page__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.feedback-page__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-primary);
+}
+
+.feedback-page__intro {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-default);
+  color: var(--color-text-secondary);
+}
+
+.feedback-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  margin-top: var(--space-default);
+}

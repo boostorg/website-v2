@@ -1,0 +1,173 @@
+"""Critical-path tests for the beta feedback tool.
+
+Deliberately minimal — this is temporary beta tooling. Covers only what would
+silently lose feedback or open a hole: both submit paths, identity capture, the
+screenshot ceiling, the redirect guard, and that the widget and admin render.
+"""
+
+import io
+import json
+import os
+
+import pytest
+import waffle.testutils
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client
+from django.urls import reverse
+from PIL import Image
+
+from feedback.diagnostics import RING_BUFFER_LIMIT
+from feedback.models import IMAGE_MAX_BYTES, Feedback
+
+pytestmark = pytest.mark.django_db
+
+XHR = {"X-Requested-With": "XMLHttpRequest"}
+
+
+def png_bytes(pixels):
+    """Random-noise PNG, so encoded size tracks pixel count instead of compressing away."""
+    image = Image.frombytes("RGB", (pixels, pixels), os.urandom(pixels * pixels * 3))
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    return buffer.getvalue()
+
+
+@pytest.fixture
+def url():
+    return reverse("feedback")
+
+
+@pytest.fixture
+def payload():
+    return {
+        "feedback_type": Feedback.Type.BUG,
+        "message": "The version dropdown renders behind the header.",
+        "page_url": "http://testserver/libraries/",
+    }
+
+
+@pytest.fixture(autouse=True)
+def signed_in(client, user):
+    """Every path requires an account; the signed-out tests use their own client."""
+    client.force_login(user)
+    return user
+
+
+def test_submission_attaches_the_logged_in_user(client, url, payload, user):
+    response = client.post(url, payload, headers=XHR)
+
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+    feedback = Feedback.objects.get()
+    assert feedback.user == user
+    assert feedback.status == Feedback.Status.NEW
+
+
+def test_signed_out_submission_is_refused(url, payload):
+    """Beta access is gated on an account, so there is no anonymous path."""
+    response = Client().post(url, payload, headers=XHR)
+
+    assert response.status_code == 401
+    assert not Feedback.objects.exists()
+
+
+def test_signed_out_visitor_is_sent_to_log_in(url):
+    response = Client().get(url)
+
+    assert response.status_code == 302
+    assert response.url.startswith("/accounts/login/")
+
+
+def test_screenshot_is_stored_with_the_feedback(client, url, payload):
+    screenshot = SimpleUploadedFile("shot.png", png_bytes(10), "image/png")
+
+    response = client.post(url, {**payload, "image": screenshot}, headers=XHR)
+
+    assert response.status_code == 200
+    assert Feedback.objects.get().image.name.startswith("feedback/")
+
+
+def test_oversized_screenshot_is_rejected(client, url, payload):
+    content = png_bytes(900)
+    assert len(content) >= IMAGE_MAX_BYTES, "fixture must exceed the ceiling"
+    screenshot = SimpleUploadedFile("huge.png", content, "image/png")
+
+    response = client.post(url, {**payload, "image": screenshot}, headers=XHR)
+
+    assert response.status_code == 400
+    assert "image" in response.json()["errors"]
+    assert not Feedback.objects.exists()
+
+
+def test_longest_category_slug_fits_the_column(client, url, payload):
+    """`incorrect_information` is 21 chars — it overflowed the original max_length=20."""
+    category = Feedback.Type.INCORRECT_INFORMATION
+
+    response = client.post(url, {**payload, "feedback_type": category}, headers=XHR)
+
+    assert response.status_code == 200
+    assert Feedback.objects.get().feedback_type == category
+
+
+def test_no_js_submission_refuses_to_redirect_off_site(client, url, payload):
+    """page_url is client-supplied, so it must not become an open redirect."""
+    response = client.post(url, {**payload, "page_url": "https://evil.example.com/"})
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+
+def test_route_and_version_are_derived_from_the_page_url(client, url, payload):
+    """Server-derived, so reports group by route and cannot be spoofed by the client."""
+    page = "http://testserver/library/1.88.0/beast/"
+
+    client.post(url, {**payload, "page_url": page}, headers=XHR)
+
+    feedback = Feedback.objects.get()
+    assert feedback.url_name == "library-detail"
+    # Canonical Version.slug, the same form the version cookie stores, so
+    # URL-driven and cookie-driven versions group together.
+    assert feedback.boost_version == "boost-1-88-0"
+
+
+def test_client_diagnostics_are_captured_but_bounded(client, url, payload):
+    """The browser blob is untrusted: oversized entries and junk keys are dropped."""
+    blob = json.dumps(
+        {
+            "viewport": "1440x900",
+            "device": "desktop",
+            "console_errors": [f"boom {i}" for i in range(50)],
+            "search_query": "asio timer",
+            "unexpected": {"nested": "junk"},
+        }
+    )
+
+    client.post(url, {**payload, "diagnostics": blob}, headers=XHR)
+
+    diagnostics = Feedback.objects.get().diagnostics
+    assert diagnostics["viewport"] == "1440x900"
+    assert diagnostics["search_query"] == "asio timer"
+    assert len(diagnostics["console_errors"]) == RING_BUFFER_LIMIT
+    assert "unexpected" not in diagnostics
+
+
+@waffle.testutils.override_flag("v3", active=True)
+@waffle.testutils.override_flag("beta_feedback", active=True)
+def test_widget_is_mounted_site_wide_and_can_submit(client, url):
+    response = client.get(url)
+
+    content = response.content.decode()
+    assert 'class="feedback-widget"' in content
+    assert "csrfmiddlewaretoken" in content
+    assert 'enctype="multipart/form-data"' in content
+    assert 'name="image"' in content
+
+
+def test_admin_changelist_renders_for_triage(client, super_user, url, payload):
+    client.post(url, payload, headers=XHR)
+    client.force_login(super_user)  # replaces the autouse login
+
+    response = client.get(reverse("admin:feedback_feedback_changelist"))
+
+    assert response.status_code == 200
+    assert payload["message"] in response.content.decode()

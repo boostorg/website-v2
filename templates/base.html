@@ -1,6 +1,7 @@
 {% load static %}
 {% load i18n %}
 {% load waffle_tags %}
+{% load feedback_tags %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}"{% flag "v3" %} class="v3"{% endflag %}>
@@ -44,6 +45,10 @@
     <script src="{% static 'js/scroll-to-link.js' %}" defer></script>
     <script src="{% static 'js/utils.js' %}"></script>
     {% flag "v3" %}
+    {% flag "beta_feedback" %}
+    {# Undeferred and first, so it captures errors thrown by the scripts below it. #}
+    <script src="{% static 'js/feedback-diagnostics.js' %}"></script>
+    {% endflag %}
     <script src="{% static 'js/highlight.js' %}"></script>
     <script src="{% static 'js/highlight-block.js' %}"></script>
     <script src="{% static 'js/code-block.js' %}" defer></script>
@@ -432,6 +437,14 @@
           {% include "includes/_footer.html" %}
         {% endflag %}
       {% endif %}
+
+      {% flag "v3" %}
+        {% flag "beta_feedback" %}
+          {% if request.user.is_authenticated %}
+            {% feedback_widget %}
+          {% endif %}
+        {% endflag %}
+      {% endflag %}
     </div>
 
     {% flag "v3" %}
