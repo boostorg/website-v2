@@ -666,10 +666,9 @@ class LibraryDetail(
         """Add the copy and CTA for the "no records for this version" empty state.
 
         Built here rather than in the template because both the sentence and the
-        CTA branch on data: a library with no releases at all has no "first
-        release" clause and nowhere to switch to, and the newest release that
-        actually ships the library is only the current one for libraries that
-        haven't been dropped from Boost.
+        CTA branch on data: a library with no releases at all has no second
+        sentence and nowhere to switch to, and a library that has left Boost
+        needs the last release that shipped it rather than the first.
         """
         library = self.object
         selected_version = context.get("selected_version")
@@ -677,13 +676,6 @@ class LibraryDetail(
             f"There is no version of the {library.display_name} library for Boost "
             f"{selected_version.display_name}."
         )
-        first_version = library.first_boost_version
-        if first_version:
-            description += (
-                f" The first release of {library.display_name} library was version "
-                f"{first_version.display_name}."
-            )
-        context["library_version_missing_description"] = description
 
         newest_version = (
             Version.objects.active()
@@ -691,6 +683,35 @@ class LibraryDetail(
             .order_by("-name")
             .first()
         )
+
+        # Two different absences land here. Past the library's last release it has
+        # left Boost, so the useful fact is where it stopped. Before its first, it
+        # simply hadn't been added yet.
+        left_boost = (
+            newest_version
+            and selected_version.cleaned_version_parts_int
+            > newest_version.cleaned_version_parts_int
+        )
+        # Not library.first_boost_version: that spans betas, so a library whose
+        # first appearance was a beta would be announced as "version 1.91.0.beta1".
+        first_version = (
+            Version.objects.active()
+            .filter(library_version__library=library, beta=False, full_release=True)
+            .order_by("name")
+            .first()
+        )
+        if left_boost:
+            description += (
+                f" The last release which included {library.display_name} was "
+                f"{newest_version.display_name}."
+            )
+        elif first_version:
+            description += (
+                f" The first release of {library.display_name} library was version "
+                f"{first_version.display_name}."
+            )
+        context["library_version_missing_description"] = description
+
         if newest_version:
             is_latest = newest_version == Version.objects.most_recent()
             context["library_version_missing_cta_url"] = reverse(
