@@ -2,6 +2,8 @@ import os
 import pytest
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from model_bakery import baker
 
 from libraries.utils import (
@@ -10,6 +12,7 @@ from libraries.utils import (
     generate_fake_email,
     generate_release_report_filename,
     get_first_last_day_last_month,
+    build_library_intro_context,
     parse_date,
     prefer_boost_profile_links,
     update_base_tag,
@@ -486,3 +489,71 @@ class TestPreferBoostProfileLinks:
         with django_assert_num_queries(2):
             prefer_boost_profile_links(rows)
         assert all(r["profile_url"].startswith("/users/") for r in rows)
+
+
+@pytest.mark.django_db
+class TestBuildLibraryIntroContextQueries:
+    """Every author row links a profile, which reads that user's routing keys.
+    Those are prefetched, so the card must not cost a query per author.
+    """
+
+    def routing_key_queries(self, queries):
+        return [
+            q["sql"]
+            for q in queries.captured_queries
+            if "routingkey" in q["sql"].lower()
+        ]
+
+    def test_authors_and_maintainers_share_one_routing_key_query(self, library_version):
+        library_version.authors.add(
+            *baker.make("users.User", image=None, _quantity=3),
+        )
+        library_version.maintainers.add(
+            *baker.make("users.User", image=None, _quantity=2),
+        )
+
+        with CaptureQueriesContext(connection) as queries:
+            context = build_library_intro_context(library_version)
+
+        assert len(context["authors"]) == 5
+        # One for the authors' keys, one for the maintainers'. Not one per row.
+        assert len(self.routing_key_queries(queries)) == 2
+
+    def test_query_count_does_not_grow_with_more_authors(self, library_version):
+        library_version.authors.add(
+            *baker.make("users.User", image=None, _quantity=2),
+        )
+        with CaptureQueriesContext(connection) as few:
+            build_library_intro_context(library_version)
+
+        library_version.authors.add(
+            *baker.make("users.User", image=None, _quantity=6),
+        )
+        with CaptureQueriesContext(connection) as many:
+            context = build_library_intro_context(library_version)
+
+        assert len(context["authors"]) == 8
+        assert len(self.routing_key_queries(many)) == len(
+            self.routing_key_queries(few)
+        ), "adding authors must not add routing-key queries"
+
+    def test_claimed_contributors_share_one_routing_key_query(self, library_version):
+        """Top contributors fill the remaining slots; a claimed one links to its
+        Boost profile, so its user and keys are preloaded too."""
+        for i in range(3):
+            user = baker.make(
+                "users.User", display_name=f"User {i}", image=None, claimed=True
+            )
+            author = baker.make("libraries.CommitAuthor", name=f"User {i}", user=user)
+            baker.make(
+                "libraries.Commit", author=author, library_version=library_version
+            )
+
+        with CaptureQueriesContext(connection) as queries:
+            context = build_library_intro_context(
+                library_version, max_authors=5, include_contributors=True
+            )
+
+        assert len(context["authors"]) == 3
+        assert all(a["profile_url"].startswith("/users/") for a in context["authors"])
+        assert len(self.routing_key_queries(queries)) == 1

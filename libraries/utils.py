@@ -648,10 +648,16 @@ def build_library_intro_context(
 
     library = library_version.library
 
-    # Authors first, then maintainers — same order as ContributorMixin
-    authors = list(library_version.authors.all())
+    # Authors first, then maintainers (same order as ContributorMixin). Each row
+    # links a profile, which reads the user's routing keys, so those are
+    # prefetched rather than fetched per card.
+    authors = list(library_version.authors.prefetch_related("profile_routing_keys"))
     author_ids = {a.id for a in authors}
-    maintainers = list(library_version.maintainers.exclude(id__in=author_ids))
+    maintainers = list(
+        library_version.maintainers.exclude(id__in=author_ids).prefetch_related(
+            "profile_routing_keys"
+        )
+    )
 
     combined = (authors + maintainers)[:max_authors]
     if combined:
@@ -677,6 +683,10 @@ def build_library_intro_context(
             CommitAuthor.humans.filter(commit__library_version=library_version)
             .exclude(id__in=exclude_commit_author_ids)
             .annotate(count=Count("commit"))
+            # A claimed contributor links to their Boost profile, which reads the
+            # user and their routing keys.
+            .select_related("user")
+            .prefetch_related("user__profile_routing_keys")
             .order_by("-count")[:remaining]
         )
 
