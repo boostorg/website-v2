@@ -17,7 +17,7 @@ jobs:
           chmod +x ./get_deps.sh
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0  # fetch all history for all branches and tags
           repository: boostorg/boost
@@ -42,7 +42,7 @@ jobs:
           $GITHUB_WORKSPACE/get_deps.sh "$GITHUB_WORKSPACE/output.txt"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: boost-dep-artifact
           path: output.txt
