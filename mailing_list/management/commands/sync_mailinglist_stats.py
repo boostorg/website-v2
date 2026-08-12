@@ -82,7 +82,7 @@ def create_emaildata(conn: Connection):
                 {"start": start, "end": end},
             )
             rows = [{x: data[i] for i, x in enumerate(columns)} for data in cursor]
-            bulk_create(rows, a)
+            bulk_create(rows, b)
 
 
 def create_commitauthors(conn: Connection):
