@@ -30,7 +30,7 @@
      x-data="{
        jsReady: false,
        open: false,
-       selected: '{{ selected|default:'' }}',
+       selected: '{{ selected|default:''|escapejs }}',
        selectedLabel: '',
        init() {
          this.jsReady = true;
@@ -92,6 +92,7 @@
          @keydown.arrow-down.prevent="open = true; $nextTick(() => firstOption()?.focus())"
          :aria-expanded="open"
          aria-haspopup="listbox"
+         aria-controls="field-{{ name }}-listbox"
          tabindex="0"
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
          {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
@@ -110,6 +111,7 @@
       {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
     </div>
     <div class="dropdown__panel"
+         id="field-{{ name }}-listbox"
          x-show="open"
          @click.away="open = false"
          @keydown.escape.prevent="open = false; $refs.trigger.focus()"
