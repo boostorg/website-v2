@@ -602,6 +602,10 @@ if LOCAL_DEVELOPMENT or CATCH_ALL_EMAIL:
     EMAIL_BACKEND = env(
         "EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
     )
+    # smtplib blocks forever without this. A sink that accepts the connection but
+    # never sends a banner would otherwise stall the request thread or Celery
+    # worker that is sending, instead of raising.
+    EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=10)
     # Credentials for an Anymail backend, as a JSON env var, e.g.
     # ANYMAIL='{"<PROVIDER>_API_TOKEN": "..."}'. Empty/ignored for plain SMTP.
     ANYMAIL = env.json("ANYMAIL", default={})
