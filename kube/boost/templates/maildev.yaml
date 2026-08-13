@@ -19,6 +19,11 @@ metadata:
     app: maildev
     env: {{ .Values.deploymentEnvironment }}
 spec:
+  # Holds the replicas: 1 invariant during rollouts too. The default
+  # RollingUpdate surges to a second pod before terminating the first, which is
+  # the split inbox described below, time-boxed to the rollout.
+  strategy:
+    type: Recreate
   # Must stay at 1: messages are held in the pod's memory, so a second replica
   # would split the inbox and socket.io polling would need session affinity.
   replicas: 1
