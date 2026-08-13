@@ -595,7 +595,15 @@ SERVER_EMAIL = "errors@cppalliance.org"
 CATCH_ALL_EMAIL = env.bool("CATCH_ALL_EMAIL", default=False)
 DEPLOYMENT_ENVIRONMENT = env("X_DEPLOYMENT_ENV", default="")
 
-if CATCH_ALL_EMAIL and DEPLOYMENT_ENVIRONMENT == "production":
+# Two independent signals, because neither one being unset or renamed should be
+# what lets catch-all email through in production. X_DEPLOYMENT_ENV comes from
+# the chart's deploymentEnvironment anchor, ENVIRONMENT_NAME from the admin
+# banner config; both are set in values-production-gke.yaml.
+IS_PRODUCTION = (
+    DEPLOYMENT_ENVIRONMENT == "production" or ENV_NAME == "Production Environment"
+)
+
+if CATCH_ALL_EMAIL and IS_PRODUCTION:
     raise ImproperlyConfigured("CATCH_ALL_EMAIL must not be enabled in production")
 
 if LOCAL_DEVELOPMENT or CATCH_ALL_EMAIL:
