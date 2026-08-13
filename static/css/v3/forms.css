@@ -362,11 +362,6 @@
   border-bottom-color: var(--color-stroke-weak);
 }
 
-.dropdown--has-value .dropdown__trigger,
-.dropdown--has-value .dropdown__trigger:hover {
-  border-color: var(--color-stroke-link-accent);
-}
-
 .dropdown__panel {
   position: absolute;
   top: 100%;
@@ -800,7 +795,7 @@
 .field__select {
   width: 100%;
   height: 40px;
-  padding: 0 var(--space-large, 16px);
+  padding: 0 40px 0 var(--space-large, 16px);
   background-color: var(--color-surface-weak, #fff);
   border: 1px solid var(--color-stroke-weak, #0508161a);
   border-radius: var(--border-radius-xl, 12px);
@@ -909,19 +904,14 @@
 
 /* ========== Badge select (display-badge picker) ========== */
 
-/* Drives the max-height too, so the list is a whole number of rows. */
-.badge-select {
-  --badge-select-item-height: 40px;
-}
-
 /* Columns are icon, name, detail, lock. Rows span them as a subgrid so the name
-   track is sized across every row and the details line up. */
+   track is sized across every row and the details line up. Rows are left to size
+   themselves, so a wrapped detail makes its own row taller; the scroll cap is the
+   shared .dropdown__list max-height. */
 .badge-select .dropdown__list {
   display: grid;
   grid-template-columns: auto auto 1fr auto;
-  grid-auto-rows: var(--badge-select-item-height);
   column-gap: var(--space-default);
-  max-height: calc(var(--badge-select-item-height) * 6);
 }
 
 .badge-select .dropdown__empty {
@@ -932,24 +922,37 @@
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
-  height: var(--badge-select-item-height);
+  height: auto;
+  padding-block: var(--space-medium);
+  align-items: start;
+  border-bottom: none;
 }
 
 .badge-select__name {
   color: var(--color-text-secondary);
 }
 
-/* min-width: 0 so the track can shrink below its content and ellipsis. */
+/* min-width: 0 so the track can shrink below its longest word and wrap there. */
 .badge-select__detail {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   color: var(--color-text-tertiary);
 }
 
-/* The trigger holds an icon beside the label, so the ellipsis moves off it and
-   onto the label - text-overflow does nothing on a flex container. */
+.badge-select .dropdown__trigger {
+  box-sizing: border-box;
+  height: auto;
+  min-height: 40px;
+  padding-block: var(--space-default);
+}
+
+
+.badge-select .dropdown__trigger-text {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  align-content: flex-start;
+}
+
 .badge-select__trigger {
   display: flex;
   align-items: center;
@@ -963,9 +966,6 @@
 
 .badge-select__trigger-label {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .badge-select__lock {
