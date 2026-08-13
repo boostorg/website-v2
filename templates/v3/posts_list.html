@@ -45,34 +45,64 @@
               x-data="{
                 FOCUS_KEY: 'posts-feed-focus',
                 init() {
-                  let name;
+                  let stored, name, keyboard;
                   try {
-                    name = sessionStorage.getItem(this.FOCUS_KEY);
+                    stored = sessionStorage.getItem(this.FOCUS_KEY);
                     sessionStorage.removeItem(this.FOCUS_KEY);
                   } catch (e) { return }
+                  if (!stored) return;
+                  // Anything unreadable is a leftover from an older format.
+                  try { ({ name, keyboard } = JSON.parse(stored)) } catch (e) { return }
                   if (!name) return;
-                  // Held across the tick rather than read off $el inside it,
-                  // which resolves against whatever Alpine is evaluating then.
-                  const form = this.$el;
+                  // $root, not $el: these methods are called from handlers on
+                  // descendants too, and $el is whichever element Alpine is
+                  // evaluating rather than the component the data belongs to.
+                  const form = this.$root;
                   // Each field initialises after this one, so the dropdown is
                   // still cloaked and unfocusable until the tick has passed.
                   this.$nextTick(() => {
-                    const field = form.querySelector(`[name='${name}']`)?.closest('.field');
-                    (field?.querySelector('.dropdown__trigger') ?? field?.querySelector('input'))?.focus();
+                    const named = [...form.querySelectorAll(`[name='${name}']`)];
+                    // A radio group has one input per option and the checked
+                    // one is where the user left off; a dropdown submits
+                    // through a hidden input, so the thing they operate is the
+                    // trigger beside it.
+                    const target = named.find(el => el.type === 'radio' && el.checked)
+                      ?? named[0]?.closest('.field')?.querySelector('.dropdown__trigger')
+                      ?? named.find(el => el.tagName === 'INPUT');
+                    if (!target) return;
+                    // A pill's ring hangs off :focus-visible, and that heuristic
+                    // starts over in the new document, so a keyboard user would
+                    // get focus back with nothing on screen to show it.
+                    if (keyboard) {
+                      target.dataset.focusRestored = '';
+                      target.addEventListener(
+                        'blur', () => delete target.dataset.focusRestored, { once: true }
+                      );
+                    }
+                    target.focus();
                   });
                 },
-                submitFrom(name, value) {
-                  const form = this.$el;
-                  // The dropdown dispatches field-change while it sets its own
-                  // `selected`, so the hidden input the form serialises has not
-                  // been written yet. Take the value off the event instead of
-                  // waiting a tick for Alpine to flush: the flush is scheduled
-                  // off its reactivity queue, and a submit parked behind one
-                  // can sit there until the next interaction happens to drain it.
+                submitFrom(name, value, source) {
+                  const form = this.$root;
+                  // Only controls that submit through a hidden input pass a
+                  // value. The dropdown dispatches field-change while it sets
+                  // its own `selected`, so that input has not been written yet;
+                  // taking the value off the event beats waiting a tick for
+                  // Alpine to flush, because the flush is scheduled off its
+                  // reactivity queue and a submit parked behind one can sit
+                  // there until the next interaction happens to drain it. The
+                  // filter radios are real form controls and carry their own.
                   const input = form.querySelector(`input[type='hidden'][name='${name}']`);
                   if (input) input.value = value ?? '';
-                  // Never let a storage failure cost the user their filter.
-                  try { sessionStorage.setItem(this.FOCUS_KEY, name) } catch (e) {}
+                  // Whether the ring has to come back with the focus. Only the
+                  // caller knows: a pill reached by arrow key needs it, the
+                  // same pill clicked with a mouse would just gain an outline
+                  // it never had. Never let a storage failure cost the user
+                  // their filter.
+                  const keyboard = !!source?.matches(':focus-visible');
+                  try {
+                    sessionStorage.setItem(this.FOCUS_KEY, JSON.stringify({ name, keyboard }));
+                  } catch (e) {}
                   form.requestSubmit();
                 }
               }"
@@ -82,7 +112,7 @@
           {% if author_value %}<input type="hidden" name="author" value="{{ author_value }}">{% endif %}
           {% include 'v3/includes/_field_text.html' with label='Search' name='q' value=search_value placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' submit_label='Search' only %}
           <p class="field__label filter__tags-label">Filter</p>
-          <div class="filter__tags" @change="$event.target.form.requestSubmit()">
+          <div class="filter__tags" @change="submitFrom($event.target.name, null, $event.target)">
             {% include "v3/includes/_post_filter.html" with options=filter_terms filter_name="type" default=filter_value only %}
           </div>
           {% include 'v3/includes/_field_dropdown.html' with name='library' label='Library' options=library_options selected=library_value placeholder='All' deselectable=True only %}

@@ -70,7 +70,15 @@
 
 /* ── Focus-visible ──── */
 
-.post-filter__input:focus-visible + .post-filter__option {
+/*
+  The second selector is for a consumer that submits on change and puts focus
+  back afterwards. That focus is keyboard focus, but :focus-visible decides
+  from interaction history the new document does not have, so the pill would
+  take focus with nothing on screen to show it. The consumer sets
+  data-focus-restored only when the change came from the keyboard.
+*/
+.post-filter__input:focus-visible + .post-filter__option,
+.post-filter__input[data-focus-restored]:focus + .post-filter__option {
   outline: 2px solid var(--color-text-link-accent);
   outline-offset: -2px;
 }
