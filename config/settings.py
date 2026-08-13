@@ -10,6 +10,8 @@ from corsheaders.defaults import default_headers
 from django.core.exceptions import ImproperlyConfigured
 from pythonjsonlogger import jsonlogger
 
+from config.email_routing import catch_all_conflicts_with_production, is_production
+
 env = environs.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
@@ -595,15 +597,11 @@ SERVER_EMAIL = "errors@cppalliance.org"
 CATCH_ALL_EMAIL = env.bool("CATCH_ALL_EMAIL", default=False)
 DEPLOYMENT_ENVIRONMENT = env("X_DEPLOYMENT_ENV", default="")
 
-# Two independent signals, because neither one being unset or renamed should be
-# what lets catch-all email through in production. X_DEPLOYMENT_ENV comes from
-# the chart's deploymentEnvironment anchor, ENVIRONMENT_NAME from the admin
-# banner config; both are set in values-production-gke.yaml.
-IS_PRODUCTION = (
-    DEPLOYMENT_ENVIRONMENT == "production" or ENV_NAME == "Production Environment"
-)
+IS_PRODUCTION = is_production(DEPLOYMENT_ENVIRONMENT, ENV_NAME)
 
-if CATCH_ALL_EMAIL and IS_PRODUCTION:
+if catch_all_conflicts_with_production(
+    CATCH_ALL_EMAIL, DEPLOYMENT_ENVIRONMENT, ENV_NAME
+):
     raise ImproperlyConfigured("CATCH_ALL_EMAIL must not be enabled in production")
 
 if LOCAL_DEVELOPMENT or CATCH_ALL_EMAIL:
