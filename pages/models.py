@@ -124,7 +124,18 @@ class PostIndexPage(BasePage):
 
     def get_context(self, request, *args, **kwargs):
         ctx = super().get_context(request, *args, **kwargs)
+        ctx.update(self.feed_context(request))
+        return ctx
 
+    def feed_context(self, request):
+        """Template context for the posts feed.
+
+        Public because the feed is also served from the legacy news URL, where
+        the v3 flag decides between it and the v2 Entry list. The posts it
+        lists are this page's children either way, so the context is built
+        here rather than duplicated against the same tree.
+        """
+        ctx = {}
         filters = PostFeedFilters.from_request(request)
         pag = Paginator(self._results(filters), self.PAGE_SIZE)
         page_obj = pag.get_page(request.GET.get("page", 1))

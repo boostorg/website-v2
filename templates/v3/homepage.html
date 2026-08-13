@@ -13,6 +13,7 @@
 {% block content %}
   {% url 'docs-user-guide' content_path='user-guide/getting-started.html' as hero_primary_url %}
   {% url 'libraries-list' version_slug='latest' library_view_str='list' as hero_secondary_url %}
+  {% url 'news' as posts_url %}
   {% url 'release-detail' version_slug='latest' as release_url %}
   {% url 'calendar' as calendar_url %}
   {% url 'community' as community_url %}
@@ -28,7 +29,7 @@
         {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=upcoming_events variant="list" primary_cta_label="Download latest release" primary_cta_url=release_url secondary_cta_label="View events calendar" secondary_cta_url=calendar_url %}
       </div>
       <div class="item-c responsive-limit-2-items">
-        {% include "v3/includes/_post_card.html" with heading="Posts from the Boost Community" items=community_posts variant="card" theme="teal" primary_cta_label="View all posts" primary_cta_url=posts_feed_url %}
+        {% include "v3/includes/_post_card.html" with heading="Posts from the Boost Community" items=community_posts variant="card" theme="teal" primary_cta_label="View all posts" primary_cta_url=posts_url %}
       </div>
         <div class="item-d">
           {% include "v3/includes/_library_highlight_carousel.html" with carousel_id="library-highlight" slides=library_highlight_carousel %}

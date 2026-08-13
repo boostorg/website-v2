@@ -7,7 +7,6 @@ from django.urls import NoReverseMatch, reverse
 
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.utils import get_version_from_cookie
-from pages.feed import posts_feed_url
 from versions.converters import BoostVersionSlugConverter
 from versions.models import Version
 
@@ -187,7 +186,6 @@ _PATH_MAP = {
     "/learn/": NavItem.LEARN,
     "/boost-development/": NavItem.LEARN,
     "/news/": NavItem.NEWS,
-    "/pages/posts/": NavItem.NEWS,
     "/community/": NavItem.COMMUNITY,
     "/library/": NavItem.LIBRARIES,
     "/libraries/": NavItem.LIBRARIES,
@@ -225,19 +223,12 @@ def edit_profile_url():
 
 def header_context(request):
     """Context processor for header nav links."""
-    # Exposed as its own key as well as inside the nav, so templates linking
-    # to the feed (the homepage's "View all posts") resolve it the same way
-    # the header does instead of hardcoding a route.
-    feed_url = posts_feed_url(request)
     nav_links = [
         NavLink(label="Libraries", url=reverse("libraries"), nav_id="libraries"),
         NavLink(label="Learn", url=reverse("learn"), nav_id="learn"),
         NavLink(label="Community", url=reverse("community"), nav_id="community"),
         NavLink(
-            label="Posts",
-            url=feed_url,
-            nav_id="news",
-            is_unread=True,
+            label="Posts", url=reverse("news"), nav_id="news", is_unread=True
         ),  # TODO: update is_unread based on actual unread state
         NavLink(
             label="Downloads", url=reverse("releases-most-recent"), nav_id="releases"
@@ -245,7 +236,6 @@ def header_context(request):
     ]
     return {
         "nav_links": nav_links,
-        "posts_feed_url": feed_url,
         "releases_url": reverse("releases-most-recent"),
         "edit_profile_url": edit_profile_url(),
         "profile_cancel_delete_url": reverse("profile-cancel-delete"),

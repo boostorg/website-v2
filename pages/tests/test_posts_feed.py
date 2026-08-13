@@ -2,6 +2,7 @@ import re
 
 import pytest
 import waffle.testutils
+from django.urls import reverse
 from model_bakery import baker
 
 from pages.feed import PostFeedFilters
@@ -11,14 +12,20 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture(autouse=True)
 def v3_flag():
-    """The feed is a V3Mixin page, so it 404s unless the flag is active."""
+    """The feed shares its URL with the legacy Entry list, which is what the
+    same URL renders while the flag is off."""
     with waffle.testutils.override_flag("v3", active=True):
         yield
 
 
 @pytest.fixture
 def feed_url(post_index_page, wagtail_site):
-    return post_index_page.url
+    """The feed's URL is the legacy news route, not the index page's own.
+
+    The index page is still what the feed lists, and the site is still what
+    resolves each card's link, so both have to exist for the page to render.
+    """
+    return reverse("news")
 
 
 @pytest.fixture
@@ -373,14 +380,8 @@ class TestUserCard:
         assert tp.reverse("account_signup") in content
 
 
-def test_feed_is_hidden_without_the_v3_flag(tp, feed_url):
-    with waffle.testutils.override_flag("v3", active=False):
-        tp.response_404(tp.get(feed_url))
-
-
 def test_header_nav_links_to_the_feed(tp, feed_url):
-    """The nav renders a path, not the fully qualified URL Page.url falls back
-    to once a second Site exists."""
+    """One URL for both feeds means the nav link needs no flag of its own."""
     content = get_feed(tp, feed_url).content.decode()
 
     assert f'href="{feed_url}"' in content
@@ -410,34 +411,77 @@ def test_feed_does_not_scale_queries_with_post_count(
     assert len(response.context["entry_list"]) == 10
 
 
-class TestLegacyFeedRedirect:
-    """Under v3 the legacy Entry lists forward to the new feed, so inbound
-    links (bookmarks, search results, older notification emails) still land
-    somewhere useful instead of on a page nothing in the v3 UI points at."""
+class TestFlagSwitch:
+    """One URL, two feeds. The flag picks between the legacy Entry list and
+    the v3 feed over the PostPage tree, the same way every other v3 page in
+    the site swaps its template."""
 
-    def test_redirects_to_the_feed(self, tp, feed_url):
+    def test_flag_on_renders_the_v3_feed(self, tp, feed_url):
+        response = get_feed(tp, feed_url)
+
+        assert response.template_name == ["v3/posts_list.html"]
+
+    def test_flag_off_renders_the_legacy_list(self, tp, feed_url):
+        with waffle.testutils.override_flag("v3", active=False):
+            response = tp.get(feed_url)
+
+        tp.response_200(response)
+        # ListView appends its own default, so the legacy template is the
+        # first candidate rather than the only one.
+        assert "news/list.html" in response.template_name
+
+    def test_flag_on_without_an_index_page_renders_the_legacy_list(self, tp):
+        """The index page is created by hand in the CMS per environment, and
+        the posts it parents are the only thing the v3 feed lists. Until it
+        exists the legacy list stays rather than an empty page."""
         response = tp.get("news")
 
-        tp.response_302(response)
-        assert response.url == feed_url
+        tp.response_200(response)
+        # ListView appends its own default, so the legacy template is the
+        # first candidate rather than the only one.
+        assert "news/list.html" in response.template_name
+
+    def test_flag_off_still_paginates_the_legacy_list(self, tp, feed_url, make_entry):
+        """The v3 branch turns pagination off so it can paginate its own
+        results, which must not leak into the legacy list."""
+        for number in range(11):
+            make_entry("News", title=f"Entry {number}")
+
+        with waffle.testutils.override_flag("v3", active=False):
+            response = tp.get(f"{feed_url}?page=2")
+
+        tp.response_200(response)
+        assert len(response.context["entry_list"]) == 1
+
+
+class TestLegacyTypeListRedirect:
+    """Under v3 the per-type Entry lists forward to the one feed, so inbound
+    links (bookmarks, search results, older notification emails) land there
+    filtered instead of on a second URL rendering the same posts."""
 
     def test_redirect_carries_the_post_type(self, tp, feed_url):
-        """Each legacy list names one type, so /news/video/ arrives filtered
-        rather than at the top of an unfiltered feed."""
         response = tp.get("news-video-list")
 
         tp.response_302(response)
         assert response.url == f"{feed_url}?type=video"
 
+    def test_untyped_list_redirects_to_the_bare_feed(self, tp, feed_url):
+        """Polls have no v3 content type, so there is no filter to carry."""
+        response = tp.get("news-poll-list")
+
+        tp.response_302(response)
+        assert response.url == feed_url
+
+    def test_the_feed_does_not_redirect_to_itself(self, tp, feed_url):
+        tp.response_200(tp.get(feed_url))
+
     def test_redirect_is_temporary(self, tp, feed_url):
         """A cached 301 would strand v2 visitors if the flag is switched off."""
-        assert tp.get("news").status_code == 302
+        assert tp.get("news-video-list").status_code == 302
 
     def test_no_redirect_without_the_flag(self, tp, feed_url):
         with waffle.testutils.override_flag("v3", active=False):
-            tp.response_200(tp.get("news"))
+            tp.response_200(tp.get("news-video-list"))
 
     def test_no_redirect_without_an_index_page(self, tp, wagtail_site):
-        """Without an index page `posts_feed_url` falls back to this very view,
-        so redirecting would loop until the browser gives up."""
-        tp.response_200(tp.get("news"))
+        tp.response_200(tp.get("news-video-list"))
