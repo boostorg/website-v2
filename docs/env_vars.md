@@ -107,3 +107,21 @@ This project uses environment variables to configure certain aspects of the appl
 - Controls the decay rate of the posts ranking algorithm (`score = views / (age_hours + 2) ^ gravity`).
 - Higher values cause recent posts to decay faster and drop in ranking sooner.
 - Defaults to `2.0` if not set.
+
+## Email settings
+
+See [Email Routing and the QA Inbox](./email.md) for how messages are routed in each environment.
+
+### `CATCH_ALL_EMAIL`
+
+- Routes every outbound message to the `maildev` SMTP sink instead of a real email service provider, so testing against real user accounts does not email real people.
+- For **local development**, not needed: `LOCAL_DEVELOPMENT` already sends to the `maildev` container.
+- In **deployed environments**, set to `true` in `kube/boost/values-stage-gke.yaml` and `kube/boost/values-cppal-dev-gke.yaml`. Defaults to `false`, and Django refuses to start if it is enabled while the environment looks like production (`X_DEPLOYMENT_ENV` is `production`, or `ENVIRONMENT_NAME` is `Production Environment`).
+- Only enable it where `maildevInstall: true` is also set, otherwise sends fail with a connection error.
+
+### `EMAIL_BACKEND`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_TIMEOUT`
+
+- `EMAIL_HOST` / `EMAIL_PORT` are where SMTP is delivered; they default to `maildev` and `1025`.
+- `EMAIL_TIMEOUT` is the per-send socket timeout in seconds, defaulting to `10`. Without it `smtplib` blocks indefinitely, so a sink that accepts the connection but never answers would stall the request thread or Celery worker sending the message rather than raising. Only read on the SMTP path, so the Mailgun backend is unaffected.
+- `EMAIL_BACKEND` is only read when local development or `CATCH_ALL_EMAIL` is active, and defaults to Django's SMTP backend. Everywhere else the Mailgun Anymail backend is used unconditionally.
+- Set `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` and `EMAIL_USE_TLS` if you point these at a real SMTP provider instead.

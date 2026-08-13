@@ -146,6 +146,15 @@ Env:
         key: key
   - name: MAILGUN_SENDER_DOMAIN
     value: stage.boost.cppalliance.org
+  # Send every outbound message to the in-cluster maildev inbox instead of
+  # Mailgun, so testing with real user accounts does not email real people.
+  # The MAILGUN_* values above are inert while this is enabled. See docs/email.md
+  - name: CATCH_ALL_EMAIL
+    value: "true"
+  - name: EMAIL_HOST
+    value: maildev
+  - name: EMAIL_PORT
+    value: "1025"
   - name: MAILMAN_REST_API_URL
     valueFrom:
       secretKeyRef:
@@ -283,4 +292,5 @@ gatewayStaticIp: boost-stage-ingress1
 gatewayStaticIpv6: stage-gateway-ipv6
 redisInstall: false
 celeryInstall: true
+maildevInstall: true
 hpaMinReplicas: 2

@@ -5,6 +5,7 @@
 - [Caching and the `RenderedContent` model](./caching_rendered_content.md)
 - [Dependency Management](./dependencies.md)
 - [Development Setup Notes](development_setup_notes_native.md)
+- [Email Routing and the QA Inbox](./email.md) - Where email goes in each environment, and how to reach the QA inbox
 - [Environment Variables](./env_vars.md)
 - [Events Calendar](./calendar.md)
 - [Example Files](./examples/README.md) - Contains samples of `libraries.json`. `.gitmodules`, and other files that Boost data depends on

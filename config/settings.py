@@ -10,6 +10,8 @@ from corsheaders.defaults import default_headers
 from django.core.exceptions import ImproperlyConfigured
 from pythonjsonlogger import jsonlogger
 
+from config.email_routing import catch_all_conflicts_with_production, is_production
+
 env = environs.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
@@ -571,8 +573,9 @@ NEWS_MODERATION_ALLOWLIST = [
 ]
 
 # EMAIL SETTINGS
-# Production sends through Mailgun (Anymail). In local development the default
-# is the maildev SMTP container, but every setting below is overridable via env
+# Production sends through Mailgun (Anymail). Local development and any
+# environment with CATCH_ALL_EMAIL enabled send to the maildev SMTP container
+# instead. See docs/email.md. Every setting below is overridable via env
 # so you can route test sends through your own email service provider -- either
 # an SMTP provider (set EMAIL_HOST/EMAIL_PORT/EMAIL_HOST_USER/
 # EMAIL_HOST_PASSWORD/EMAIL_USE_TLS) or an Anymail API backend (set
@@ -587,10 +590,28 @@ EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="boost@cppalliance.org")
 SERVER_EMAIL = "errors@cppalliance.org"
 
-if LOCAL_DEVELOPMENT:
+# Route every outbound message to a catch-all SMTP sink (the maildev container)
+# instead of a real email service provider, so QA can exercise flows that email
+# real users without those users receiving anything. Enabled per environment in
+# the Helm values files; never valid in production.
+CATCH_ALL_EMAIL = env.bool("CATCH_ALL_EMAIL", default=False)
+DEPLOYMENT_ENVIRONMENT = env("X_DEPLOYMENT_ENV", default="")
+
+IS_PRODUCTION = is_production(DEPLOYMENT_ENVIRONMENT, ENV_NAME)
+
+if catch_all_conflicts_with_production(
+    CATCH_ALL_EMAIL, DEPLOYMENT_ENVIRONMENT, ENV_NAME
+):
+    raise ImproperlyConfigured("CATCH_ALL_EMAIL must not be enabled in production")
+
+if LOCAL_DEVELOPMENT or CATCH_ALL_EMAIL:
     EMAIL_BACKEND = env(
         "EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
     )
+    # smtplib blocks forever without this. A sink that accepts the connection but
+    # never sends a banner would otherwise stall the request thread or Celery
+    # worker that is sending, instead of raising.
+    EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=10)
     # Credentials for an Anymail backend, as a JSON env var, e.g.
     # ANYMAIL='{"<PROVIDER>_API_TOKEN": "..."}'. Empty/ignored for plain SMTP.
     ANYMAIL = env.json("ANYMAIL", default={})
