@@ -30,11 +30,16 @@
         {# querystring, which is what resets pagination on each submit. #}
         {# $nextTick: the dropdown dispatches field-change as it sets `selected`, #}
         {# before Alpine has written it to the hidden input the form submits. #}
+        {# Enter is handled here because the search field's own submit button is #}
+        {# disabled while the box is empty, so implicit submission cannot clear a #}
+        {# search. The dropdown is excluded: its trigger and options bind Enter #}
+        {# themselves to open the panel and choose, and submitting on the way #}
+        {# through would close it before it could be used. #}
         <form method="get"
               action=""
               x-data
               @field-change="$nextTick(() => $el.requestSubmit())"
-              @keydown.enter.prevent="$el.requestSubmit()">
+              @keydown.enter="if (!$event.target.closest('.dropdown')) { $event.preventDefault(); $el.requestSubmit() }">
           {% if author_value %}<input type="hidden" name="author" value="{{ author_value }}">{% endif %}
           {% include 'v3/includes/_field_text.html' with label='Search' name='q' value=search_value placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' submit_label='Search' only %}
           <p class="field__label filter__tags-label">Filter</p>
