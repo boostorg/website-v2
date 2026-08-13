@@ -73,6 +73,13 @@ spec:
               # it moves with MAILDEV_BASE_PATHNAME. Probing / returns 401.
               path: /maildev/healthz
               port: 1080
+          # Readiness alone would leave a wedged pod out of the Service
+          # endpoints indefinitely, failing every send in the environment until
+          # someone restarts it by hand.
+          livenessProbe:
+            httpGet:
+              path: /maildev/healthz
+              port: 1080
 ---
 apiVersion: v1
 kind: Service
