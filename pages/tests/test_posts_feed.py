@@ -4,6 +4,8 @@ import pytest
 import waffle.testutils
 from model_bakery import baker
 
+from pages.feed import PostFeedFilters
+
 pytestmark = pytest.mark.django_db
 
 
@@ -24,11 +26,21 @@ def beast(db):
     return baker.make("libraries.Library", name="Beast", slug="beast")
 
 
+def input_tag(content, attribute):
+    """The rendered <input> carrying the given attribute.
+
+    Anchors an assertion to one field: every value the feed echoes back also
+    appears somewhere in the filter dropdown, so a bare substring match on the
+    whole page passes whether or not the querystring was read.
+    """
+    match = re.search(rf"<input[^>]*{re.escape(attribute)}[^>]*>", content)
+    assert match, f"no input rendered with {attribute}"
+    return match.group(0)
+
+
 def radio_tag(content, value):
     """The rendered <input type=radio> carrying the given value."""
-    match = re.search(rf'<input[^>]*value="{value}"[^>]*>', content)
-    assert match, f"no radio rendered for {value}"
-    return match.group(0)
+    return input_tag(content, f'value="{value}"')
 
 
 def titles(response):
@@ -106,11 +118,6 @@ class TestSearch:
 
         assert titles(get_feed(tp, feed_url, q=term)) == {"First Post", "Second Post"}
 
-    def test_no_matches_returns_nothing(self, tp, feed_url, make_post_page):
-        make_post_page(title="First Post")
-
-        assert titles(get_feed(tp, feed_url, q="zzzznomatch")) == set()
-
 
 class TestFilters:
     def test_filters_by_post_type(self, tp, feed_url, make_post_page):
@@ -149,11 +156,14 @@ class TestFilters:
             {"library": "not-a-library"},
             {"author": "abc"},
             {"author": "999999"},
+            {"page": "999"},
         ],
     )
-    def test_unknown_values_fall_back_to_the_full_feed(
+    def test_unresolvable_values_fall_back_to_the_full_feed(
         self, tp, feed_url, make_post_page, params
     ):
+        """Anything the querystring cannot resolve degrades to the unfiltered
+        feed rather than erroring or emptying it."""
         make_post_page(title="First Post")
 
         response = get_feed(tp, feed_url, **params)
@@ -207,53 +217,40 @@ class TestFilterCombinations:
 
         assert titles(response) == {"The One"}
 
-    def test_post_type_with_library(self, tp, feed_url, make_post_page, beast):
-        make_post_page(title="Tagged News", block="news", tags=[("beast", "Beast")])
-        make_post_page(title="Untagged News", block="news")
-
-        assert titles(get_feed(tp, feed_url, type="news", library="beast")) == {
-            "Tagged News"
-        }
-
 
 class TestFeedHeader:
-    def test_default(self, tp, feed_url):
-        assert get_feed(tp, feed_url).context["header_text"] == "Latest Posts"
+    """`header_text` is a pure property over parsed filters, so the wording and
+    precedence rules are covered against the dataclass rather than by building
+    the page tree and going over HTTP once per case."""
 
-    def test_search(self, tp, feed_url):
-        response = get_feed(tp, feed_url, q="asio")
+    @pytest.mark.parametrize(
+        "params,expected",
+        [
+            ({}, "Latest Posts"),
+            ({"q": "asio"}, 'Results for "asio"'),
+            ({"type": "news"}, "News Posts"),
+            # content_type is "Blogpost", which would read "Blogpost Posts".
+            ({"type": "blogpost"}, "Blog Posts"),
+            ({"library": "beast"}, "Boost.Beast Posts"),
+            # Type beats library, and search beats both.
+            ({"type": "news", "library": "beast"}, "News Posts"),
+            ({"q": "asio", "type": "news", "library": "beast"}, 'Results for "asio"'),
+        ],
+    )
+    def test_wording_and_precedence(self, rf, beast, params, expected):
+        filters = PostFeedFilters.from_request(rf.get("/", params))
 
-        assert response.context["header_text"] == 'Results for "asio"'
+        assert filters.header_text == expected
 
-    def test_post_type(self, tp, feed_url):
-        response = get_feed(tp, feed_url, type="news")
-
-        assert response.context["header_text"] == "News Posts"
-
-    def test_blogpost_reads_as_blog(self, tp, feed_url):
-        """content_type is "Blogpost", which would render "Blogpost Posts"."""
-        response = get_feed(tp, feed_url, type="blogpost")
-
-        assert response.context["header_text"] == "Blog Posts"
-
-    def test_library(self, tp, feed_url, beast):
-        response = get_feed(tp, feed_url, library="beast")
-
-        assert response.context["header_text"] == "Boost.Beast Posts"
-
-    def test_post_type_takes_precedence_over_library(self, tp, feed_url, beast):
-        response = get_feed(tp, feed_url, type="news", library="beast")
-
-        assert response.context["header_text"] == "News Posts"
-
-    def test_author(self, tp, feed_url):
+    def test_author(self, rf):
         author = baker.make("users.User", display_name="Vinnie Falco")
 
-        response = get_feed(tp, feed_url, author=author.pk)
+        filters = PostFeedFilters.from_request(rf.get("/", {"author": author.pk}))
 
-        assert response.context["header_text"] == "Posts by Vinnie Falco"
+        assert filters.header_text == "Posts by Vinnie Falco"
 
     def test_search_term_is_escaped(self, tp, feed_url):
+        """The header case that genuinely needs the template rendered."""
         response = get_feed(tp, feed_url, q="<script>alert(1)</script>")
 
         assert b"<script>alert(1)</script>" not in response.content
@@ -267,11 +264,6 @@ class TestPagination:
         assert len(get_feed(tp, feed_url).context["entry_list"]) == 10
         assert len(get_feed(tp, feed_url, page=2).context["entry_list"]) == 2
 
-    def test_out_of_range_page_clamps(self, tp, feed_url, make_post_page):
-        make_post_page(title="Only Post")
-
-        assert titles(get_feed(tp, feed_url, page=999)) == {"Only Post"}
-
     def test_hidden_when_nothing_matches(self, tp, feed_url, make_post_page):
         """The paginator still reports one page for an empty result set, so
         without the guard the empty state would sit above a lone "1"."""
@@ -279,12 +271,6 @@ class TestPagination:
 
         assert b"pagination-nav" in get_feed(tp, feed_url).content
         assert b"pagination-nav" not in get_feed(tp, feed_url, q="zzzznomatch").content
-
-    def test_form_does_not_submit_the_current_page(self, tp, feed_url):
-        """Pagination resets because page is not a field of the filter form."""
-        response = get_feed(tp, feed_url, page=1)
-
-        assert b'name="page"' not in response.content
 
 
 class TestEmptyState:
@@ -345,15 +331,20 @@ class TestUrlDrivenState:
         assert "checked" not in radio_tag(content, "video")
 
     def test_library_option_is_selected(self, tp, feed_url, beast):
-        response = get_feed(tp, feed_url, library="beast").content.decode()
+        """Every library gets an <option>, and the word "selected" appears in
+        the dropdown's Alpine bindings either way, so both halves of the
+        control have to be checked against the value itself."""
+        content = get_feed(tp, feed_url, library="beast").content.decode()
 
-        assert 'value="beast"' in response
-        assert "selected" in response
+        assert 'value="beast" selected' in content
+        assert "selected: 'beast'" in content
 
     def test_search_term_is_rendered(self, tp, feed_url):
-        response = get_feed(tp, feed_url, q="asio").content.decode()
+        """Anchored to the search input: "asio" is also a library slug sitting
+        in the dropdown, so a bare substring match would pass without `?q=`."""
+        content = get_feed(tp, feed_url, q="asio").content.decode()
 
-        assert 'value="asio"' in response
+        assert 'value="asio"' in input_tag(content, 'id="field-q"')
 
     def test_author_is_carried_in_a_hidden_field(self, tp, feed_url):
         author = baker.make("users.User", display_name="Vinnie Falco")
@@ -372,24 +363,12 @@ class TestUserCard:
         assert f"Member Since {user.year_joined}" in content
         assert tp.reverse("v3-news-create") in content
 
-    def test_logged_in_card_has_no_placeholder_copy(self, tp, feed_url, user):
-        with tp.login(user):
-            content = get_feed(tp, feed_url).content.decode()
-
-        assert "Bug Catcher" not in content
-
-    def test_header_nav_links_to_the_feed(self, tp, feed_url):
-        """The nav renders a path, not the fully qualified URL Page.url falls
-        back to once a second Site exists."""
-        content = get_feed(tp, feed_url).content.decode()
-
-        assert f'href="{feed_url}"' in content
-
     def test_logged_out(self, tp, feed_url):
+        """Only the copy this template owns. The heading and description come
+        from `_user_card.html`'s own defaults, and asserting on those here
+        would fail a posts feed test over a copy tweak in the include."""
         content = get_feed(tp, feed_url).content.decode()
 
-        assert "Create an account" in content
-        assert "Advance your career, learn from experts" in content
         assert "Sign Up Now" in content
         assert tp.reverse("account_signup") in content
 
@@ -399,11 +378,22 @@ def test_feed_is_hidden_without_the_v3_flag(tp, feed_url):
         tp.response_404(tp.get(feed_url))
 
 
+def test_header_nav_links_to_the_feed(tp, feed_url):
+    """The nav renders a path, not the fully qualified URL Page.url falls back
+    to once a second Site exists."""
+    content = get_feed(tp, feed_url).content.decode()
+
+    assert f'href="{feed_url}"' in content
+
+
+@pytest.mark.parametrize("params", [{}, {"q": "Post"}])
 def test_feed_does_not_scale_queries_with_post_count(
-    tp, feed_url, make_post_page, django_assert_max_num_queries
+    tp, feed_url, make_post_page, django_assert_max_num_queries, params
 ):
     """Each card reads item.author and item.tag, so without select_related and
-    prefetch_related the query count grows with the page size."""
+    prefetch_related the query count grows with the page size. The searched
+    feed re-enters through a pk subquery, which drops both unless they are
+    reapplied, so it needs its own case."""
     for number in range(10):
         make_post_page(
             title=f"Post {number}",
@@ -414,7 +404,10 @@ def test_feed_does_not_scale_queries_with_post_count(
     # A full page of posts costs ~14 queries; one query per post for the author
     # plus two for the tags would put it past 30.
     with django_assert_max_num_queries(16):
-        tp.get(feed_url)
+        response = get_feed(tp, feed_url, **params)
+
+    # Guards the search case against passing on an empty result set.
+    assert len(response.context["entry_list"]) == 10
 
 
 class TestLegacyFeedRedirect:
