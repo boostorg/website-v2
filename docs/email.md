@@ -18,7 +18,7 @@ Mailman is not affected by any of this. It is driven through `MAILMAN_REST_API_U
 
 - Set `CATCH_ALL_EMAIL=true` and `X_DEPLOYMENT_ENV=<env's label>` in `kube/boost/values-stage-gke.yaml` and `kube/boost/values-cppal-dev-gke.yaml`.
 - When enabled, `EMAIL_BACKEND` defaults to Django's SMTP backend pointed at `EMAIL_HOST` / `EMAIL_PORT` (`maildev:1025`) instead of Mailgun. The `MAILGUN_*` values in those files stay present but become inert.
-- Django raises `ImproperlyConfigured` at startup if this is enabled while `X_DEPLOYMENT_ENV` is `production`. Mis-routing production email should be loud, not silent.
+- Django raises `ImproperlyConfigured` at startup if this is enabled while the environment looks like production, by either signal: `X_DEPLOYMENT_ENV` is `production`, or `ENVIRONMENT_NAME` is `Production Environment`. Two signals, so neither one being unset or renamed is on its own enough to let catch-all through. Mis-routing production email should be loud, not silent.
 - Default is `false`, so an environment only changes behavior if its values file opts in. Enable it only where a `maildev` pod is also deployed (`maildevInstall: true`), otherwise sends will fail with a connection error.
 
 ## Reaching the QA inbox
