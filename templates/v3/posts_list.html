@@ -28,18 +28,57 @@
       <div class="post-content__filter_column">
         {# One GET form for every control. The empty action drops the current #}
         {# querystring, which is what resets pagination on each submit. #}
-        {# $nextTick: the dropdown dispatches field-change as it sets `selected`, #}
-        {# before Alpine has written it to the hidden input the form submits. #}
         {# Enter is handled here because the search field's own submit button is #}
         {# disabled while the box is empty, so implicit submission cannot clear a #}
         {# search. The dropdown is excluded: its trigger and options bind Enter #}
         {# themselves to open the panel and choose, and submitting on the way #}
         {# through would close it before it could be used. #}
+        {# Submitting navigates, so the control the user was on is destroyed #}
+        {# along with the document. Its name is parked in sessionStorage and #}
+        {# focused again on the way back in, keeping the keyboard where it #}
+        {# was. Deliberately not a query param: the URL is shared and copied, #}
+        {# and a cold visit to a link should not have focus pulled off the #}
+        {# page heading. #}
         <form method="get"
               action=""
-              x-data
-              @field-change="$nextTick(() => $el.requestSubmit())"
+          {# djlint:off #}
+              x-data="{
+                FOCUS_KEY: 'posts-feed-focus',
+                init() {
+                  let name;
+                  try {
+                    name = sessionStorage.getItem(this.FOCUS_KEY);
+                    sessionStorage.removeItem(this.FOCUS_KEY);
+                  } catch (e) { return }
+                  if (!name) return;
+                  // Held across the tick rather than read off $el inside it,
+                  // which resolves against whatever Alpine is evaluating then.
+                  const form = this.$el;
+                  // Each field initialises after this one, so the dropdown is
+                  // still cloaked and unfocusable until the tick has passed.
+                  this.$nextTick(() => {
+                    const field = form.querySelector(`[name='${name}']`)?.closest('.field');
+                    (field?.querySelector('.dropdown__trigger') ?? field?.querySelector('input'))?.focus();
+                  });
+                },
+                submitFrom(name, value) {
+                  const form = this.$el;
+                  // The dropdown dispatches field-change while it sets its own
+                  // `selected`, so the hidden input the form serialises has not
+                  // been written yet. Take the value off the event instead of
+                  // waiting a tick for Alpine to flush: the flush is scheduled
+                  // off its reactivity queue, and a submit parked behind one
+                  // can sit there until the next interaction happens to drain it.
+                  const input = form.querySelector(`input[type='hidden'][name='${name}']`);
+                  if (input) input.value = value ?? '';
+                  // Never let a storage failure cost the user their filter.
+                  try { sessionStorage.setItem(this.FOCUS_KEY, name) } catch (e) {}
+                  form.requestSubmit();
+                }
+              }"
+              @field-change="submitFrom($event.detail.name, $event.detail.value)"
               @keydown.enter="if (!$event.target.closest('.dropdown')) { $event.preventDefault(); $el.requestSubmit() }">
+          {# djlint:on #}
           {% if author_value %}<input type="hidden" name="author" value="{{ author_value }}">{% endif %}
           {% include 'v3/includes/_field_text.html' with label='Search' name='q' value=search_value placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' submit_label='Search' only %}
           <p class="field__label filter__tags-label">Filter</p>
