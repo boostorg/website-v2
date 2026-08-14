@@ -263,6 +263,31 @@ class TestFeedHeader:
         assert b"<script>alert(1)</script>" not in response.content
 
 
+class TestPostCard:
+    """The type chip on a card. "Blogpost" is the internal name of the type and
+    should never reach a reader."""
+
+    def test_type_is_worded_for_a_reader(self, tp, feed_url, make_post_page):
+        make_post_page(title="Echo server with Asio", block="blog", tags=["asio"])
+
+        content = get_feed(tp, feed_url).content.decode()
+
+        assert "<span>Blog</span>" in content
+        assert "Blogpost" not in content
+
+    def test_untagged_post_shows_the_type_but_no_tag(
+        self, tp, feed_url, make_post_page
+    ):
+        """A post with no tags carries no tag chip. The type chip stays, so
+        the row does not read as though something failed to load."""
+        make_post_page(title="Echo server with Asio", block="blog")
+
+        content = get_feed(tp, feed_url).content.decode()
+
+        assert "<span>Blog</span>" in content
+        assert "<span>#" not in content
+
+
 class TestPagination:
     def test_paginates(self, tp, feed_url, make_post_page):
         for number in range(12):

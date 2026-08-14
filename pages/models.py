@@ -328,8 +328,16 @@ class PostPage(BasePage):
         return self.first_published_at
 
     @cached_property
-    def determined_news_type(self):
-        return self.post_content_type
+    def type_label(self):
+        """How the post's type is worded on a card, e.g. "Blog".
+
+        Deliberately not `post_content_type`. That is the internal name of the
+        type, and for one of them the two differ: a reader is shown "Blog"
+        where the code says "Blogpost".
+        """
+        return CONTENT_TYPES_BY_BLOCK.get(
+            self.stream_content_type, UNKNOWN_CONTENT_TYPE
+        ).header_label
 
     @cached_property
     def tag(self):
