@@ -51,7 +51,9 @@ class MailingListCardMixin:
       mailing_list_card_list_id
       mailing_list_card_state              ("pending", "active", "error", or None)
       mailing_list_card_error_message      (set on error state, used by no-JS PRG flow)
-      mailing_list_card_user_email         (authenticated users only, or from PRG params)
+      mailing_list_card_user_email         (the subscription email if one exists, else the
+                                            account email; authenticated users only, or
+                                            from PRG params)
       mailing_list_card_manage_url         (authenticated users only)
       mailing_list_card_subscription_count (authenticated users only — ACTIVE count only)
     """
@@ -75,7 +77,7 @@ class MailingListCardMixin:
 
             context["mailing_list_card_state"] = state.state
             context["mailing_list_card_subscription_count"] = state.count
-            context["mailing_list_card_user_email"] = state.email
+            context["mailing_list_card_user_email"] = state.email or request.user.email
             context["mailing_list_card_manage_url"] = reverse("profile-account")
             context["mailing_list_card_subscribed_ids"] = set(
                 UserMailingListSubscription.objects.filter(
