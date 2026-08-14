@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.utils import timezone
 
+from badges.enums import BadgeLabel, TierRank
 from mailing_list.models import SubscriptionStatus, UserMailingListSubscription
 from ..models import LastSeen, Preferences
 
@@ -29,7 +30,9 @@ def test_delete_account_scrubs_pii_and_identity(
     user.image_uploaded = True
     user.save()
     user.hq_image.save("hq.png", ContentFile(b"hq-image-bytes"), save=True)
-    user.badges.add(baker.make("users.Badge"))
+    tier = baker.make("badges.BadgeTier")
+    baker.make("badges.UserAchievement", user=user, achievement=tier.badge.achievement)
+    baker.make("badges.UserBadge", user=user, badge=tier.badge, tier=tier)
 
     original_email = user.email
     original_id = user.id
@@ -54,8 +57,48 @@ def test_delete_account_scrubs_pii_and_identity(
     assert user.image_uploaded is False
     assert not user.profile_image
     assert not user.hq_image
+    # The grants go with the badges, or the next recalculation re-awards them.
     assert user.badges.count() == 0
+    assert user.achievements.count() == 0
     assert user.delete_permanently_at is None
+
+
+@pytest.mark.django_db
+def test_extended_scrub_leaves_no_badges_behind_across_achievements(
+    user, django_capture_on_commit_callbacks
+):
+    """Every badge goes, whatever the grant deletions recalculate on the way out.
+
+    Dropping a ``UserAchievement`` recalculates that member's badges
+    synchronously, and nothing constrains a tier's threshold above zero - a tier
+    at 0 is met by a member with no grants at all. Deleting the badges last is
+    what keeps such an award from landing in an account already scrubbed of them.
+    """
+    # Labels and ranks are pinned because ``Badge.label`` is unique over a
+    # handful of choices, and two randomly filled badges collide.
+    earned = baker.make(
+        "badges.BadgeTier",
+        badge__label=BadgeLabel.MAINTAINER,
+        rank=TierRank.BRONZE,
+        threshold=1,
+    )
+    free = baker.make(
+        "badges.BadgeTier",
+        badge__label=BadgeLabel.DOCUMENTER,
+        rank=TierRank.BRONZE,
+        threshold=0,
+    )
+    for tier in (earned, free):
+        baker.make(
+            "badges.UserAchievement", user=user, achievement=tier.badge.achievement
+        )
+    assert user.badges.count() == 2
+
+    with django_capture_on_commit_callbacks(execute=True):
+        user.delete_account(extended_scrub=True)
+
+    assert user.achievements.count() == 0
+    assert user.badges.count() == 0
 
 
 @pytest.mark.django_db

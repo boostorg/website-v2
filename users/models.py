@@ -188,22 +188,20 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         return super().save(*args, **kwargs)
 
 
-class Badge(models.Model):
-    name = models.CharField(_("name"), max_length=100, blank=True)
-    display_name = models.CharField(_("display name"), max_length=100, blank=True)
-
-
 class User(BaseUser):
     """
     Our custom user model.
 
     NOTE: See ./signals.py for signals that relate to this model.
+
+    Achievements and badges live in the ``badges`` app and reference this model
+    via ``UserAchievement`` / ``UserBadge`` (reverse accessors ``achievements``
+    and ``badges``).
     """
 
     TAGLINE_MAX_LENGTH = 70
     BIOGRAPHY_MAX_LENGTH = 20000
 
-    badges = models.ManyToManyField(Badge)
     # todo: consider making this unique=True after checking user data for duplicates
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
     is_commit_author_name_overridden = models.BooleanField(
@@ -478,7 +476,11 @@ class User(BaseUser):
             # - list membership is left for the user to manage in Postorius.
             self.mailing_list_subscriptions.all().delete()
             LastSeen.objects.filter(user=self).delete()
-            self.badges.clear()
+            # Badges are derived from the grants, so both have to go - and the
+            # grants first: dropping one recalculates badges synchronously, and
+            # in the other order that award lands in an already-scrubbed account.
+            self.achievements.all().delete()
+            self.badges.all().delete()
 
             self.github_username = ""
             self.profile_links = {}
