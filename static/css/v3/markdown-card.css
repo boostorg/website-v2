@@ -1,4 +1,101 @@
-/* The .markdown-content styling (markdown card + user-profile bio) now lives in
-   Boostlook (boostlook repo: src/css/17-site-components.css), scoped
-   .boostlook.markdown-content, and ships with boostlook-v3.css. The containers
-   carry the `boostlook` class. Nothing to override here. #2491 */
+.card__column.markdown-content {
+    gap: var(--space-medium);
+    line-height: var(--line-height-code);
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    list-style: none;
+    padding: 0;
+}
+
+.markdown-content li {
+    position: relative;
+    padding-left: var(--space-xlarge);
+    margin-top: var(--space-medium);
+
+}
+
+.markdown-content ul > li::before {
+    content: "\2022";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--space-xlarge);
+    height: calc(var(--font-size-small) * 1.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-primary);
+}
+
+.markdown-content a {
+    color: var(--color-text-link-accent);
+    text-decoration: underline;
+    text-decoration-skip-ink: none;
+    text-underline-position: from-font;
+}
+
+.markdown-content {
+    color: var(--color-text-secondary);
+    padding: 0 var(--space-large);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-regular);
+    letter-spacing: var(--letter-spacing-tight);
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
+
+.markdown-content pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.markdown-content h1 { font-size: var(--font-size-large); }
+.markdown-content h2 { font-size: var(--font-size-medium); }
+.markdown-content h3 { font-size: var(--font-size-base); }
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 { font-size: var(--font-size-small); }
+
+.markdown-content b,
+.markdown-content strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.markdown-card p {
+  padding: 0;
+  margin: 0;
+}
+
+.markdown-card ul,
+.markdown-card ol {
+  list-style-position: outside;
+  padding-left: 14px;
+}
+
+.markdown-content :is(code, tt, pre) {
+  display: inline;
+  font-family: var(--font-code);
+  font-size: 0.88em;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  background: transparent;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+}

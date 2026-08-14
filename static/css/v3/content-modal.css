@@ -126,9 +126,50 @@
   outline: none;
 }
 
-/* PROSE — the `.boostlook.content-modal__prose` typography now lives in
-   Boostlook (boostlook repo: src/css/17-site-components.css), so it ships
-   with boostlook-v3.css. Nothing to override here. #2491 */
+/* ============================================
+   PROSE — rich-content styling, isolated to the modal.
+   Self-contained so no shared `.markdown-content` rules apply.
+   ============================================ */
+.content-modal__prose {
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.content-modal__prose :is(h2, h3, h4, h5, h6) {
+  margin: var(--space-xlarge) 0 var(--space-large);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+}
+
+.content-modal__prose h2 {
+  font-size: var(--font-size-large);
+}
+
+.content-modal__prose h3 {
+  font-size: var(--font-size-base);
+}
+
+.content-modal__prose :is(h4, h5, h6) {
+  font-size: var(--font-size-small);
+}
+
+/* Sit flush with the top — no leading margin on the first prose element. */
+.content-modal__prose > :first-child {
+  margin-top: 0;
+}
+
+.content-modal__prose p {
+  margin: var(--space-default) 0;
+  padding: 0;
+  line-height: var(--line-height-loose);
+}
 
 /* ============================================
    RESPONSIVE

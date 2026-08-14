@@ -51,9 +51,9 @@
   color: var(--color-text-secondary);
 }
 
-/* Rich-text rendering (bold/inline-code from inline_markdown) is handled by
-   Boostlook via `.boostlook.release-highlight__description` in
-   17-site-components.css; the description carries the `boostlook` class. */
+.release-highlight__description strong {
+  font-weight: var(--font-weight-medium);
+}
 
 .release-highlight__placeholder {
   padding: 0 var(--space-card);

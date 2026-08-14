@@ -66,29 +66,109 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-large);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-loose);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-secondary);
   padding-top: var(--space-xl);
   border-top: 1px solid var(--color-stroke-weak);
 }
 
-/* Wagtail wraps markdown blocks; keep the flex layout so block rhythm
-   matches the body. Typography comes from Boostlook via the `boostlook`
-   class on .post-detail__body. */
+/* Copy the body styling to markdown blocks for wagtail styling. */
 .post-detail__body .block-markdown {
   display: flex;
   flex-direction: column;
   gap: var(--space-large);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-loose);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-secondary);
 }
 
-/* The article body's markdown/rich-text styling (body copy color/size,
-   links, images, code, lists, headings, bold) now lives in Boostlook
-   (boostlook repo: src/css/17-site-components.css), scoped
-   .boostlook.post-detail__body, and ships with boostlook-v3.css. The
-   container carries the `boostlook` class. #2491 */
+/* Reset the site-wide `p { @apply py-5 }` from frontend/styles.css
+   so paragraph rhythm comes from the body's flex `gap`, not from
+   each <p> contributing its own 1.25rem of top/bottom padding. */
+.post-detail__body p {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.post-detail__body a {
+  color: inherit;
+  text-decoration: underline;
+}
 
 .post-detail__external-url a {
   color: var(--color-text-secondary);
   text-decoration: underline;
   text-underline-position: from-font;
+}
+
+.post-detail__body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-m);
+}
+
+.post-detail__body pre,
+.post-detail__body code {
+  font-family: var(--font-code);
+  font-size: var(--font-size-small);
+}
+
+.post-detail__body pre {
+  padding: var(--space-medium);
+  border-radius: var(--border-radius-m);
+  background: var(--color-surface-mid);
+  overflow-x: auto;
+}
+
+.post-detail__body ul,
+.post-detail__body ol {
+  padding-left: var(--space-large);
+  list-style-position: outside;
+}
+
+.post-detail__body ul {
+  list-style-type: disc;
+}
+
+.post-detail__body ol {
+  list-style-type: decimal;
+}
+
+.post-detail__body ul ul {
+  list-style-type: circle;
+}
+
+.post-detail__body ol ol,
+.post-detail__body ul ol {
+  list-style-type: lower-alpha;
+}
+
+.post-detail__body h1,
+.post-detail__body h2,
+.post-detail__body h3,
+.post-detail__body h4,
+.post-detail__body h5,
+.post-detail__body h6 {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+}
+
+.post-detail__body h1 { font-size: var(--font-size-xl); }
+.post-detail__body h2 { font-size: var(--font-size-large); }
+.post-detail__body h3 { font-size: var(--font-size-medium); }
+.post-detail__body h4,
+.post-detail__body h5,
+.post-detail__body h6 { font-size: var(--font-size-base); }
+
+.post-detail__body b,
+.post-detail__body strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
 }
 
 .post-detail__next,
