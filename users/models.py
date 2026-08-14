@@ -659,7 +659,14 @@ class User(BaseUser):
 
     @cached_property
     def profile_stamps(self):
-        """Tenure star and Boost Day stamp dicts, keyed by template slot."""
+        """Tenure star and Boost Day stamp dicts, keyed by template slot.
+
+        Unclaimed and deactivated accounts show no stamps. Both carry a
+        `date_joined`, but it records when we created the row rather than a
+        real membership, so displaying tenure off it would be misleading.
+        """
+        if not (self.claimed and self.is_active):
+            return stamps.profile_stamps(None)
         return stamps.profile_stamps(self.date_joined)
 
     @property

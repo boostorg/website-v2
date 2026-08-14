@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
 
 from core.constants import BadgeToken
@@ -13,6 +14,8 @@ from ..stamps import (
     tenure_tier_token,
     tenure_years,
 )
+
+User = get_user_model()
 
 
 @pytest.mark.parametrize(
@@ -190,6 +193,38 @@ def test_user_stamp_properties(user):
 def test_user_stamp_properties_empty_for_new_account(user):
     assert user.tenure_stamp is None
     assert user.boost_day_stamp is None
+
+
+NO_STAMPS = {"tenure_stamp": None, "boost_day_stamp": None}
+
+
+def test_stamps_hidden_for_unclaimed_account(user):
+    """Stub accounts carry a date_joined that is not a real membership."""
+    user.date_joined = LONG_TENURED
+    user.claimed = False
+    assert user.profile_stamps == NO_STAMPS
+
+
+def test_stamps_hidden_for_deactivated_account(user):
+    """delete_account() deactivates rather than removing the row."""
+    user.date_joined = LONG_TENURED
+    user.is_active = False
+    assert user.profile_stamps == NO_STAMPS
+
+
+def test_stamps_shown_for_claimed_active_account(user):
+    user.date_joined = LONG_TENURED
+    assert user.claimed and user.is_active
+    assert user.profile_stamps["tenure_stamp"]["token"] == "star-tier-5"
+
+
+def test_stamps_hidden_after_account_deletion(db, user):
+    """The whole point of the guard: a deleted account keeps its date_joined."""
+    user.date_joined = LONG_TENURED
+    user.save(update_fields=["date_joined"])
+    user.delete_account()
+    assert user.date_joined == LONG_TENURED
+    assert User.objects.get(pk=user.pk).profile_stamps == NO_STAMPS
 
 
 def test_to_v3_profile_dict_carries_stamps(user):
