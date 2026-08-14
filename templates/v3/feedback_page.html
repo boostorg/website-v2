@@ -10,6 +10,9 @@
     form                  — FeedbackForm, bound on a failed submission
     feedback_type_options — Feedback.Type.choices
     page_url              — the page the submitter came from, carried through
+
+  Browser diagnostics are attached on submit when JS is available. With JS off the
+  field posts empty and the server keeps only what it derives itself.
 {% endcomment %}
 
 {% block title %}Send beta feedback{% endblock %}
@@ -29,6 +32,8 @@
           enctype="multipart/form-data">
       {% csrf_token %}
       <input type="hidden" name="page_url" value="{{ page_url }}">
+      {# Filled at submit time by the script below; stays empty without JS. #}
+      <input type="hidden" name="diagnostics" value="">
 
       {% if form.non_field_errors %}
         <p class="feedback-page__error" role="alert">{{ form.non_field_errors.0 }}</p>
@@ -48,4 +53,19 @@
     </form>
   </div>
 </div>
+
+<script>
+  // Same snapshot the widget sends, for submitters who reach this page with JS working.
+  // The console/network buffers reset on navigation, so they describe this page rather
+  // than the one named in page_url; viewport, device and platform are unaffected.
+  document.querySelector('.feedback-page__form')?.addEventListener('submit', function () {
+    var field = this.elements.diagnostics;
+    if (!field || !window.boostFeedbackDiagnostics) return;
+    try {
+      field.value = JSON.stringify(window.boostFeedbackDiagnostics());
+    } catch (error) {
+      field.value = '';
+    }
+  });
+</script>
 {% endblock %}
