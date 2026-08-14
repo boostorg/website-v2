@@ -673,8 +673,6 @@ class LibraryDetail(
         """
         library = self.object
         selected_version = context.get("selected_version")
-        # master and develop are branch heads, not releases: they carry no version
-        # number to compare against, and they are ahead of every release.
         selected_is_branch = selected_version.slug in settings.BOOST_BRANCHES
         selected_label = (
             f"the {selected_version.display_name} branch"

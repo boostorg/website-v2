@@ -487,20 +487,24 @@
   padding-top: var(--space-hero-padding-top);
 }
 
-/* The header is absolutely positioned, so the hero reserves its space. That is
-   normally .hero__block's padding, but a banner renders above the block, so the
-   clearance moves up to the section here and the block gives its own back. */
+/* Positioning context for the alert below. */
 .hero:has(> .banner) {
   /* Not var(--header-height): outside .header that resolves to an unrelated
-     legacy 2.5rem and silently under-reserves. 48px is .header's own value. */
+     legacy 2.5rem, which would tuck the alert under the header. 48px is
+     .header's own value; the rest of its footprint is its vertical padding. */
   --hero-header-footprint: calc(48px + 2 * var(--space-default));
   --hero-banner-inset: var(--space-large);
-  padding-top: var(--hero-header-footprint);
+  position: relative;
 }
 
-/* Mirror the header's box so the alert's edges line up with the nav's. */
+/* Lines up horizontally with the Nav. */
 .hero > .banner {
-  width: calc(100% - 2 * var(--hero-banner-inset));
+  position: absolute;
+  z-index: 2;
+  top: var(--hero-header-footprint);
+  left: var(--hero-banner-inset);
+  right: var(--hero-banner-inset);
+  width: auto;
   max-width: calc(1440px - 2 * var(--hero-banner-inset));
   margin-inline: auto;
 }
@@ -513,8 +517,25 @@
   }
 }
 
-.hero:has(> .banner) .hero__block {
-  padding-top: 0;
+/* Wider heroes clear the header by more than the alert is tall, so overlaying
+   costs nothing. Down here there is no such slack: the block clears the header
+   by 32px, the release hero by 16px, and the alert wraps to three lines on a
+   narrow phone. Overlaying would cover the heading, and any fixed reserve would
+   only be a guess at how long the message runs, so the alert goes back in flow
+   and takes the dismiss shift that the wider layouts avoid. */
+@media (max-width: 767px) {
+  .hero:has(> .banner) {
+    padding-top: var(--hero-header-footprint);
+  }
+
+  .hero:has(> .banner) .hero__block {
+    padding-top: 0;
+  }
+
+  .hero > .banner {
+    position: static;
+    width: calc(100% - 2 * var(--hero-banner-inset));
+  }
 }
 
 .hero--no-image .hero__block {
