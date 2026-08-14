@@ -438,13 +438,16 @@
         {% endflag %}
       {% endif %}
 
-      {% flag "v3" %}
-        {% flag "beta_feedback" %}
-          {% if request.user.is_authenticated %}
-            {% feedback_widget %}
-          {% endif %}
+      {# Pages that are themselves a feedback form override this block to opt out. #}
+      {% block feedback_widget %}
+        {% flag "v3" %}
+          {% flag "beta_feedback" %}
+            {% if request.user.is_authenticated %}
+              {% feedback_widget %}
+            {% endif %}
+          {% endflag %}
         {% endflag %}
-      {% endflag %}
+      {% endblock %}
     </div>
 
     {% flag "v3" %}

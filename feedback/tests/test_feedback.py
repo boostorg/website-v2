@@ -12,6 +12,7 @@ import os
 import pytest
 import waffle.testutils
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.template import Context, Template
 from django.test import Client
 from django.urls import reverse
 from PIL import Image
@@ -151,16 +152,33 @@ def test_client_diagnostics_are_captured_but_bounded(client, url, payload):
     assert "unexpected" not in diagnostics
 
 
+def test_widget_renders_with_a_working_no_js_launcher(rf, user):
+    """Rendered through the tag, since no page view supplies its context."""
+    request = rf.get("/libraries/")
+    request.user = user
+
+    html = Template("{% load feedback_tags %}{% feedback_widget %}").render(
+        Context({"request": request, "csrf_token": "a-test-token"})
+    )
+
+    assert 'class="feedback-widget"' in html
+    # The launcher must be a real link carrying the originating page, or the
+    # no-JS path has nowhere to go and loses the page being described.
+    assert f'href="{reverse("feedback")}?from=' in html
+    assert "a-test-token" in html, "the tag must forward csrf_token into the widget"
+    assert 'enctype="multipart/form-data"' in html
+    assert 'name="image"' in html
+
+
 @waffle.testutils.override_flag("v3", active=True)
 @waffle.testutils.override_flag("beta_feedback", active=True)
-def test_widget_is_mounted_site_wide_and_can_submit(client, url):
+def test_widget_is_suppressed_on_the_standalone_form(client, url):
+    """The page is already the form; a launcher on it would open a duplicate."""
     response = client.get(url)
 
     content = response.content.decode()
-    assert 'class="feedback-widget"' in content
-    assert "csrfmiddlewaretoken" in content
-    assert 'enctype="multipart/form-data"' in content
-    assert 'name="image"' in content
+    assert 'class="feedback-widget"' not in content
+    assert 'class="feedback-page__form"' in content
 
 
 def test_admin_changelist_renders_for_triage(client, super_user, url, payload):
