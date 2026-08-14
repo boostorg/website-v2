@@ -179,8 +179,7 @@
   display: none;
 }
 
-/* Shared by the home hero and any base hero passing a cta_label/cta_url
-   (e.g. the library-unavailable variant), so the selector stays unscoped. */
+/* Deliberately unscoped: any hero passing cta_label/cta_url renders this. */
 .hero__actions {
   display: flex;
   flex-direction: row;
@@ -488,35 +487,25 @@
   padding-top: var(--space-hero-padding-top);
 }
 
-/* The header overlays the top of the page, so whatever comes first inside the
-   hero has to clear it. Normally that is .hero__block and its padding does the
-   work, but the version alert renders above the block, so the clearance moves up
-   to the section and the block gives its own back. The section's gap then spaces
-   the alert from the block. Clearance matches the reservation in header.css. */
+/* The header is absolutely positioned, so the hero reserves its space. That is
+   normally .hero__block's padding, but a banner renders above the block, so the
+   clearance moves up to the section here and the block gives its own back. */
 .hero:has(> .banner) {
-  /* 48px is .header's own --header-height. That custom property cannot be read
-     from out here: the value that reaches the hero is an unrelated legacy 2.5rem,
-     which silently under-reserves and tucks the alert under the header. The rest
-     of the footprint is the header's vertical padding. */
+  /* Not var(--header-height): outside .header that resolves to an unrelated
+     legacy 2.5rem and silently under-reserves. 48px is .header's own value. */
   --hero-header-footprint: calc(48px + 2 * var(--space-default));
-  /* The alert lines up with the nav pill above it, so it takes the header's
-     own horizontal padding. */
   --hero-banner-inset: var(--space-large);
   padding-top: var(--hero-header-footprint);
 }
 
-/* Match the header's box so the alert and the nav share both edges: same 1440
-   container, same inset. Without this the banner runs the full width of the
-   section while the nav sits inset, and the two edges disagree. */
+/* Mirror the header's box so the alert's edges line up with the nav's. */
 .hero > .banner {
   width: calc(100% - 2 * var(--hero-banner-inset));
   max-width: calc(1440px - 2 * var(--hero-banner-inset));
   margin-inline: auto;
 }
 
-/* Mirrors the header's own padding switch in header.css, which goes from
-   --space-default to --space-medium at this width. Without it the alert slides
-   under the taller tablet header. */
+/* Tracks the header's own padding switch in header.css at this same width. */
 @media (max-width: 990px) {
   .hero:has(> .banner) {
     --hero-header-footprint: calc(48px + 2 * var(--space-medium));
@@ -819,31 +808,27 @@ html.dark .hero__links .btn-icon-library:hover {
   background: var(--color-surface-weak-accent-yellow);
 }
 
-/* Library unavailable in the selected release (library subpage empty state):
-   the illustration sits on the page surface rather than the accent background
-   the other image heroes use. */
+/* Library subpage empty state: no version of the library in this release. */
 .hero--library-unavailable,
 .dark .hero--library-unavailable {
   background-color: var(--color-surface-page);
 }
 
-/* Raise the base hero's 662px cap so the flex split against the illustration
-   sets the text width instead (~700px at 1440px, matching Figma), which breaks
-   the 64px headline after "records" onto a second line. */
+/* A ceiling, not the target width: it lifts the base hero's 662px cap so the
+   flex split against the illustration sets the width (~700px at 1440, Figma). */
 .hero--library-unavailable .hero__content {
   max-width: 830px;
   gap: var(--space-xl);
 }
 
-/* Figma spaces headline, sentence and CTA evenly at 32px; the base hero packs
-   the headline and sentence tighter. */
+/* Figma spaces headline, sentence and CTA evenly; the base hero packs the
+   headline and sentence tighter. */
 .hero--library-unavailable .hero__text-block {
   gap: var(--space-xl);
 }
 
-/* Figma sits the illustration flush with the bottom of the block. The empty
-   state's copy is longer than a library hero's, so the block's fixed height
-   becomes a floor — otherwise the CTA overflows onto the version alert once the
+/* This copy runs longer than a library hero's, so the fixed height becomes a
+   floor: at a fixed height the CTA overflows onto the version alert once the
    headline wraps to three lines in the tablet band. */
 .hero--library-unavailable .hero__block {
   padding-bottom: 0;
@@ -852,17 +837,15 @@ html.dark .hero__links .btn-icon-library:hover {
 }
 
 /* The blend below composites against this box, not against .hero: .hero__block
-   opens a stacking context (position/z-index), which closes the blending group
-   above the section's background. Repeating the surface color here gives the
-   illustration the backdrop it needs to blend into. */
+   opens a stacking context, which closes the blending group above the section's
+   background. Hence the surface color repeated here. */
 .hero--library-unavailable .hero__image {
   align-self: flex-end;
   background-color: var(--color-surface-page);
 }
 
-/* The illustration ships on an opaque plate (white in the light export, black in
-   the dark one), so blend it away — otherwise its edge shows as a panel against
-   the page surface. Matches the multiply blend in Figma. */
+/* The illustration ships on an opaque plate (white in the light export, black
+   in the dark one), so blend it away or its edge shows as a panel. */
 .hero--library-unavailable .hero__img--light {
   mix-blend-mode: multiply;
 }
