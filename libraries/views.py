@@ -677,12 +677,13 @@ class LibraryDetail(
             f"{selected_version.display_name}."
         )
 
-        newest_version = (
-            Version.objects.active()
-            .filter(library_version__library=library, beta=False, full_release=True)
-            .order_by("-name")
-            .first()
+        # Betas are excluded rather than reusing library.first_boost_version,
+        # which spans them: a library whose first appearance was a beta would
+        # otherwise be announced as "version 1.91.0.beta1".
+        released_versions = Version.objects.active().filter(
+            library_version__library=library, beta=False, full_release=True
         )
+        newest_version = released_versions.order_by("-name").first()
 
         # Two different absences land here. Past the library's last release it has
         # left Boost, so the useful fact is where it stopped. Before its first, it
@@ -692,20 +693,12 @@ class LibraryDetail(
             and selected_version.cleaned_version_parts_int
             > newest_version.cleaned_version_parts_int
         )
-        # Not library.first_boost_version: that spans betas, so a library whose
-        # first appearance was a beta would be announced as "version 1.91.0.beta1".
-        first_version = (
-            Version.objects.active()
-            .filter(library_version__library=library, beta=False, full_release=True)
-            .order_by("name")
-            .first()
-        )
         if left_boost:
             description += (
                 f" The last release which included {library.display_name} was "
                 f"{newest_version.display_name}."
             )
-        elif first_version:
+        elif first_version := released_versions.order_by("name").first():
             description += (
                 f" The first release of {library.display_name} library was version "
                 f"{first_version.display_name}."
