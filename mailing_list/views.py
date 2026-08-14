@@ -1,6 +1,6 @@
 import datetime
 import logging
-from urllib.parse import urlencode, urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -41,11 +41,21 @@ def _is_htmx(request) -> bool:
 def _prg_redirect(request, **params) -> HttpResponseRedirect:
     """Redirect back to the referring page, with optional query params for card state.
 
-    Strips the referer to path-only to prevent open-redirect issues.
+    Drops the scheme and host from the referer to prevent open-redirect issues, but
+    keeps its query string: on pages where a param carries page state (e.g. the edit
+    profile page's ?edit=true) dropping it would bounce the user out of that state.
+    Any ml_* params already on the referer are discarded so repeated no-JS submits
+    don't accumulate stale card state.
     """
-    referer = request.headers.get("referer", "/")
-    path = urlparse(referer).path or "/"
-    qs = urlencode({k: v for k, v in params.items() if v})
+    referer = urlparse(request.headers.get("referer", "/"))
+    path = referer.path or "/"
+    query = [
+        (k, v)
+        for k, v in parse_qsl(referer.query, keep_blank_values=True)
+        if not k.startswith("ml_")
+    ]
+    query += [(k, v) for k, v in params.items() if v]
+    qs = urlencode(query)
     return HttpResponseRedirect(f"{path}?{qs}" if qs else path)
 
 
