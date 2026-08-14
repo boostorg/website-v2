@@ -390,8 +390,12 @@
         order: 5;
     }
 
-    .user-profile__delete-account {
+    .user-profile-edit__mailing-list-card {
         order: 6;
+    }
+
+    .user-profile__delete-account {
+        order: 7;
     }
 }
 
