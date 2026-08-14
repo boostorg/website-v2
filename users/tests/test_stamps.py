@@ -5,11 +5,11 @@ from django.template.loader import render_to_string
 
 from core.constants import BadgeToken
 
-from ..achievements import (
-    boost_day_badge,
+from ..stamps import (
+    boost_day_stamp,
     is_boost_day,
-    profile_badges,
-    tenure_badge,
+    profile_stamps,
+    tenure_stamp,
     tenure_tier_token,
     tenure_years,
 )
@@ -65,24 +65,24 @@ def test_tenure_tier_token(years, expected):
     assert tenure_tier_token(years) == expected
 
 
-def test_tenure_badge_below_first_tier():
+def test_tenure_stamp_below_first_tier():
     joined = datetime.date(2025, 6, 15)
-    assert tenure_badge(joined, datetime.date(2026, 6, 15)) is None
+    assert tenure_stamp(joined, datetime.date(2026, 6, 15)) is None
 
 
-def test_tenure_badge_token_and_label():
+def test_tenure_stamp_token_and_label():
     joined = datetime.date(2019, 6, 15)
-    assert tenure_badge(joined, datetime.date(2026, 6, 15)) == {
+    assert tenure_stamp(joined, datetime.date(2026, 6, 15)) == {
         "token": "star-tier-2",
         "label": "Boost Member for 7 years",
     }
 
 
-def test_tenure_badge_reflects_highest_tier_reached():
+def test_tenure_stamp_reflects_highest_tier_reached():
     joined = datetime.date(2001, 1, 1)
-    badge = tenure_badge(joined, datetime.date(2026, 6, 15))
-    assert badge["token"] == "star-tier-5"
-    assert badge["label"] == "Boost Member for 25 years"
+    stamp = tenure_stamp(joined, datetime.date(2026, 6, 15))
+    assert stamp["token"] == "star-tier-5"
+    assert stamp["label"] == "Boost Member for 25 years"
 
 
 @pytest.mark.parametrize(
@@ -110,9 +110,9 @@ def test_is_boost_day_without_join_date():
     assert is_boost_day(None, datetime.date(2026, 6, 15)) is False
 
 
-def test_boost_day_badge_off_anniversary():
+def test_boost_day_stamp_off_anniversary():
     joined = datetime.date(2020, 6, 15)
-    assert boost_day_badge(joined, datetime.date(2026, 6, 14)) is None
+    assert boost_day_stamp(joined, datetime.date(2026, 6, 14)) is None
 
 
 @pytest.mark.parametrize(
@@ -138,42 +138,42 @@ def test_boost_day_badge_off_anniversary():
         ),
     ],
 )
-def test_boost_day_badge_ordinal_label(joined, today, expected_label):
-    badge = boost_day_badge(joined, today)
-    assert badge == {"token": "boost-day", "label": expected_label}
+def test_boost_day_stamp_ordinal_label(joined, today, expected_label):
+    stamp = boost_day_stamp(joined, today)
+    assert stamp == {"token": "boost-day", "label": expected_label}
 
 
-def test_profile_badges_both_on_anniversary():
+def test_profile_stamps_both_on_anniversary():
     joined = datetime.date(2010, 6, 15)
-    assert profile_badges(joined, datetime.date(2026, 6, 15)) == {
-        "tenure_badge": {
+    assert profile_stamps(joined, datetime.date(2026, 6, 15)) == {
+        "tenure_stamp": {
             "token": "star-tier-4",
             "label": "Boost Member for 16 years",
         },
-        "boost_day_badge": {"token": "boost-day", "label": "Happy 16th Boost Day"},
+        "boost_day_stamp": {"token": "boost-day", "label": "Happy 16th Boost Day"},
     }
 
 
-def test_profile_badges_medal_only_off_anniversary():
+def test_profile_stamps_star_only_off_anniversary():
     joined = datetime.date(2010, 6, 15)
-    badges = profile_badges(joined, datetime.date(2026, 6, 16))
-    assert badges["tenure_badge"]["token"] == "star-tier-4"
-    assert badges["boost_day_badge"] is None
+    stamps = profile_stamps(joined, datetime.date(2026, 6, 16))
+    assert stamps["tenure_stamp"]["token"] == "star-tier-4"
+    assert stamps["boost_day_stamp"] is None
 
 
-def test_profile_badges_boost_day_only_before_first_medal():
-    """A member celebrating their 1st Boost Day has not yet earned a medal."""
+def test_profile_stamps_boost_day_only_before_first_star():
+    """A member celebrating their 1st Boost Day has not yet earned a star."""
     joined = datetime.date(2025, 6, 15)
-    badges = profile_badges(joined, datetime.date(2026, 6, 15))
-    assert badges["tenure_badge"] is None
-    assert badges["boost_day_badge"]["token"] == "boost-day"
+    stamps = profile_stamps(joined, datetime.date(2026, 6, 15))
+    assert stamps["tenure_stamp"] is None
+    assert stamps["boost_day_stamp"]["token"] == "boost-day"
 
 
-def test_profile_badges_empty_for_new_account():
+def test_profile_stamps_empty_for_new_account():
     joined = datetime.date(2026, 6, 15)
-    assert profile_badges(joined, datetime.date(2026, 6, 20)) == {
-        "tenure_badge": None,
-        "boost_day_badge": None,
+    assert profile_stamps(joined, datetime.date(2026, 6, 20)) == {
+        "tenure_stamp": None,
+        "boost_day_stamp": None,
     }
 
 
@@ -181,29 +181,29 @@ def test_profile_badges_empty_for_new_account():
 LONG_TENURED = datetime.datetime(1990, 1, 1, tzinfo=datetime.timezone.utc)
 
 
-def test_user_badge_properties(user):
+def test_user_stamp_properties(user):
     user.date_joined = LONG_TENURED
-    assert user.tenure_badge["token"] == "star-tier-5"
-    assert user.boost_day_badge is None
+    assert user.tenure_stamp["token"] == "star-tier-5"
+    assert user.boost_day_stamp is None
 
 
-def test_user_badge_properties_empty_for_new_account(user):
-    assert user.tenure_badge is None
-    assert user.boost_day_badge is None
+def test_user_stamp_properties_empty_for_new_account(user):
+    assert user.tenure_stamp is None
+    assert user.boost_day_stamp is None
 
 
-def test_to_v3_profile_dict_carries_badges(user):
+def test_to_v3_profile_dict_carries_stamps(user):
     user.date_joined = LONG_TENURED
     profile = user.to_v3_profile_dict()
-    assert profile["tenure_badge"]["token"] == "star-tier-5"
-    assert profile["tenure_badge"]["label"].startswith("Boost Member for ")
-    assert profile["boost_day_badge"] is None
+    assert profile["tenure_stamp"]["token"] == "star-tier-5"
+    assert profile["tenure_stamp"]["label"].startswith("Boost Member for ")
+    assert profile["boost_day_stamp"] is None
 
 
-def test_to_v3_profile_dict_without_badges(user):
+def test_to_v3_profile_dict_without_stamps(user):
     profile = user.to_v3_profile_dict()
-    assert profile["tenure_badge"] is None
-    assert profile["boost_day_badge"] is None
+    assert profile["tenure_stamp"] is None
+    assert profile["boost_day_stamp"] is None
 
 
 def test_user_profile_template_renders_raw_user(user):
@@ -217,15 +217,15 @@ def test_user_profile_template_renders_raw_user(user):
     assert "star-tier-5.png" in html
 
 
-def test_user_profile_template_badge_placement():
+def test_user_profile_template_stamp_placement():
     """Star then Boost Day, both beside the name and ahead of the role."""
     today = datetime.date(2026, 7, 28)
-    badges = profile_badges(datetime.date(2006, 7, 28), today)
+    stamps = profile_stamps(datetime.date(2006, 7, 28), today)
     html = render_to_string(
         "v3/includes/_user_profile.html",
-        {"author": {"name": "javier", "role": "Contributor", **badges}},
+        {"author": {"name": "javier", "role": "Contributor", **stamps}},
     )
     star = html.index("star-tier-5.png")
     boost_day = html.index("boost_day.png")
     assert star < boost_day < html.index("user-profile__role")
-    assert html.index("user-profile__badges") < star
+    assert html.index("user-profile__stamps") < star

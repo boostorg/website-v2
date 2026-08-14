@@ -1,5 +1,5 @@
 {% comment %}
-  User Card component — profile summary with avatar, badge, role, and optional CTA.
+  User Card component — profile summary with avatar, stamps, role, and optional CTA.
 
   Variables:
     username        (string, required)  - Display name shown on the card
@@ -7,8 +7,8 @@
     avatar_variant  (string, optional)  - Avatar color variant (yellow|green|teal). Default "yellow".
     badge_name      (string, optional)  - Featured achievement label text, e.g. "Bug Catcher"
     badge           (string, optional)  - Featured achievement token, e.g. "badge-tier-3", "star-tier-1", "boost-day"
-    tenure_badge     (dict, optional)   - {"token", "label"}; tenure star.
-    boost_day_badge  (dict, optional)   - {"token", "label"}; Boost Day icon.
+    tenure_stamp     (dict, optional)   - {"token", "label"}; tenure star.
+    boost_day_stamp  (dict, optional)   - {"token", "label"}; Boost Day icon.
                                           Both render beside the username, star first. They mirror the User properties of the
                                           same name and the placement used by _user_profile.html.
     member_since    (string, optional)  - Membership year, e.g. "2008"
@@ -59,13 +59,13 @@
   <div class="user-card__info">
     <span class="user-card__name-group">
       <span class="user-card__username">{{ username }}</span>
-      {% if tenure_badge or boost_day_badge %}
-        <span class="user-card__badges">
-          {% if tenure_badge %}
-            {% include "v3/includes/_badge_v3.html" with token=tenure_badge.token label=tenure_badge.label size="large" only %}
+      {% if tenure_stamp or boost_day_stamp %}
+        <span class="user-card__stamps">
+          {% if tenure_stamp %}
+            {% include "v3/includes/_badge_v3.html" with token=tenure_stamp.token label=tenure_stamp.label size="large" only %}
           {% endif %}
-          {% if boost_day_badge %}
-            {% include "v3/includes/_badge_v3.html" with token=boost_day_badge.token label=boost_day_badge.label size="large" only %}
+          {% if boost_day_stamp %}
+            {% include "v3/includes/_badge_v3.html" with token=boost_day_stamp.token label=boost_day_stamp.label size="large" only %}
           {% endif %}
         </span>
       {% endif %}

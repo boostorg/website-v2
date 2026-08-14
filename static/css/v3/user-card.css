@@ -65,7 +65,7 @@
 }
 
 /* The star and the Boost Day icon sit flush against each other. */
-.user-card__badges {
+.user-card__stamps {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;

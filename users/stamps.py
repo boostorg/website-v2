@@ -1,7 +1,8 @@
-"""Tenure star and Boost Day badge resolution.
+"""Tenure star and Boost Day stamp resolution.
 
-Both badges are derived from the member's account creation date at render
-time — nothing is stored and no scheduled job assigns them.
+Both stamps are derived from the member's account creation date at render
+time — nothing is stored and no scheduled job assigns them. This is what
+separates them from badges/achievements, which are earned and recorded.
 """
 
 import calendar
@@ -73,8 +74,8 @@ def is_boost_day(joined, today=None):
     return (today.month, today.day) == (joined.month, joined.day)
 
 
-def tenure_badge(joined, today=None):
-    """Tenure star badge dict, or None for members under 2 years."""
+def tenure_stamp(joined, today=None):
+    """Tenure star stamp dict, or None for members under 2 years."""
     years = tenure_years(joined, today)
     token = tenure_tier_token(years)
     if token is None:
@@ -85,8 +86,8 @@ def tenure_badge(joined, today=None):
     }
 
 
-def boost_day_badge(joined, today=None):
-    """Boost Day badge dict, or None when today is not the anniversary."""
+def boost_day_stamp(joined, today=None):
+    """Boost Day stamp dict, or None when today is not the anniversary."""
     if not is_boost_day(joined, today):
         return None
     return {
@@ -95,14 +96,13 @@ def boost_day_badge(joined, today=None):
     }
 
 
-def profile_badges(joined, today=None):
-    """Both badges keyed by slot, matching Figma node 5942:11222.
+def profile_stamps(joined, today=None):
+    """Both stamps keyed by slot, matching Figma node 6994:38640.
 
-    The tenure medal sits beside the member's role, the Boost Day icon
-    beside their name.
+    Both sit beside the member's name, tenure star first.
     """
     today = today or timezone.localdate()
     return {
-        "tenure_badge": tenure_badge(joined, today),
-        "boost_day_badge": boost_day_badge(joined, today),
+        "tenure_stamp": tenure_stamp(joined, today),
+        "boost_day_stamp": boost_day_stamp(joined, today),
     }

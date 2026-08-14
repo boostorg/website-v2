@@ -73,7 +73,7 @@
 }
 
 /* The star and the Boost Day icon sit flush against each other. */
-.user-profile__badges {
+.user-profile__stamps {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;

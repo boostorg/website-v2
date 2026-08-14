@@ -30,8 +30,8 @@ def news_type_label(news_type: str) -> str:
 #             "profile_url": str | None,
 #             "role": str,
 #             "avatar_url": str,
-#             "tenure_badge": dict | None,
-#             "boost_day_badge": dict | None,
+#             "tenure_stamp": dict | None,
+#             "boost_day_stamp": dict | None,
 #             "badge_url": str | None,
 #         },
 #     }
@@ -52,8 +52,8 @@ def _entry_to_post_card(entry: Entry) -> dict:
             "avatar_url": (
                 author.get_avatar_url() if hasattr(author, "get_avatar_url") else ""
             ),
-            "tenure_badge": getattr(author, "tenure_badge", None),
-            "boost_day_badge": getattr(author, "boost_day_badge", None),
+            "tenure_stamp": getattr(author, "tenure_stamp", None),
+            "boost_day_stamp": getattr(author, "boost_day_stamp", None),
             "badge_url": None,
         },
     }

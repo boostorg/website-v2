@@ -31,7 +31,7 @@ from core.validators import (
 )
 from core.templatetags.custom_static import large_static
 
-from . import achievements
+from . import stamps
 
 logger = logging.getLogger(__name__)
 
@@ -592,7 +592,7 @@ class User(BaseUser):
             "profile_url": None,
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
-            **self.profile_badges,
+            **self.profile_stamps,
             "bio": None,
         }
 
@@ -658,19 +658,19 @@ class User(BaseUser):
         return None, None
 
     @cached_property
-    def profile_badges(self):
-        """Tenure medal and Boost Day badge dicts, keyed by template slot."""
-        return achievements.profile_badges(self.date_joined)
+    def profile_stamps(self):
+        """Tenure star and Boost Day stamp dicts, keyed by template slot."""
+        return stamps.profile_stamps(self.date_joined)
 
     @property
-    def tenure_badge(self):
-        """Tenure medal badge dict, or None for members under 2 years."""
-        return self.profile_badges["tenure_badge"]
+    def tenure_stamp(self):
+        """Tenure star stamp dict, or None for members under 2 years."""
+        return self.profile_stamps["tenure_stamp"]
 
     @property
-    def boost_day_badge(self):
-        """Boost Day badge dict, or None outside the member's anniversary."""
-        return self.profile_badges["boost_day_badge"]
+    def boost_day_stamp(self):
+        """Boost Day stamp dict, or None outside the member's anniversary."""
+        return self.profile_stamps["boost_day_stamp"]
 
     @cached_property
     def role(self):

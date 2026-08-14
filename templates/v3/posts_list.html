@@ -38,7 +38,7 @@
         {% if request.user.is_authenticated %}
           {% with u=request.user %}
             {% url 'v3-news-create' as create_url %}
-            {% include 'v3/includes/_user_card.html' with username=u.display_name avatar_url=u.avatar_url badge_name='Bug Catcher' badge_icon_src=u.badge_url tenure_badge=u.tenure_badge boost_day_badge=u.boost_day_badge member_since=u.year_joined role=u.role flag_emoji=u.flag_emoji cta_url=create_url cta_label='Create Post' only %}
+            {% include 'v3/includes/_user_card.html' with username=u.display_name avatar_url=u.avatar_url badge_name='Bug Catcher' badge_icon_src=u.badge_url tenure_stamp=u.tenure_stamp boost_day_stamp=u.boost_day_stamp member_since=u.year_joined role=u.role flag_emoji=u.flag_emoji cta_url=create_url cta_label='Create Post' only %}
           {% endwith %}
         {% else %}
           {% include 'v3/includes/_user_card.html' with logged_out=True cta_url='#' cta_label='Create Post' only %}

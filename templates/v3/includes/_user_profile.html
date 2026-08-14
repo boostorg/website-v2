@@ -1,5 +1,5 @@
 {% comment %}
-  User Profile – displays avatar, name, role, badge, and optional bio.
+  User Profile – displays avatar, name, role, stamps, and optional bio.
     Variables: "author" object with:
     - name       (string) — display name
     - profile_url (string) — URL to user profile
@@ -7,8 +7,8 @@
                                        passed as a mark_safe'd HTML string (testimonial cards
                                        use this to embed a hyperlink in the role).
     - avatar_url (string) — URL to avatar image
-    - tenure_badge       (dict, optional)   — {"token", "label"}; tenure star.
-    - boost_day_badge    (dict, optional)   — {"token", "label"}; Boost Day icon.
+    - tenure_stamp       (dict, optional)   — {"token", "label"}; tenure star.
+    - boost_day_stamp    (dict, optional)   — {"token", "label"}; Boost Day icon.
                                               Both render beside the name, star first, per
                                               Figma node 6994:38640. The key names match the
                                               User properties of the same name, so a raw User
@@ -49,13 +49,13 @@
             <span class="user-profile__name">{{ author.name }}</span>
           {% endif %}
         {% endif %}
-        {% if author.tenure_badge or author.boost_day_badge %}
-          <span class="user-profile__badges">
-            {% if author.tenure_badge %}
-              {% include "v3/includes/_badge_v3.html" with token=author.tenure_badge.token label=author.tenure_badge.label size="small" only %}
+        {% if author.tenure_stamp or author.boost_day_stamp %}
+          <span class="user-profile__stamps">
+            {% if author.tenure_stamp %}
+              {% include "v3/includes/_badge_v3.html" with token=author.tenure_stamp.token label=author.tenure_stamp.label size="small" only %}
             {% endif %}
-            {% if author.boost_day_badge %}
-              {% include "v3/includes/_badge_v3.html" with token=author.boost_day_badge.token label=author.boost_day_badge.label size="small" only %}
+            {% if author.boost_day_stamp %}
+              {% include "v3/includes/_badge_v3.html" with token=author.boost_day_stamp.token label=author.boost_day_stamp.label size="small" only %}
             {% endif %}
           </span>
         {% elif author.badge|slice:":5" == "star-" %}
