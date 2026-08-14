@@ -11,13 +11,15 @@ import os
 
 import pytest
 import waffle.testutils
+from django.contrib.auth.models import AnonymousUser
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.signals import got_request_exception
 from django.template import Context, Template
 from django.test import Client
 from django.urls import reverse
 from PIL import Image
 
-from feedback.diagnostics import RING_BUFFER_LIMIT
+from feedback.diagnostics import RING_BUFFER_LIMIT, recent_server_errors
 from feedback.models import IMAGE_MAX_BYTES, Feedback
 
 pytestmark = pytest.mark.django_db
@@ -150,6 +152,40 @@ def test_client_diagnostics_are_captured_but_bounded(client, url, payload):
     assert diagnostics["search_query"] == "asio timer"
     assert len(diagnostics["console_errors"]) == RING_BUFFER_LIMIT
     assert "unexpected" not in diagnostics
+
+
+def test_server_errors_are_attached_to_a_later_submission(
+    client, url, payload, rf, user
+):
+    """A 500 page cannot show the widget, so the error must survive until the report."""
+    broken = rf.get("/library/1.88.0/beast/")
+    broken.user = user
+    broken.id = "req-abc123"
+    try:
+        raise ValueError("no such column: libraries_library.retired")
+    except ValueError:
+        got_request_exception.send(sender=None, request=broken)
+
+    client.post(url, payload, headers=XHR)
+
+    errors = Feedback.objects.get().diagnostics["server_errors"]
+    assert len(errors) == 1
+    assert errors[0]["type"] == "ValueError"
+    assert "no such column" in errors[0]["message"]
+    assert errors[0]["path"] == "/library/1.88.0/beast/"
+    assert errors[0]["request_id"] == "req-abc123"
+
+
+def test_server_errors_are_not_recorded_for_signed_out_visitors(rf):
+    """Nothing to attach them to, and no report can follow."""
+    request = rf.get("/libraries/")
+    request.user = AnonymousUser()
+    try:
+        raise ValueError("boom")
+    except ValueError:
+        got_request_exception.send(sender=None, request=request)
+
+    assert recent_server_errors(request.user) == {}
 
 
 def test_widget_renders_with_a_working_no_js_launcher(rf, user):

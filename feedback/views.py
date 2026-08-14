@@ -10,7 +10,11 @@ from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 
-from feedback.diagnostics import clean_client_diagnostics, page_context
+from feedback.diagnostics import (
+    clean_client_diagnostics,
+    page_context,
+    recent_server_errors,
+)
 from feedback.models import (
     PAGE_URL_MAX_LENGTH,
     USER_AGENT_MAX_LENGTH,
@@ -104,9 +108,12 @@ class FeedbackView(LoginRequiredMixin, View):
         context = page_context(request, page_url)
         feedback.url_name = context["url_name"]
         feedback.boost_version = context["boost_version"]
+        # Server-derived keys come last: the client blob is allowlisted, but this way
+        # a browser could never shadow them even if that allowlist grew.
         feedback.diagnostics = {
             "view_name": context["view_name"],
             **clean_client_diagnostics(request.POST.get("diagnostics", "")),
+            **recent_server_errors(request.user),
         }
         feedback.save()
 

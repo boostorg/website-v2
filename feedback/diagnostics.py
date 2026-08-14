@@ -4,14 +4,24 @@ Route, library and version are derived server-side by resolving the URL the
 submitter was on, so they cannot be spoofed and need no client cooperation.
 Everything the browser alone knows — viewport, console errors, failed requests —
 arrives as a JSON blob from the client and is treated as untrusted input.
+
+Server-side exceptions are recorded separately: the 500 page cannot render the
+widget, so an error has to outlive its request and wait for the member to report
+from wherever they land next.
 """
 
 import json
+import logging
+import sys
 from urllib.parse import urlsplit
 
+from django.core.cache import cache
 from django.urls import Resolver404, resolve
+from django.utils import timezone
 
 from libraries.utils import get_version_from_cookie
+
+logger = logging.getLogger(__name__)
 
 DIAGNOSTICS_MAX_CHARS = 20_000
 RING_BUFFER_LIMIT = 10
@@ -20,6 +30,10 @@ _ENTRY_MAX_CHARS = 500
 
 _TEXT_KEYS = ("viewport", "device", "platform", "search_query")
 _LIST_KEYS = ("console_errors", "failed_requests")
+
+SERVER_ERROR_LIMIT = 5
+# Long enough to hit a 500, navigate somewhere the widget renders, and write it up.
+SERVER_ERROR_TIMEOUT = 900  # seconds
 
 
 def page_context(request, page_url):
@@ -67,6 +81,64 @@ def clean_client_diagnostics(raw):
                 str(entry)[:_ENTRY_MAX_CHARS] for entry in entries[:RING_BUFFER_LIMIT]
             ]
     return cleaned
+
+
+def _server_error_key(user_pk):
+    return f"feedback_server_errors:user:{user_pk}"
+
+
+def record_server_error(sender, request=None, **kwargs):
+    """Remember an unhandled exception against the member who hit it.
+
+    Connected to `got_request_exception`, which fires while the request is already
+    failing, so this swallows everything: a feedback tool must never turn one error
+    into two. Django sends no exception with the signal, hence `sys.exc_info()`.
+    """
+    try:
+        user = getattr(request, "user", None)
+        if not user or not user.is_authenticated:
+            return
+
+        exc_type, exc, _ = sys.exc_info()
+        if exc is None:
+            return
+
+        key = _server_error_key(user.pk)
+        entries = cache.get(key) or []
+        entries.append(
+            {
+                "type": exc_type.__name__,
+                # Clipped: exception text can carry query fragments and personal data.
+                "message": str(exc)[:_ENTRY_MAX_CHARS],
+                "path": str(getattr(request, "path", ""))[:_TEXT_MAX_CHARS],
+                "view": str(getattr(request.resolver_match, "view_name", "") or "")[
+                    :_TEXT_MAX_CHARS
+                ],
+                "request_id": str(getattr(request, "id", ""))[:_TEXT_MAX_CHARS],
+                "at": timezone.now().isoformat(timespec="seconds"),
+            }
+        )
+        cache.set(key, entries[-SERVER_ERROR_LIMIT:], timeout=SERVER_ERROR_TIMEOUT)
+    except Exception:
+        logger.debug("Could not record a server error for feedback", exc_info=True)
+
+
+def recent_server_errors(user):
+    """Server errors this member hit recently, oldest first.
+
+    Left in the cache rather than consumed, so a second report about the same
+    failure still carries it. Each entry is timestamped, so triage can tell
+    whether the error actually relates to the message.
+    """
+    try:
+        if not user or not user.is_authenticated:
+            return {}
+        entries = cache.get(_server_error_key(user.pk))
+    except Exception:
+        # Losing the error context is a far better outcome than losing the report.
+        logger.debug("Could not read server errors for feedback", exc_info=True)
+        return {}
+    return {"server_errors": entries} if entries else {}
 
 
 def _resolve(page_url):
