@@ -364,6 +364,7 @@ def generate_release_report_pdf(
 ):
     """Generate a release report asynchronously and save it in PDF using Playwright."""
     from playwright.sync_api import sync_playwright
+    from playwright.sync_api import Locator
     from django.core.files.base import ContentFile
 
     release_report = ReleaseReport.objects.get(pk=release_report_id)
@@ -382,7 +383,10 @@ def generate_release_report_pdf(
             page.evaluate("document.fonts.ready")
 
             # wait for ApexCharts to Render
-            page.wait_for_timeout(1000)
+            mlCharts: Locator = page.locator("#apexchartsmailingListsPostsCharts").first
+            mlCharts.wait_for(state="visible")
+            s_stats: Locator = page.locator("#apexchartssubscriptionStats").first
+            s_stats.wait_for(state="visible")
 
             logger.info("Generating PDF")
             page.emulate_media(media="print")

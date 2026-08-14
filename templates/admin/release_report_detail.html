@@ -613,18 +613,6 @@ ul.slack-channels li div a:hover,
     </div>
     <script>
       const generalGraphOptions = {
-        chart: {
-          height: 400,
-          type: 'bar',
-          foreColor: '#373d3f',
-          background: '#ffffff00',
-          toolbar: {
-            show: false,
-          },
-          zoom: {
-            enabled: false
-          },
-        },
         plotOptions: {
           bar: {
             borderRadius: 2,
@@ -667,6 +655,22 @@ ul.slack-channels li div a:hover,
       };
       var committedLibrariesOptions = {
         ...generalGraphOptions,
+        chart: {
+          id: 'libraryCommitsChart',
+          height: 400,
+          type: 'bar',
+          foreColor: '#373d3f',
+          background: '#ffffff00',
+          toolbar: {
+            show: false,
+          },
+          zoom: {
+            enabled: false
+          },
+          animations: {
+            enabled: false
+          },
+        },
         series: [{
           name: 'Commits',
           data: [{% for library in top_libraries_for_version|slice:":5" %}{{library.commit_count}}, {% endfor %}]
@@ -685,6 +689,22 @@ ul.slack-channels li div a:hover,
 
       var mailingListPostsOptions = {
         ...generalGraphOptions,
+        chart: {
+          id: 'mailingListsPostsCharts',
+          height: 400,
+          type: 'bar',
+          foreColor: '#373d3f',
+          background: '#ffffff00',
+          toolbar: {
+            show: false,
+          },
+          zoom: {
+            enabled: false
+          },
+          animations: {
+            enabled: false
+          },
+        },
         series: [{
           name: 'Posts',
           data: {{ mailinglist_post_stats|safe }}
@@ -723,6 +743,22 @@ ul.slack-channels li div a:hover,
       const newEntries = {{mailinglist_new_subscribers_stats|safe}};
       var subscriptionsOptions = {
         ...generalGraphOptions,
+        chart: {
+          id: 'subscriptionsStats',
+          height: 400,
+          type: 'bar',
+          foreColor: '#373d3f',
+          background: '#ffffff00',
+          toolbar: {
+            show: false,
+          },
+          zoom: {
+            enabled: false
+          },
+          animations: {
+            enabled: false
+          },
+        },
         series: [{
           name: 'New Subscribers',
           data: newEntries
