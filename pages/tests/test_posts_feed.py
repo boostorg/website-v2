@@ -353,6 +353,17 @@ class TestUrlDrivenState:
 
         assert 'value="asio"' in input_tag(content, 'id="field-q"')
 
+    def test_search_submits_on_its_own_after_a_pause(self, tp, feed_url):
+        """Typing filters the feed without reaching for Enter or the arrow.
+
+        The quiet period is longer than the library list's because a search
+        here costs a round trip, so the number is asserted rather than just
+        the presence of a handler.
+        """
+        content = get_feed(tp, feed_url).content.decode()
+
+        assert "@input.debounce.500ms" in input_tag(content, 'id="field-q"')
+
     def test_author_is_carried_in_a_hidden_field(self, tp, feed_url):
         author = baker.make("users.User", display_name="Vinnie Falco")
 

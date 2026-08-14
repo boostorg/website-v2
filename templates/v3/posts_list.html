@@ -130,7 +130,7 @@
               @keydown.enter="if (!$event.target.closest('.dropdown')) { $event.preventDefault(); submitFrom($event.target.name, null, $event.target) }">
           {# djlint:on #}
           {% if author_value %}<input type="hidden" name="author" value="{{ author_value }}">{% endif %}
-          {% include 'v3/includes/_field_text.html' with label='Search' name='q' value=search_value placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' submit_label='Search' only %}
+          {% include 'v3/includes/_field_text.html' with label='Search' name='q' value=search_value placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' submit_label='Search' dispatch_field_change=True debounce_ms=500 only %}
           <p class="field__label filter__tags-label">Filter</p>
           <div class="filter__tags" @change="submitFrom($event.target.name, null, $event.target)">
             {% include "v3/includes/_post_filter.html" with options=filter_terms filter_name="type" default=filter_value only %}
