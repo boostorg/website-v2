@@ -1,8 +1,12 @@
 """Beta feedback captured from the site-wide floating widget."""
 
+from pathlib import Path
+from uuid import uuid4
+
 from django import forms
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from core.validators import MaxFileSizeValidator, image_validator
 
@@ -12,6 +16,19 @@ PAGE_URL_MAX_LENGTH = 1000
 
 IMAGE_MAX_BYTES = 2 * 1024 * 1024
 feedback_image_size_validator = MaxFileSizeValidator(max_size=IMAGE_MAX_BYTES)
+
+
+def feedback_image_path(instance, filename):
+    """Give every screenshot its own name.
+
+    Media storage runs with `file_overwrite = True`, so keeping the submitted
+    filename would let two members who both upload `image.png` in the same month
+    clobber each other, leaving one report showing the other's screenshot. The
+    extension is preserved because the validators already restrict it to PNG/JPEG.
+    """
+    return (
+        f"feedback/{timezone.now():%Y/%m}/{uuid4().hex}{Path(filename).suffix.lower()}"
+    )
 
 
 class Feedback(models.Model):
@@ -39,7 +56,7 @@ class Feedback(models.Model):
     )
     message = models.TextField(max_length=MESSAGE_MAX_LENGTH)
     image = models.ImageField(
-        upload_to="feedback/%Y/%m/",
+        upload_to=feedback_image_path,
         null=True,
         blank=True,
         validators=[image_validator, feedback_image_size_validator],

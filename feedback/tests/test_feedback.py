@@ -90,6 +90,18 @@ def test_screenshot_is_stored_with_the_feedback(client, url, payload):
     assert Feedback.objects.get().image.name.startswith("feedback/")
 
 
+def test_screenshots_with_the_same_name_do_not_collide(client, url, payload):
+    """Media storage overwrites by name, so identical filenames must not share a path."""
+    paths = []
+    for _ in range(2):
+        shot = SimpleUploadedFile("image.png", png_bytes(10), "image/png")
+        client.post(url, {**payload, "image": shot}, headers=XHR)
+        paths.append(Feedback.objects.order_by("-created_at").first().image.name)
+
+    assert paths[0] != paths[1]
+    assert all(p.endswith(".png") for p in paths)
+
+
 def test_oversized_screenshot_is_rejected(client, url, payload):
     content = png_bytes(900)
     assert len(content) >= IMAGE_MAX_BYTES, "fixture must exceed the ceiling"
