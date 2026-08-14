@@ -24,10 +24,6 @@ class FeedbackResource(resources.ModelResource):
     user_agent = fields.Field(column_name="User agent", attribute="user_agent")
     diagnostics = fields.Field(column_name="Diagnostics", attribute="diagnostics")
 
-    def get_queryset(self, queryset):
-        # `submitter` and the email column both walk to the user on every row.
-        return queryset.select_related("user")
-
     class Meta:
         model = Feedback
         fields = (
