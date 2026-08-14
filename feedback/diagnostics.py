@@ -11,17 +11,17 @@ from wherever they land next.
 """
 
 import json
-import logging
 import sys
 from urllib.parse import urlsplit
 
+import structlog
 from django.core.cache import cache
 from django.urls import Resolver404, resolve
 from django.utils import timezone
 
 from libraries.utils import get_version_from_cookie
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 DIAGNOSTICS_MAX_CHARS = 20_000
 RING_BUFFER_LIMIT = 10

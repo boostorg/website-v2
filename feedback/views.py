@@ -2,6 +2,7 @@
 
 from urllib.parse import urlsplit
 
+import structlog
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
@@ -16,11 +17,14 @@ from feedback.diagnostics import (
     recent_server_errors,
 )
 from feedback.models import (
+    MESSAGE_MAX_LENGTH,
     PAGE_URL_MAX_LENGTH,
     USER_AGENT_MAX_LENGTH,
     Feedback,
     FeedbackForm,
 )
+
+logger = structlog.get_logger()
 
 SUCCESS_MESSAGE = "Thanks for the feedback — the team will take a look."
 SIGNED_OUT_MESSAGE = "Your session has expired. Please sign in again to send feedback."
@@ -39,24 +43,21 @@ def wants_json(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
 
-def get_client_ip(request):
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.META.get("REMOTE_ADDR", "")
-
-
-def rate_limit_key(request):
-    if request.user.is_authenticated:
-        return f"feedback_rate:user:{request.user.pk}"
-    return f"feedback_rate:ip:{get_client_ip(request)}"
-
-
 def is_rate_limited(request):
-    """Cache-backed so it holds for clients that discard cookies, unlike a session gate."""
-    key = rate_limit_key(request)
-    cache.add(key, 0, timeout=RATE_WINDOW)
-    return cache.incr(key) > RATE_LIMIT
+    """Cache-backed so it holds for clients that discard cookies, unlike a session gate.
+
+    Fails open. The cache is Redis, which raises when it is unreachable, and losing
+    a report is a worse outcome than letting a runaway client through: sessions live
+    in the database, so members stay signed in through a Redis outage and would hit
+    this on the very page they were trying to report from.
+    """
+    key = f"feedback_rate:user:{request.user.pk}"
+    try:
+        cache.add(key, 0, timeout=RATE_WINDOW)
+        return cache.incr(key) > RATE_LIMIT
+    except Exception:
+        logger.warning("Feedback rate limit unavailable; allowing", exc_info=True)
+        return False
 
 
 class FeedbackView(LoginRequiredMixin, View):
@@ -142,6 +143,7 @@ class FeedbackView(LoginRequiredMixin, View):
             {
                 "form": form,
                 "feedback_type_options": Feedback.Type.choices,
+                "message_max_length": MESSAGE_MAX_LENGTH,
                 "page_url": self._page_url(request),
             },
         )

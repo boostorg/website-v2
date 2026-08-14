@@ -1,6 +1,6 @@
 from django import template
 
-from feedback.models import IMAGE_MAX_BYTES, Feedback
+from feedback.models import IMAGE_MAX_BYTES, MESSAGE_MAX_LENGTH, Feedback
 
 register = template.Library()
 
@@ -20,4 +20,7 @@ def feedback_widget(context):
         # Shared with the server-side validator so the widget can reject an
         # oversized file before spending the upload.
         "image_max_bytes": IMAGE_MAX_BYTES,
+        # Same limit the model enforces, so a long report is capped as it is typed
+        # rather than rejected after the member has written it.
+        "message_max_length": MESSAGE_MAX_LENGTH,
     }

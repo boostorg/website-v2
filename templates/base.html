@@ -46,8 +46,12 @@
     <script src="{% static 'js/utils.js' %}"></script>
     {% flag "v3" %}
     {% flag "beta_feedback" %}
-    {# Undeferred and first, so it captures errors thrown by the scripts below it. #}
+    {# Undeferred and first, so it captures errors thrown by the scripts below it.
+       Only for signed-in members: the widget it feeds renders for nobody else, and
+       this patches fetch/XHR/console.error globally. #}
+    {% if request.user.is_authenticated %}
     <script src="{% static 'js/feedback-diagnostics.js' %}"></script>
+    {% endif %}
     {% endflag %}
     <script src="{% static 'js/highlight.js' %}"></script>
     <script src="{% static 'js/highlight-block.js' %}"></script>

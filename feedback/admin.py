@@ -24,6 +24,10 @@ class FeedbackResource(resources.ModelResource):
     user_agent = fields.Field(column_name="User agent", attribute="user_agent")
     diagnostics = fields.Field(column_name="Diagnostics", attribute="diagnostics")
 
+    def get_queryset(self, queryset):
+        # `submitter` and the email column both walk to the user on every row.
+        return queryset.select_related("user")
+
     class Meta:
         model = Feedback
         fields = (
@@ -57,11 +61,14 @@ class FeedbackAdmin(ExportMixin, admin.ModelAdmin):
         "submitter",
         "short_message",
         "screenshot",
+        "had_server_error",
         "url_name",
         "boost_version",
         "page_link",
     )
     list_editable = ("status",)
+    # `submitter` reads obj.user on every row, which is a query each without this.
+    list_select_related = ("user",)
     # url_name/boost_version are the grouping axes: "every complaint on the library
     # detail route", rather than one row per distinct URL string.
     list_filter = (
@@ -107,6 +114,11 @@ class FeedbackAdmin(ExportMixin, admin.ModelAdmin):
             obj.image.url,
             obj.image.url,
         )
+
+    @admin.display(description="Server error", boolean=True)
+    def had_server_error(self, obj):
+        """Surfaces the highest-signal reports without opening every row."""
+        return bool(obj.diagnostics.get("server_errors"))
 
     @admin.display(description="Browser diagnostics")
     def pretty_diagnostics(self, obj):

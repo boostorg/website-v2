@@ -9,6 +9,7 @@
   Context (feedback.views.FeedbackView):
     form                  — FeedbackForm, bound on a failed submission
     feedback_type_options — Feedback.Type.choices
+    message_max_length    — message ceiling, mirrored from the model
     page_url              — the page the submitter came from, carried through
 
   Browser diagnostics are attached on submit when JS is available. With JS off the
@@ -44,7 +45,7 @@
 
       {% include "v3/includes/_field_dropdown.html" with name="feedback_type" label="What's this about?" options=feedback_type_options placeholder="Pick one" required=True selected=form.feedback_type.value|default_if_none:"" error=form.feedback_type.errors.0 exclude_from_clear=True %}
 
-      {% include "v3/includes/_field_textarea.html" with name="message" label="Tell us more" placeholder="What happened, or what would you change?" rows=8 required=True value=form.message.value|default_if_none:"" error=form.message.errors.0 %}
+      {% include "v3/includes/_field_textarea.html" with name="message" label="Tell us more" placeholder="What happened, or what would you change?" rows=8 required=True maxlength=message_max_length value=form.message.value|default_if_none:"" error=form.message.errors.0 %}
 
       {% include "v3/includes/_field_file.html" with name="image" label="Add a screenshot" accept="image/png,image/jpeg" preview=True error=form.image.errors.0 help_text="Optional. PNG or JPEG, up to 2MB — a picture often saves us a lot of guesswork." %}
 

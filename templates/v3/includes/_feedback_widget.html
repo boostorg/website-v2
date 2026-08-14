@@ -8,6 +8,7 @@
   Variables:
     feedback_type_options (required) — Feedback.Type.choices, for the type dropdown
     image_max_bytes       (required) — screenshot size ceiling, mirrored from the model
+    message_max_length    (required) — message ceiling, mirrored from the model
     csrf_token            (required) — forwarded by the tag so {% csrf_token %} resolves
     request               (required) — for the current user and the page URL
 
@@ -80,7 +81,7 @@
 
       {% include "v3/includes/_field_dropdown.html" with name="feedback_type" label="What's this about?" options=feedback_type_options placeholder="Pick one" required=True alpine_error="errors.feedback_type" exclude_from_clear=True %}
 
-      {% include "v3/includes/_field_textarea.html" with name="message" label="Tell us more" placeholder="What happened, or what would you change?" rows=5 required=True alpine_error="errors.message" %}
+      {% include "v3/includes/_field_textarea.html" with name="message" label="Tell us more" placeholder="What happened, or what would you change?" rows=5 required=True maxlength=message_max_length alpine_error="errors.message" %}
 
       {% include "v3/includes/_field_file.html" with name="image" label="Add a screenshot" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" help_text="Optional. PNG or JPEG, up to 2MB — a picture often saves us a lot of guesswork." %}
 

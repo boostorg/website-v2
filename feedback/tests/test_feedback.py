@@ -102,6 +102,37 @@ def test_oversized_screenshot_is_rejected(client, url, payload):
     assert not Feedback.objects.exists()
 
 
+@pytest.mark.parametrize(
+    "field,invalid",
+    [
+        ("message", {"message": ""}),
+        ("feedback_type", {"feedback_type": ""}),
+        ("image", {"image": ("notes.gif", b"GIF89a-not-a-screenshot", "image/gif")}),
+    ],
+)
+def test_invalid_submissions_are_rejected_with_the_message_intact(
+    client, url, payload, field, invalid
+):
+    """Each rejection the ticket names; the member must never lose what they wrote."""
+    if field == "image":
+        name, content, content_type = invalid["image"]
+        invalid = {"image": SimpleUploadedFile(name, content, content_type)}
+
+    response = client.post(url, {**payload, **invalid}, headers=XHR)
+
+    assert response.status_code == 400
+    assert field in response.json()["errors"]
+    assert not Feedback.objects.exists()
+
+
+def test_a_rejected_no_js_submission_re_renders_the_message(client, url, payload):
+    """The standalone form has no client state, so the server must echo it back."""
+    response = client.post(url, {**payload, "feedback_type": ""})
+
+    assert response.status_code == 200
+    assert payload["message"] in response.content.decode()
+
+
 def test_longest_category_slug_fits_the_column(client, url, payload):
     """`incorrect_information` is 21 chars — it overflowed the original max_length=20."""
     category = Feedback.Type.INCORRECT_INFORMATION
