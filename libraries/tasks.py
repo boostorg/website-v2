@@ -377,8 +377,13 @@ def generate_release_report_pdf(
             )
             page = browser.new_page()
             page.set_content(html, wait_until="networkidle")
+
             # wait for fonts to be ready
             page.evaluate("document.fonts.ready")
+
+            # wait for ApexCharts to Render
+            page.wait_for_timeout(1000)
+
             logger.info("Generating PDF")
             page.emulate_media(media="print")
             pdf_bytes = page.pdf(

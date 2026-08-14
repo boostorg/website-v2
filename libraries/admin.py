@@ -295,11 +295,9 @@ class ReleaseReportView(TemplateView):
                     prior_version.release_date, version.release_date or date.today()
                 ),
                 generate_mailinglist_cloud.s(prior_version.pk, version.pk),
-                # if the report is based on a live version, look for stats for that
-                # version, otherwise use the stats for the prior (live) version
-                generate_search_cloud.s(
-                    prior_version.pk if report_before_release else version.pk
-                ),
+                # Use a prior version, as no searches have actually been performed for
+                # a newly released version
+                generate_search_cloud.s(prior_version.pk),
                 get_new_contributors_count.s(version.pk),
             ]
         )
