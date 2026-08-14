@@ -56,6 +56,31 @@ def test_card_email_empty_for_anonymous(rf):
 
 
 @pytest.mark.django_db
+def test_card_context_built_once_per_request(rf, user, django_assert_num_queries):
+    """Repeated get_context_data() calls reuse the first result.
+
+    V3Mixin.get_context_data() re-enters self.get_context_data(), so without the
+    memo every v3 page paying for this mixin runs its queries twice.
+    """
+    request = rf.get("/")
+    request.user = user
+    view = _CardView()
+    view.setup(request)
+
+    first = view.get_context_data()
+    with django_assert_num_queries(0):
+        second = view.get_context_data()
+
+    assert (
+        first["mailing_list_card_user_email"] == second["mailing_list_card_user_email"]
+    )
+    assert (
+        first["mailing_list_card_subscribed_ids"]
+        == second["mailing_list_card_subscribed_ids"]
+    )
+
+
+@pytest.mark.django_db
 def test_prg_error_param_overrides_account_email(rf, user):
     """The no-JS error PRG echoes back the submitted address, not the account email."""
     context = _context(
