@@ -19,8 +19,6 @@ class Feedback(models.Model):
         BUG = "bug", "Bug"
         SUGGESTION = "suggestion", "Suggestion"
         QUESTION = "question", "Question"
-        CONFUSING = "confusing", "Confusing"
-        DESIGN = "design", "Design"
         USABILITY = "usability", "Usability"
         INCORRECT_INFORMATION = "incorrect_information", "Incorrect information"
         OTHER = "other", "Other"
