@@ -4,6 +4,7 @@ from urllib.parse import urlencode, urlparse
 
 import structlog
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
@@ -672,25 +673,27 @@ class LibraryDetail(
         """
         library = self.object
         selected_version = context.get("selected_version")
+        # master and develop are branch heads, not releases: they carry no version
+        # number to compare against, and they are ahead of every release.
+        selected_is_branch = selected_version.slug in settings.BOOST_BRANCHES
+        selected_label = (
+            f"the {selected_version.display_name} branch"
+            if selected_is_branch
+            else f"Boost {selected_version.display_name}"
+        )
         description = (
-            f"There is no version of the {library.display_name} library for Boost "
-            f"{selected_version.display_name}."
+            f"There is no version of the {library.display_name} library for "
+            f"{selected_label}."
         )
 
-        # Betas are excluded rather than reusing library.first_boost_version,
-        # which spans them: a library whose first appearance was a beta would
-        # otherwise be announced as "version 1.91.0.beta1".
         released_versions = Version.objects.active().filter(
             library_version__library=library, beta=False, full_release=True
         )
         newest_version = released_versions.order_by("-name").first()
 
-        # Two different absences land here. Past the library's last release it has
-        # left Boost, so the useful fact is where it stopped. Before its first, it
-        # simply hadn't been added yet.
-        left_boost = (
-            newest_version
-            and selected_version.cleaned_version_parts_int
+        left_boost = newest_version and (
+            selected_is_branch
+            or selected_version.cleaned_version_parts_int
             > newest_version.cleaned_version_parts_int
         )
         if left_boost:

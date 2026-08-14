@@ -346,6 +346,39 @@ def test_library_detail_missing_version_v3_before_first_release_of_departed_libr
     )
 
 
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_missing_version_v3_develop_branch_of_departed_library(
+    library, version, old_version, tp
+):
+    """A branch head gets the "last release" sentence and the branch wording.
+
+    develop carries no version number, so it cannot be placed by the numeric
+    comparison, but it is by definition ahead of every release.
+    """
+    develop = baker.make(
+        "versions.Version",
+        name="develop",
+        slug="develop",
+        release_date=datetime.date.today(),
+        full_release=False,
+        fully_imported=True,
+    )
+    baker.make("libraries.LibraryVersion", library=library, version=old_version)
+    url = tp.reverse("library-detail", develop.slug, library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+    tp.assertContext(
+        "library_version_missing_description",
+        "There is no version of the Boost.MultiArray library for the develop branch. "
+        "The last release which included Boost.MultiArray was 1.70.0.",
+    )
+    tp.assertContext("library_version_missing_cta_label", "Switch to 1.70.0")
+    tp.assertContext(
+        "library_version_missing_cta_url",
+        tp.reverse("library-detail", old_version.slug, library.slug),
+    )
+
+
 def test_library_docs_redirect(tp, library, library_version):
     """
     GET /libs/{library_slug}/
