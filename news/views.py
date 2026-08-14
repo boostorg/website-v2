@@ -599,6 +599,8 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                 tags.append(tag)
         if tags:
             page.tags.set(tags)
+        else:
+            page.tags.clear()
 
         return page
 
