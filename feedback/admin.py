@@ -13,6 +13,7 @@ class FeedbackResource(resources.ModelResource):
     created_at = fields.Field(column_name="Submitted at", attribute="created_at")
     feedback_type = fields.Field(column_name="Type", attribute="feedback_type")
     status = fields.Field(column_name="Status", attribute="status")
+    source = fields.Field(column_name="Source", attribute="source")
     submitter = fields.Field(column_name="Submitter", attribute="submitter")
     email = fields.Field(column_name="Submitter email", attribute="user__email")
     message = fields.Field(column_name="Message", attribute="message")
@@ -29,6 +30,7 @@ class FeedbackResource(resources.ModelResource):
             "created_at",
             "feedback_type",
             "status",
+            "source",
             "submitter",
             "email",
             "message",
@@ -51,6 +53,7 @@ class FeedbackAdmin(ExportMixin, admin.ModelAdmin):
         "created_at",
         "feedback_type",
         "status",
+        "source",
         "submitter",
         "short_message",
         "screenshot",
@@ -64,6 +67,7 @@ class FeedbackAdmin(ExportMixin, admin.ModelAdmin):
     list_filter = (
         "feedback_type",
         "status",
+        "source",
         "url_name",
         "boost_version",
         "created_at",
@@ -75,6 +79,7 @@ class FeedbackAdmin(ExportMixin, admin.ModelAdmin):
         "message",
         "image",
         "user",
+        "source",
         "page_url",
         "url_name",
         "boost_version",

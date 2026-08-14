@@ -181,6 +181,23 @@ def test_widget_is_suppressed_on_the_standalone_form(client, url):
     assert 'class="feedback-page__form"' in content
 
 
+@pytest.mark.parametrize(
+    "extra,headers,expected",
+    [
+        ({}, XHR, Feedback.Source.WIDGET),
+        ({"diagnostics": '{"viewport": "800x600"}'}, {}, Feedback.Source.PAGE),
+        ({}, {}, Feedback.Source.PAGE_NO_JS),
+    ],
+)
+def test_source_records_which_form_was_used(
+    client, url, payload, extra, headers, expected
+):
+    """Derived server-side, so triage can see whether the no-JS path is in use."""
+    client.post(url, {**payload, **extra}, headers=headers)
+
+    assert Feedback.objects.get().source == expected
+
+
 def test_admin_changelist_renders_for_triage(client, super_user, url, payload):
     client.post(url, payload, headers=XHR)
     client.force_login(super_user)  # replaces the autouse login

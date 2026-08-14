@@ -29,6 +29,11 @@ class Feedback(models.Model):
         ACTIONED = "actioned", "Actioned"
         WONT_FIX = "wont_fix", "Won't fix"
 
+    class Source(models.TextChoices):
+        WIDGET = "widget", "Widget"
+        PAGE = "page", "Feedback page"
+        PAGE_NO_JS = "page_no_js", "Feedback page (no JS)"
+
     feedback_type = models.CharField(
         max_length=30, choices=Type.choices, default=Type.OTHER
     )
@@ -61,6 +66,11 @@ class Feedback(models.Model):
     # Browser-only context: viewport, device, search query, console/network errors.
     diagnostics = models.JSONField(blank=True, default=dict)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
+    # Derived server-side, so it records which form was actually used rather than
+    # what the client claims. Tells us whether the no-JS fallback is being exercised.
+    source = models.CharField(
+        max_length=20, choices=Source.choices, default=Source.WIDGET
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -96,6 +96,7 @@ class FeedbackView(LoginRequiredMixin, View):
         feedback = form.save(commit=False)
         feedback.user = request.user
         feedback.page_url = page_url
+        feedback.source = self._source(request)
         feedback.user_agent = request.headers.get("user-agent", "")[
             :USER_AGENT_MAX_LENGTH
         ]
@@ -113,6 +114,19 @@ class FeedbackView(LoginRequiredMixin, View):
             return JsonResponse({"ok": True})
         messages.success(request, SUCCESS_MESSAGE)
         return redirect(self._safe_redirect_target(request, page_url))
+
+    def _source(self, request):
+        """Which form produced this submission, and whether JavaScript was running.
+
+        The widget is the only client that sets the XHR header. Everything else is a
+        plain page POST from the standalone form, where a populated diagnostics field
+        is the only evidence that scripts ran — no JS means the field posts empty.
+        """
+        if wants_json(request):
+            return Feedback.Source.WIDGET
+        if request.POST.get("diagnostics", "").strip():
+            return Feedback.Source.PAGE
+        return Feedback.Source.PAGE_NO_JS
 
     def _render(self, request, form):
         return render(
