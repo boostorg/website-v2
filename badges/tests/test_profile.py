@@ -38,6 +38,28 @@ def _reload(user):
     return type(user).objects.get(pk=user.pk)
 
 
+def _pick(user, rank, slug="library-review"):
+    """Store `rank` of `slug`'s badge as the user's chosen display badge."""
+    user_badge = UserBadge.objects.get(
+        user=user, badge__achievement__slug=slug, tier__rank=rank
+    )
+    user.display_badge = user_badge
+    user.save(update_fields=["display_badge"])
+    return user_badge
+
+
+def _feature(user, slug, count=1):
+    """Grant `count` of `slug` and feature the top badge that awards.
+
+    Nothing is featured until the member picks one, so every test that expects a
+    rendered badge has to make that choice, exactly as the edit page does.
+    """
+    _grant(user, slug, count=count)
+    user.display_badge = display.held_badges(_reload(user), include_hidden=True)[0]
+    user.save(update_fields=["display_badge"])
+    return _reload(user)
+
+
 def _published_entry(author, index):
     """A visible entry suitable for both recent and ranked card origins."""
     from news.models import Entry
@@ -74,8 +96,7 @@ def test_no_badges_yields_no_featured_badge(plain_user):
 
 def test_featured_badge_and_card_list(plain_user):
     """The featured badge and the card list expose real earned badges."""
-    _grant(plain_user, "library-authoring")  # bronze (threshold 1)
-    plain_user = _reload(plain_user)
+    plain_user = _feature(plain_user, "library-authoring")  # bronze (threshold 1)
 
     featured = display.featured_badge(plain_user)
     assert featured["name"] == "Library Author"
@@ -161,8 +182,8 @@ def test_badge_card_dates_the_award_in_the_project_timezone(plain_user):
     assert display.badge_card(user_badge)["earned_date"] == date(2025, 3, 7)
 
 
-def test_featured_badge_picks_the_top_tier(plain_user):
-    """With several tiers earned, the highest one is featured."""
+def test_held_badges_lead_with_the_top_tier(plain_user):
+    """With several tiers earned, the highest one leads the list."""
     badge = Achievement.objects.get(slug="library-review").badges.first()
     # Reviewer tiers: bronze=1, silver=2, gold=3. Three achievements -> gold.
     _grant(plain_user, "library-review", count=3)
@@ -175,6 +196,72 @@ def test_featured_badge_picks_the_top_tier(plain_user):
         ).count()
         == 3
     )
+
+
+def test_featured_badge_honours_the_members_choice(plain_user):
+    """A picked badge outranks the top tier - that is the point of picking."""
+    _grant(plain_user, "library-review", count=3)  # bronze, silver and gold
+    _pick(plain_user, TierRank.BRONZE)
+    plain_user = _reload(plain_user)
+
+    assert display.held_badges(plain_user)[0].tier.rank == TierRank.GOLD
+    assert display.featured_badge(plain_user)["icon"] == BadgeToken.TIER_1
+
+
+def test_badges_held_but_none_picked_features_nothing(plain_user):
+    """No pick, no featured badge - even holding several.
+
+    Featuring the top rank for a member who never chose would publish a choice
+    they did not make. The cards list is unaffected; only the headline is a pick.
+    """
+    _grant(plain_user, "library-review", count=3)
+    plain_user = _reload(plain_user)
+
+    assert plain_user.display_badge_id is None
+    assert display.held_badges(plain_user) != []
+    assert display.featured_badge(plain_user) is None
+    assert plain_user.featured_badge is None
+    assert plain_user.to_v3_profile_dict()["badge"] is None
+    assert len(display.badge_cards(plain_user)) == 3
+
+
+def test_featured_badge_shows_nothing_when_the_choice_is_revoked(plain_user):
+    """A revoked pick features nothing rather than silently moving to another."""
+    _grant(plain_user, "library-review", count=3)
+    picked = _pick(plain_user, TierRank.BRONZE)
+    UserBadge.objects.filter(pk=picked.pk).update(revoked_at="2026-01-01T00:00:00Z")
+    plain_user = _reload(plain_user)
+
+    assert display.held_badges(plain_user) != []
+    assert display.featured_badge(plain_user) is None
+
+
+def test_a_chosen_badge_is_still_hidden_by_hide_badges(plain_user):
+    """Picking a badge is not a way to publish badges the member hid."""
+    _grant(plain_user, "library-review", count=3)
+    _pick(plain_user, TierRank.BRONZE)
+    plain_user.hide_badges = True
+    plain_user.save(update_fields=["hide_badges"])
+    plain_user = _reload(plain_user)
+
+    assert display.featured_badge(plain_user) is None
+    assert display.featured_badge(plain_user, include_hidden=True)["icon"] == (
+        BadgeToken.TIER_1
+    )
+
+
+def test_the_chosen_badge_costs_no_extra_query(plain_user, django_assert_num_queries):
+    """Reading the pick must not reintroduce a query per rendered user."""
+    from users.models import User
+
+    _grant(plain_user, "library-review", count=3)
+    _pick(plain_user, TierRank.BRONZE)
+
+    user = User.objects.prefetch_related(display.active_badges_prefetch()).get(
+        pk=plain_user.pk
+    )
+    with django_assert_num_queries(0):
+        assert display.featured_badge(user)["icon"] == BadgeToken.TIER_1
 
 
 def test_rank_beats_threshold_across_badge_types(plain_user):
@@ -221,8 +308,7 @@ def test_replaced_tier_does_not_duplicate_a_rank(plain_user):
 
 def test_hide_badges_suppresses_every_public_accessor(plain_user):
     """hide_badges empties everything the public profile can reach."""
-    _grant(plain_user, "library-authoring")
-    plain_user = _reload(plain_user)
+    plain_user = _feature(plain_user, "library-authoring")
     assert plain_user.featured_badge is not None
 
     plain_user.hide_badges = True
@@ -238,7 +324,7 @@ def test_hide_badges_suppresses_every_public_accessor(plain_user):
 
 def test_hide_badges_can_be_bypassed_for_the_owner(plain_user):
     """include_hidden lets the owner still see badges they have hidden."""
-    _grant(plain_user, "library-authoring")
+    plain_user = _feature(plain_user, "library-authoring")
     plain_user.hide_badges = True
     plain_user.save(update_fields=["hide_badges"])
     plain_user = _reload(plain_user)
@@ -263,7 +349,7 @@ def test_held_badges_uses_the_prefetch_cache(plain_user, django_assert_num_queri
     """Callers rendering many users must be able to avoid a query each."""
     from users.models import User
 
-    _grant(plain_user, "library-authoring")
+    plain_user = _feature(plain_user, "library-authoring")
 
     user = User.objects.prefetch_related(display.active_badges_prefetch()).get(
         pk=plain_user.pk
@@ -288,7 +374,7 @@ def test_news_author_prefetch_covers_the_whole_card(
     from news.views import EntryDetailView
     from users.profile_cards import user_profile_card
 
-    _grant(plain_user, "library-authoring")
+    plain_user = _feature(plain_user, "library-authoring")
     for index in range(3):
         Entry.objects.create(
             title=f"Post {index}",
@@ -313,14 +399,14 @@ def test_community_recent_post_badge_query_is_constant(plain_user):
     """The community page loads author badges once, not once per post card."""
     from core.views import build_recent_community_posts
 
-    _grant(plain_user, "library-authoring")
+    plain_user = _feature(plain_user, "library-authoring")
     _published_entry(plain_user, 0)
 
     one_card, one_badge_query = _badge_queries(build_recent_community_posts)
 
     for index in range(1, 4):
         author = baker.make("users.User", email=f"community-{index}@example.com")
-        _grant(author, "library-authoring")
+        _feature(author, "library-authoring")
         _published_entry(author, index)
     four_cards, four_badge_queries = _badge_queries(build_recent_community_posts)
 
@@ -334,14 +420,14 @@ def test_homepage_ranked_post_badge_query_is_constant(plain_user):
     """The V3 homepage loads ranked-post author badges in one query."""
     from ak.homepage import build_community_posts
 
-    _grant(plain_user, "library-authoring")
+    plain_user = _feature(plain_user, "library-authoring")
     _published_entry(plain_user, 0)
 
     one_card, one_badge_query = _badge_queries(build_community_posts)
 
     for index in range(1, 4):
         author = baker.make("users.User", email=f"homepage-{index}@example.com")
-        _grant(author, "library-authoring")
+        _feature(author, "library-authoring")
         _published_entry(author, index)
     four_cards, four_badge_queries = _badge_queries(build_community_posts)
 
@@ -355,7 +441,7 @@ def test_library_intro_badge_query_is_constant(library_version, plain_user):
     """The homepage library intro prefetches its User authors and maintainers."""
     from libraries.utils import build_library_intro_context
 
-    _grant(plain_user, "library-authoring")
+    plain_user = _feature(plain_user, "library-authoring")
     library_version.authors.add(plain_user)
 
     one_card, one_badge_query = _badge_queries(
@@ -364,7 +450,7 @@ def test_library_intro_badge_query_is_constant(library_version, plain_user):
 
     for index in range(1, 4):
         user = baker.make("users.User", email=f"library-intro-{index}@example.com")
-        _grant(user, "library-authoring")
+        _feature(user, "library-authoring")
         relation = library_version.authors if index % 2 else library_version.maintainers
         relation.add(user)
     four_cards, four_badge_queries = _badge_queries(
@@ -381,7 +467,7 @@ def test_library_detail_user_badge_query_is_constant(library_version, plain_user
     """The detail-page User origins prefetch badges before card conversion."""
     from libraries.mixins import ContributorMixin
 
-    _grant(plain_user, "library-authoring")
+    plain_user = _feature(plain_user, "library-authoring")
     library_version.authors.add(plain_user)
     mixin = ContributorMixin()
 
@@ -393,7 +479,7 @@ def test_library_detail_user_badge_query_is_constant(library_version, plain_user
 
     for index in range(1, 4):
         user = baker.make("users.User", email=f"library-detail-{index}@example.com")
-        _grant(user, "library-authoring")
+        _feature(user, "library-authoring")
         library_version.authors.add(user)
     four_cards, four_badge_queries = _badge_queries(author_cards)
 
@@ -406,7 +492,7 @@ def test_library_detail_user_badge_query_is_constant(library_version, plain_user
 @waffle.testutils.override_flag("v3", active=True)
 def test_own_profile_page_shows_hidden_badges(plain_user, tp):
     """The owner's own v3 profile still renders badges they have hidden."""
-    _grant(plain_user, "library-authoring")
+    plain_user = _feature(plain_user, "library-authoring")
     plain_user.hide_badges = True
     plain_user.save(update_fields=["hide_badges"])
 
@@ -422,8 +508,7 @@ def test_user_profile_card_emits_the_keys_the_template_reads(plain_user):
     """_user_profile.html reads `badge`/`badge_label`, not `badge_url`."""
     from users.profile_cards import user_profile_card
 
-    _grant(plain_user, "library-authoring")  # bronze (threshold 1)
-    plain_user = _reload(plain_user)
+    plain_user = _feature(plain_user, "library-authoring")  # bronze (threshold 1)
 
     card = user_profile_card(plain_user)
 
@@ -444,8 +529,7 @@ def test_user_profile_card_without_badges(plain_user):
 
 def test_v3_profile_dict_carries_the_badge_label(plain_user):
     """_user_profile.html shows the badge label on hover, so it must be set."""
-    _grant(plain_user, "library-authoring")
-    plain_user = _reload(plain_user)
+    plain_user = _feature(plain_user, "library-authoring")
 
     profile = plain_user.to_v3_profile_dict()
 
@@ -456,7 +540,7 @@ def test_v3_profile_dict_carries_the_badge_label(plain_user):
 @waffle.testutils.override_flag("v3", active=True)
 def test_v3_news_list_renders_a_real_badge_for_the_sidebar_user(plain_user, tp):
     """The sidebar card showed a hardcoded "Bug Catcher" label for everyone."""
-    _grant(plain_user, "library-authoring")
+    plain_user = _feature(plain_user, "library-authoring")
     tp.client.force_login(plain_user)
 
     response = tp.get(tp.reverse("news"))

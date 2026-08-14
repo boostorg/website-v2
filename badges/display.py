@@ -279,13 +279,27 @@ def held_badges(user, include_hidden=False):
 
 
 def featured_badge(user, include_hidden=False):
-    """The user's headline badge as a card dict, or ``None`` if they hold none.
+    """The badge the member picked, or ``None``. Never a badge they did not pick.
 
-    Display-only for now; letting the user choose which badge to feature comes
-    later.
+    There is no default: a member holding badges but choosing none features none.
+    Featuring one for them would publish a choice they never made, and the picker
+    already opens on a suggestion, so the only way here is a deliberate save.
+
+    ``None`` likewise covers a pick that has stopped being displayable - revoked,
+    hidden from the public, or a rank held twice where grandfathering left the row
+    ``held_badges`` folded away.
+
+    ``display_badge_id`` is read rather than ``display_badge`` because a page
+    rendering many users would otherwise cost a query each: the picked row, when
+    the member still holds it, is already among ``held_badges``.
     """
-    badges = held_badges(user, include_hidden=include_hidden)
-    return badge_card(badges[0]) if badges else None
+    picked = user.display_badge_id
+    if picked is None:
+        return None
+    for row in held_badges(user, include_hidden=include_hidden):
+        if row.pk == picked:
+            return badge_card(row)
+    return None
 
 
 def badge_cards(user, include_hidden=False):
