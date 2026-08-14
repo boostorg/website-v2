@@ -555,6 +555,8 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         messages.error(self.request, message)
         if extra_context:
             context = self.get_context_data(**extra_context)
+        else:
+            context = self.get_context_data()
         return self.render_to_response(context)
 
     def set_page_attrs(
@@ -698,15 +700,15 @@ class V3AllTypesEditView(V3AllTypesCreateView):
 
         if not page:
             return ctx
-        ctx["post_type_selected"] = page.stream_content_type
+        ctx["post_type_selected"] = page.post_content_type.lower()
         ctx["post_type_options"] = [
-            (page.stream_content_type, page.post_content_type),
+            (page.post_content_type.lower(), page.post_content_type),
         ]
 
         if page.image:
             ctx["current_image"] = page.image_url
 
-        form_class = self._POST_TYPE_MAP.get(page.stream_content_type, None)
+        form_class = self._POST_TYPE_MAP.get(page.post_content_type.lower(), None)
         if not form_class:
             messages.error(
                 self.request,
@@ -721,7 +723,7 @@ class V3AllTypesEditView(V3AllTypesCreateView):
         }
         go_live = page.go_live_at or localtime(now())
         form_data["publish_at"] = go_live.strftime("%Y-%m-%dT%H:%M")
-        if page.stream_content_type in ["video", "link"]:
+        if page.stream_content_type in ["video", "url"]:
             form_data["external_url"] = page.external_url
         else:
             form_data["content"] = page.content
@@ -777,6 +779,7 @@ class V3AllTypesEditView(V3AllTypesCreateView):
 
     def post(self, request, *args, **kwargs):
         slug = kwargs.get("slug", "")
+        self.get_page(slug)
         index_page = PostIndexPage.objects.first()
         if not index_page:
             return self.error_message_and_render(
@@ -792,7 +795,7 @@ class V3AllTypesEditView(V3AllTypesCreateView):
             context = self.get_context_data()
             return self.render_to_response(context)
 
-        post_type = page.stream_content_type
+        post_type = page.post_content_type.lower()
         block_config = self._POST_BLOCK_MAP.get(post_type, None)
         form_class = self._POST_TYPE_MAP.get(post_type)
 
