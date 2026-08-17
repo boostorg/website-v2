@@ -268,6 +268,21 @@ def test_changelist_ignores_a_lock_from_an_older_deploy(client, super_user):
     assert "task-button-status" not in response.content.decode()
 
 
+def test_changelist_ignores_a_payload_of_the_wrong_shape(client, super_user):
+    """A dict is not enough: it has to be a dict this deploy can read.
+
+    The rename of a key would otherwise reach the changelist as a 500 for every
+    admin, for as long as the entry from the previous deploy lives.
+    """
+    client.force_login(super_user)
+    cache.set(LAST_RUN_KEY, {"job_id": "a-task"}, TASK_BUTTON_COOLDOWN_SECONDS)
+
+    response = client.get(reverse(CHANGELIST_URL))
+
+    assert response.status_code == 200
+    assert "task-button-status" not in response.content.decode()
+
+
 def test_changelist_polls_only_while_the_task_runs(client, super_user):
     """A finished job stops the polling, by rendering nothing to poll with."""
     client.force_login(super_user)

@@ -247,12 +247,14 @@ class TaskButtonAdminMixin:
             "poll_interval": TASK_BUTTON_POLL_INTERVAL,
         }
         last = cache.get(self._task_button_cache_key(button))
-        if not isinstance(last, dict):
-            # Either nothing has run, or the key was written by a deploy that
-            # stored something else under it.
+        task_id = last.get("task_id") if isinstance(last, dict) else None
+        if not task_id:
+            # Nothing has run, or the key still holds a payload from a deploy that
+            # stored a different shape under it. Reading that as "no status" costs
+            # one status line; indexing into it would take the changelist down.
             return status
-        result = task_status(last["task_id"])
-        status["scope"] = last["scope"]
+        result = task_status(task_id)
+        status["scope"] = last.get("scope", "")
         if result is None:
             # Nothing to poll for: a backend that cannot answer now will not
             # answer in five seconds either.
