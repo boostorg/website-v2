@@ -25,6 +25,14 @@
   flex-direction: column;
   align-items: flex-end;
   gap: var(--space-small);
+  /* The container is wider than what it holds — full width on mobile — so it would
+     otherwise swallow taps aimed at the page behind its empty area. */
+  pointer-events: none;
+}
+
+.feedback-widget__launcher,
+.feedback-widget__panel {
+  pointer-events: auto;
 }
 
 .feedback-widget p {
