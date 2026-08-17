@@ -1,6 +1,6 @@
 .footer {
   --footer-text: var(--color-text-primary);
-  padding: var(--space-large) var(--space-large);
+  padding: var(--space-large) 0;
   color: var(--footer-text);
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
@@ -24,8 +24,9 @@
 }
 
 .footer__inner {
-  max-width: 80rem;
+  max-width: 1440px;
   margin: 0 auto;
+  padding: 0 var(--space-large);
   display: flex;
   flex-direction: column;
   align-items: stretch;

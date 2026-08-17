@@ -443,9 +443,7 @@
       {% endif %}
 
       {% if not hide_footer %}
-        {% flag "v3" %}
-          {% include "v3/includes/_footer_v3.html" %}
-        {% else %}
+        {% flag "v3" %}{% else %}
           {% include "includes/_footer.html" %}
         {% endflag %}
       {% endif %}
@@ -461,6 +459,12 @@
         {% endflag %}
       {% endblock %}
     </div>
+
+    {% if not hide_footer %}
+      {% flag "v3" %}
+        {% include "v3/includes/_footer_v3.html" %}
+      {% endflag %}
+    {% endif %}
 
     {% flag "v3" %}
     <script src="{% static 'js/carousel.js' %}" defer></script>
