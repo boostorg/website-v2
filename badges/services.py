@@ -13,6 +13,9 @@ This module also owns the achievement-side writes that feed recalculation:
 ``sync_source``, which makes the stored automatic grants for one source agree with
 that source in both directions, and ``discard_source_achievements``, for source
 rows about to be deleted outright.
+
+Both delete in bulk, and both recalculate their own members rather than leaving it
+to the ``post_delete`` signal, which fires per row: see ``owns_recalculation``.
 """
 
 import contextvars
@@ -56,6 +59,7 @@ SYNC_BATCH_SIZE = 1000
 SYNC_ERROR_MAX_LENGTH = 2000
 
 _revocation_cause = contextvars.ContextVar("badge_revocation_cause", default=None)
+_owns_recalculation = contextvars.ContextVar("badge_owns_recalculation", default=False)
 
 
 @contextmanager
@@ -73,6 +77,35 @@ def revocation_cause(description):
         _revocation_cause.reset(token)
 
 
+@contextmanager
+def owns_recalculation():
+    """Take over recalculating from the ``post_delete`` signal for this block.
+
+    The signal fires per row, and a member's badges are derived from a count
+    rather than adjusted by a delta, so deleting ten of one member's grants
+    recalculates the same answer ten times. A bulk delete that knows which members
+    it touched can do it once each instead, which is what this suspends the signal
+    for.
+
+    Only the delete side needs it. Grants are inserted with ``bulk_create``, which
+    does not send ``post_save`` at all.
+
+    The contract is the name: inside this block, deleting a grant no longer keeps
+    the member's badges honest, so the block itself has to. Not a way to make a
+    delete cheaper, a way to move the same work somewhere it can be batched.
+    """
+    token = _owns_recalculation.set(True)
+    try:
+        yield
+    finally:
+        _owns_recalculation.reset(token)
+
+
+def recalculation_is_owned():
+    """Whether a caller has taken responsibility for recalculating, for signals."""
+    return _owns_recalculation.get()
+
+
 def discard_source_achievements(model, object_ids):
     """Delete automatic grants pointing at the given rows and recalculate.
 
@@ -80,7 +113,8 @@ def discard_source_achievements(model, object_ids):
     referential integrity, so deleting a source row on its own leaves a grant
     still counting toward a threshold. Call this first.
 
-    The caller is expected to own the transaction.
+    Atomic in itself, so the grants and the badges they justify move together
+    whether or not the caller has a transaction of its own around the source rows.
     """
     object_ids = list(object_ids)
     if not object_ids:
@@ -90,9 +124,18 @@ def discard_source_achievements(model, object_ids):
         source_content_type=content_type, source_object_id__in=object_ids
     )
     pairs = set(grants.values_list("user_id", "achievement_id"))
-    grants.delete()
-    for user_id, achievement_id in pairs:
-        recalculate_badges(user_id, achievement_id)
+    # The pairs are known before the delete, so the per-row signal can only reach
+    # the same answer once per row instead of once per pair.
+    #
+    # Atomic here as well as at the caller: deleting a grant without recalculating
+    # it in the same transaction leaves a member holding a badge nothing supports,
+    # and leaves nothing behind to notice it by. Cheap to guarantee locally rather
+    # than depend on every future caller reading the paragraph above.
+    with transaction.atomic():
+        with owns_recalculation():
+            grants.delete()
+        for user_id, achievement_id in pairs:
+            recalculate_badges(user_id, achievement_id)
 
 
 class SourceSync(NamedTuple):
@@ -105,6 +148,13 @@ class SourceSync(NamedTuple):
     ``changed`` is the members whose grants moved, which is what a caller
     recalculates. It is populated on a dry run too, where it says who *would*
     change and must not be recalculated.
+
+    ``recalculated`` is the part of ``changed`` this run has already brought up to
+    date, which is every member it deleted from: those are recalculated per chunk
+    so that a run dying half way leaves the badges it got to correct. A caller
+    recalculating ``changed - recalculated`` does exactly the work still owing.
+    Empty on a dry run, and empty for an additive run, which deletes nothing and
+    whose ``bulk_create`` sends no signal.
     """
 
     slug: str
@@ -114,7 +164,12 @@ class SourceSync(NamedTuple):
     changed: frozenset
     applied: bool
     refused: bool
+    recalculated: frozenset = frozenset()
     run_id: int | None = None
+
+    def outstanding(self):
+        """The members a caller still has to recalculate after this run."""
+        return self.changed - self.recalculated
 
     def describe(self):
         """One sentence about what this source's sync found.
@@ -171,9 +226,11 @@ def sync_source(
     automatic grants ignores ``is_valid``, so a tombstone would permanently block
     the grant from being re-created if the attribution came back.
 
-    Badges are **not** recalculated here - the caller knows whether it is looking at
-    one member or the whole table, and a dry run has nothing to recalculate.
-    Removals partly recalculate themselves through ``post_delete``.
+    Badges are recalculated here only for the members this run *deleted* from, once
+    per member per chunk, because the chunked delete is only crash-safe if the
+    badges move with it. Everything else is left to the caller, which knows whether
+    it is looking at one member or the whole table and whether a dry run means there
+    is nothing to do: see ``SourceSync.outstanding``.
 
     Args:
         slug: A key of ``sources.BACKFILL_ITERATORS``.
@@ -357,7 +414,14 @@ def _sync_source(
             flush()
     flush()
 
-    stale = [pk for pks in unmatched.values() for pk in pks] if remove else []
+    # Paired with the member each row belongs to, so a chunk can recalculate the
+    # members it just emptied without going back to the database to ask who they
+    # were.
+    stale = (
+        [(pk, user_id) for (user_id, _, _), pks in unmatched.items() for pk in pks]
+        if remove
+        else []
+    )
     if stale and not yielded and not allow_empty:
         logger.warning(
             "Refusing to remove %s stale grant(s) for '%s': the source yielded "
@@ -375,19 +439,41 @@ def _sync_source(
     if remove:
         changed.update(user_id for user_id, _, _ in unmatched)
 
+    recalculated = set()
     if stale and not dry_run:
-        # Not one transaction: each chunk leaves the badge state consistent with
-        # the grants that survive it, so a run that dies half way through is
-        # simply a run to repeat, not one to unwind.
+        # One transaction per chunk, and never one for the whole run: a run that
+        # dies half way is then simply a run to repeat, because every chunk either
+        # happened with its recalculations or did not happen at all.
+        #
+        # The pairing is what makes that true, and it is not optional. Deleting a
+        # grant outside the same transaction that recalculates it leaves a member
+        # holding a badge their count no longer supports, *and* leaves no trace of
+        # it: a second reconcile finds their grants already gone, so it reports
+        # nothing changed and recalculates nobody. Only a full recalculation would
+        # find them.
         for start in range(0, len(stale), batch_size):
-            UserAchievement.objects.filter(
-                pk__in=stale[start : start + batch_size]
-            ).delete()
+            chunk = stale[start : start + batch_size]
+            members = {user_id for _, user_id in chunk}
+            with transaction.atomic():
+                with owns_recalculation():
+                    UserAchievement.objects.filter(
+                        pk__in=[pk for pk, _ in chunk]
+                    ).delete()
+                for user_id in members:
+                    recalculate_badges(user_id, achievement.pk)
+            recalculated.update(members)
 
     return _finish_run(
         run,
         SourceSync(
-            slug, yielded, added, len(stale), frozenset(changed), not dry_run, False
+            slug,
+            yielded,
+            added,
+            len(stale),
+            frozenset(changed),
+            not dry_run,
+            False,
+            recalculated=frozenset(recalculated),
         ),
     )
 

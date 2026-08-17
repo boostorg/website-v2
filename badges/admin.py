@@ -94,9 +94,9 @@ def reconcile_results(slugs, user_ids=None, dry_run=False, actor=None):
 def reconcile_apply(slugs, user_ids=None, actor=None):
     """Sync the named sources for real, then recalculate the members that moved.
 
-    ``sync_source`` deliberately leaves the recalculation to its caller. Deletions
-    have already recalculated themselves through ``post_delete``; additions have
-    not, and revisiting a pair is idempotent.
+    ``sync_source`` recalculates the members it deleted from, chunk by chunk, and
+    leaves the rest to its caller. ``outstanding`` is that rest: here, the members
+    who gained a grant, whose ``bulk_create`` sent no signal.
     """
     results, _ = reconcile_results(slugs, user_ids=user_ids, actor=actor)
     achievements = {
@@ -106,7 +106,7 @@ def reconcile_apply(slugs, user_ids=None, actor=None):
         )
     }
     for result in results:
-        for user_id in result.changed:
+        for user_id in result.outstanding():
             recalculate_badges(user_id, achievements[result.slug])
     return (
         sum(result.added for result in results),

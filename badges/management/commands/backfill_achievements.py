@@ -86,7 +86,11 @@ class Command(BaseCommand):
             )
             # Only the members who actually gained a row, so a repeat run - the
             # weekly one - does not recalculate every pair in the system.
-            dirty_pairs.update((user_id, achievement.pk) for user_id in result.changed)
+            # ``outstanding`` is every one of them here, this run being additive,
+            # but reading it from the result means no caller has to know that.
+            dirty_pairs.update(
+                (user_id, achievement.pk) for user_id in result.outstanding()
+            )
             # ``describe()`` rather than a line of its own, so this and the
             # reconcile command and the admin's preview cannot reach different
             # conclusions about the same numbers. It can never report a removal

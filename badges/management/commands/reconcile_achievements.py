@@ -120,17 +120,23 @@ class Command(BaseCommand):
             for slug in slugs
         ]
 
+        # Two sets, because they answer different questions. ``dirty_pairs`` is
+        # what moved, which is what the summary line reports. ``pending_pairs`` is
+        # what still needs recalculating: the run already did that for every member
+        # it deleted from, chunk by chunk, and repeating them would be another pass
+        # per member for the same answer.
         dirty_pairs = set()
+        pending_pairs = set()
         for result in results:
             self.stdout.write(f"  {result.slug}: {result.describe()}")
-            dirty_pairs.update(
-                (user_id, achievements[result.slug].pk) for user_id in result.changed
+            achievement_id = achievements[result.slug].pk
+            dirty_pairs.update((user_id, achievement_id) for user_id in result.changed)
+            pending_pairs.update(
+                (user_id, achievement_id) for user_id in result.outstanding()
             )
 
         if not dry_run:
-            # Removals already recalculated themselves through ``post_delete``;
-            # additions did not, and a second pass over a pair is idempotent.
-            for user_id, achievement_id in dirty_pairs:
+            for user_id, achievement_id in pending_pairs:
                 recalculate_badges(user_id, achievement_id)
 
         added = sum(result.added for result in results)

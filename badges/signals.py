@@ -1,7 +1,9 @@
 """Signals that keep badge state in step with achievement and tier changes.
 
 Creating, invalidating or deleting a ``UserAchievement`` all move a member's valid
-count, so all three funnel into ``recalculate_badges``.
+count, so all three funnel into ``recalculate_badges``. Row at a time, which is the
+right granularity for the admin and for a shell, and the wrong one for a bulk
+delete: those take the work over through ``services.owns_recalculation``.
 
 A ``BadgeTier`` change affects every member of that achievement type, so it goes
 to a task instead of the request. It can only ever add badges: recalculation
@@ -13,7 +15,7 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from badges.models import Badge, BadgeTier, UserAchievement
-from badges.services import recalculate_badges
+from badges.services import recalculate_badges, recalculation_is_owned
 from badges.tasks import recalculate_achievement_task
 
 
@@ -37,7 +39,14 @@ def recalculate_on_achievement_save(sender, instance, created, raw, **kwargs):
 
 @receiver(post_delete, sender=UserAchievement)
 def recalculate_on_achievement_delete(sender, instance, **kwargs):
-    """Recalculate when an achievement row is hard-deleted."""
+    """Recalculate when an achievement row is hard-deleted.
+
+    Stands down for a bulk delete that has taken the job on itself: this fires per
+    row, and one member losing ten grants needs one recalculation, not ten.
+    """
+    if recalculation_is_owned():
+        return
+
     recalculate_badges(instance.user_id, instance.achievement_id)
 
 
