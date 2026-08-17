@@ -16,6 +16,14 @@
 {% endblock %}
 
 {% block content %}
+  {% if member_admin_url %}
+    <div class="admin-actions">
+      <ul class="object-tools">
+        <li><a href="{{ member_admin_url }}">{% translate "Manage this member" %}</a></li>
+      </ul>
+    </div>
+  {% endif %}
+
   {% if member.hide_badges %}
     <ul class="messagelist">
       <li class="warning">

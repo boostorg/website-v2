@@ -759,6 +759,52 @@ def test_user_summary_explains_each_action_separately(
     assert body.count('<p class="help">') == 3
 
 
+def test_user_summary_links_to_the_member_s_own_admin_page(
+    client, super_user, plain_user, catalogue
+):
+    """Support arrives from a badge and leaves needing the account behind it.
+
+    The page answers "why this badge", never "who is this": the email to reply to
+    and whether the account is even active are one click away on the user page,
+    which was otherwise reachable only by retyping the id into another changelist.
+    """
+    client.force_login(super_user)
+
+    body = client.get(
+        reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+    ).content.decode()
+
+    assert reverse("admin:users_user_change", args=[plain_user.pk]) in body
+
+
+def test_user_summary_hides_the_account_link_from_staff_who_cannot_open_it(
+    client, db, plain_user, catalogue
+):
+    """A control the caller cannot use is not offered, as with the task buttons.
+
+    Badge permissions and user permissions are granted separately, so a support
+    account can legitimately reach this page and get a 403 from that link.
+    """
+    staff = baker.make("users.User", email="no-user-perm@example.com", is_staff=True)
+    for codename in ("view_userbadge", "view_userachievement"):
+        staff.user_permissions.add(
+            Permission.objects.get(codename=codename, content_type__app_label="badges")
+        )
+    client.force_login(staff)
+    url = reverse("admin:badges_userbadge_user_summary", args=[plain_user.pk])
+
+    body = client.get(url).content.decode()
+
+    assert reverse("admin:users_user_change", args=[plain_user.pk]) not in body
+
+    staff.user_permissions.add(
+        Permission.objects.get(codename="view_user", content_type__app_label="users")
+    )
+    body = client.get(url).content.decode()
+
+    assert reverse("admin:users_user_change", args=[plain_user.pk]) in body
+
+
 def test_user_summary_requires_view_permission_on_both_models(
     client, db, plain_user, catalogue
 ):

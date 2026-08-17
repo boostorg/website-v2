@@ -1049,6 +1049,7 @@ class UserBadgeAdmin(
             "opts": self.model._meta,
             "index_url": reverse("admin:index"),
             "changelist_url": reverse("admin:badges_userbadge_changelist"),
+            "member_admin_url": self._member_admin_url(request, member),
             "recalculate_url": user_summary_url(member.pk),
             "can_recalculate": self.has_change_permission(request),
             "reconcile_url": user_summary_url(member.pk),
@@ -1059,6 +1060,30 @@ class UserBadgeAdmin(
             "can_grant": request.user.has_perm("badges.add_userachievement"),
         }
         return render(request, "admin/badges/user_summary.html", context)
+
+    def _member_admin_url(self, request, member):
+        """This member's own admin page, for the questions this page cannot answer.
+
+        Support arrives here from a badge and often leaves needing the account:
+        the email to reply to, whether it is active, what else they have. Empty
+        rather than offered when the caller could not open it, on the same
+        principle as the task buttons - a control nobody can use is not a control.
+
+        Read off the user model's own meta rather than hardcoded, and tolerant of
+        an unregistered one, exactly as ``UserAchievementAdmin.source_link`` is.
+        """
+        meta = get_user_model()._meta
+        allowed = request.user.has_perm(
+            f"{meta.app_label}.view_{meta.model_name}"
+        ) or request.user.has_perm(f"{meta.app_label}.change_{meta.model_name}")
+        if not allowed:
+            return ""
+        try:
+            return reverse(
+                f"admin:{meta.app_label}_{meta.model_name}_change", args=[member.pk]
+            )
+        except NoReverseMatch:
+            return ""
 
     def _recalculate_member(self, request, member):
         """Reconcile every one of this member's badges, synchronously.
