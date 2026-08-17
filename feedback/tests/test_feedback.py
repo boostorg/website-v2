@@ -12,8 +12,10 @@ import os
 import pytest
 import waffle.testutils
 from django.contrib.auth.models import AnonymousUser
+from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.signals import got_request_exception
+from django.db import transaction
 from django.template import Context, Template
 from django.test import Client
 from django.urls import reverse
@@ -100,6 +102,36 @@ def test_screenshots_with_the_same_name_do_not_collide(client, url, payload):
 
     assert paths[0] != paths[1]
     assert all(p.endswith(".png") for p in paths)
+
+
+def test_deleting_feedback_removes_its_screenshot(
+    client, url, payload, django_capture_on_commit_callbacks
+):
+    """Admin deletions must not leave the file orphaned in storage."""
+    shot = SimpleUploadedFile("shot.png", png_bytes(10), "image/png")
+    client.post(url, {**payload, "image": shot}, headers=XHR)
+    feedback = Feedback.objects.get()
+    name = feedback.image.name
+    assert default_storage.exists(name)
+
+    with django_capture_on_commit_callbacks(execute=True):
+        feedback.delete()
+
+    assert not default_storage.exists(name)
+
+
+def test_a_rolled_back_delete_keeps_the_screenshot(client, url, payload):
+    """The file removal is deferred to commit — it cannot be undone if it runs early."""
+    shot = SimpleUploadedFile("shot.png", png_bytes(10), "image/png")
+    client.post(url, {**payload, "image": shot}, headers=XHR)
+    feedback = Feedback.objects.get()
+    name = feedback.image.name
+
+    with pytest.raises(RuntimeError), transaction.atomic():
+        feedback.delete()
+        raise RuntimeError("rolled back")
+
+    assert default_storage.exists(name)
 
 
 def test_oversized_screenshot_is_rejected(client, url, payload):

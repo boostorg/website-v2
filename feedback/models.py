@@ -3,12 +3,17 @@
 from pathlib import Path
 from uuid import uuid4
 
+import structlog
 from django import forms
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.utils import timezone
 
 from core.validators import MaxFileSizeValidator, image_validator
+
+logger = structlog.get_logger()
 
 MESSAGE_MAX_LENGTH = 4000
 USER_AGENT_MAX_LENGTH = 400
@@ -109,6 +114,33 @@ class Feedback(models.Model):
     @property
     def submitter(self):
         return str(self.user) if self.user else "(deleted account)"
+
+
+@receiver(post_delete, sender=Feedback)
+def delete_feedback_image(sender, instance, **kwargs):
+    """Take the screenshot out of storage when its report is deleted.
+
+    Covers every delete path, including the admin's bulk action: a `post_delete`
+    receiver disables fast-delete, so the collector emits signals per row.
+
+    Deferred to commit because an object removed from S3 cannot be restored if the
+    delete is rolled back, and swallowed on failure so a storage outage cannot break
+    an otherwise successful deletion. Names are unique per upload, so no other report
+    can be sharing this file.
+    """
+    image = instance.image
+    if not image:
+        return
+
+    def remove_from_storage():
+        try:
+            image.delete(save=False)
+        except Exception:
+            logger.warning(
+                "Could not delete feedback screenshot from storage", exc_info=True
+            )
+
+    transaction.on_commit(remove_from_storage)
 
 
 class FeedbackForm(forms.ModelForm):
