@@ -204,6 +204,7 @@ body:has(.homepage-v3) {
         ;
     }
 
+    .card-masonry-top > div,
     .card-masonry-bottom > div {
         min-width: 0;
     }
