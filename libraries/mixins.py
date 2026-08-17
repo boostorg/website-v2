@@ -381,6 +381,7 @@ class ContributorMixin:
             CommitAuthor.humans.filter(commit__library_version__in=library_versions)
             .exclude(id__in=author_ca_ids + maintainer_ca_ids)
             .annotate(count=Count("commit"))
+            .select_related("user")
             .order_by("-count")
         )
         return (

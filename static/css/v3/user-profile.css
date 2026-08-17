@@ -62,7 +62,7 @@
 .user-profile__name-group {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-xs);
+  gap: var(--space-s);
   min-width: 0;
   width: 100%;
   text-decoration: none;

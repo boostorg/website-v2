@@ -97,10 +97,7 @@ def boost_day_stamp(joined, today=None):
 
 
 def profile_stamps(joined, today=None):
-    """Both stamps keyed by slot, matching Figma node 6994:38640.
-
-    Both sit beside the member's name, tenure star first.
-    """
+    """Both stamps, keyed by the slot the template renders them into."""
     today = today or timezone.localdate()
     return {
         "tenure_stamp": tenure_stamp(joined, today),
