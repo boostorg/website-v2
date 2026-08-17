@@ -65,6 +65,11 @@
   </div>
 </section>
 {# Per-option visibility rules (generated from data, complements static rules in install-card.css) #}
+{% comment %}
+  Copy buttons match on data-copy-option, not data-option: the bare
+  [data-option] rule below would otherwise match them too, showing the button
+  with display:block and bypassing the .js-copy-enabled gate.
+{% endcomment %}
 <style>
   {% for opt in install_card_pkg_managers %}
     /* Showing the matching command */
@@ -84,6 +89,9 @@
     #{{ card_id }}-pkg-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="{{ card_id }}-pkg-{{ opt.value }}"]:hover {
       color: var(--color-text-link-accent);
   }
+    .js-copy-enabled #{{ card_id }}-pkg-{{ opt.value }}:checked ~ .code-block .install-card__copy[data-copy-option="{{ card_id }}-pkg-{{ opt.value }}"] {
+      display: flex;
+    }
   {% endfor %}
 
   {% for opt in install_card_system_install %}
@@ -103,6 +111,9 @@
     }
     #{{ card_id }}-sys-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="{{ card_id }}-sys-{{ opt.value }}"]:hover {
       color: var(--color-text-link-accent);
+    }
+    .js-copy-enabled #{{ card_id }}-sys-{{ opt.value }}:checked ~ .code-block .install-card__copy[data-copy-option="{{ card_id }}-sys-{{ opt.value }}"] {
+      display: flex;
     }
   {% endfor %}
 </style>

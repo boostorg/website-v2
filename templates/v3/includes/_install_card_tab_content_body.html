@@ -39,6 +39,24 @@
        data-option="{{ card_id }}-{{ prefix }}-{{ opt.value }}"><code class="nohighlight">{{ opt.command }}</code></pre>
   {% endfor %}
 
+  {% comment %}
+    Copy buttons — one per option, each carrying its own command text so the
+    shared code-block.js handler never has to work out which <pre> is visible.
+    Revealed by the same radio-driven rules that reveal the matching command,
+    and only once install-card.js has added js-copy-enabled to the wrapper.
+  {% endcomment %}
+  {% for opt in options %}
+  <button type="button"
+          class="code-block__copy install-card__copy"
+          data-copy-option="{{ card_id }}-{{ prefix }}-{{ opt.value }}"
+          data-copy-text="{{ opt.command }}"
+          data-copied="false"
+          aria-label="Copy command to clipboard">
+    <span class="code-block__copy-icon code-block__copy-icon--copy" aria-hidden="true">{% include "includes/icon.html" with icon_name="copy" icon_class="code-block__copy-svg" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
+    <span class="code-block__copy-icon code-block__copy-icon--check" aria-hidden="true">{% include "includes/icon.html" with icon_name="check" icon_class="code-block__copy-svg" icon_size=16 %}</span>
+  </button>
+  {% endfor %}
+
   {# Dropdown #}
   <details class="dropdown install-card__dropdown">
     <summary class="dropdown__trigger"
