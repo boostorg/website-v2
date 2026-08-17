@@ -1,9 +1,12 @@
 """Tests for the sync run log, the record a revoked badge points at."""
 
+from unittest.mock import patch
+
 import pytest
 from django.core.management import call_command
 from model_bakery import baker
 
+from badges import sources
 from badges.admin import reconcile_apply, reconcile_preview
 from badges.models import (
     AchievementSyncRun,
@@ -175,3 +178,29 @@ def test_a_refused_run_records_that_it_removed_nothing(plain_user):
     assert run.refused is True
     assert run.removed == 0
     assert UserAchievement.objects.filter(user=plain_user).exists()
+
+
+def test_a_run_that_dies_part_way_is_recorded_as_failed(plain_user):
+    """A crashed run must not read as one still in flight.
+
+    The counts cannot say it: a run that died before writing anything looks exactly
+    like a run with nothing to do. Since the deletes are chunked, a half-finished
+    reconcile has already revoked badges that this row is the only record of.
+    """
+    commit = _commit(plain_user)
+
+    def half_a_walk():
+        yield plain_user, commit
+        raise RuntimeError("the source went away")
+
+    with patch.dict(sources.BACKFILL_ITERATORS, {SOURCE: half_a_walk}):
+        # Re-raised rather than swallowed, so the command still exits non-zero and
+        # a task still fails instead of reporting a clean run.
+        with pytest.raises(RuntimeError):
+            call_command("backfill_achievements", "--source", SOURCE)
+
+    run = AchievementSyncRun.objects.get(source_slug=SOURCE)
+    assert run.error == "RuntimeError: the source went away"
+    assert run.finished_at is not None
+    assert run.added == 0
+    assert run.refused is False

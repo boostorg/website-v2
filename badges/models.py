@@ -431,6 +431,15 @@ class AchievementSyncRun(models.Model):
         default=False,
         help_text=_("The source yielded nothing, so stale grants were left alone."),
     )
+    error = models.TextField(
+        _("error"),
+        blank=True,
+        help_text=_(
+            "What the run raised, where it did not finish. Deletions are chunked "
+            "rather than wrapped in one transaction, so a run that died part way "
+            "left the grants it had already removed removed."
+        ),
+    )
 
     class Meta:
         ordering = ("-started_at",)

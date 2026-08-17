@@ -88,6 +88,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
+                    "error",
+                    models.TextField(
+                        blank=True,
+                        help_text="What the run raised, where it did not finish. Deletions are chunked rather than wrapped in one transaction, so a run that died part way left the grants it had already removed removed.",
+                        verbose_name="error",
+                    ),
+                ),
+                (
                     "triggered_by",
                     models.ForeignKey(
                         blank=True,

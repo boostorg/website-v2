@@ -21,7 +21,7 @@ from contextlib import contextmanager
 from typing import NamedTuple
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
+from django.db import DatabaseError, transaction
 from django.db.models import Prefetch
 from django.utils import timezone
 
@@ -50,6 +50,10 @@ CASCADE_REVOCATION_NOTE = (
 # Rows per DELETE ... WHERE pk IN (...) and per bulk_create. The unmatched set can
 # be as large as the achievement table.
 SYNC_BATCH_SIZE = 1000
+
+# A database error carries the statement that failed, which for a batch of a
+# thousand rows is the whole batch. Enough to identify the fault, not the payload.
+SYNC_ERROR_MAX_LENGTH = 2000
 
 _revocation_cause = contextvars.ContextVar("badge_revocation_cause", default=None)
 
@@ -192,6 +196,11 @@ def sync_source(
         and would otherwise revoke every badge the source feeds. Nothing is
         deleted in that case unless ``allow_empty`` says so; the additive half is
         unaffected, there being nothing to add.
+
+    Raises:
+        Whatever the source iterator or the writes raise, after naming it on the
+        run so a half-finished reconcile is not left looking like one still in
+        progress.
     """
     run = None
     if not dry_run:
@@ -204,17 +213,44 @@ def sync_source(
     # Named on every badge this run revokes, so support can follow a vanished badge
     # back to the operation that moved the count.
     with revocation_cause(None if run is None else str(run)):
-        return _sync_source(
-            slug,
-            achievement,
-            run=run,
-            user_ids=user_ids,
-            add=add,
-            remove=remove,
-            dry_run=dry_run,
-            allow_empty=allow_empty,
-            batch_size=batch_size,
-        )
+        try:
+            return _sync_source(
+                slug,
+                achievement,
+                run=run,
+                user_ids=user_ids,
+                add=add,
+                remove=remove,
+                dry_run=dry_run,
+                allow_empty=allow_empty,
+                batch_size=batch_size,
+            )
+        except Exception as exc:
+            # An unfinished row is otherwise indistinguishable from a run still in
+            # flight, and the deletes are chunked rather than transactional, so a
+            # half-done reconcile has already revoked badges that this row is the
+            # only record of. Re-raised: the command still exits non-zero and the
+            # task still fails.
+            _fail_run(run, exc)
+            raise
+
+
+def _fail_run(run, exc):
+    """Record that a run died, without letting the bookkeeping hide why.
+
+    ``finished_at`` is stamped as well as ``error``: the run stopped, and leaving it
+    open would keep reading as in flight. Best effort - a failure here must never
+    replace the exception on its way out, so a connection left unusable by the
+    original error costs a log line and nothing else.
+    """
+    if run is None:
+        return
+    run.error = f"{type(exc).__name__}: {exc}"[:SYNC_ERROR_MAX_LENGTH]
+    run.finished_at = timezone.now()
+    try:
+        run.save(update_fields=["error", "finished_at"])
+    except DatabaseError:
+        logger.exception("Could not record the failure of %s", run)
 
 
 def _finish_run(run, result):

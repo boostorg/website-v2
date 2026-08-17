@@ -1231,6 +1231,7 @@ class AchievementSyncRunAdmin(admin.ModelAdmin):
         "removed",
         "members_changed",
         "refused",
+        "failed",
     )
     list_filter = ("mode", "trigger", "refused", "source_slug")
     list_select_related = ("triggered_by",)
@@ -1239,6 +1240,15 @@ class AchievementSyncRunAdmin(admin.ModelAdmin):
     readonly_fields = tuple(
         field.name for field in AchievementSyncRun._meta.fields if field.name != "id"
     )
+
+    @admin.display(boolean=True, description="Failed")
+    def failed(self, obj):
+        """Whether the run died part way, which its counts alone cannot say.
+
+        A crashed reconcile has already removed the grants it got through, so this
+        column is what separates "nothing to do" from "stopped early, re-run it".
+        """
+        return bool(obj.error)
 
     def has_add_permission(self, request):
         """Runs are recorded by the sync itself, never entered by hand."""
