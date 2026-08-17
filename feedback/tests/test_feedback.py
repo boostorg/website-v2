@@ -52,6 +52,19 @@ def payload():
 
 
 @pytest.fixture(autouse=True)
+def beta_flags():
+    """The endpoint 404s unless both flags are on, so every test needs the beta open.
+
+    `WAFFLE_FLAG_DEFAULT` is False, so without this the whole module would 404.
+    """
+    with (
+        waffle.testutils.override_flag("v3", active=True),
+        waffle.testutils.override_flag("beta_feedback", active=True),
+    ):
+        yield
+
+
+@pytest.fixture(autouse=True)
 def signed_in(client, user):
     """Every path requires an account; the signed-out tests use their own client."""
     client.force_login(user)
@@ -66,6 +79,22 @@ def test_submission_attaches_the_logged_in_user(client, url, payload, user):
     feedback = Feedback.objects.get()
     assert feedback.user == user
     assert feedback.status == Feedback.Status.NEW
+
+
+@pytest.mark.parametrize("flag", ["v3", "beta_feedback"])
+def test_the_endpoint_is_closed_when_the_beta_is_off(client, url, payload, flag):
+    """The flag has to switch feedback off, not just hide the launcher."""
+    with waffle.testutils.override_flag(flag, active=False):
+        assert client.get(url).status_code == 404
+        assert client.post(url, payload, headers=XHR).status_code == 404
+
+    assert not Feedback.objects.exists()
+
+
+def test_a_closed_endpoint_does_not_redirect_to_log_in(url):
+    """Flags are checked before auth, so a closed route is not advertised."""
+    with waffle.testutils.override_flag("beta_feedback", active=False):
+        assert Client().get(url).status_code == 404
 
 
 def test_signed_out_submission_is_refused(url, payload):
@@ -308,8 +337,6 @@ def test_widget_renders_with_a_working_no_js_launcher(rf, user):
     assert 'name="image"' in html
 
 
-@waffle.testutils.override_flag("v3", active=True)
-@waffle.testutils.override_flag("beta_feedback", active=True)
 def test_widget_is_suppressed_on_the_standalone_form(client, url):
     """The page is already the form; a launcher on it would open a duplicate."""
     response = client.get(url)

@@ -6,10 +6,11 @@ import structlog
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
+from waffle import flag_is_active
 
 from feedback.diagnostics import (
     clean_client_diagnostics,
@@ -67,6 +68,19 @@ class FeedbackView(LoginRequiredMixin, View):
     """
 
     template_name = "v3/feedback_page.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        """Honour the same flags as the widget, so switching the beta off closes the
+        endpoint rather than only hiding the launcher.
+
+        Runs before the login check, so a signed-out visitor gets a 404 instead of a
+        login redirect advertising a route that is not open.
+        """
+        if not (
+            flag_is_active(request, "v3") and flag_is_active(request, "beta_feedback")
+        ):
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
 
     def handle_no_permission(self):
         """A session that expired mid-form should say so, not fail opaquely."""
