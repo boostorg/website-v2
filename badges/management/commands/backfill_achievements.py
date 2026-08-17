@@ -68,7 +68,8 @@ class Command(BaseCommand):
                 "Skipping wired source(s) with no Achievement row: "
                 f"{', '.join(missing)}. Run migrations to seed the catalogue."
             )
-            slugs = [slug for slug in slugs if slug not in set(missing)]
+            unseeded = set(missing)
+            slugs = [slug for slug in slugs if slug not in unseeded]
             if not slugs:
                 raise CommandError("No wired source has an Achievement row.")
 
