@@ -33,8 +33,7 @@ THROTTLE_MESSAGE = (
     "please try again in a little while."
 )
 
-# Generous for a beta tester filing real bugs, but bounds a runaway client.
-RATE_LIMIT = 20
+RATE_LIMIT = 40
 RATE_WINDOW = 3600  # seconds
 
 
@@ -81,14 +80,6 @@ class FeedbackView(LoginRequiredMixin, View):
     def post(self, request):
         page_url = self._page_url(request)
 
-        if is_rate_limited(request):
-            if wants_json(request):
-                return JsonResponse(
-                    {"errors": {"__all__": THROTTLE_MESSAGE}}, status=429
-                )
-            messages.error(request, THROTTLE_MESSAGE)
-            return redirect(self._safe_redirect_target(request, page_url))
-
         form = FeedbackForm(request.POST, request.FILES)
         if not form.is_valid():
             if wants_json(request):
@@ -97,6 +88,16 @@ class FeedbackView(LoginRequiredMixin, View):
                 }
                 return JsonResponse({"errors": first_errors}, status=400)
             return self._render(request, form)
+
+        # Checked after validation so the quota counts reports, not attempts: a member
+        # fighting a rejected screenshot should not spend it.
+        if is_rate_limited(request):
+            if wants_json(request):
+                return JsonResponse(
+                    {"errors": {"__all__": THROTTLE_MESSAGE}}, status=429
+                )
+            messages.error(request, THROTTLE_MESSAGE)
+            return redirect(self._safe_redirect_target(request, page_url))
 
         feedback = form.save(commit=False)
         feedback.user = request.user

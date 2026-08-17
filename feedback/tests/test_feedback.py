@@ -137,6 +137,33 @@ def test_invalid_submissions_are_rejected_with_the_message_intact(
     assert not Feedback.objects.exists()
 
 
+def test_invalid_submissions_do_not_consume_the_rate_limit(
+    client, url, payload, monkeypatch
+):
+    """The quota counts reports, so a member fighting a rejection keeps their budget."""
+    monkeypatch.setattr("feedback.views.RATE_LIMIT", 1)
+
+    for _ in range(3):
+        client.post(url, {**payload, "message": ""}, headers=XHR)
+
+    response = client.post(url, payload, headers=XHR)
+
+    assert response.status_code == 200
+    assert Feedback.objects.count() == 1
+
+
+def test_the_rate_limit_throttles_further_submissions(
+    client, url, payload, monkeypatch
+):
+    monkeypatch.setattr("feedback.views.RATE_LIMIT", 1)
+    assert client.post(url, payload, headers=XHR).status_code == 200
+
+    response = client.post(url, payload, headers=XHR)
+
+    assert response.status_code == 429
+    assert Feedback.objects.count() == 1
+
+
 def test_a_rejected_no_js_submission_re_renders_the_message(client, url, payload):
     """The standalone form has no client state, so the server must echo it back."""
     response = client.post(url, {**payload, "feedback_type": ""})
