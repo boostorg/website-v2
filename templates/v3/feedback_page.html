@@ -64,12 +64,8 @@
   // than the one named in page_url; viewport, device and platform are unaffected.
   document.querySelector('.feedback-page__form')?.addEventListener('submit', function () {
     var field = this.elements.diagnostics;
-    if (!field || !window.boostFeedbackDiagnostics) return;
-    try {
-      field.value = JSON.stringify(window.boostFeedbackDiagnostics());
-    } catch (error) {
-      field.value = '';
-    }
+    if (!field || !window.boostFeedbackDiagnosticsJSON) return;
+    field.value = window.boostFeedbackDiagnosticsJSON();
   });
 </script>
 {% endblock %}

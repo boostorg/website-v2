@@ -39,6 +39,16 @@
     return url.indexOf('/feedback/') !== -1;
   }
 
+  // Query strings carry tokens and personal data, and these entries reach the
+  // database. The path alone is what makes a failure recognisable.
+  function pathOnly(url) {
+    try {
+      return String(url).split('#')[0].split('?')[0];
+    } catch (e) {
+      return '';
+    }
+  }
+
   function deviceType() {
     var width = window.innerWidth || 0;
     if (width >= DESKTOP_MIN) return 'desktop';
@@ -74,12 +84,12 @@
       return originalFetch.apply(this, arguments).then(
         function (response) {
           if (!response.ok && !isFeedbackEndpoint(url)) {
-            push(failedRequests, response.status + ' ' + (init && init.method ? init.method : 'GET') + ' ' + url);
+            push(failedRequests, response.status + ' ' + (init && init.method ? init.method : 'GET') + ' ' + pathOnly(url));
           }
           return response;
         },
         function (error) {
-          if (!isFeedbackEndpoint(url)) push(failedRequests, 'network error ' + url);
+          if (!isFeedbackEndpoint(url)) push(failedRequests, 'network error ' + pathOnly(url));
           throw error;
         }
       );
@@ -92,11 +102,11 @@
       try {
         this.addEventListener('load', function () {
           if (this.status >= 400 && !isFeedbackEndpoint(String(url))) {
-            push(failedRequests, this.status + ' ' + method + ' ' + url);
+            push(failedRequests, this.status + ' ' + method + ' ' + pathOnly(url));
           }
         });
         this.addEventListener('error', function () {
-          if (!isFeedbackEndpoint(String(url))) push(failedRequests, 'network error ' + url);
+          if (!isFeedbackEndpoint(String(url))) push(failedRequests, 'network error ' + pathOnly(url));
         });
       } catch (e) {
         /* fall through to the original open */
@@ -133,5 +143,15 @@
       console_errors: consoleErrors.slice(),
       failed_requests: failedRequests.slice()
     };
+  };
+
+  // Both forms post this into a hidden field, so the serialising and its guard live
+  // here rather than being written out twice.
+  window.boostFeedbackDiagnosticsJSON = function () {
+    try {
+      return JSON.stringify(window.boostFeedbackDiagnostics());
+    } catch (e) {
+      return '';
+    }
   };
 })();

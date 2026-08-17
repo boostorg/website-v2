@@ -28,6 +28,7 @@
   {# ?from= carries the page for the no-JS path, which cannot rely on Referer. #}
   <a class="feedback-widget__launcher"
      href="{% url 'feedback' %}?from={{ request.build_absolute_uri|urlencode }}"
+     x-ref="launcher"
      @click.prevent="toggle()"
      :aria-expanded="open"
      aria-controls="feedback-widget-panel"
@@ -40,6 +41,8 @@
        id="feedback-widget-panel"
        role="dialog"
        aria-labelledby="feedback-widget-title"
+       x-ref="panel"
+       tabindex="-1"
        x-show="open"
        x-cloak>
     <div class="feedback-widget__header">
@@ -104,11 +107,19 @@
         errors: {},
 
         toggle() {
-          this.open ? this.close() : (this.open = true);
+          if (this.open) {
+            this.close();
+            return;
+          }
+          this.open = true;
+          // Land keyboard and screen-reader users inside the dialog. The panel itself
+          // rather than a field, so opening does not expand the type dropdown.
+          this.$nextTick(() => this.$refs.panel?.focus());
         },
 
         // Closing clears a completed submission so reopening offers a fresh form.
         close() {
+          const wasOpen = this.open;
           this.open = false;
           this.errors = {};
           if (this.sent) {
@@ -116,6 +127,9 @@
             this.$refs.form.reset();
             this.$dispatch('field-set', { name: 'feedback_type', value: '', label: '' });
           }
+          // Only when it was actually open: click.outside fires on every stray click,
+          // and focusing the launcher then would yank focus off whatever was clicked.
+          if (wasOpen) this.$refs.launcher?.focus();
         },
 
         // Checked here too so a phone photo fails instantly instead of after the upload.
@@ -127,12 +141,8 @@
         // Snapshot the ring buffer as late as possible, so it holds whatever
         // went wrong right up to the moment the report was sent.
         attachDiagnostics() {
-          if (!window.boostFeedbackDiagnostics) return;
-          try {
-            this.$refs.diagnostics.value = JSON.stringify(window.boostFeedbackDiagnostics());
-          } catch (error) {
-            this.$refs.diagnostics.value = '';
-          }
+          if (!window.boostFeedbackDiagnosticsJSON) return;
+          this.$refs.diagnostics.value = window.boostFeedbackDiagnosticsJSON();
         },
 
         async submit(event) {

@@ -127,7 +127,8 @@ def test_screenshots_with_the_same_name_do_not_collide(client, url, payload):
     for _ in range(2):
         shot = SimpleUploadedFile("image.png", png_bytes(10), "image/png")
         client.post(url, {**payload, "image": shot}, headers=XHR)
-        paths.append(Feedback.objects.order_by("-created_at").first().image.name)
+        # By pk, not created_at: two submissions in the same test can share a timestamp.
+        paths.append(Feedback.objects.order_by("-pk").first().image.name)
 
     assert paths[0] != paths[1]
     assert all(p.endswith(".png") for p in paths)

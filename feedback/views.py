@@ -127,8 +127,8 @@ class FeedbackView(LoginRequiredMixin, View):
         # Server-derived keys come last: the client blob is allowlisted, but this way
         # a browser could never shadow them even if that allowlist grew.
         feedback.diagnostics = {
-            "view_name": context["view_name"],
             **clean_client_diagnostics(request.POST.get("diagnostics", "")),
+            "view_name": context["view_name"],
             **recent_server_errors(request.user),
         }
         feedback.save()

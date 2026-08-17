@@ -93,6 +93,10 @@ def record_server_error(sender, request=None, **kwargs):
     Connected to `got_request_exception`, which fires while the request is already
     failing, so this swallows everything: a feedback tool must never turn one error
     into two. Django sends no exception with the signal, hence `sys.exc_info()`.
+
+    The read-modify-write below is not atomic, so two exceptions raised at the same
+    instant can cost one entry. Left that way on purpose and ultimately and this is
+    a best-effort buffer rather than an audit log.
     """
     try:
         user = getattr(request, "user", None)
