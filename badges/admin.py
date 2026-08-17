@@ -1290,6 +1290,29 @@ class UserBadgeAdmin(
             )
 
 
+class AppliedFilter(admin.SimpleListFilter):
+    """The refusal guard, filtered in the same words the column reads in.
+
+    Over ``refused`` itself, so the sidebar does not ask about the state the table
+    stopped naming.
+    """
+
+    title = "applied"
+    parameter_name = "applied"
+
+    def lookups(self, request, model_admin):
+        """Yes and no, phrased as answers to "did this run apply its changes"."""
+        return (("yes", "Yes"), ("no", "No - refused"))
+
+    def queryset(self, request, queryset):
+        """Map the answer back onto the stored ``refused`` flag."""
+        if self.value() == "yes":
+            return queryset.filter(refused=False)
+        if self.value() == "no":
+            return queryset.filter(refused=True)
+        return queryset
+
+
 @admin.register(AchievementSyncRun)
 class AchievementSyncRunAdmin(admin.ModelAdmin):
     """Read-only history of backfill and reconcile runs.
@@ -1297,6 +1320,13 @@ class AchievementSyncRunAdmin(admin.ModelAdmin):
     This is what a cascade revocation note points at. When a member asks where
     their badge went, the run named in that note says what changed the count, when,
     and whether a person or the weekly pipeline started it.
+
+    Both flag columns read the way the admin's icons do, which is the opposite of
+    the way the fields behind them are stored: a green tick is a run that went
+    well. Stored as the exceptional case (``refused``, ``error``) because that is
+    what the sync writes and what a log is for; shown as the normal one, because a
+    table of red crosses against runs that all went fine trains an admin to ignore
+    the column that matters.
     """
 
     list_display = (
@@ -1309,10 +1339,10 @@ class AchievementSyncRunAdmin(admin.ModelAdmin):
         "added",
         "removed",
         "members_changed",
-        "refused",
-        "failed",
+        "applied",
+        "succeeded",
     )
-    list_filter = ("mode", "trigger", "refused", "source_slug")
+    list_filter = ("mode", "trigger", AppliedFilter, "source_slug")
     list_select_related = ("triggered_by",)
     search_fields = ("source_slug", "triggered_by__email")
     date_hierarchy = "started_at"
@@ -1320,14 +1350,32 @@ class AchievementSyncRunAdmin(admin.ModelAdmin):
         field.name for field in AchievementSyncRun._meta.fields if field.name != "id"
     )
 
-    @admin.display(boolean=True, description="Failed")
-    def failed(self, obj):
-        """Whether the run died part way, which its counts alone cannot say.
+    @admin.display(boolean=True, description="Succeeded", ordering="error")
+    def succeeded(self, obj):
+        """Whether the run finished, which its counts alone cannot say.
 
-        A crashed reconcile has already removed the grants it got through, so this
-        column is what separates "nothing to do" from "stopped early, re-run it".
+        Three states rather than two, because "not failed" covers both a run that
+        went well and one still going: ``None`` renders as the admin's grey
+        question mark, and a run in flight has no error yet only because it has not
+        reached the end. A crashed reconcile has already removed the grants it got
+        through, so the cross is what separates "nothing to do" from "stopped
+        early, re-run it".
         """
-        return bool(obj.error)
+        if obj.finished_at is None:
+            return None
+        return not obj.error
+
+    @admin.display(boolean=True, description="Applied", ordering="-refused")
+    def applied(self, obj):
+        """Whether the run acted, or declined to because its source looked broken.
+
+        A cross is the safety guard having fired: the source yielded nothing at all
+        while stale grants existed, which is indistinguishable from a failed import
+        and would otherwise revoke every badge that source feeds, so nothing was
+        removed. Only reachable for a reconcile - a backfill removes nothing and
+        therefore has nothing to refuse.
+        """
+        return not obj.refused
 
     def has_add_permission(self, request):
         """Runs are recorded by the sync itself, never entered by hand."""

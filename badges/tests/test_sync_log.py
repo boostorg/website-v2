@@ -1,9 +1,12 @@
 """Tests for the sync run log, the record a revoked badge points at."""
 
+import re
 from unittest.mock import patch
 
 import pytest
 from django.core.management import call_command
+from django.urls import reverse
+from django.utils import timezone
 from model_bakery import baker
 
 from badges import sources
@@ -207,3 +210,42 @@ def test_a_run_that_dies_part_way_is_recorded_as_failed(plain_user):
     assert run.finished_at is not None
     assert run.added == 0
     assert run.refused is False
+
+
+def _flags(client, super_user):
+    """The two flag icons of the single run on the changelist, in column order."""
+    client.force_login(super_user)
+    body = client.get(reverse("admin:badges_achievementsyncrun_changelist")).content
+    return re.findall(rb"icon-(yes|no|unknown)\.svg", body)
+
+
+@pytest.mark.parametrize(
+    "finished_at,error,refused,expected",
+    [
+        (True, "", False, [b"yes", b"yes"]),
+        (True, "RuntimeError: the source went away", False, [b"yes", b"no"]),
+        (True, "", True, [b"no", b"yes"]),
+        (False, "", False, [b"yes", b"unknown"]),
+    ],
+    ids=["clean", "died", "refused", "in-flight"],
+)
+def test_the_log_shows_a_tick_for_the_run_that_went_well(
+    client, super_user, finished_at, error, refused, expected
+):
+    """Stored as the exception, read as the norm.
+
+    The fields say ``refused`` and ``error``, so a run that did exactly what it was
+    asked used to be two red crosses - the icon an admin scanning for trouble stops
+    on. A run still in flight is the third state the pair of booleans could not
+    express: it has no error only because it has not finished.
+    """
+    baker.make(
+        AchievementSyncRun,
+        source_slug=SOURCE,
+        mode=SyncMode.BACKFILL,
+        finished_at=timezone.now() if finished_at else None,
+        error=error,
+        refused=refused,
+    )
+
+    assert _flags(client, super_user) == expected
