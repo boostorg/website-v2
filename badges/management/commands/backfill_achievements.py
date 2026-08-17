@@ -86,9 +86,11 @@ class Command(BaseCommand):
             # Only the members who actually gained a row, so a repeat run - the
             # weekly one - does not recalculate every pair in the system.
             dirty_pairs.update((user_id, achievement.pk) for user_id in result.changed)
-            self.stdout.write(
-                f"  {slug}: {len(result.changed)} user(s) with new achievement rows"
-            )
+            # ``describe()`` rather than a line of its own, so this and the
+            # reconcile command and the admin's preview cannot reach different
+            # conclusions about the same numbers. It can never report a removal
+            # here: ``remove=False`` leaves the stale set empty.
+            self.stdout.write(f"  {result.slug}: {result.describe()}")
 
         for user_id, achievement_id in dirty_pairs:
             recalculate_badges(user_id, achievement_id)
