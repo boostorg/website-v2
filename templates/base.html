@@ -400,7 +400,13 @@
       {% endblock %}
 
       <div class="w-full">
-        {% block messages %}{% include "partials/messages.html" %}{% endblock messages %}
+        {% block messages %}
+          {% flag "v3" %}
+            {% include "v3/includes/_messages.html" %}
+          {% else %}
+            {% include "partials/messages.html" %}
+          {% endflag %}
+        {% endblock messages %}
       </div>
       {% flag "v3" %}{% else %}
       {% if request.user.is_authenticated and request.user.delete_permanently_at %}
@@ -493,6 +499,9 @@
 
       const hideMessage = async () => {
         const message = document.getElementById('messages');
+        if (!message) {
+          return;
+        }
         message.classList.add('opacity-0');
         await delay(opacityTransitionTime * 1000);
         const messageButton = message.querySelector('button');

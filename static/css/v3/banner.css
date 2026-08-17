@@ -1,11 +1,22 @@
 .banner {
+    --banner-fg: var(--color-text-on-accent);
     width: 100%;
     display: flex;
-    padding: var(--space-default);
+    padding: var(--space-default) var(--space-large);
     align-items: center;
     gap: var(--space-large);
     border-radius: var(--border-radius-l);
     background: var(--color-surface-brand-accent-default);
+}
+
+.banner--success {
+    --banner-fg: var(--color-text-reversed);
+    background: var(--color-syntax-green);
+}
+
+.banner--error {
+    --banner-fg: var(--color-text-reversed-on-accent);
+    background: var(--color-icon-error);
 }
 
 .banner__body {
@@ -17,8 +28,14 @@
     min-width: 0;
 }
 
+@media (max-width: 767px) {
+    .banner__body {
+        justify-content: flex-start;
+    }
+}
+
 .banner__message {
-    color: var(--color-text-on-accent);
+    color: var(--banner-fg);
     font-family: var(--font-sans);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-regular);
@@ -39,7 +56,7 @@
     height: 16px;
     flex-shrink: 0;
     aspect-ratio: 1/1;
-    fill: var(--color-text-on-accent);
+    fill: var(--banner-fg);
 }
 
 .banner__close {
@@ -52,10 +69,49 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    color: var(--color-text-on-accent);
+    color: var(--banner-fg);
     border-radius: var(--border-radius-s);
 }
 
 .banner__close:hover {
     opacity: 0.7;
+}
+
+/* Flash-message stack in base.html's messages slot (v3/includes/_messages.html). */
+.banner-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+}
+
+body.v3 .w-full:has(> .banner-stack) {
+    position: relative;
+}
+
+/* top clears the navbar: 48px is .header's own height,
+   plus the header's vertical padding. Inset matches the hero's version alert so the two
+   line up. z-index sits above the hero alert (2) and below .header (10), whose
+   drawer opens into this same strip. */
+body.v3 .banner-stack {
+    /* Both track .header: the inset equals its horizontal padding and the
+       footprint its height plus its vertical padding, so the banner is exactly
+       as wide as the navbar and sits directly under it. */
+    --banner-stack-inset: var(--space-large);
+    --banner-stack-footprint: calc(48px + 2 * var(--space-default));
+    position: absolute;
+    z-index: 3;
+    top: var(--banner-stack-footprint);
+    left: var(--banner-stack-inset);
+    right: var(--banner-stack-inset);
+    max-width: calc(1440px - 2 * var(--banner-stack-inset));
+    margin-inline: auto;
+}
+
+/* Tracks the header's padding switch in header.css at this same width, which
+   changes both its inset and its height. */
+@media (max-width: 990px) {
+    body.v3 .banner-stack {
+        --banner-stack-inset: var(--space-medium);
+        --banner-stack-footprint: calc(48px + 2 * var(--space-medium));
+    }
 }

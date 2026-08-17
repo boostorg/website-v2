@@ -10,12 +10,15 @@
     icon_name       (optional) — leading icon name. See includes/icon.html.
     fade_time       (optional) — milliseconds after which the banner auto-fades. See animations.css.
     dismiss_key     (optional) — unique key scoping the dismissed-state in sessionStorage.
+                                 Omit for one-shot messages: a persisted key would also
+                                 suppress the next, different message using it.
+    variant         (optional) — "success" or "error"; adds .banner--<variant>. Default is amber.
 
   Usage:
     {% include "v3/includes/_banner.html" with banner_message="Heads up!" icon_name="alert" dismiss_key="my-banner" %}
 {% endcomment %}
 
-<div class="banner{% if fade_time %} banner--fade{% endif %}"
+<div class="banner{% if variant %} banner--{{ variant }}{% endif %}{% if fade_time %} banner--fade{% endif %}"
      role="alert"
      x-data="{ visible: {% if dismiss_key %}$persist(true).using(sessionStorage).as('banner-{{ dismiss_key }}'){% else %}true{% endif %} }"
      x-show="visible"

@@ -1,0 +1,29 @@
+{% comment %}
+  V3 flash messages — renders each queued Django message as a v3 banner.
+  Replaces partials/messages.html on the v3 path (see base.html's messages block).
+
+  Sits in base.html's messages slot, directly under the navbar. The slot's header
+  reservation and inset live in banner.css (body.v3 .w-full:has(> .banner-stack)),
+  keyed off .banner-stack, so nothing renders — and no space is reserved — when
+  there are no messages.
+
+  Auto-fade matches the legacy 6s behaviour; the close button is a JS enhancement,
+  so the banner still renders and fades without JS.
+
+  Variables:
+    messages (required) — from django.contrib.messages, via the context processor.
+{% endcomment %}
+<div class="banner-stack">
+  {% include "v3/includes/_banner.html" with banner_message="This is a test message." icon_name="checkbox" variant="success" %}
+  {% for message in messages %}
+    {% if message.level_tag == "success" %}
+      {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" variant="success" fade_time=6000 %}
+    {% elif message.level_tag == "error" %}
+      {% include "v3/includes/_banner.html" with banner_message=message icon_name="warning-box" variant="error" %}
+    {% elif message.level_tag == "warning" %}
+      {% include "v3/includes/_banner.html" with banner_message=message icon_name="alert" fade_time=6000 %}
+    {% else %}
+      {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" fade_time=6000 %}
+    {% endif %}
+  {% endfor %}
+</div>
