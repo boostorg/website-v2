@@ -452,6 +452,73 @@ def test_reactivate_action_refuses_a_replaced_tier(client, super_user, badge):
     assert "Retire the replacement first" in response.content.decode()
 
 
+def test_reactivate_names_a_few_of_the_tiers_it_skipped_and_counts_the_rest(
+    client, super_user, badge
+):
+    """A skipped list grows with the selection; the sentence must not.
+
+    Four rivals rather than three, because three is where the message stops
+    naming them.
+    """
+    retired = []
+    for rank, threshold in (
+        (TierRank.BRONZE, 11),
+        (TierRank.SILVER, 13),
+        (TierRank.GOLD, 15),
+        (TierRank.PLATINUM, 17),
+    ):
+        tier = badge.tiers.filter(rank=rank).first() or baker.make(
+            BadgeTier, badge=badge, rank=rank, threshold=threshold - 1
+        )
+        deactivate_tier(tier, actor=super_user)
+        baker.make(BadgeTier, badge=badge, rank=rank, threshold=threshold)
+        retired.append(tier)
+    client.force_login(super_user)
+
+    response = client.post(
+        reverse("admin:badges_badgetier_changelist"),
+        {
+            "action": "reactivate",
+            helpers.ACTION_CHECKBOX_NAME: [tier.pk for tier in retired],
+        },
+        follow=True,
+    )
+
+    body = response.content.decode()
+    assert "Skipped 4 tier(s)" in body
+    assert "and 1 more" in body
+    assert not BadgeTier.objects.filter(
+        pk__in=[tier.pk for tier in retired], is_active=True
+    ).exists()
+
+
+def test_the_notes_page_lists_ten_of_the_selection_and_counts_the_rest(
+    client, super_user, plain_user, achievement, grant_achievement
+):
+    """ "Select all" is the whole table, and this page would otherwise be it.
+
+    The listing is capped; the hidden fields that carry the selection into the
+    second POST are not, or the action would apply to ten of them.
+    """
+    rows = grant_achievement(plain_user, achievement, count=12)
+    client.force_login(super_user)
+
+    response = client.post(
+        reverse("admin:badges_userachievement_changelist"),
+        {
+            "action": "invalidate",
+            helpers.ACTION_CHECKBOX_NAME: [row.pk for row in rows],
+        },
+    )
+
+    body = response.content.decode()
+    # Every row reads the same, so counting the label counts the list items.
+    assert body.count(str(rows[0])) == 10
+    assert "... and 2 more." in body
+    assert body.count(f'name="{helpers.ACTION_CHECKBOX_NAME}"') == 12
+    assert UserAchievement.objects.filter(is_valid=True).count() == 12
+
+
 def test_tier_changelist_groups_a_badge_ladder_together(client, super_user, catalogue):
     """Ordering by threshold alone interleaves every badge's bronze row."""
     client.force_login(super_user)

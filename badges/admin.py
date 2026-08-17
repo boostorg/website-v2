@@ -59,10 +59,32 @@ SOURCE_CHOICES = tuple(
 
 RECONCILE_PERMISSION = "badges.delete_userachievement"
 
+# How many items a message names before it stops and counts the rest. Enough to
+# recognise what was skipped, few enough that a whole selection cannot become the
+# page.
+MESSAGE_ITEM_LIMIT = 3
+
+# The same idea for a confirmation page, which has the room for a longer list but
+# not for an unbounded one: "select all" on a changelist is the whole table.
+CONFIRM_LIST_LIMIT = 10
+
 # Wraps the object tools in the left-aligned cluster below the page title. The
 # task-button template extends the same one, so a page that grows a button later
 # keeps the layout it already had.
 ADMIN_ACTIONS_CHANGE_LIST = "admin/admin_actions_change_list.html"
+
+
+def name_a_few(items, limit=MESSAGE_ITEM_LIMIT):
+    """Name the first few of ``items`` and count the rest.
+
+    A message that interpolates a whole selection grows with the data behind it:
+    one bronze tier can hold thousands of badges, and naming them all turns a
+    sentence into a wall of text nobody reads to the end.
+    """
+    items = [str(item) for item in items]
+    if len(items) <= limit:
+        return ", ".join(items)
+    return f"{', '.join(items[:limit])} and {len(items) - limit} more"
 
 
 def reconcile_results(slugs, user_ids=None, dry_run=False, actor=None):
@@ -559,8 +581,8 @@ class BadgeTierAdmin(admin.ModelAdmin):
         if refused:
             self.message_user(
                 request,
-                "Skipped tiers whose rank already has an active tier: "
-                f"{', '.join(refused)}. Retire the replacement first.",
+                f"Skipped {len(refused)} tier(s) whose rank already has an active "
+                f"tier: {name_a_few(refused)}. Retire the replacement first.",
                 level=messages.WARNING,
             )
 
@@ -750,12 +772,18 @@ class NotesActionMixin:
             form = NotesActionForm()
 
         opts = self.model._meta
+        # Only the listing is capped. ``objects`` still carries the whole selection
+        # into the hidden fields the POST reads it back from, and "select all" on a
+        # changelist is every row in the table.
+        listed = list(queryset[:CONFIRM_LIST_LIMIT])
         return render(
             request,
             "admin/badges/notes_action.html",
             {
                 "title": title,
                 "objects": queryset,
+                "listed_objects": listed,
+                "unlisted_count": max(queryset.count() - len(listed), 0),
                 "form": form,
                 "action": action,
                 "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,

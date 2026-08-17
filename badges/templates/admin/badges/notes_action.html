@@ -11,9 +11,12 @@
   <p>{% blocktranslate %}A note is required for this action. It will be recorded for audit purposes.{% endblocktranslate %}</p>
 
   <ul>
-    {% for obj in objects %}
+    {% for obj in listed_objects %}
       <li>{{ obj }}</li>
     {% endfor %}
+    {% if unlisted_count %}
+      <li>{% blocktranslate count counter=unlisted_count %}... and {{ counter }} more.{% plural %}... and {{ counter }} more.{% endblocktranslate %}</li>
+    {% endif %}
   </ul>
 
   <form action="" method="post">
