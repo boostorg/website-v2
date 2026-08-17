@@ -30,8 +30,8 @@ logger = structlog.get_logger()
 SUCCESS_MESSAGE = "Thanks for the feedback — the team will take a look."
 SIGNED_OUT_MESSAGE = "Your session has expired. Please sign in again to send feedback."
 THROTTLE_MESSAGE = (
-    "Thanks for all the feedback! You've reached the limit for now — "
-    "please try again in a little while."
+    "Thanks for your feedback! You've reached the submission limit for now, "
+    "please try again in an hour."
 )
 
 RATE_LIMIT = 40
