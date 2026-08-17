@@ -399,6 +399,15 @@ class ActiveBadgeTierInlineFormSet(BaseInlineFormSet):
                 form.add_error("threshold", error)
 
 
+def _skip_protected_delete_check(form):
+    """Stand in for Django's ``hand_clean_DELETE`` on the tier inline.
+
+    Bound as a method on the form class the admin builds per request, which is why
+    it takes the form rather than reading one.
+    """
+    return None
+
+
 class ActiveBadgeTierInline(admin.TabularInline):
     """A badge's live ladder, edited in place.
 
@@ -418,6 +427,23 @@ class ActiveBadgeTierInline(admin.TabularInline):
     max_num = len(TierRank)
     verbose_name = "active tier"
     verbose_name_plural = "active tiers"
+
+    def get_formset(self, request, obj=None, **kwargs):
+        """Drop the inline's protected-delete check: nothing here is deleted.
+
+        Django refuses a ticked delete whose row is referenced by a protected
+        foreign key, and lists every referencing object while it does it. Here that
+        is ``UserBadge.tier``, so the check refuses exactly the retirements this
+        page exists for - a tier nobody has earned is the only one it lets
+        through - and reports it as a message naming every holder.
+
+        ``BadgeAdmin.save_formset`` retires instead of deleting, and
+        ``BadgeTierAdmin.get_deleted_objects`` is the same removal on the tier's
+        own page.
+        """
+        formset = super().get_formset(request, obj, **kwargs)
+        formset.form.hand_clean_DELETE = _skip_protected_delete_check
+        return formset
 
     def get_queryset(self, request):
         """The live ladder only; retired tiers are linked from the badge form."""

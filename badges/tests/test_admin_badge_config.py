@@ -203,6 +203,42 @@ def test_deleting_a_tier_row_in_the_inline_retires_it(
     assert badge.tiers.count() == 3
 
 
+def test_retiring_a_tier_the_members_have_earned_is_not_refused(
+    client,
+    super_user,
+    plain_user,
+    badge,
+    achievement,
+    grant_achievement,
+    django_capture_on_commit_callbacks,
+):
+    """The inline's own delete check would refuse this, and name every holder.
+
+    Django validates a ticked delete by collecting what the row protects, and
+    ``UserBadge.tier`` protects it, so the only retirement it lets through is one
+    nobody has earned - the case that needs no protecting. The retirement itself
+    is what preserves those holders.
+    """
+    grant_achievement(plain_user, achievement, count=5)
+    bronze = badge.tiers.get(rank=TierRank.BRONZE)
+    silver = badge.tiers.get(rank=TierRank.SILVER)
+    gold = badge.tiers.get(rank=TierRank.GOLD)
+    held = UserBadge.objects.get(user=plain_user, tier=bronze)
+    client.force_login(super_user)
+
+    with django_capture_on_commit_callbacks(execute=True):
+        response = _post_ladder(
+            client, badge, [_row(bronze, delete=True), _row(silver), _row(gold)]
+        )
+
+    assert "protected related objects" not in response.content.decode()
+    bronze.refresh_from_db()
+    assert bronze.is_active is False
+    assert bronze.deactivated_by == super_user
+    held.refresh_from_db()
+    assert held.revoked_at is None
+
+
 def test_adding_a_tier_row_in_the_inline_creates_and_awards_it(
     client,
     super_user,
