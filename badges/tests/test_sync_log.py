@@ -164,10 +164,13 @@ def test_a_revoked_badge_names_the_run_that_removed_its_grants(plain_user):
 def test_a_refused_run_records_that_it_removed_nothing(plain_user):
     """A source reading empty is logged as refused, not as a successful no-op."""
     commit = _commit(plain_user)
+    second = baker.make("libraries.Commit", author=commit.author)
     call_command("backfill_achievements", "--source", SOURCE)
+    assert UserAchievement.objects.filter(user=plain_user).count() == 2
     # Every commit gone at once is what a broken import looks like, not a member
-    # who stopped contributing.
-    baker.make("libraries.Commit", author=commit.author).delete()
+    # who stopped contributing. Both grants are stale, and the refusal has to hold
+    # for all of them rather than for the last one walked.
+    second.delete()
     commit.delete()
 
     call_command("reconcile_achievements", "--source", SOURCE)
@@ -177,7 +180,7 @@ def test_a_refused_run_records_that_it_removed_nothing(plain_user):
     )
     assert run.refused is True
     assert run.removed == 0
-    assert UserAchievement.objects.filter(user=plain_user).exists()
+    assert UserAchievement.objects.filter(user=plain_user).count() == 2
 
 
 def test_a_run_that_dies_part_way_is_recorded_as_failed(plain_user):
