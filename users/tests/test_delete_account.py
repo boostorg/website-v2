@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from badges.enums import BadgeLabel, TierRank
 from mailing_list.models import SubscriptionStatus, UserMailingListSubscription
-from ..models import LastSeen, Preferences
+from ..models import LastSeen, Preferences, UserProfileRoutingKey
 
 User = get_user_model()
 
@@ -340,3 +340,56 @@ def test_legacy_cancel_deletion_keeps_success_banner(user, tp):
 
     banners = [str(m) for m in res.context["messages"]]
     assert "Your account is no longer scheduled for deletion." in banners
+
+
+@pytest.mark.django_db
+def test_delete_account_removes_routing_keys(user, django_capture_on_commit_callbacks):
+    """A routing key is built from display_name, so leaving it behind would keep
+    the user's name readable after every other field is scrubbed."""
+    user.display_name = "Julia Test Delete"
+    user.save(update_fields=["display_name"])
+    UserProfileRoutingKey.objects.sync_for(user)
+    keys = list(user.profile_routing_keys.values_list("routing_key", flat=True))
+    assert any("julia-test-delete" in key for key in keys), keys
+
+    with django_capture_on_commit_callbacks(execute=True):
+        user.delete_account()
+
+    assert not user.profile_routing_keys.exists()
+    assert not UserProfileRoutingKey.objects.filter(
+        routing_key__startswith="julia-test-delete"
+    ).exists()
+
+
+@pytest.mark.django_db
+def test_delete_account_removes_routing_keys_without_extended_scrub(
+    user, django_capture_on_commit_callbacks
+):
+    """The legacy (flag-off) flow scrubs less, but the key is new in v3, so
+    there is no legacy behaviour to preserve by keeping it."""
+    user.display_name = "Julia Test Delete"
+    user.save(update_fields=["display_name"])
+    UserProfileRoutingKey.objects.sync_for(user)
+
+    with django_capture_on_commit_callbacks(execute=True):
+        user.delete_account(extended_scrub=False)
+
+    assert not user.profile_routing_keys.exists()
+
+
+@pytest.mark.django_db
+@waffle.testutils.override_flag("v3", active=True)
+def test_deleted_accounts_profile_url_stops_resolving(
+    user, tp, django_capture_on_commit_callbacks
+):
+    """Dropping the rows must not change what a visitor sees: the profile 404s
+    before deletion because the account is inactive, and after it because the
+    key is gone."""
+    user.display_name = "Julia Test Delete"
+    user.save(update_fields=["display_name"])
+    key = UserProfileRoutingKey.objects.sync_for(user).routing_key
+
+    with django_capture_on_commit_callbacks(execute=True):
+        user.delete_account()
+
+    tp.response_404(tp.get("profile-user", routing_key=key))

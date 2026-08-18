@@ -901,6 +901,10 @@ class User(BaseUser):
         self.display_name = "John Doe"
         self.email = "deleted-{}@example.com".format(uuid.uuid4())
 
+        # Routing keys are derived from display_name, so they keep the user's
+        # name readable after the rest of their identity is scrubbed.
+        self.profile_routing_keys.all().delete()
+
         # Drop the cached avatar render while its source field is still set.
         self.delete_cached_thumbnail()
         image_fields = ["profile_image"]
@@ -1031,9 +1035,11 @@ class UserProfileRoutingKeyManager(models.Manager):
 class UserProfileRoutingKey(TimeStampedModel):
     """A public profile URL segment pointing at a user.
 
-    Append-only: rows are never updated or deleted, so a key that has been
-    shared keeps resolving after the user renames themselves. A user's newest
-    row is the canonical one and older rows redirect to it.
+    Append-only for as long as the account exists: rows are never updated, so a
+    key that has been shared keeps resolving after the user renames themselves.
+    A user's newest row is the canonical one and older rows redirect to it.
+
+    Account deletion is the one exception and deletes every row.
 
     TimeStampedModel adds `created` and `modified` fields.
     """
