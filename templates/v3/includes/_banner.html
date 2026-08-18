@@ -13,6 +13,9 @@
                                  Omit for one-shot messages: a persisted key would also
                                  suppress the next, different message using it.
     variant         (optional) — "success" or "error"; adds .banner--<variant>. Default is amber.
+    dismiss_id      (optional) — value unique to this page; swaps the Alpine close button
+                                 for a CSS-only one (checkbox + label) that also works
+                                 without JS. Use it for banners that don't auto-fade.
 
   Usage:
     {% include "v3/includes/_banner.html" with banner_message="Heads up!" icon_name="alert" dismiss_key="my-banner" %}
@@ -29,7 +32,14 @@
         {% endif %}
         <span class="banner__message">{{banner_message|safe}}</span>
     </div>
+    {% if dismiss_id %}
+    <input type="checkbox" class="banner__dismiss" id="banner-dismiss-{{ dismiss_id }}" aria-label="Dismiss notice">
+    <label class="banner__close" for="banner-dismiss-{{ dismiss_id }}">
+        {% include 'includes/icon.html' with icon_name="close" icon_class="banner__close-icon" icon_size=16 %}
+    </label>
+    {% else %}
     <button type="button" class="banner__close" @click="visible = false" aria-label="Dismiss notice" x-cloak>
         {% include 'includes/icon.html' with icon_name="close" icon_class="banner__close-icon" icon_size=16 %}
     </button>
+    {% endif %}
 </div>

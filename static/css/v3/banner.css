@@ -77,6 +77,27 @@
     opacity: 0.7;
 }
 
+/* CSS-only dismiss, so banners that don't auto-fade can still be closed without
+   JS. The checkbox stays focusable (no display: none) and the label is the
+   visible control, so the focus ring has to be forwarded to it. */
+.banner:has(> .banner__dismiss:checked) {
+    display: none;
+}
+
+.banner__dismiss {
+    width: 0;
+    height: 0;
+    margin: 0;
+    opacity: 0;
+    flex: 0 0 auto;
+    pointer-events: none;
+}
+
+.banner__dismiss:focus-visible + .banner__close {
+    outline: 2px solid var(--banner-fg);
+    outline-offset: 2px;
+}
+
 /* Flash-message stack in base.html's messages slot (v3/includes/_messages.html). */
 .banner-stack {
     display: flex;
