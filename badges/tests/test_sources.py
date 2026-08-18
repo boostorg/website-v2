@@ -77,6 +77,15 @@ def test_iter_library_maintenance_dedupes_versions(plain_user):
     assert pairs == [(plain_user, library)]
 
 
+def test_iter_library_maintenance_skips_sub_libraries(plain_user):
+    """Maintaining a sub-library is maintaining part of its parent's docs."""
+    sub = baker.make("libraries.Library", key="math/quaternion")
+    version = baker.make("libraries.LibraryVersion", library=sub)
+    version.maintainers.add(plain_user)
+
+    assert list(sources._iter_library_maintenance()) == []
+
+
 def test_iter_code_commits_skips_unlinked(plain_user):
     """Only commits whose author has a linked user are yielded."""
     linked = baker.make("libraries.CommitAuthor", user=plain_user)
