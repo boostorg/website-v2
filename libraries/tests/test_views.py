@@ -3,12 +3,14 @@ import datetime
 import pytest
 import waffle.testutils
 
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from model_bakery import baker
 
 from ..constants import README_MISSING
 from ..models import Library
 from ..utils import benchmark_sets, designed_for_html
-from ..views import _build_quick_start_links, _is_boost_url
+from ..views import LibraryListBase, _build_quick_start_links, _is_boost_url
 from versions.models import Version
 
 
@@ -657,3 +659,32 @@ def test_library_removed_dependencies(library_version, old_version, dependency, 
     assert dependency.name not in response.context["dependency_diff"]["added"]
     assert new_dependency.name in response.context["dependency_diff"]["removed"]
     assert "dependencies_not_calculated" not in response.context
+
+
+@pytest.mark.django_db
+def test_library_list_queryset_prefetches_author_profile_data(version):
+    """`author_details` links the author's profile, which reads their routing
+    keys.
+
+    The prefetch has to be an ordered Prefetch queryset: `authors.first()`
+    re-sorts an unordered queryset by pk, and that clone drops the prefetch
+    cache, costing a query per card. Asserted at zero queries rather than a
+    small number, since any per-card query is the bug.
+    """
+    for i in range(4):
+        library = baker.make("libraries.Library", name=f"lib{i}", slug=f"lib{i}")
+        library_version = baker.make(
+            "libraries.LibraryVersion", library=library, version=version
+        )
+        library_version.authors.add(
+            baker.make("users.User", display_name=f"Author {i}", image=None)
+        )
+
+    rows = list(LibraryListBase.queryset.all())
+    assert len(rows) == 4
+
+    with CaptureQueriesContext(connection) as queries:
+        details = [row.author_details for row in rows]
+
+    assert queries.captured_queries == [], [q["sql"] for q in queries.captured_queries]
+    assert sum(1 for detail in details if detail["profile_url"]) == 4

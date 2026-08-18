@@ -26,6 +26,7 @@ from core.mixins import V3Mixin
 from mailing_list.mixins import MailingListCardMixin
 from core.mock_data import SharedResources
 from news.services import get_library_post_cards
+from users.models import User
 from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
@@ -190,8 +191,15 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
 
     queryset = LibraryVersion.objects.prefetch_related(
         # author_details links the author's profile, which reads their routing
-        # keys. Prefetched so a page of libraries stays at one query for them.
-        "authors__profile_routing_keys",
+        # keys. The inner queryset is ordered so that its `.first()` call can
+        # slice the prefetch cache: `first()` re-sorts an unordered queryset by
+        # pk, and that clone drops the cache and re-queries once per card.
+        Prefetch(
+            "authors",
+            queryset=User.objects.order_by("pk").prefetch_related(
+                "profile_routing_keys"
+            ),
+        ),
         "library",
         "library__categories",
     ).defer("data")
