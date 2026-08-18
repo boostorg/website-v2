@@ -13,6 +13,8 @@
                                  Omit for one-shot messages: a persisted key would also
                                  suppress the next, different message using it.
     variant         (optional) — "success" or "error"; adds .banner--<variant>. Default is amber.
+    action_url      (optional) — with action_label, renders a POST form (e.g. "Cancel deletion").
+    action_label    (optional) — submit button text for action_url.
     dismiss_id      (optional) — value unique to this page; swaps the Alpine close button
                                  for a CSS-only one (checkbox + label) that also works
                                  without JS. Use it for banners that don't auto-fade.
@@ -31,6 +33,12 @@
         {% include 'includes/icon.html' with icon_name=icon_name icon_class="banner__icon" icon_size=16 %}
         {% endif %}
         <span class="banner__message">{{banner_message|safe}}</span>
+        {% if action_url and action_label %}
+        <form method="post" action="{{ action_url }}" class="banner__action-form">
+            {% csrf_token %}
+            <button type="submit" class="banner__action">{{ action_label }}</button>
+        </form>
+        {% endif %}
     </div>
     {% if dismiss_id %}
     <input type="checkbox" class="banner__dismiss" id="banner-dismiss-{{ dismiss_id }}" aria-label="Dismiss notice">

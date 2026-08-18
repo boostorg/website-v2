@@ -27,8 +27,9 @@
   row is hidden. If none of doc_url/source_url/slack_url/github_url are passed,
   the links row is hidden.
 
-  When version_alert/version_alert_message/selected_version are in context, the
-  v3/includes/_version_alert.html banner renders as the first child of the hero
+  The version alert is not rendered here — it is part of base.html's notification
+  slot (v3/includes/_messages.html), so it stacks with flash messages instead of
+  overlapping them
   section, above the block, which is where the design puts it. Callers using
   `only` must forward those three explicitly. The banner carries the clearance
   for the absolutely positioned header in that case; see .hero:has(> .banner) in
@@ -40,7 +41,6 @@
 <section class="hero{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero--with-bg-and-image{% endif %}{% if hero_background_image_url %} hero--with-background-image{% endif %}{% if extra_classes %} {{ extra_classes }}{% endif %}"
          {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
          aria-label="Library hero">
-  {% include "v3/includes/_version_alert.html" %}
   <div class="hero__block">
     <div class="hero__content">
       <div class="hero__meta">

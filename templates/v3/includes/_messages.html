@@ -7,29 +7,38 @@
   keyed off .banner-stack, so nothing renders — and no space is reserved — when
   there are no messages.
 
-  Only the most recent message is shown. The loop still runs over the whole queue
-  so every message is marked read and none leaks onto the next page.
+  Standing notices first (scheduled deletion, then the version alert), flash
+  messages after them, newest last. Everything here overlays the page rather than
+  taking flow space, so nothing shifts when a banner appears or is dismissed —
+  and the version alert stacks with the rest instead of overlapping it, which is
+  what happened while it lived inside the hero.
 
-  Success and info fade out after 6s; warning and error stay until dismissed, so
-  they carry a dismiss_id, which gives them a CSS-only close button that works
-  without JS.
+  Success and info fade out after 6s; warning, error and the deletion banner stay
+  until dismissed, so they carry a dismiss_id, which gives them a CSS-only close
+  button that works without JS.
 
   Variables:
-    messages (required) — from django.contrib.messages, via the context processor.
+    messages                  (required) — from django.contrib.messages.
+    profile_cancel_delete_url (required) — from the core context processor.
+    version_alert*            (optional) — see v3/includes/_version_alert.html.
 {% endcomment %}
-{% if messages %}
+{% if messages or request.user.delete_permanently_at or version_alert %}
   <div class="banner-stack">
+    {% if request.user.delete_permanently_at %}
+      {% with deletion_date=request.user.delete_permanently_at|date:'N j, Y, P e' %}
+        {% include "v3/includes/_banner.html" with banner_message="Your account is scheduled for deletion on "|add:deletion_date icon_name="warning-box" variant="error" dismiss_id="deletion" action_url=profile_cancel_delete_url action_label="Cancel deletion" %}
+      {% endwith %}
+    {% endif %}
+    {% include "v3/includes/_version_alert.html" %}
     {% for message in messages %}
-      {% if forloop.last %}
-        {% if message.level_tag == "success" %}
-          {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" variant="success" fade_time=6000 %}
-        {% elif message.level_tag == "error" %}
-          {% include "v3/includes/_banner.html" with banner_message=message icon_name="warning-box" variant="error" dismiss_id=forloop.counter %}
-        {% elif message.level_tag == "warning" %}
-          {% include "v3/includes/_banner.html" with banner_message=message icon_name="alert" dismiss_id=forloop.counter %}
-        {% else %}
-          {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" fade_time=6000 %}
-        {% endif %}
+      {% if message.level_tag == "success" %}
+        {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" variant="success" fade_time=6000 %}
+      {% elif message.level_tag == "error" %}
+        {% include "v3/includes/_banner.html" with banner_message=message icon_name="warning-box" variant="error" dismiss_id=forloop.counter %}
+      {% elif message.level_tag == "warning" %}
+        {% include "v3/includes/_banner.html" with banner_message=message icon_name="alert" dismiss_id=forloop.counter %}
+      {% else %}
+        {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" fade_time=6000 %}
       {% endif %}
     {% endfor %}
   </div>

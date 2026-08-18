@@ -1,5 +1,7 @@
 .banner {
     --banner-fg: var(--color-text-on-accent);
+    /* Anchors the hidden dismiss checkbox. */
+    position: relative;
     width: 100%;
     display: flex;
     padding: var(--space-default) var(--space-large);
@@ -77,6 +79,35 @@
     opacity: 0.7;
 }
 
+/* Flex so the button centres against the message instead of sitting on the
+   form's text baseline. */
+.banner__action-form {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+/* line-height matches .banner__message — a button's default `normal` adds
+   leading above and below the label, which reads as stray padding. */
+.banner__action {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    font-family: var(--font-sans);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
+    color: var(--banner-fg);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.banner__action:hover {
+    opacity: 0.85;
+}
+
 /* CSS-only dismiss, so banners that don't auto-fade can still be closed without
    JS. The checkbox stays focusable (no display: none) and the label is the
    visible control, so the focus ring has to be forwarded to it. */
@@ -84,12 +115,16 @@
     display: none;
 }
 
+/* Out of flow: as a flex child it would still collect one of the banner's gaps
+   and push the ✕ across, even at zero size. */
 .banner__dismiss {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
     width: 0;
     height: 0;
     margin: 0;
     opacity: 0;
-    flex: 0 0 auto;
     pointer-events: none;
 }
 
@@ -115,23 +150,27 @@ body.v3 .w-full:has(> .banner-stack) {
 
 /* Inset and footprint track .header, so the banner is as wide as the navbar and
    sits just under it. 48px is .header's height — var(--header-height) is the
-   legacy 41px out here. z-index: over the hero alert (2), under .header (10). */
+   legacy 41px out here. */
+body.v3 {
+    --banner-slot-inset: var(--space-large);
+    --banner-slot-footprint: calc(48px + 2 * var(--space-default));
+}
+
+/* z-index: over the hero alert (2), under .header (10). */
 body.v3 .banner-stack {
-    --banner-stack-inset: var(--space-large);
-    --banner-stack-footprint: calc(48px + 2 * var(--space-default));
     position: absolute;
     z-index: 3;
-    top: var(--banner-stack-footprint);
-    left: var(--banner-stack-inset);
-    right: var(--banner-stack-inset);
-    max-width: calc(1440px - 2 * var(--banner-stack-inset));
+    top: var(--banner-slot-footprint);
+    left: var(--banner-slot-inset);
+    right: var(--banner-slot-inset);
+    max-width: calc(1440px - 2 * var(--banner-slot-inset));
     margin-inline: auto;
 }
 
 /* Tracks .header's padding switch at this width (header.css). */
 @media (max-width: 990px) {
-    body.v3 .banner-stack {
-        --banner-stack-inset: var(--space-medium);
-        --banner-stack-footprint: calc(48px + 2 * var(--space-medium));
+    body.v3 {
+        --banner-slot-inset: var(--space-medium);
+        --banner-slot-footprint: calc(48px + 2 * var(--space-medium));
     }
 }
