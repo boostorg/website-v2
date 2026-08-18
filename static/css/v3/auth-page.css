@@ -25,7 +25,10 @@
   width: 100%;
 }
 
-.auth-page .min-vh-110 {
+/* Overrides the shared body.v3 .min-vh-110 rule in foundations.css (hence the
+   body.v3 prefix, which it needs to outweigh): the auth layout is pinned to the
+   viewport, so this shrinks with it instead of growing past it. */
+body.v3 .auth-page .min-vh-110 {
   min-height: auto;
   padding: 0;
   width: 100%;
