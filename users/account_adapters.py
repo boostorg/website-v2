@@ -59,6 +59,24 @@ class AccountAdapter(DefaultAccountAdapter):
         "rate_limited": _("Be patient, you are sending too many requests."),
     }
 
+    # Confirmations V3 drops because the page the user lands on already says it:
+    # the header shows who is signed in, and the check-your-email page states that
+    # the confirmation was sent. Legacy keeps all three.
+    V3_SUPPRESSED_MESSAGES = {
+        "account/messages/logged_in.txt",
+        "account/messages/logged_out.txt",
+        "account/messages/email_confirmation_sent.txt",
+    }
+
+    def add_message(self, request, level, message_template=None, *args, **kwargs):
+        # Reads the flag off the passed request, not self.request, which is unset
+        # on adapters built outside a request.
+        if message_template in self.V3_SUPPRESSED_MESSAGES and flag_is_active(
+            request, "v3"
+        ):
+            return
+        return super().add_message(request, level, message_template, *args, **kwargs)
+
     def _v3_active(self):
         # Emails can be sent outside a request (e.g. a management command or
         # Celery task), in which case there's no request to read the flag from.
