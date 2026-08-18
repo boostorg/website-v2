@@ -47,7 +47,7 @@ def backfill_routing_keys(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("users", "0026_userprofileroutingkey"),
+        ("users", "0028_userprofileroutingkey"),
     ]
 
     operations = [
