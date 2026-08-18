@@ -5,12 +5,13 @@
   Variables:
     heading       (str, optional)  — card heading, default "Account connections"
     connections   (list of dict)   — connection items, each with:
-      .platform       (str)  — icon key: "github" or "google"
-      .label          (str)  — display name, e.g. "GitHub"
-      .connected      (bool) — whether the account is linked
-      .status_text    (str)  — status label, e.g. "Connected" or "Not connected"
-      .action_label   (str)  — button text, e.g. "Manage" or "Connect"
-      .action_url     (str)  — button destination URL
+      .platform         (str)  — icon key: "github" or "google"
+      .label            (str)  — display name, e.g. "GitHub"
+      .connected        (bool) — whether the account is linked
+      .status_text      (str)  — status label, e.g. "Connected" or "Not connected"
+      .action_label     (str)  — button text, e.g. "Manage" or "Connect"
+      .action_url       (str)  — button destination URL
+      .disconnect_text  (str)  — text displayed in the disconnect modal
 
   Usage:
     {% include "v3/includes/_account_connections_card.html" with heading="Account connections" connections=account_connections %}
@@ -34,3 +35,11 @@
     {% endfor %}
   </ul>
 </div>
+
+{% for conn in connections %}
+  {% url 'profile-disconnect-social' platform=conn.platform as disconnect_url %}
+  <form action="{{disconnect_url|add:"?redirect_url='/users/me/?edit=True'"}}" method="POST">
+    {% csrf_token %}
+    {% include 'v3/includes/_dialog.html' with dialog_id="disconnect-"|add:conn.platform title="Disconnect "|add:conn.label|add:" ?" description=conn.disconnect_text primary_style="error" primary_label="Disconnect" secondary_label="Cancel" submit=True only %}
+  </form>
+{% endfor %}
