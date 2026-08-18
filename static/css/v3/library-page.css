@@ -4,10 +4,6 @@
 /* === Page Layout === */
 
 
-.library-page__container {
-    padding: 0 var(--space-large);
-}
-
 /* Filter toolbar row: filters fill the row, branch buttons sit at the far right,
    bottom-aligned with the filter dropdowns. */
 .library-page__filter-row {
@@ -242,11 +238,6 @@ html.dark .library-page__empty-state-image--dark {
         ;
         grid-template-columns: 100%;
         justify-items: start;
-    }
-
-    .library-page__container {
-        margin-left: var(--space-medium);
-        margin-right: var(--space-medium);
     }
 
     .library-page__empty-state-image {

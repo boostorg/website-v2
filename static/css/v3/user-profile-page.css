@@ -1,7 +1,6 @@
 /* ──────── Top Level Container ──────── */
 .user-profile__container {
     margin-top: var(--space-xl);
-    padding: 0 var(--space-medium);
 }
 
 

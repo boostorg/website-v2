@@ -10,6 +10,11 @@ body.v3 {
 
 body.v3 {
   background: var(--color-surface-page);
+
+  /* Horizontal gutter the page shell adds around its children — 0 for the
+     full-bleed shells, overridden by .v3-container. Overlays that line up with
+     .header (positioned against the viewport, not the shell) cancel it. */
+  --v3-shell-gutter: 0px;
 }
 
 html.v3,
@@ -164,12 +169,13 @@ html.v3 code {
 
 /* Container for v3 content */
 .v3-container {
+  --v3-shell-gutter: var(--space-large);
   width: 100%;
   max-width: 1440px;
   margin-left: auto;
   margin-right: auto;
-  padding-left:var(--space-medium);
-  padding-right:var(--space-medium);
+  padding-left: var(--v3-shell-gutter);
+  padding-right: var(--v3-shell-gutter);
 }
 
 /* ==========================================================================
