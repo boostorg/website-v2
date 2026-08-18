@@ -13,9 +13,11 @@
   and the version alert stacks with the rest instead of overlapping it, which is
   what happened while it lived inside the hero.
 
-  Success and info fade out after 6s; warning, error and the deletion banner stay
-  until dismissed, so they carry a dismiss_id, which gives them a CSS-only close
-  button that works without JS.
+  Success and info fade out after 6s and announce politely (role="status");
+  warning and error keep the assertive role="alert" and stay until dismissed, so
+  they carry a dismiss_id, which gives them a CSS-only close button that works
+  without JS. The deletion notice is a named landmark instead — it reports a
+  standing account state rather than an event.
 
   Variables:
     messages                  (required) — from django.contrib.messages.
@@ -26,19 +28,19 @@
   <div class="banner-stack">
     {% if request.user.delete_permanently_at %}
       {% with deletion_date=request.user.delete_permanently_at|date:'N j, Y, P e' %}
-        {% include "v3/includes/_banner.html" with banner_message="Your account is scheduled for deletion on "|add:deletion_date icon_name="warning-box" variant="error" dismiss_id="deletion" action_url=profile_cancel_delete_url action_label="Cancel deletion" %}
+        {% include "v3/includes/_banner.html" with banner_message="Your account is scheduled for deletion on "|add:deletion_date icon_name="warning-box" variant="error" role="region" aria_label="Account deletion notice" dismiss_id="deletion" action_url=profile_cancel_delete_url action_label="Cancel deletion" %}
       {% endwith %}
     {% endif %}
     {% include "v3/includes/_version_alert.html" %}
     {% for message in messages %}
       {% if message.level_tag == "success" %}
-        {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" variant="success" fade_time=6000 %}
+        {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" variant="success" role="status" fade_time=6000 %}
       {% elif message.level_tag == "error" %}
         {% include "v3/includes/_banner.html" with banner_message=message icon_name="warning-box" variant="error" dismiss_id=forloop.counter %}
       {% elif message.level_tag == "warning" %}
         {% include "v3/includes/_banner.html" with banner_message=message icon_name="alert" dismiss_id=forloop.counter %}
       {% else %}
-        {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" fade_time=6000 %}
+        {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" role="status" fade_time=6000 %}
       {% endif %}
     {% endfor %}
   </div>

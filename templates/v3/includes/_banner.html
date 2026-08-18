@@ -13,6 +13,10 @@
                                  Omit for one-shot messages: a persisted key would also
                                  suppress the next, different message using it.
     variant         (optional) — "success" or "error"; adds .banner--<variant>. Default is amber.
+    role            (optional) — ARIA role, default "alert". Pass "region" for a notice that
+                                 is already on the page at load rather than announcing an
+                                 event; a region needs aria_label to be exposed as a landmark.
+    aria_label      (optional) — accessible name, required when role="region".
     action_url      (optional) — with action_label, renders a POST form (e.g. "Cancel deletion").
     action_label    (optional) — submit button text for action_url.
     dismiss_id      (optional) — value unique to this page; swaps the Alpine close button
@@ -24,7 +28,8 @@
 {% endcomment %}
 
 <div class="banner{% if variant %} banner--{{ variant }}{% endif %}{% if fade_time %} banner--fade{% endif %}"
-     role="alert"
+     role="{{ role|default:'alert' }}"{% if aria_label %}
+     aria-label="{{ aria_label }}"{% endif %}
      x-data="{ visible: {% if dismiss_key %}$persist(true).using(sessionStorage).as('banner-{{ dismiss_key }}'){% else %}true{% endif %} }"
      x-show="visible"
      {% if fade_time %}style="--fade-delay: {{fade_time}}ms"{% endif %}>
