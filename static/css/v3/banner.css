@@ -148,19 +148,17 @@ body.v3 .w-full:has(> .banner-stack) {
     margin-inline: calc(-1 * var(--v3-shell-gutter));
 }
 
-/* Inset and footprint track .header, so the banner is as wide as the navbar and
-   sits just under it. 48px is .header's height — var(--header-height) is the
-   legacy 41px out here. */
+/* Inset tracks .header's horizontal padding so the banner is exactly as wide as
+   the navbar; --v3-header-footprint (foundations.css) puts it just under. */
 body.v3 {
     --banner-slot-inset: var(--space-large);
-    --banner-slot-footprint: calc(48px + 2 * var(--space-default));
 }
 
 /* z-index: over the hero alert (2), under .header (10). */
 body.v3 .banner-stack {
     position: absolute;
     z-index: 3;
-    top: var(--banner-slot-footprint);
+    top: var(--v3-header-footprint);
     left: var(--banner-slot-inset);
     right: var(--banner-slot-inset);
     max-width: calc(1440px - 2 * var(--banner-slot-inset));
@@ -171,6 +169,5 @@ body.v3 .banner-stack {
 @media (max-width: 990px) {
     body.v3 {
         --banner-slot-inset: var(--space-medium);
-        --banner-slot-footprint: calc(48px + 2 * var(--space-medium));
     }
 }

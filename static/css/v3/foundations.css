@@ -15,6 +15,20 @@ body.v3 {
      full-bleed shells, overridden by .v3-container. Overlays that line up with
      .header (positioned against the viewport, not the shell) cancel it. */
   --v3-shell-gutter: 0px;
+
+  /* .header's own height, and the vertical space it occupies including its
+     padding. Anything that has to clear or line up with the navbar reads these:
+     var(--header-height) is no use outside .header, where it resolves to the
+     legacy 41px from the pre-V3 stylesheet. */
+  --v3-header-height: 48px;
+  --v3-header-footprint: calc(var(--v3-header-height) + 2 * var(--space-default));
+}
+
+/* .header swaps to all-round --space-medium padding at this width (header.css). */
+@media (max-width: 990px) {
+  body.v3 {
+    --v3-header-footprint: calc(var(--v3-header-height) + 2 * var(--space-medium));
+  }
 }
 
 html.v3,
