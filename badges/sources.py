@@ -65,12 +65,16 @@ def _iter_library_maintenance():
 
 
 def _iter_library_versioning():
-    """Yield (user, library_version) for every per-version authorship."""
+    """Yield (user, library_version) for every authorship of a parent's release.
+
+    Only parent libraries count: see the module docstring.
+    """
     from libraries.models import LibraryVersion
 
-    for version in LibraryVersion.objects.prefetch_related("authors").iterator(
-        chunk_size=500
-    ):
+    versions = LibraryVersion.objects.exclude(
+        library__key__in=SUB_LIBRARIES
+    ).prefetch_related("authors")
+    for version in versions.iterator(chunk_size=500):
         for user in version.authors.all():
             yield user, version
 
