@@ -272,10 +272,12 @@ class EntryDetailView(V3Mixin, DetailView):
     # Each author card reads the author's badges; without the prefetch that is
     # one extra query per card, and a detail page renders up to five. Asked for
     # through the path, because these querysets also select_related the author -
-    # see ``badges.display.active_badges_prefetch``.
+    # see ``badges.display.active_badges_prefetch``. profile_routing_keys is
+    # here for the same reason: each card links its author's profile.
     AUTHOR_PREFETCH = (
         "author__maintainers",
         active_badges_prefetch("author__badges"),
+        "author__profile_routing_keys",
     )
 
     def get_queryset(self):
