@@ -54,6 +54,18 @@ def test_iter_library_authoring(plain_user):
     assert (plain_user, library) in pairs
 
 
+def test_iter_library_authoring_skips_sub_libraries(plain_user):
+    """A sub-library is its parent's, so authoring one alone counts for nothing.
+
+    ``math/quaternion`` and the rest of ``SUB_LIBRARIES`` are subdivisions of a
+    parent library's documentation, and the badge counts parent libraries.
+    """
+    sub = baker.make("libraries.Library", key="math/quaternion")
+    sub.authors.add(plain_user)
+
+    assert list(sources._iter_library_authoring()) == []
+
+
 def test_iter_code_commits_skips_unlinked(plain_user):
     """Only commits whose author has a linked user are yielded."""
     linked = baker.make("libraries.CommitAuthor", user=plain_user)
