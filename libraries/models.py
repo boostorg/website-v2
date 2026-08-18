@@ -835,6 +835,7 @@ class LibraryVersion(models.Model):
             "role": "Author",
             "avatar_url": author.get_avatar_url() if author else "",
             "badge_url": large_static("img/v3/badges/badge-first-place.png"),
+            **(author.profile_stamps if author else {}),
         }
 
     def get_cpp_standard_minimum_display(self):
