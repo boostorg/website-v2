@@ -523,13 +523,6 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         "video": V3VideoForm,
     }
 
-    def dispatch(self, request, *args, **kwargs):
-        # Run AllTypesCreateView's profile-completeness guard before V3Mixin takes over.
-        response = AllTypesCreateView.dispatch(self, request, *args, **kwargs)
-        if response.status_code != 200:
-            return response
-        return super().dispatch(request, *args, **kwargs)
-
     def _v3_create_context(self):
         """Shared context variables needed by the v3 create-post template."""
         return {
