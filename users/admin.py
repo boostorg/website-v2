@@ -10,7 +10,7 @@ from django.urls import path, reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
-from .models import GithubActivity, ProfileRole, User
+from .models import GithubActivity, ProfileRole, User, UserProfileRoutingKey
 
 
 class EmailUserAdminForm(UserChangeForm):
@@ -135,6 +135,20 @@ class EmailUserAdmin(UserAdmin):
         "claimed",
     )
     search_fields = ("email", "display_name__unaccent")
+
+    def save_model(self, request, obj, form, change):
+        """Keep the public profile URL in step with a name edited here.
+
+        Renaming through either profile form mints a key.
+        `sync_for` mints only when the name's slug actually changed, so saving
+        an unrelated field does not move anyone's URL.
+
+        Skipped for inactive accounts: deletion drops their keys deliberately,
+        and minting one back here would undo that.
+        """
+        super().save_model(request, obj, form, change)
+        if obj.is_active:
+            UserProfileRoutingKey.objects.sync_for(obj)
 
     @admin.display(description=_("Derived library roles"))
     def role_eligibility_display(self, obj):
