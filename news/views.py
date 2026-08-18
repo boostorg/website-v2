@@ -43,7 +43,7 @@ from wagtail.images.models import Image
 from wagtail.models import Page
 from waffle import flag_is_active
 
-
+from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin
 from pages.blocks import NEWS_BLOCK, BLOG_BLOCK, LINK_BLOCK, VIDEO_BLOCK
 from pages.models import PostPage, PostIndexPage
@@ -482,6 +482,10 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
                 messages.warning(
                     request, f"Please add {' and '.join(missing_data)} first."
                 )
+                # V3 sends them straight to the edit form, where the missing
+                # field is; legacy has its own profile page with the same fields.
+                if flag_is_active(request, "v3"):
+                    return redirect(edit_profile_url())
                 return redirect("profile-account")
 
         return super().dispatch(request, *args, **kwargs)
