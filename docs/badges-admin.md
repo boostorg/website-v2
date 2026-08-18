@@ -30,7 +30,7 @@ this section emails a member.
 | Operation | What it does | Where it lives | When to run it |
 | --- | --- | --- | --- |
 | **Backfill** | Walks the automatic sources and creates the achievements the site is missing, then awards any badge that reached a threshold. Additive only - it can never remove or undo an attribution, which is what makes it safe to run unattended. | "Backfill achievements" button on the User achievements page (one source or all, in the background), or `manage.py backfill_achievements` (`--source` for a single one, `--trigger` to label the run). | By itself: it is the last step of the weekly release pipeline (Saturday evenings), so every release refreshes the automatic achievements. Use the button when you wired a new source or an import just brought data you want counted now. Safe at any time - it only adds. |
-| **Reconcile** | Two-way, the only operation that removes: it adds what a source now supports and deletes the stored grants it no longer does (a commit reassigned to another author, a news post deleted, a maintainer dropped), then recalculates the members that moved. You see a preview of the changes before anything runs. Manual grants are never touched. | "Reconcile achievements" button on the User achievements page (scoped like backfill), the per-member page, or `manage.py reconcile_achievements` with `--dry-run`, `--user`, `--source` or `--remove-only`. Requires the delete permission. | Not scheduled. Run it after an upstream data correction that backfill cannot undo - a fixed attribution, deleted content, a dropped maintainer - scoped to the member or source you meant to fix. A source that reads empty is treated as broken and nothing is removed; overriding that needs `--allow-empty` from the shell. |
+| **Reconcile** | Two-way, the only operation that removes: it adds what a source now supports and deletes the stored grants it no longer does (a commit reassigned to another author, a news post deleted, a maintainer dropped, an account deleted), then recalculates the members that moved. You see a preview of the changes before anything runs. Manual grants are never touched. | "Reconcile achievements" button on the User achievements page (scoped like backfill), the per-member page, or `manage.py reconcile_achievements` with `--dry-run`, `--user`, `--source` or `--remove-only`. Requires the delete permission. | Not scheduled. Run it after an upstream data correction that backfill cannot undo - a fixed attribution, deleted content, a dropped maintainer, a deleted account - scoped to the member or source you meant to fix. A source that reads empty is treated as broken and nothing is removed; overriding that needs `--allow-empty` from the shell. |
 | **Recalculate** | Rebuilds badges from the achievements already on record: awards every tier whose threshold is met and cascade-revokes every one that has fallen below it. No achievement is added, removed or changed - the safe thing to run after editing a badge's thresholds. Idempotent. | "Recalculate badges" button on the User badges page (whole table, in the background), or `manage.py recalculate_badges`. | After editing a badge's thresholds, after fixing data, after restoring a dump. Safe at any time. |
 | **Recalculate / Reconcile this member** | The same two jobs for one member, run synchronously so the result is visible on the page you are already on. | Buttons at the bottom of the per-member page. | For a support request about one member. The page itself says which is needed: "held below its threshold" or "grants already reach X" call for a recalculate; a source disagreement calls for a reconcile. |
 | **Manual grant** | Grants an achievement by hand for something no source can see (Documenter, Regular, and any special case). A note is required and the granting admin is recorded, and the member is not notified. | Add on the User achievements page, or "Grant an achievement" on the per-member page. | Whenever a member earned something the sources cannot derive. Backfill and reconcile never touch it. |
@@ -41,6 +41,19 @@ this section emails a member.
 > another backfill of the same source is queued or running, and the page shows
 > the running job's status. Every real run - from a button or the release
 > pipeline - is recorded on the sync runs page.
+
+Two things the automatic sources deliberately pass over, both of which explain a
+badge a member expected and does not have:
+
+- **Deactivated accounts.** A deleted or disabled account is granted nothing,
+  whatever the source data still says about it. Deleting an account scrubs its
+  achievements, but the libraries and commits behind them are kept whole, so
+  without this rule the next weekly backfill would award them all back. If such
+  an account still holds grants from before, a reconcile removes them.
+- **Sub-libraries.** `math/quaternion`, `functional/hash` and the rest count as
+  part of their parent library, not as libraries of their own, so authoring or
+  maintaining only a sub-library earns nothing. That is a product decision, and
+  the work may get a badge of its own later.
 
 ## Changing a badge's tiers
 
