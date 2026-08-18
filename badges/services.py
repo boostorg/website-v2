@@ -141,9 +141,10 @@ def discard_source_achievements(model, object_ids):
 class SourceSync(NamedTuple):
     """What syncing one source found, and what it was allowed to do about it.
 
-    ``yielded`` counts the whole iterator, before any user scope is applied. That
-    is what lets ``refused`` tell "this member authored no commits any more" apart
-    from "the commits table read empty and something upstream is broken".
+    ``yielded`` counts the whole iterator, before any user scope is applied and
+    before deactivated members are dropped. That is what lets ``refused`` tell
+    "this member authored no commits any more" apart from "the commits table read
+    empty and something upstream is broken".
 
     ``changed`` is the members whose grants moved, which is what a caller
     recalculates. It is populated on a dry run too, where it says who *would*
@@ -221,6 +222,10 @@ def sync_source(
     like any other, so an admin's judgement is never overwritten by a re-add. An
     automatic row with no source pointer counts as stale: nothing can create one and
     it can never match what an iterator yields.
+
+    Deactivated members are skipped whatever the source says about them, so a
+    deleted account is granted nothing and loses what it holds on the next
+    reconcile.
 
     Stale grants are **deleted, not invalidated**: the uniqueness constraint on
     automatic grants ignores ``is_valid``, so a tombstone would permanently block
@@ -388,6 +393,18 @@ def _sync_source(
 
     for user, source in sources.BACKFILL_ITERATORS[slug]():
         yielded += 1
+        # A deactivated account is skipped for every source at once, rather than
+        # in each iterator, so a source wired later cannot forget the rule. It
+        # sits after ``yielded`` on purpose: the refusal below asks whether the
+        # source read empty, and "everyone it named is gone" is not that.
+        #
+        # Skipping is also what removes the grants such an account already holds,
+        # since its key stays in ``unmatched`` and reads as stale. That matters:
+        # deleting an account scrubs its grants, but the libraries and commits
+        # they derive from name it still, so without this the next sweep would
+        # award them all back.
+        if not user.is_active:
+            continue
         # The scope is applied here as well as on ``unmatched``: an out-of-scope
         # member's key is absent from it, which on the additive side is
         # indistinguishable from a grant that needs creating.

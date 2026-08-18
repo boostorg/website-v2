@@ -11,6 +11,7 @@ from model_bakery import baker
 from badges.enums import AchievementSlug
 from badges.models import (
     Achievement,
+    AchievementSyncRun,
     RevocationSource,
     SourceType,
     UserAchievement,
@@ -308,6 +309,67 @@ def test_reconcile_refuses_a_source_that_yields_nothing(
     assert "--allow-empty" in captured.err
     assert UserAchievement.objects.filter(user=plain_user).count() == 1
     assert UserBadge.objects.filter(user=plain_user, revoked_at=None).exists()
+
+
+def test_backfill_grants_a_deactivated_member_nothing(plain_user):
+    """A deactivated account is skipped however loudly the source names it.
+
+    Deleting an account scrubs its grants but leaves the commits and libraries
+    behind it whole, so without this the next sweep would award them all back.
+    """
+    plain_user.is_active = False
+    plain_user.save(update_fields=["is_active"])
+    author = baker.make("libraries.CommitAuthor", user=plain_user)
+    baker.make("libraries.Commit", author=author)
+
+    call_command("backfill_achievements", "--source", "code-commits")
+
+    assert not UserAchievement.objects.filter(user=plain_user).exists()
+    assert not UserBadge.objects.filter(user=plain_user).exists()
+
+
+def test_reconcile_takes_back_what_a_deactivated_member_holds(
+    plain_user, commit_by_someone_else
+):
+    """Grants earned before deactivation read as stale, and the badge is revoked.
+
+    Which is what cleans up an account deleted before this rule existed, and an
+    account whose deletion never scrubbed the grants in the first place.
+    """
+    author = baker.make("libraries.CommitAuthor", user=plain_user)
+    baker.make("libraries.Commit", author=author)
+    call_command("backfill_achievements", "--source", "code-commits")
+    badge = UserBadge.objects.get(user=plain_user, tier__rank="bronze")
+
+    plain_user.is_active = False
+    plain_user.save(update_fields=["is_active"])
+    call_command("reconcile_achievements", "--source", "code-commits")
+
+    assert not UserAchievement.objects.filter(user=plain_user).exists()
+    badge.refresh_from_db()
+    assert badge.revoked_at is not None
+    assert badge.revocation_source == "cascade"
+
+
+def test_a_source_naming_only_deactivated_members_is_not_an_empty_source(plain_user):
+    """The refusal asks whether the source read empty, not who survived it.
+
+    A source that named nobody at all is a broken import. A source that named one
+    member who has since been deactivated is working exactly as it should, and its
+    stale grant has to go.
+    """
+    author = baker.make("libraries.CommitAuthor", user=plain_user)
+    baker.make("libraries.Commit", author=author)
+    call_command("backfill_achievements", "--source", "code-commits")
+    plain_user.is_active = False
+    plain_user.save(update_fields=["is_active"])
+
+    call_command("reconcile_achievements", "--source", "code-commits")
+
+    run = AchievementSyncRun.objects.first()
+    assert run.refused is False
+    assert run.removed == 1
+    assert not UserAchievement.objects.filter(user=plain_user).exists()
 
 
 def test_reconcile_allow_empty_overrides_the_refusal(plain_user, stale_commit_grant):
