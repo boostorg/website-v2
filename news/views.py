@@ -482,8 +482,7 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
                 messages.warning(
                     request, f"Please add {' and '.join(missing_data)} first."
                 )
-                # V3 sends them straight to the edit form, where the missing
-                # field is; legacy has its own profile page with the same fields.
+                # V3 sends them to the Edit User Profile page, where the missing field is.
                 if flag_is_active(request, "v3"):
                     return redirect(edit_profile_url())
                 return redirect("profile-account")

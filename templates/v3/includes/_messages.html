@@ -1,23 +1,13 @@
 {% comment %}
-  V3 flash messages — renders each queued Django message as a v3 banner.
-  Replaces partials/messages.html on the v3 path (see base.html's messages block).
+  V3 notification slot — renders queued Django messages, the scheduled-deletion
+  notice and the version alert as banners under the navbar. Replaces
+  partials/messages.html on the v3 path (see base.html's messages block).
 
-  Sits in base.html's messages slot, directly under the navbar. The slot's header
-  reservation and inset live in banner.css (body.v3 .w-full:has(> .banner-stack)),
-  keyed off .banner-stack, so nothing renders — and no space is reserved — when
-  there are no messages.
+  Order: standing notices first (deletion, then version alert), flash messages
+  after, newest last. Positioning lives in banner.css, keyed off .banner-stack.
 
-  Standing notices first (scheduled deletion, then the version alert), flash
-  messages after them, newest last. Everything here overlays the page rather than
-  taking flow space, so nothing shifts when a banner appears or is dismissed —
-  and the version alert stacks with the rest instead of overlapping it, which is
-  what happened while it lived inside the hero.
-
-  Success and info fade out after 6s and announce politely (role="status");
-  warning and error keep the assertive role="alert" and stay until dismissed, so
-  they carry a dismiss_id, which gives them a CSS-only close button that works
-  without JS. The deletion notice is a named landmark instead — it reports a
-  standing account state rather than an event.
+  Success and info fade after 6s and announce politely; warning and error stay
+  until dismissed, so they carry a dismiss_id for the CSS-only close button.
 
   Variables:
     messages                  (required) — from django.contrib.messages.

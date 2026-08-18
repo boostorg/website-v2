@@ -11,15 +11,12 @@ body.v3 {
 body.v3 {
   background: var(--color-surface-page);
 
-  /* Horizontal gutter the page shell adds around its children — 0 for the
-     full-bleed shells, overridden by .v3-container. Overlays that line up with
-     .header (positioned against the viewport, not the shell) cancel it. */
+  /* Gutter the page shell puts around its children — 0 for the full-bleed shells.
+     Overlays that line up with .header cancel it. */
   --v3-shell-gutter: 0px;
 
-  /* .header's own height, and the vertical space it occupies including its
-     padding. Anything that has to clear or line up with the navbar reads these:
-     var(--header-height) is no use outside .header, where it resolves to the
-     legacy 41px from the pre-V3 stylesheet. */
+  /* .header's height, and the space it occupies with its padding. Read these
+     rather than var(--header-height), the legacy 41px outside .header. */
   --v3-header-height: 48px;
   --v3-header-footprint: calc(var(--v3-header-height) + 2 * var(--space-default));
 }

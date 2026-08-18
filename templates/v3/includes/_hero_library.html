@@ -27,13 +27,9 @@
   row is hidden. If none of doc_url/source_url/slack_url/github_url are passed,
   the links row is hidden.
 
-  The version alert is not rendered here — it is part of base.html's notification
-  slot (v3/includes/_messages.html), so it stacks with flash messages instead of
-  overlapping them
-  section, above the block, which is where the design puts it. Callers using
-  `only` must forward those three explicitly. The banner carries the clearance
-  for the absolutely positioned header in that case; see .hero:has(> .banner) in
-  heros.css.
+  The version alert is not rendered here — it lives in base.html's notification
+  slot (v3/includes/_messages.html), so it stacks with flash messages under the
+  navbar instead of overlapping them.
 
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}

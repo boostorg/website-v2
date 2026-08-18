@@ -1,7 +1,6 @@
 .footer {
   --footer-text: var(--color-text-primary);
-  /* Cancels the shell's gutter so .footer__inner below measures against the same
-     box as .header, which is positioned against the viewport rather than the shell. */
+  /* Cancels the shell's gutter so .footer__inner lines up with .header. */
   margin-inline: calc(-1 * var(--v3-shell-gutter));
   padding: var(--space-large) 0;
   color: var(--footer-text);
@@ -13,11 +12,10 @@
   letter-spacing: -0.12px;
 }
 
-/* The divider reaches both viewport edges while the footer box stays at shell
-   width. Absolute with left/right 0 resolves against the initial containing
-   block, since no page shell is positioned; top comes from the static position,
-   which is the footer's content-box top, hence the negative margin. Uses no
-   viewport units, so the scrollbar can't push the page sideways. */
+/* Full-bleed divider while the footer box stays at shell width: left/right 0
+   resolve against the viewport because no page shell is positioned, and top comes
+   from the static position — hence the negative margin. No vw units, so the
+   scrollbar can't push the page sideways. */
 .footer::before {
   content: "";
   position: absolute;

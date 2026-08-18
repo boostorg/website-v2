@@ -79,16 +79,15 @@
     opacity: 0.7;
 }
 
-/* Flex so the button centres against the message instead of sitting on the
-   form's text baseline. */
+/* Centres the button against the message instead of on the form's baseline. */
 .banner__action-form {
     display: flex;
     align-items: center;
     margin: 0;
 }
 
-/* line-height matches .banner__message — a button's default `normal` adds
-   leading above and below the label, which reads as stray padding. */
+/* Matches the message's line-height; a button's default adds leading that reads
+   as stray padding. */
 .banner__action {
     padding: 0;
     background: transparent;
@@ -108,15 +107,13 @@
     opacity: 0.85;
 }
 
-/* CSS-only dismiss, so banners that don't auto-fade can still be closed without
-   JS. The checkbox stays focusable (no display: none) and the label is the
-   visible control, so the focus ring has to be forwarded to it. */
+/* CSS-only dismiss, so banners that never fade can be closed without JS. The
+   checkbox stays focusable, so the focus ring is forwarded to the label. */
 .banner:has(> .banner__dismiss:checked) {
     display: none;
 }
 
-/* Out of flow: as a flex child it would still collect one of the banner's gaps
-   and push the ✕ across, even at zero size. */
+/* Out of flow: as a flex child it would still collect a gap and shift the ✕. */
 .banner__dismiss {
     position: absolute;
     inset-block-start: 0;
@@ -133,23 +130,22 @@
     outline-offset: 2px;
 }
 
-/* Flash-message stack in base.html's messages slot (v3/includes/_messages.html). */
+/* Notification stack (v3/includes/_messages.html). */
 .banner-stack {
     display: flex;
     flex-direction: column;
     gap: var(--space-default);
 }
 
-/* Containing block for the stack. Cancelling the shell's gutter matches .header's
-   box; width: auto because a fixed width shifts the box instead of widening it. */
+/* Containing block for the stack: cancelling the shell gutter matches .header's box.
+   width: auto because a fixed width shifts the box instead of widening it. */
 body.v3 .w-full:has(> .banner-stack) {
     position: relative;
     width: auto;
     margin-inline: calc(-1 * var(--v3-shell-gutter));
 }
 
-/* Inset tracks .header's horizontal padding so the banner is exactly as wide as
-   the navbar; --v3-header-footprint (foundations.css) puts it just under. */
+/* Tracks .header's horizontal padding, so the banner matches the navbar's width. */
 body.v3 {
     --banner-slot-inset: var(--space-large);
 }

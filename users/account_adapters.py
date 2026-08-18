@@ -59,9 +59,7 @@ class AccountAdapter(DefaultAccountAdapter):
         "rate_limited": _("Be patient, you are sending too many requests."),
     }
 
-    # Confirmations V3 drops because the page the user lands on already says it:
-    # the header shows who is signed in, and the check-your-email page states that
-    # the confirmation was sent. Legacy keeps all three.
+    # Messages that are suppressed in V3: the page the user lands on already says it. Legacy keeps them.
     V3_SUPPRESSED_MESSAGES = {
         "account/messages/logged_in.txt",
         "account/messages/logged_out.txt",
@@ -69,8 +67,7 @@ class AccountAdapter(DefaultAccountAdapter):
     }
 
     def add_message(self, request, level, message_template=None, *args, **kwargs):
-        # Reads the flag off the passed request, not self.request, which is unset
-        # on adapters built outside a request.
+        # The passed request, not self.request, which is unset outside a request.
         if message_template in self.V3_SUPPRESSED_MESSAGES and flag_is_active(
             request, "v3"
         ):
