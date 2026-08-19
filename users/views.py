@@ -257,7 +257,8 @@ class CurrentUserProfileView(
                 # else, this points to the name of the disconnect modal associated with this platform
                 "action_url": (
                     provider.get_login_url(
-                        {auth.REDIRECT_FIELD_NAME: self.request.get_full_path()}
+                        self.request,
+                        **{auth.REDIRECT_FIELD_NAME: self.request.get_full_path()},
                     )
                     if not connected
                     else f"#disconnect-{platform}"
@@ -926,7 +927,7 @@ class DisconnectSocialAccountView(LoginRequiredMixin, View):
         if not platform:
             raise ValueError("Platform must be specified.")
 
-        redirect_url = self.request.GET.get("redirect_url").strip("'")
+        redirect_url = self.request.GET.get("redirect_url", "").strip("'")
         if not redirect_url:
             redirect_url = reverse("home")
 
