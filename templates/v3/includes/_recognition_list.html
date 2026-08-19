@@ -1,0 +1,39 @@
+{% comment %}
+  Scrollable recognition list – the body of the Achievements and Badges dialogs.
+
+  Rendered inside the Dialog component's content slot; see _dialog.html. Rows
+  scroll inside the region while the card border stays put, so the scrollbar
+  sits outside the card (matches Figma).
+
+  Variables:
+    items      (required): List of rows. Each row has:
+                             token       – Badge token, see _badge_v3.html
+                                           (e.g. "achievement-count", "boost-day")
+                             count       – required when token is "achievement-count"
+                             name        – row name
+                             description – how the item is earned
+    list_label (required): Accessible name for the scroll region.
+
+  Accessibility:
+    - The scroll region is focusable so it can be scrolled with the arrow keys.
+    - Icons are decorative: each name is already adjacent visible text.
+{% endcomment %}
+
+<div class="recognition-list"
+     tabindex="0"
+     role="group"
+     aria-label="{{ list_label }}">
+  <ul class="recognition-list__card" role="list">
+    {% for item in items %}
+      <li class="recognition-list__row">
+        <span class="recognition-list__icon">
+          {% include "v3/includes/_badge_v3.html" with token=item.token count=item.count size="medium" decorative=True only %}
+        </span>
+        <div class="recognition-list__text">
+          <span class="recognition-list__name">{{ item.name }}</span>
+          <span class="recognition-list__description">{{ item.description }}</span>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

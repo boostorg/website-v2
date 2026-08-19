@@ -78,6 +78,7 @@ html:has(.dialog-modal__toggle:checked) {
   gap: var(--space-large);
   width: 695px;
   max-width: calc(100vw - 2 * var(--space-large));
+  max-height: calc(100vh - 2 * var(--space-large));
   background-color: var(--color-surface-page);
   border-radius: var(--border-radius-xl);
   overflow: hidden;
@@ -163,6 +164,22 @@ html:has(.dialog-modal__toggle:checked) {
   line-height: var(--line-height-default);
   letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-secondary);
+}
+
+/* ============================================
+   CONTENT SLOT (optional)
+   Layout only — a scrollable body partial owns its own overflow behaviour.
+   ============================================ */
+.dialog-modal__content {
+  padding: 0 var(--space-large);
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+/* No button row below: the content slot supplies the bottom padding instead. */
+.dialog-modal__container > .dialog-modal__content:last-child {
+  padding-bottom: var(--space-large);
 }
 
 /* ============================================
