@@ -12,14 +12,15 @@
     dialog_id   (optional): Unique ID. Default "achievements-modal".
     title       (optional): Default "Achievements".
     description (optional): Default is the Figma copy.
-    items       (optional): Rows to list, see _recognition_list.html.
-                            Default is the catalogue in core.constants.
+    items       (optional): Rows to list, see _recognition_list.html. Defaults to
+                            every achievement type plus Boost Day, read from the
+                            catalogue by badges.display.achievement_dialog_rows.
 
   Usage:
     {% include "v3/includes/_achievements_modal.html" %}
     {% include "v3/includes/_achievements_modal.html" with items=user_achievements %}
 {% endcomment %}
-{% load core_tags %}
+{% load badges_tags %}
 
-{% achievements_dialog_content as defaults %}
-{% include "v3/includes/_dialog.html" with dialog_id=dialog_id|default:"achievements-modal" title=title|default:"Achievements" description=description|default:defaults.description content_template="v3/includes/_recognition_list.html" items=items|default:defaults.items list_label="Achievements" only %}
+{% achievements_dialog_content items as content %}
+{% include "v3/includes/_dialog.html" with dialog_id=dialog_id|default:"achievements-modal" title=title|default:"Achievements" description=description|default:content.description content_template="v3/includes/_recognition_list.html" items=content.items list_label="Achievements" only %}

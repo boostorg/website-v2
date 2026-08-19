@@ -4,12 +4,13 @@ import pytest
 import waffle.testutils
 from django.test import Client
 
+from badges.models import Achievement, Badge
 from users.models import User
 
 
 @pytest.mark.django_db
 @waffle.testutils.override_flag("v3", active=True)
-def test_demo_page_renders_recognition_modals():
+def test_demo_page_renders_recognition_modals(catalogue):
     staff = User.objects.create_user(
         email="staff@example.com", password="x", is_staff=True
     )
@@ -24,8 +25,11 @@ def test_demo_page_renders_recognition_modals():
         "achievements-modal",
         "achievements-modal-short",
         "badges-modal",
-        "badges-modal-scrollable",
+        "badges-modal-short",
     ):
         assert f'id="{dialog_id}"' in body, dialog_id
-    assert "Example badge type 5" in body
-    assert body.count("recognition-list__row") == 6 + 3 + 2 + 7
+
+    # Full catalogue plus its display-state row, then the two shortened variants.
+    achievements = Achievement.objects.count() + 1
+    badges = Badge.objects.count() + 1
+    assert body.count("recognition-list__row") == achievements + 3 + badges + 2
