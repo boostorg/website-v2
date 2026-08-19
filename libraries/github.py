@@ -528,6 +528,7 @@ class LibraryUpdater:
                     message=commit.message,
                     committed_at=commit.committed_at,
                     is_merge=commit.is_merge,
+                    docs_files_changed=commit.docs_files_changed,
                 )
 
             except KeyError:
@@ -566,7 +567,13 @@ class LibraryUpdater:
             Commit.objects.bulk_create(
                 commits,
                 update_conflicts=True,
-                update_fields=["author", "message", "committed_at", "is_merge"],
+                update_fields=[
+                    "author",
+                    "message",
+                    "committed_at",
+                    "is_merge",
+                    "docs_files_changed",
+                ],
                 unique_fields=["library_version", "sha"],
             )
             LibraryVersion.objects.bulk_update(
