@@ -39,12 +39,13 @@
     // this: it pre-renders every option's command and hides all but the selected
     // one, so reading the first .code-block__inner would copy the wrong command
     // as soon as the user changes the dropdown. Buttons without the attribute
-    // fall back to reading the block, unchanged.
+    // fall back to reading the block, unchanged. Presence, not truthiness: an
+    // empty data-copy-text means "nothing to copy", and falling back there would
+    // silently copy the first option's command instead.
     const codeEl = block.querySelector(".code-block__inner code");
-    const text =
-      btn.dataset.copyText ||
-      (codeEl ? codeEl.textContent || codeEl.innerText : "") ||
-      "";
+    const text = btn.hasAttribute("data-copy-text")
+      ? btn.dataset.copyText
+      : (codeEl ? codeEl.textContent || codeEl.innerText : "") || "";
     if (!text) return;
 
     function showCopiedFeedback() {
