@@ -20,10 +20,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="userachievement",
             name="dedup_info",
-            field=models.CharField(
+            field=models.TextField(
                 blank=True,
                 help_text="For automatic grants: the source's stable id for the evidence.",
-                max_length=200,
                 null=True,
                 verbose_name="dedup info",
             ),
