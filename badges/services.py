@@ -355,15 +355,15 @@ def _sync_source(
     if user_ids is not None:
         stored = stored.filter(user_id__in=user_ids)
 
-    # Every stored grant, keyed the way its source names the evidence. A key the
-    # walk never yields is stale; a key it yields needs one row, so any surplus
-    # rows carrying it are stale too. Bounded by this achievement's row count
-    # rather than by the source's, so a scoped run holds one member's grants in
-    # memory and not every commit.
+    # Every stored grant, keyed the way its source names the evidence. Whatever the
+    # walk never yields is stale, and a key it yields but cannot find here is a
+    # grant that does not exist yet, so one dict answers both halves. Bounded by
+    # this achievement's row count rather than by the source's, so a scoped run
+    # holds one member's grants in memory and not every commit.
     #
-    # A list of rows per key, not one: rows written before a source was keyed
-    # share ``(user, NULL)``, and duplicate source rows can share a real key
-    # until a reconcile collapses them.
+    # A list of rows per key, not one: rows written before a source was keyed all
+    # share ``(user, NULL)``. A real key can only ever hold one row -
+    # ``unique_automatic_user_achievement_dedup`` says so.
     stored_keys = {}
     for pk, user_id, dedup_info in stored.values_list(
         "pk", "user_id", "dedup_info"
@@ -445,8 +445,8 @@ def _sync_source(
     stale = []
     if remove:
         for key, pks in stored_keys.items():
-            surplus = pks if key not in seen else pks[1:]
-            stale.extend((pk, key[0]) for pk in surplus)
+            if key not in seen:
+                stale.extend((pk, key[0]) for pk in pks)
     if stale and not yielded and not allow_empty:
         logger.warning(
             "Refusing to remove %s stale grant(s) for '%s': the source yielded "

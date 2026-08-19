@@ -31,18 +31,19 @@ ONE_PER_RANK = {
 }
 
 
-def grant_from_source(user, achievement, source):
+def grant_from_source(user, achievement, source, dedup_info=None):
     """Record one automatic grant pointing at ``source``.
 
     ``get_or_create`` rather than ``create``, so a test can assert that a repeat
-    is a no-op.
+    is a no-op. ``dedup_info`` is what the engine matches on; left out, the row
+    stands for one written before its source was keyed.
     """
     return UserAchievement.objects.get_or_create(
         user=user,
         achievement=achievement,
         source_content_type=ContentType.objects.get_for_model(source),
         source_object_id=source.pk,
-        defaults={"source_type": SourceType.AUTOMATIC},
+        defaults={"source_type": SourceType.AUTOMATIC, "dedup_info": dedup_info},
     )
 
 
