@@ -113,3 +113,24 @@ def test_iter_library_review_skips_unlinked(plain_user):
     )
     pairs = list(sources._iter_library_review())
     assert [u for u, _, _ in pairs] == [plain_user]
+
+
+def test_iter_documentation_skips_commits_that_touched_no_docs(plain_user):
+    """Only commits with a doc file to their name are yielded."""
+    author = baker.make("libraries.CommitAuthor", user=plain_user)
+    documented = baker.make("libraries.Commit", author=author, docs_files_changed=2)
+    baker.make("libraries.Commit", author=author, docs_files_changed=0)
+
+    assert list(sources._iter_documentation()) == [
+        (plain_user, documented, documented.sha)
+    ]
+
+
+def test_iter_documentation_skips_merges_and_unlinked_authors(plain_user):
+    """A merge did not write the docs, and an unclaimed author is nobody yet."""
+    linked = baker.make("libraries.CommitAuthor", user=plain_user)
+    unlinked = baker.make("libraries.CommitAuthor", user=None)
+    baker.make("libraries.Commit", author=linked, docs_files_changed=1, is_merge=True)
+    baker.make("libraries.Commit", author=unlinked, docs_files_changed=1)
+
+    assert list(sources._iter_documentation()) == []

@@ -152,3 +152,43 @@ def test_source_key_formats(plain_user):
     assert [key for _, _, key in sources._iter_library_review()] == [
         "boostmp11|peterdimov|april1102017"
     ]
+
+
+def test_a_doc_commit_earns_the_documenter_badge(plain_user):
+    """End to end: a doc commit grants and awards, a code-only commit does not."""
+    from badges.models import UserBadge
+
+    author = baker.make("libraries.CommitAuthor", user=plain_user)
+    baker.make("libraries.Commit", author=author, sha="d0c1", docs_files_changed=3)
+    baker.make("libraries.Commit", author=author, sha="c0de", docs_files_changed=0)
+
+    call_command("backfill_achievements", "--source", "documentation")
+
+    grants = UserAchievement.objects.filter(
+        user=plain_user, achievement__slug="documentation"
+    )
+    assert [g.dedup_info for g in grants] == ["d0c1"]
+    assert UserBadge.objects.filter(
+        user=plain_user, badge__label="documenter", revoked_at__isnull=True
+    ).exists()
+
+
+def test_backfilling_documentation_twice_grants_once(plain_user):
+    """The second sweep of the weekly pipeline must not double anyone's count."""
+    author = baker.make("libraries.CommitAuthor", user=plain_user)
+    baker.make("libraries.Commit", author=author, sha="d0c1", docs_files_changed=3)
+
+    call_command("backfill_achievements", "--source", "documentation")
+    call_command("backfill_achievements", "--source", "documentation")
+
+    assert (
+        UserAchievement.objects.filter(
+            user=plain_user, achievement__slug="documentation"
+        ).count()
+        == 1
+    )
+
+
+def test_documentation_is_selectable_as_a_source():
+    """The CLI choices are derived from what is wired, so this cannot drift."""
+    assert "documentation" in sources.AUTOMATIC_SLUGS
