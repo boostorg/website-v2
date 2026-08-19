@@ -113,6 +113,27 @@ def _iter_code_commits():
         yield commit.author.user, commit, commit.sha
 
 
+def _iter_documentation():
+    """Yield (user, commit) for every attributed commit that touched docs.
+
+    Merges are excluded explicitly as well as by their empty file list: merging
+    someone else's documentation is not writing it.
+    """
+    from libraries.models import Commit
+
+    commits = (
+        Commit.objects.filter(
+            docs_files_changed__gt=0,
+            is_merge=False,
+            author__user__isnull=False,
+        )
+        .select_related("author__user")
+        .iterator(chunk_size=1000)
+    )
+    for commit in commits:
+        yield commit.author.user, commit, commit.sha
+
+
 def _iter_library_review():
     """Yield (user, review) for every review submission with a linked user."""
     from versions.models import Review
@@ -131,6 +152,7 @@ BACKFILL_ITERATORS = {
     AchievementSlug.LIBRARY_VERSIONING: _iter_library_versioning,
     AchievementSlug.CODE_COMMITS: _iter_code_commits,
     AchievementSlug.LIBRARY_REVIEW: _iter_library_review,
+    AchievementSlug.DOCUMENTATION: _iter_documentation,
 }
 
 # Derived, so the CLI choices can never drift from the wired iterators.
