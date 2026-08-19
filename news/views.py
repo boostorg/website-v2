@@ -728,7 +728,9 @@ class V3AllTypesEditView(V3AllTypesCreateView):
         if page.stream_content_type in ["video", "url"]:
             form_data["external_url"] = page.external_url
         else:
-            form_data["content"] = page.content
+            # Return the raw value of the markdown block not rendered to html
+            # for cleaner editing in a javascriptless environment
+            form_data["content"] = page.content[0].value
 
         form = form_class(initial=form_data)
         ctx["form"] = form
