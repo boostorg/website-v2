@@ -11,9 +11,12 @@
     background: var(--color-surface-brand-accent-default);
 }
 
+/* The strong green primitive, not --color-syntax-green: that one flips to the pale
+   green in dark mode, and the success banner is meant to look the same in both.
+   The foreground token has to be theme-stable for the same reason. */
 .banner--success {
-    --banner-fg: var(--color-text-reversed);
-    background: var(--color-syntax-green);
+    --banner-fg: var(--color-text-reversed-on-accent);
+    background: var(--color-syntax-strong-green);
 }
 
 .banner--error {
