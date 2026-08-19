@@ -8,6 +8,7 @@ from django.utils.text import slugify
 from .converters import to_url
 from .exceptions import BoostImportedDataException
 from .managers import VersionManager, VersionFileManager
+from .review_keys import review_key
 from .utils.model_validators import validate_version_name_format
 
 User = get_user_model()
@@ -320,6 +321,17 @@ class Review(models.Model):
     review_dates = models.CharField()
     github_link = models.URLField(blank=True, default="")
     documentation_link = models.URLField(blank=True, default="")
+
+    @property
+    def dedup_key(self) -> str:
+        """The importer's fingerprint, as one string.
+
+        What identifies a review to the achievement engine: stable across
+        re-imports that rewrite the row, unlike the primary key.
+        """
+        return "|".join(
+            review_key(self.submission, self.submitter_raw, self.review_dates)
+        )
 
     def __str__(self) -> str:
         return self.submission

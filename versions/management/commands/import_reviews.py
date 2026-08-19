@@ -1,6 +1,4 @@
 import html
-import re
-import unicodedata
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
@@ -13,6 +11,7 @@ from django.db import transaction
 from badges.services import discard_source_achievements
 from libraries.models import CommitAuthor
 from versions.models import Review, ReviewResult
+from versions.review_keys import review_key
 
 PAST_RESULTS_HEADING = "Past Review Results and Milestones"
 PAST_RESULTS_HEADER = (
@@ -101,7 +100,7 @@ def command(clean):
         existing_by_key = {}
         removed_duplicates = 0
         for review in list(Review.objects.order_by("pk")):
-            key = _review_key(
+            key = review_key(
                 review.submission, review.submitter_raw, review.review_dates
             )
             if key in existing_by_key:
@@ -118,7 +117,7 @@ def command(clean):
             )
 
         for review_data, results in past_reviews:
-            key = _review_key(
+            key = review_key(
                 review_data["submission"],
                 review_data["submitter_raw"],
                 review_data["review_dates"],
@@ -283,39 +282,9 @@ def _parse_table(table):
     return reviews
 
 
-def _normalize(value: str) -> str:
-    """Normalize a field for flexible matching.
-
-    Strips accents, lowercases, and removes every non-alphanumeric character
-    (spaces, punctuation, and any other special characters) so that minor
-    spelling/formatting differences compare equal. Removing - rather than
-    collapsing to a space - is what lets mojibake survivors such as
-    ``Johan RÃ¥de`` match the correct ``Johan Råde`` (both become
-    ``johanrade``), alongside cases like ``Joaquín M López Muñoz`` vs
-    ``Joaquin M Lopez Munoz`` and ``boost::container::hub`` vs ``Boost Container Hub``.
-    """
-    decomposed = unicodedata.normalize("NFKD", value or "")
-    without_accents = "".join(c for c in decomposed if not unicodedata.combining(c))
-    return re.sub(r"[^a-z0-9]+", "", without_accents.lower())
-
-
 def _is_github_link(link: str) -> bool:
     hostname = (urlparse(link).hostname or "").lower()
     return hostname == "github.com" or hostname.endswith(".github.com")
-
-
-def _review_key(submission: str, submitter_raw: str, review_dates: str) -> tuple:
-    """A flexible, multi-field fingerprint used to deduplicate reviews.
-
-    Dates are part of the key so that a library reviewed more than once (on
-    different dates) is kept as separate records, while the same review
-    re-imported with minor spelling changes collapses to one.
-    """
-    return (
-        _normalize(submission),
-        _normalize(submitter_raw),
-        _normalize(review_dates),
-    )
 
 
 def _is_superseded(link, result_cell):
