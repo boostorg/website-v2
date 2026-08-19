@@ -486,3 +486,35 @@ def test_reimport_heals_the_doc_count_without_moving_the_row(fake_git):
 
     stale.refresh_from_db()
     assert stale.docs_files_changed == 2
+
+
+@pytest.mark.django_db
+def test_clean_reimport_discards_the_grants_it_orphans(
+    fake_git, catalogue, django_user_model
+):
+    """A wiped commit takes its grants with it, whatever source they came from.
+
+    Left behind, they count toward a threshold forever: a reconcile can only match
+    a grant against what the iterator yields, and a deleted row yields nothing.
+    """
+    from badges.models import Achievement, UserAchievement
+    from badges.tests.fixtures import grant_from_source
+    from libraries.models import Commit
+
+    user = django_user_model.objects.create_user(
+        email="committer@example.com", password="x"
+    )
+    library = baker.make(
+        Library, key="mp11", github_url="https://github.com/boostorg/mp11"
+    )
+    version = baker.make(LibraryVersion, library=library)
+    version.version.name = "master"
+    version.version.save()
+    commit = baker.make(Commit, library_version=version, sha="abc123")
+    grant_from_source(
+        user, Achievement.objects.get(slug="code-commits"), commit, dedup_info="abc123"
+    )
+
+    LibraryUpdater().update_commits(library, clean=True)
+
+    assert not UserAchievement.objects.filter(source_object_id=commit.pk).exists()

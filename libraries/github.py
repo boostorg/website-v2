@@ -29,6 +29,7 @@ from .models import (
     LibraryVersion,
     PullRequest,
 )
+from badges.services import discard_source_achievements
 from core.githubhelper import GithubAPIClient, GithubDataParser
 
 from .utils import generate_fake_email, parse_boostdep_artifact, parse_date
@@ -566,7 +567,11 @@ class LibraryUpdater:
 
         with transaction.atomic():
             if clean:
-                Commit.objects.filter(library_version__library=library).delete()
+                # The rows come back with new ids, and a grant names its source by
+                # id with no link back, so the grants have to go with them.
+                doomed = Commit.objects.filter(library_version__library=library)
+                discard_source_achievements(Commit, doomed.values_list("pk", flat=True))
+                doomed.delete()
             Commit.objects.bulk_create(
                 commits,
                 update_conflicts=True,
