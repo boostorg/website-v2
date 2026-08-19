@@ -123,9 +123,8 @@ class UserAchievement(models.Model):
     # The source's own name for the evidence, which a primary key is not: the
     # commit importer deletes and re-creates rows, and one commit is stored once
     # per library version covering it. Null for manual grants.
-    dedup_info = models.CharField(
+    dedup_info = models.TextField(
         _("dedup info"),
-        max_length=200,
         null=True,
         blank=True,
         help_text=_("For automatic grants: the source's stable id for the evidence."),
