@@ -901,12 +901,8 @@
         <a href="#achievements-modal-short" class="btn btn-primary">Open Achievements (short)</a>
       </div>
       <div class="v3-examples-section__example-box">
-        <h4 class="py-large">Badges Modal — full catalogue, scrolls</h4>
+        <h4 class="py-large">Badges Modal — the two kinds of badge</h4>
         <a href="#badges-modal" class="btn btn-primary">Open Badges</a>
-      </div>
-      <div class="v3-examples-section__example-box">
-        <h4 class="py-large">Badges Modal — short list, no scrolling</h4>
-        <a href="#badges-modal-short" class="btn btn-primary">Open Badges (short)</a>
       </div>
     </div>
   {% endwith %}
@@ -1113,8 +1109,6 @@ Table of Contents generator – runs after all section blocks have been parsed.
 {% include "v3/includes/_dialog.html" with dialog_id="demo-dialog-with-desc" title="Title of Dialog" description="Description that can go inside of Dialog" primary_url="#_" secondary_url="#_" primary_label="Button" secondary_label="Button" %}
 
 {% achievements_dialog_content as demo_achievements %}
-{% badges_dialog_content as demo_badge_types %}
 {% include "v3/includes/_achievements_modal.html" %}
 {% include "v3/includes/_achievements_modal.html" with dialog_id="achievements-modal-short" items=demo_achievements.items|slice:":3" %}
 {% include "v3/includes/_badges_modal.html" %}
-{% include "v3/includes/_badges_modal.html" with dialog_id="badges-modal-short" items=demo_badge_types.items|slice:":2" %}

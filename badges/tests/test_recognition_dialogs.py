@@ -4,15 +4,15 @@ import pytest
 from django.template.loader import render_to_string
 
 from badges.display import (
+    ACHIEVEMENT_BASED_ROW,
     BOOST_DAY_ROW,
     TENURE_ROW,
     TIER_TOKENS,
     achievement_dialog_rows,
     badge_dialog_rows,
 )
-from badges.enums import AchievementSlug, BadgeLabel, TierRank
-from badges.models import Achievement, Badge, BadgeTier
-from badges.seed_data import SEED_CATALOGUE
+from badges.enums import AchievementSlug, TierRank
+from badges.models import Achievement, BadgeTier
 from core.constants import BadgeToken
 
 ACHIEVEMENTS = "v3/includes/_achievements_modal.html"
@@ -74,46 +74,14 @@ def test_achievement_rows_cost_a_fixed_number_of_queries(
         achievement_dialog_rows()
 
 
-def test_badge_rows_come_from_the_catalogue(catalogue):
-    rows = badge_dialog_rows()
-
-    assert len(rows) == Badge.objects.count() + 1
-    by_name = {row["name"]: row for row in rows}
-    for badge in Badge.objects.all():
-        assert by_name[badge.get_label_display()]["description"] == badge.description
+def test_badge_rows_are_the_two_kinds_of_badge():
+    """Per Figma the dialog names the kinds of badge, not the catalogue."""
+    assert badge_dialog_rows() == [ACHIEVEMENT_BASED_ROW, TENURE_ROW]
 
 
-def test_badge_rows_end_with_tenure(catalogue):
-    """Tenure stars are a display state, so they have no catalogue row either."""
-    assert badge_dialog_rows()[-1] == TENURE_ROW
-
-
-def test_badge_rows_follow_catalogue_order(catalogue):
-    """Not Badge.Meta.ordering, which is alphabetical by raw label."""
-    expected = [
-        Badge.objects.get(label=label).get_label_display()
-        for _, _, _, label, _ in SEED_CATALOGUE
-    ]
-
-    assert [row["name"] for row in badge_dialog_rows()[:-1]] == expected
-
-
-def test_badge_rows_show_the_entry_tier(catalogue):
-    rows = {row["name"]: row for row in badge_dialog_rows()}
-    reviewer = Badge.objects.get(label=BadgeLabel.REVIEWER)
-
-    assert rows[reviewer.get_label_display()]["token"] == TIER_TOKENS[TierRank.BRONZE]
-
-
-def test_badge_with_no_active_tier_still_gets_a_row(catalogue):
-    """A retuned badge is briefly tierless; its description still matters."""
-    badge = Badge.objects.get(label=BadgeLabel.REVIEWER)
-    BadgeTier.objects.filter(badge=badge).update(is_active=False)
-
-    rows = {row["name"]: row for row in badge_dialog_rows()}
-
-    assert badge.get_label_display() in rows
-    assert rows[badge.get_label_display()]["token"] == TIER_TOKENS[TierRank.BRONZE]
+def test_badge_rows_need_no_database(django_assert_num_queries):
+    with django_assert_num_queries(0):
+        badge_dialog_rows()
 
 
 def test_achievements_modal_renders_every_row(catalogue):
@@ -125,11 +93,11 @@ def test_achievements_modal_renders_every_row(catalogue):
     assert "Boost day celebration" in out
 
 
-def test_badges_modal_renders_every_row(catalogue):
+def test_badges_modal_renders_both_kinds():
     out = render_to_string(BADGES, {})
 
-    assert out.count("recognition-list__row") == Badge.objects.count() + 1
-    assert "Library Author" in out
+    assert out.count("recognition-list__row") == 2
+    assert "Achievement-based" in out
     assert "Tenure-based" in out
 
 
@@ -226,9 +194,11 @@ def test_badge_keeps_its_hover_label_when_not_decorative():
     assert 'aria-label="Gold badge"' in out
 
 
-@pytest.mark.parametrize("template", [ACHIEVEMENTS, BADGES])
-def test_modals_render_on_an_empty_catalogue(db, template):
-    """Only the display-state row remains; the dialog must not break."""
+@pytest.mark.parametrize(
+    "template,rows", [(ACHIEVEMENTS, 1), (BADGES, 2)], ids=["achievements", "badges"]
+)
+def test_modals_render_on_an_empty_catalogue(db, template, rows):
+    """Achievements falls back to Boost Day alone; Badges never read the table."""
     out = render_to_string(template, {})
 
-    assert out.count("recognition-list__row") == 1
+    assert out.count("recognition-list__row") == rows

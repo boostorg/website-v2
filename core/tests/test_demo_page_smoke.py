@@ -4,7 +4,7 @@ import pytest
 import waffle.testutils
 from django.test import Client
 
-from badges.models import Achievement, Badge
+from badges.models import Achievement
 from users.models import User
 
 
@@ -25,11 +25,10 @@ def test_demo_page_renders_recognition_modals(catalogue):
         "achievements-modal",
         "achievements-modal-short",
         "badges-modal",
-        "badges-modal-short",
     ):
         assert f'id="{dialog_id}"' in body, dialog_id
 
-    # Full catalogue plus its display-state row, then the two shortened variants.
+    # Full catalogue plus Boost Day, the shortened variant, then the two kinds
+    # of badge.
     achievements = Achievement.objects.count() + 1
-    badges = Badge.objects.count() + 1
-    assert body.count("recognition-list__row") == achievements + 3 + badges + 2
+    assert body.count("recognition-list__row") == achievements + 3 + 2
