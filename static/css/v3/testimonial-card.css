@@ -45,7 +45,10 @@
     font-family: var(--font-sans);
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-tight);
+    /* Figma says 100%, but at that size the clamp below slices the descenders
+       (#2520). 1.2 is the tightest step that clears them. Revisit if the
+       clamp goes. */
+    line-height: var(--line-height-default);
     letter-spacing: var(--letter-spacing-tight);
 
     /* 3-line clamp with ellipsis. */
