@@ -265,6 +265,23 @@ def test_route_and_version_are_derived_from_the_page_url(client, url, payload):
     assert feedback.boost_version == "boost-1-88-0"
 
 
+@pytest.mark.parametrize(
+    "page_url",
+    [
+        "http://testserver/library/latest/beast/",
+        # No version anywhere: the page was showing the most recent release.
+        "http://testserver/libraries/",
+    ],
+)
+def test_latest_is_pinned_to_the_release_it_meant(
+    client, url, payload, version, page_url
+):
+    """A "latest" URL moves with every release, so it cannot be what a report stores."""
+    client.post(url, {**payload, "page_url": page_url}, headers=XHR)
+
+    assert Feedback.objects.get().boost_version == version.slug
+
+
 def test_client_diagnostics_are_captured_but_bounded(client, url, payload):
     """The browser blob is untrusted: oversized entries and junk keys are dropped."""
     blob = json.dumps(

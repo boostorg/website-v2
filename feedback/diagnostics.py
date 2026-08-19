@@ -19,7 +19,9 @@ from django.core.cache import cache
 from django.urls import Resolver404, resolve
 from django.utils import timezone
 
+from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.utils import get_version_from_cookie
+from versions.models import Version
 
 logger = structlog.get_logger()
 
@@ -54,6 +56,12 @@ def page_context(request, page_url):
         # Cookie mode: the version selector writes a cookie instead of navigating,
         # and that cookie rides along on the feedback POST.
         context["boost_version"] = get_version_from_cookie(request) or ""
+
+    if context["boost_version"] in ("", LATEST_RELEASE_URL_PATH_STR):
+        # "latest" moves with every release and the cookie never stores it, so pin
+        # it to the release it meant here — same fallback `selected_version` uses.
+        most_recent = Version.objects.most_recent()
+        context["boost_version"] = most_recent.slug if most_recent else ""
 
     return context
 
