@@ -7,6 +7,7 @@
 
   Variables:
     items      (required): List of rows. Each row has:
+                             size        – optional Badge size, default "medium"
                              token       – Badge token, see _badge_v3.html
                                            (e.g. "achievement-count", "boost-day")
                              count       – required when token is "achievement-count"
@@ -27,7 +28,7 @@
     {% for item in items %}
       <li class="recognition-list__row">
         <span class="recognition-list__icon">
-          {% include "v3/includes/_badge_v3.html" with token=item.token count=item.count size="medium" decorative=True only %}
+          {% include "v3/includes/_badge_v3.html" with token=item.token count=item.count size=item.size|default:"medium" decorative=True only %}
         </span>
         <div class="recognition-list__text">
           <span class="recognition-list__name">{{ item.name }}</span>

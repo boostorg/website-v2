@@ -354,7 +354,8 @@ BOOST_DAY_ROW = {
 }
 
 ACHIEVEMENT_BASED_ROW = {
-    "token": BadgeToken.TIER_1,
+    "token": BadgeToken.ACHIEVEMENT_BASED,
+    "size": "large",
     "name": "Achievement-based",
     "description": (
         "Reflects the depth of your contributions. Accumulate achievements to "
@@ -363,7 +364,8 @@ ACHIEVEMENT_BASED_ROW = {
 }
 
 TENURE_ROW = {
-    "token": BadgeToken.STAR_TIER_1,
+    "token": BadgeToken.TENURE_BASED,
+    "size": "large",
     "name": "Tenure-based",
     "description": (
         "Awarded in recognition of your time on the platform. The longer you've "

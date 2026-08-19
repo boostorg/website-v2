@@ -13,6 +13,22 @@
   </span>
   {% endwith %}
 
+{% elif token == "achievement-based" %}
+  {% with tip=label|default:"Achievement-based badges" %}
+  <span class="badge-v3 badge-v3--cluster {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
+    <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/achievement-based.png' %}" alt="">
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
+  </span>
+  {% endwith %}
+
+{% elif token == "tenure-based" %}
+  {% with tip=label|default:"Tenure-based stars" %}
+  <span class="badge-v3 badge-v3--cluster {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
+    <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/tenure-based.png' %}" alt="">
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
+  </span>
+  {% endwith %}
+
 {% elif token == "achievement-count" %}
   {% with default_tip=count|stringformat:"s"|add:" achievements" %}
   {% with tip=label|default:default_tip %}
