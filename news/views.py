@@ -921,11 +921,11 @@ class V3DeletePostView(LoginRequiredMixin, View):
         if not page.user_can_delete(request.user):
             messages.error(request=request, message=_("You do not own this page."))
             return redirect(page.url)
-        
+
         workflow_state = page.current_workflow_state
         if workflow_state:
             workflow_state.cancel(user=request.user)
-            
+
         page.unpublish(user=request.user)
         messages.success(
             request=request, message=_("This page has been successfully removed.")
