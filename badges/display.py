@@ -373,21 +373,52 @@ BADGES_DIALOG_DESCRIPTION = (
 def achievement_dialog_rows():
     """Every achievement type as a dialog row, Boost Day last.
 
+    Each row is iconed by the badge it feeds, so the dialog shows real artwork
+    rather than a counter standing in for one.
+
     Ordered by name, ``Achievement`` being an admin-editable registry with no
-    catalogue ordering of its own. The counter icon carries 1 rather than a real
-    tally: the dialog names what each achievement is, and the reader's own counts
-    are on their profile.
+    catalogue ordering of its own.
     """
-    rows = [
-        {
-            "token": BadgeToken.ACHIEVEMENT_COUNT,
-            "count": 1,
-            "name": achievement.name,
-            "description": achievement.description,
-        }
-        for achievement in Achievement.objects.all()
+    achievements = Achievement.objects.prefetch_related(
+        Prefetch(
+            "badges",
+            queryset=Badge.objects.prefetch_related(
+                Prefetch(
+                    "tiers",
+                    queryset=BadgeTier.objects.filter(is_active=True).order_by(
+                        RANK_LADDER_ORDER
+                    ),
+                    to_attr="active_tiers",
+                )
+            ),
+            to_attr="fed_badges",
+        )
+    )
+    return [_achievement_row(achievement) for achievement in achievements] + [
+        BOOST_DAY_ROW
     ]
-    return rows + [BOOST_DAY_ROW]
+
+
+def _achievement_row(achievement):
+    """One achievement, iconed by the entry tier of the badge it feeds.
+
+    An achievement with no badge, or one whose badge is briefly tierless while a
+    retuned replacement is created, falls back to the counter. It carries 1
+    rather than a real tally: the dialog names what each achievement is, and the
+    reader's own counts are on their profile.
+    """
+    row = {"name": achievement.name, "description": achievement.description}
+    tier = next(
+        (
+            badge.active_tiers[0]
+            for badge in achievement.fed_badges
+            if badge.active_tiers
+        ),
+        None,
+    )
+    if tier is None:
+        return {**row, "token": BadgeToken.ACHIEVEMENT_COUNT, "count": 1}
+    return {**row, "token": TIER_TOKENS[tier.rank]}
 
 
 def badge_dialog_rows():
