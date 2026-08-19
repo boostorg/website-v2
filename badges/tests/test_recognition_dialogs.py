@@ -10,7 +10,7 @@ from badges.display import (
     achievement_dialog_rows,
     badge_dialog_rows,
 )
-from badges.enums import BadgeLabel, TierRank
+from badges.enums import AchievementSlug, BadgeLabel, TierRank
 from badges.models import Achievement, Badge, BadgeTier
 from badges.seed_data import SEED_CATALOGUE
 from core.constants import BadgeToken
@@ -36,6 +36,42 @@ def test_achievement_rows_end_with_boost_day(catalogue):
 
     assert rows[-1] == BOOST_DAY_ROW
     assert len(rows) == Achievement.objects.count() + 1
+
+
+def test_achievement_rows_are_iconed_by_the_badge_they_feed(catalogue):
+    rows = {row["name"]: row for row in achievement_dialog_rows()}
+    review = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
+
+    assert rows[review.name]["token"] == TIER_TOKENS[TierRank.BRONZE]
+    assert "count" not in rows[review.name]
+
+
+def test_achievement_with_no_badge_falls_back_to_the_counter(db):
+    achievement = Achievement.objects.create(slug="manual-only", name="Manual Only")
+
+    row, _boost_day = achievement_dialog_rows()
+
+    assert row["name"] == achievement.name
+    assert row["token"] == BadgeToken.ACHIEVEMENT_COUNT
+    assert row["count"] == 1
+
+
+def test_achievement_whose_badge_is_tierless_falls_back_to_the_counter(catalogue):
+    """A retuned badge is briefly tierless while its replacement is created."""
+    achievement = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
+    BadgeTier.objects.filter(badge__achievement=achievement).update(is_active=False)
+
+    rows = {row["name"]: row for row in achievement_dialog_rows()}
+
+    assert rows[achievement.name]["token"] == BadgeToken.ACHIEVEMENT_COUNT
+
+
+def test_achievement_rows_cost_a_fixed_number_of_queries(
+    catalogue, django_assert_num_queries
+):
+    """Prefetching keeps the row count from driving the query count."""
+    with django_assert_num_queries(3):
+        achievement_dialog_rows()
 
 
 def test_badge_rows_come_from_the_catalogue(catalogue):
