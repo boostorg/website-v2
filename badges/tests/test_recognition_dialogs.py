@@ -1,10 +1,8 @@
 """The Achievements and Badges dialogs, and the catalogue rows behind them."""
 
 import re
-from pathlib import Path
 
 import pytest
-from django.conf import settings
 from django.template.loader import render_to_string
 
 from badges.display import (
@@ -96,23 +94,23 @@ def test_badge_rows_use_the_cluster_icons():
 
 
 @pytest.mark.parametrize(
-    "token", [BadgeToken.ACHIEVEMENT_BASED, BadgeToken.TENURE_BASED]
+    "token,filename",
+    [
+        (BadgeToken.ACHIEVEMENT_BASED, "achievement-based.png"),
+        (BadgeToken.TENURE_BASED, "tenure-based.png"),
+    ],
 )
-def test_cluster_tokens_render_artwork_that_exists(token):
-    """A mistyped filename would 404 in the browser and pass every other test."""
+def test_cluster_tokens_point_at_their_artwork(token, filename):
+    """Pins the token-to-asset mapping, a mistyped path being a silent 404.
+
+    Whether the file is really there cannot be checked here: ``static-large`` is
+    gitignored and synced from S3, so no checkout has it. Publishing a new asset
+    means running ``just up_sync_images``.
+    """
     out = render_to_string("v3/includes/_badge_v3.html", {"token": token})
 
     (src,) = re.findall(r'src="([^"]+)"', out)
-    name = src.rsplit("/", 1)[-1]
-    assert (
-        Path(settings.BASE_DIR)
-        / "static"
-        / "static-large"
-        / "img"
-        / "v3"
-        / "badges"
-        / name
-    ).is_file(), name
+    assert src.endswith(f"/static-large/img/v3/badges/{filename}")
 
 
 def test_achievements_modal_renders_every_row(catalogue):
