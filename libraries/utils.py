@@ -454,6 +454,46 @@ def parse_boostdep_artifact(content: str):
         )
 
 
+def address_already_proven_by(email, user) -> bool:
+    """True when `user` has already proven control of `email` somewhere other
+    than the commit-email claim flow, so claiming it needs no second round-trip.
+
+    Three routes count, each of which already required acting on a link sent to
+    the address itself:
+      - it is the account's own address. Email verification is mandatory
+        (ACCOUNT_EMAIL_VERIFICATION) and this only ever runs for a signed-in
+        user, so reaching here at all means it was confirmed at signup.
+      - an allauth EmailAddress marked verified - covers secondary addresses
+        added to the account later, and re-confirms the primary one.
+      - an active mailing-list subscription. Mailman only flips a row to ACTIVE
+        after the recipient opens a signed confirmation link (see
+        mailing_list/views.py); `pending` rows prove nothing and are excluded.
+
+    Every comparison is case-insensitive: CommitAuthorEmail rows are stored
+    exactly as git reported them, so mixed case is common there, while
+    User.email is lowercased on save. An exact match would miss those.
+    """
+    # local imports: this module is imported during app loading
+    from allauth.account.models import EmailAddress
+    from mailing_list.models import SubscriptionStatus, UserMailingListSubscription
+
+    email = (email or "").strip().lower()
+    if not email:
+        return False
+
+    if (user.email or "").lower() == email:
+        return True
+
+    if EmailAddress.objects.filter(
+        user=user, verified=True, email__iexact=email
+    ).exists():
+        return True
+
+    return UserMailingListSubscription.objects.filter(
+        user=user, status=SubscriptionStatus.ACTIVE, email__iexact=email
+    ).exists()
+
+
 def patch_commit_authors(users):
     """Patch CommitAuthor data onto a list of User objects.
 

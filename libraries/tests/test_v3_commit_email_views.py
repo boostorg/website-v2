@@ -279,6 +279,198 @@ def test_v3_commit_email_create_rejects_unknown_email(user, tp):
     ).exists()
 
 
+# --- claims accepted without a verification email ---
+#
+# An address the account has already confirmed elsewhere needs no second
+# round-trip; see libraries.utils.address_already_proven_by.
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_create_accepts_own_account_email_instantly(
+    user, tp, mailoutbox
+):
+    commit_author_email = _unclaimed_commit_email(email=user.email)
+
+    with tp.login(user):
+        response = tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": commit_author_email.email},
+        )
+    tp.response_302(response)
+
+    commit_author_email.refresh_from_db()
+    assert commit_author_email.claim_verified is True
+    assert commit_author_email.claimed_by == user
+    # nothing to redeem, so no token was minted and no mail sent
+    assert commit_author_email.claim_hash is None
+    assert not mailoutbox
+    # a verified claim binds public attribution, same as clicking the link
+    assert commit_author_email.author.user == user
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_create_accepts_mixed_case_stored_address_instantly(
+    user, tp, mailoutbox
+):
+    """Commit emails are stored exactly as git reported them, so the stored row
+    can differ in case from the lowercased account email. The match must still
+    be found, or these users get a pointless verification email.
+    """
+    assert user.email == user.email.lower()
+    commit_author_email = _unclaimed_commit_email(email=user.email.upper())
+
+    with tp.login(user):
+        response = tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": commit_author_email.email},
+        )
+    tp.response_302(response)
+
+    commit_author_email.refresh_from_db()
+    assert commit_author_email.claim_verified is True
+    assert not mailoutbox
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_create_accepts_verified_secondary_address_instantly(
+    user, tp, mailoutbox
+):
+    commit_author_email = _unclaimed_commit_email(email="Second@Example.com")
+    baker.make(
+        "account.EmailAddress",
+        user=user,
+        email="second@example.com",
+        verified=True,
+    )
+
+    with tp.login(user):
+        tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": commit_author_email.email},
+        )
+
+    commit_author_email.refresh_from_db()
+    assert commit_author_email.claim_verified is True
+    assert not mailoutbox
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_create_accepts_active_mailing_list_address_instantly(
+    user, tp, mailoutbox
+):
+    commit_author_email = _unclaimed_commit_email(email="Subscriber@Example.com")
+    baker.make(
+        "mailing_list.UserMailingListSubscription",
+        user=user,
+        list_id="boost-users",
+        email="subscriber@example.com",
+        status="active",
+    )
+
+    with tp.login(user):
+        tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": commit_author_email.email},
+        )
+
+    commit_author_email.refresh_from_db()
+    assert commit_author_email.claim_verified is True
+    assert not mailoutbox
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_create_still_verifies_pending_mailing_list_address(
+    user, tp, mailoutbox
+):
+    """A pending subscription proves nothing - Mailman only flips a row to
+    active once the recipient opens the confirmation link.
+    """
+    commit_author_email = _unclaimed_commit_email(email="unconfirmed@example.com")
+    baker.make(
+        "mailing_list.UserMailingListSubscription",
+        user=user,
+        list_id="boost-users",
+        email="unconfirmed@example.com",
+        status="pending",
+    )
+
+    with tp.login(user):
+        tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": commit_author_email.email},
+        )
+
+    commit_author_email.refresh_from_db()
+    assert commit_author_email.claim_verified is False
+    assert commit_author_email.claim_hash is not None
+    assert len(mailoutbox) == 1
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_create_ignores_another_users_verified_address(
+    user, tp, mailoutbox
+):
+    """Only the claimant's own confirmations count. Someone else having proven
+    the address must not shortcut this user's verification.
+    """
+    other_user = baker.make("users.User")
+    commit_author_email = _unclaimed_commit_email(email="shared@example.com")
+    baker.make(
+        "account.EmailAddress",
+        user=other_user,
+        email="shared@example.com",
+        verified=True,
+    )
+
+    with tp.login(user):
+        tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": commit_author_email.email},
+        )
+
+    commit_author_email.refresh_from_db()
+    assert commit_author_email.claim_verified is False
+    assert commit_author_email.claimed_by == user
+    assert len(mailoutbox) == 1
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_instant_claim_refuses_row_verified_by_another_user(
+    user, tp, mailoutbox
+):
+    """Proving your own inbox does not settle a dispute: a row another user has
+    already verified stays theirs. The form rejects this first, so drive the
+    model directly to cover the locked re-check.
+    """
+    other_user = baker.make("users.User")
+    commit_author_email = _verified_claim(other_user, email="contested@example.com")
+
+    assert commit_author_email.accept_proven_claim(user) is None
+    commit_author_email.refresh_from_db()
+    assert commit_author_email.claimed_by == other_user
+    assert not mailoutbox
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_instant_claim_shows_as_verified_in_the_card(user, tp):
+    """An instantly accepted address renders as a settled row: no "Pending",
+    and no resend/withdraw controls.
+    """
+    commit_author_email = _unclaimed_commit_email(email=user.email)
+
+    with tp.login(user):
+        tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": commit_author_email.email},
+        )
+        content = tp.get(f"{tp.reverse('profile-account')}?edit=true").content.decode()
+
+    assert commit_author_email.email in content
+    assert "Pending" not in content
+    assert f"Resend verification email to {commit_author_email.email}" not in content
+    assert f"Remove {commit_author_email.email}" not in content
+
+
 # --- withdraw (revoke a pending ask) ---
 
 

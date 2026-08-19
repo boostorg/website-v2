@@ -302,6 +302,39 @@ class CommitAuthorEmail(models.Model):
 
         return CommitAuthorEmail.objects.filter(claimed_by=request.user)
 
+    def accept_proven_claim(self, user):
+        """Complete a claim with no verification email, for an address `user`
+        has already proven control of elsewhere (see
+        libraries.utils.address_already_proven_by).
+
+        Sending a token to an address the account has already confirmed asks
+        the user to prove the same thing twice, so this binds the claim
+        outright. The guards mirror ask_to_claim: a row someone else has
+        verified, or holds an open ask on, is still refused - proving your own
+        inbox does not settle a dispute over someone else's.
+
+        Returns the same queryset as ask_to_claim on success, or None when the
+        row is no longer claimable by `user`.
+        """
+        with transaction.atomic():
+            locked = type(self).objects.select_for_update().get(pk=self.pk)
+            claimed_by_other = (
+                locked.claimed_by_id is not None
+                and locked.claimed_by_id != user.pk
+                and locked.claim_hash is not None
+                and locked.claim_hash_expiration > timezone.now()
+            )
+            if locked.claim_verified or claimed_by_other:
+                return None
+
+            # claim_hash stays null: there is no token to redeem, and
+            # verify_claim below is what marks the row verified
+            self.claimed_by = user
+            self.save(update_fields=["claimed_by"])
+
+        self.verify_claim()
+        return CommitAuthorEmail.objects.filter(claimed_by=user)
+
     def verify_claim(self):
         """Complete a claim: mark this row verified and bind public
         attribution (author.user) to the claimant.

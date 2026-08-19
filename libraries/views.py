@@ -40,6 +40,7 @@ from .models import (
     Tier,
 )
 from .utils import (
+    address_already_proven_by,
     apply_collective_author_overrides,
     get_view_from_cookie,
     set_view_in_cookie,
@@ -981,7 +982,16 @@ class V3CommitAuthorEmailCreateView(
         if not form.is_valid():
             return self._invalid_add(request, form)
 
-        if form.commit_author_email.ask_to_claim(request) is None:
+        commit_author_email = form.commit_author_email
+        if address_already_proven_by(commit_author_email.email, request.user):
+            # the account has already confirmed this address (signup, another
+            # account email, or a mailing-list subscription), so mailing a
+            # token would ask the user to prove the same inbox twice
+            accepted = commit_author_email.accept_proven_claim(request.user)
+        else:
+            accepted = commit_author_email.ask_to_claim(request)
+
+        if accepted is None:
             # the row was verified or claimed by someone else between the
             # form's (unlocked) validation and the locked re-check
             form.add_error(

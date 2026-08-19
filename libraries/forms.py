@@ -628,9 +628,17 @@ class V3CommitAuthorEmailForm(Form):
         when a different user has verified a sibling email - otherwise
         verification is what settles ownership."""
         email = self.cleaned_data.get("commit_email")
-        commit_author_email = CommitAuthorEmail.objects.filter(
-            email__iexact=email
-        ).first()
+        # Case-insensitive because commit emails are stored exactly as git
+        # reported them. Rows differing only in case are possible (email is
+        # unique, but that uniqueness is case-sensitive), so take the address as
+        # typed when it exists and otherwise the oldest variant, rather than
+        # letting an unordered .first() pick one at random.
+        commit_author_email = (
+            CommitAuthorEmail.objects.filter(email=email).first()
+            or CommitAuthorEmail.objects.filter(email__iexact=email)
+            .order_by("pk")
+            .first()
+        )
 
         if not commit_author_email:
             raise forms.ValidationError(
