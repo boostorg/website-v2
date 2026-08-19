@@ -18,6 +18,7 @@ from django.utils import dateparse, timezone
 
 from versions.models import Version
 from .constants import CATEGORY_OVERRIDES
+from .doc_paths import count_doc_files
 from .models import (
     Category,
     Commit,
@@ -46,6 +47,11 @@ FIRST_OF_CURRENT_MONTH = timezone.make_aware(
 ) - relativedelta(days=1)
 
 
+# ``git log --numstat`` writes one of these per file changed, after the message.
+# Merge commits produce none, so a merge never counts as documentation.
+NUMSTAT_LINE = re.compile(r"^(?:\d+|-)\t(?:\d+|-)\t")
+
+
 @dataclass
 class ParsedCommit:
     email: str
@@ -56,6 +62,7 @@ class ParsedCommit:
     is_merge: bool
     committed_at: timezone.datetime
     avatar_url: str | None = None
+    docs_files_changed: int = 0
 
 
 @dataclass
@@ -145,7 +152,16 @@ def get_commit_data_for_repo_versions(key, min_version=""):
             )
 
             log_output = subprocess.run(
-                ["git", "--git-dir", str(git_dir), "log", f"{a}..{b}", "--date", "iso"],
+                [
+                    "git",
+                    "--git-dir",
+                    str(git_dir),
+                    "log",
+                    f"{a}..{b}",
+                    "--date",
+                    "iso",
+                    "--numstat",
+                ],
                 capture_output=True,
             )
             commits = log_output.stdout.decode()
@@ -155,7 +171,15 @@ def get_commit_data_for_repo_versions(key, min_version=""):
                 email = groups["email"].strip()
                 sha = groups["sha"].strip()
                 is_merge = bool(groups.get("merge", False))
-                message = groups["message"].strip("\n")
+                # The message group runs to the next commit header, so the file
+                # stats land at the end of it and have to come back out before
+                # anything is stored. git indents every message line by four
+                # spaces, so an unindented stat line cannot be message text.
+                lines = groups["message"].strip("\n").split("\n")
+                stat_lines = [line for line in lines if NUMSTAT_LINE.match(line)]
+                message = "\n".join(
+                    line for line in lines if not NUMSTAT_LINE.match(line)
+                ).strip("\n")
                 message = "\n".join(
                     [m[4:] if m.startswith("    ") else m for m in message.split("\n")]
                 )
@@ -169,6 +193,7 @@ def get_commit_data_for_repo_versions(key, min_version=""):
                     committed_at=committed_at,
                     is_merge=is_merge,
                     version=b,
+                    docs_files_changed=count_doc_files(stat_lines),
                 )
 
 
