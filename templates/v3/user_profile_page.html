@@ -53,20 +53,21 @@
         An empty column would otherwise leave the bio at half width beside a
         blank gap.
 
-        The badges card renders on the member's own page even with nothing in
-        it: its empty state is what tells them badges exist and how to earn
-        them. A visitor sees the card only once there is a badge to show.
+        Both recognition cards render on the member's own page even with
+        nothing in them: their empty states carry the only CTAs that open the
+        badge and achievement dialogs, so suppressing them would leave no way
+        in. A visitor sees each card only once it has real data.
       {% endcomment %}
       {% if profile_is_owner or achievements_data.achievements or profile_badges or posts or account_connections_none_connected %}
       <div class="user-profile__col">
-        {% if achievements_data.achievements %}
+        {% if profile_is_owner or achievements_data.achievements %}
         <div class="user-profile__achievements">
-          {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements %}
+          {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements primary_button_url="#achievements-modal" %}
         </div>
         {% endif %}
         {% if profile_is_owner or profile_badges %}
         <div class="user-profile__badges">
-          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=profile_badges %}
+          {% include "v3/includes/_badges_card.html" with cta_url="#badges-modal" cta_label="Explore available badges and how to earn them" badges=profile_badges %}
         </div>
         {% endif %}
         {% if posts %}
@@ -83,4 +84,12 @@
       {% endif %}
     </div>
   </div>
+
+  {% comment %}
+    Outside .user-profile__container so the fixed-position overlay is not
+    contained by an ancestor, matching how the demo page places its dialogs.
+    Opened by the cards' CTAs above via :target.
+  {% endcomment %}
+  {% include "v3/includes/_achievements_modal.html" %}
+  {% include "v3/includes/_badges_modal.html" %}
 {% endblock %}
