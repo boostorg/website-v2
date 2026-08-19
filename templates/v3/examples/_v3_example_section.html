@@ -1,4 +1,5 @@
 {% load custom_static %}
+{% load core_tags %}
 {% comment %}
   V3 Component Demo Page
   ======================
@@ -884,6 +885,28 @@
     </div>
   {% endwith %}
 
+  {% with section_title="Achievements & Badges Modals" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <h4 class="py-large">Achievements Modal — default (scrolls at the full catalogue)</h4>
+        <a href="#achievements-modal" class="btn btn-primary">Open Achievements</a>
+      </div>
+      <div class="v3-examples-section__example-box">
+        <h4 class="py-large">Achievements Modal — short list, no scrolling</h4>
+        <a href="#achievements-modal-short" class="btn btn-primary">Open Achievements (short)</a>
+      </div>
+      <div class="v3-examples-section__example-box">
+        <h4 class="py-large">Badges Modal — default</h4>
+        <a href="#badges-modal" class="btn btn-primary">Open Badges</a>
+      </div>
+      <div class="v3-examples-section__example-box">
+        <h4 class="py-large">Badges Modal — scrollable</h4>
+        <a href="#badges-modal-scrollable" class="btn btn-primary">Open Badges (scrollable)</a>
+      </div>
+    </div>
+  {% endwith %}
+
   {% with section_title="Content Modal" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
@@ -1084,3 +1107,9 @@ Table of Contents generator – runs after all section blocks have been parsed.
 
 {% comment %}Dialogs placed outside section to avoid position:fixed containment issues{% endcomment %}
 {% include "v3/includes/_dialog.html" with dialog_id="demo-dialog-with-desc" title="Title of Dialog" description="Description that can go inside of Dialog" primary_url="#_" secondary_url="#_" primary_label="Button" secondary_label="Button" %}
+
+{% achievements_dialog_content as demo_achievements %}
+{% include "v3/includes/_achievements_modal.html" %}
+{% include "v3/includes/_achievements_modal.html" with dialog_id="achievements-modal-short" items=demo_achievements.items|slice:":3" %}
+{% include "v3/includes/_badges_modal.html" %}
+{% include "v3/includes/_badges_modal.html" with dialog_id="badges-modal-scrollable" items=demo_badges_dialog_scrollable %}

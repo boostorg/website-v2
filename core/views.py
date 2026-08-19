@@ -69,6 +69,7 @@ from .boostrenderer import (
 from .constants import (
     BadgeToken,
     SourceDocType,
+    BADGES_DIALOG_ITEMS,
     BOOST_LIB_PATH_RE,
     BOOST_VERSION_REGEX,
     SLACK_MEMBER_COUNT,
@@ -1590,6 +1591,17 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         ]
 
         context["demo_badges_few"] = context["demo_badges"][:3]
+
+        # Enough rows to push the Badges dialog past its scroll height. The two
+        # real badge types fit without scrolling.
+        context["demo_badges_dialog_scrollable"] = BADGES_DIALOG_ITEMS + [
+            {
+                "token": BadgeToken.TIER_2,
+                "name": f"Example badge type {index}",
+                "description": "Demonstrates the scrollable state of the list.",
+            }
+            for index in range(1, 6)
+        ]
 
         context["post_filter_options"] = [
             {"label": "All", "value": "all"},

@@ -1,0 +1,25 @@
+{% comment %}
+  Achievements dialog – explains how achievements are earned.
+
+  Extends the Dialog component (_dialog.html) with a scrollable recognition
+  list in its content slot. No action buttons, per Figma: the dialog is closed
+  with the × link, the backdrop, or Esc-free keyboard navigation to either.
+
+  Open/close is CSS-only via :target, inherited from the Dialog component.
+  Trigger: <a href="#achievements-modal">…</a>
+
+  Variables:
+    dialog_id   (optional): Unique ID. Default "achievements-modal".
+    title       (optional): Default "Achievements".
+    description (optional): Default is the Figma copy.
+    items       (optional): Rows to list, see _recognition_list.html.
+                            Default is the catalogue in core.constants.
+
+  Usage:
+    {% include "v3/includes/_achievements_modal.html" %}
+    {% include "v3/includes/_achievements_modal.html" with items=user_achievements %}
+{% endcomment %}
+{% load core_tags %}
+
+{% achievements_dialog_content as defaults %}
+{% include "v3/includes/_dialog.html" with dialog_id=dialog_id|default:"achievements-modal" title=title|default:"Achievements" description=description|default:defaults.description content_template="v3/includes/_recognition_list.html" items=items|default:defaults.items list_label="Achievements" only %}

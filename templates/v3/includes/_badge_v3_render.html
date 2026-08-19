@@ -7,98 +7,98 @@
 {% endcomment %}
 {% if token == "boost-day" %}
   {% with tip=label|default:"Boost Day" %}
-  <span class="badge-v3 badge-v3--boost-day {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--boost-day {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/boost_day.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}
 
 {% elif token == "achievement-count" %}
   {% with default_tip=count|stringformat:"s"|add:" achievements" %}
   {% with tip=label|default:default_tip %}
-  <span class="badge-v3 badge-v3--achievement-count {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--achievement-count {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <span class="badge-v3__counter" aria-hidden="true">{{ count|k_count }}</span>
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}{% endwith %}
 
 {% elif token == "badge-tier-1" %}
   {% with tip=label|default:"Tier 1 badge" %}
-  <span class="badge-v3 badge-v3--badge badge-v3--tier-1 {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--badge badge-v3--tier-1 {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/tier-1.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}
 
 {% elif token == "badge-tier-2" %}
   {% with tip=label|default:"Tier 2 badge" %}
-  <span class="badge-v3 badge-v3--badge badge-v3--tier-2 {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--badge badge-v3--tier-2 {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/tier-2.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}
 
 {% elif token == "badge-tier-3" %}
   {% with tip=label|default:"Tier 3 badge" %}
-  <span class="badge-v3 badge-v3--badge badge-v3--tier-3 {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--badge badge-v3--tier-3 {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/tier-3.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}
 
 {% elif token == "badge-tier-4" %}
   {% with tip=label|default:"Tier 4 badge" %}
-  <span class="badge-v3 badge-v3--badge badge-v3--tier-4 {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--badge badge-v3--tier-4 {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/tier-4.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}
 
 {% elif token == "badge-tier-5" %}
   {% with tip=label|default:"Tier 5 badge" %}
-  <span class="badge-v3 badge-v3--badge badge-v3--tier-5 {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--badge badge-v3--tier-5 {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/tier-5.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}
 
 {% elif token == "star-tier-1" %}
   {% with tip=label|default:"Tier 1 star" %}
-  <span class="badge-v3 badge-v3--star badge-v3--tier-1 {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--star badge-v3--tier-1 {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/star-tier-1.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}
 
 {% elif token == "star-tier-2" %}
   {% with tip=label|default:"Tier 2 star" %}
-  <span class="badge-v3 badge-v3--star badge-v3--tier-2 {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--star badge-v3--tier-2 {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/star-tier-2.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}
 
 {% elif token == "star-tier-3" %}
   {% with tip=label|default:"Tier 3 star" %}
-  <span class="badge-v3 badge-v3--star badge-v3--tier-3 {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--star badge-v3--tier-3 {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/star-tier-3.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}
 
 {% elif token == "star-tier-4" %}
   {% with tip=label|default:"Tier 4 star" %}
-  <span class="badge-v3 badge-v3--star badge-v3--tier-4 {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--star badge-v3--tier-4 {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/star-tier-4.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}
 
 {% elif token == "star-tier-5" %}
   {% with tip=label|default:"Tier 5 star" %}
-  <span class="badge-v3 badge-v3--star badge-v3--tier-5 {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+  <span class="badge-v3 badge-v3--star badge-v3--tier-5 {{ size_class }} {{ extra_class }}" {% if decorative %}aria-hidden="true"{% else %}role="img" aria-label="{{ tip }}" tabindex="0"{% endif %}>
     <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% large_static 'img/v3/badges/star-tier-5.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+    {% if not decorative %}<span class="badge-v3__label" role="tooltip">{{ tip }}</span>{% endif %}
   </span>
   {% endwith %}
 {% endif %}

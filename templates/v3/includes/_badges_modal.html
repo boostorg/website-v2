@@ -1,0 +1,25 @@
+{% comment %}
+  Badges dialog – explains how badges are earned.
+
+  Extends the Dialog component (_dialog.html) with a scrollable recognition
+  list in its content slot. The list is short enough not to scroll at the
+  default two rows; the region scrolls once rows exceed its height.
+
+  Open/close is CSS-only via :target, inherited from the Dialog component.
+  Trigger: <a href="#badges-modal">…</a>
+
+  Variables:
+    dialog_id   (optional): Unique ID. Default "badges-modal".
+    title       (optional): Default "Badges".
+    description (optional): Default is the Figma copy.
+    items       (optional): Rows to list, see _recognition_list.html.
+                            Default is the two badge types in core.constants.
+
+  Usage:
+    {% include "v3/includes/_badges_modal.html" %}
+    {% include "v3/includes/_badges_modal.html" with items=badge_types %}
+{% endcomment %}
+{% load core_tags %}
+
+{% badges_dialog_content as defaults %}
+{% include "v3/includes/_dialog.html" with dialog_id=dialog_id|default:"badges-modal" title=title|default:"Badges" description=description|default:defaults.description content_template="v3/includes/_recognition_list.html" items=items|default:defaults.items list_label="Badge types" only %}
