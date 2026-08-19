@@ -334,19 +334,31 @@ def _rank_key(user_badge):
 
 
 # The recognition dialogs explain the whole scheme rather than one member's
-# standing, so their rows come from the catalogue and take no user.
+# standing, so their rows take no user.
 #
-# Two kinds of recognition have no catalogue row to read: Boost Day and the
-# tenure stars are applied automatically from a date rather than accumulated from
-# grants, making them display states rather than earned records, so no
-# ``Achievement`` or ``Badge`` exists for either. Their wording is design-owned,
-# like ``PHRASES`` above.
+# The Achievements dialog names each achievement type, which is catalogue data.
+# The Badges dialog names the two kinds of badge instead, and neither is a
+# ``Badge`` row: one stands for the whole catalogue, the other for tenure stars,
+# which are not badges.
+#
+# Boost Day is design-owned for a different reason: it and the tenure stars are
+# applied automatically from a date rather than accumulated from grants, so they
+# are display states rather than earned records and no ``Achievement`` exists.
 BOOST_DAY_ROW = {
     "token": BadgeToken.BOOST_DAY,
     "name": "Boost day celebration",
     "description": (
         "A celebration of the day you joined Boost. Awarded annually to mark "
         "another year as part of the community."
+    ),
+}
+
+ACHIEVEMENT_BASED_ROW = {
+    "token": BadgeToken.TIER_1,
+    "name": "Achievement-based",
+    "description": (
+        "Reflects the depth of your contributions. Accumulate achievements to "
+        "unlock five tiers; Bronze, Silver, Gold, Platinum and Diamond."
     ),
 }
 
@@ -422,35 +434,9 @@ def _achievement_row(achievement):
 
 
 def badge_dialog_rows():
-    """Every badge category as a dialog row, tenure last.
+    """The two kinds of badge, as dialog rows.
 
-    Each row shows its badge's entry tier, the dialog saying what a badge is
-    awarded for rather than which rung the reader has reached. A badge with no
-    active tier still gets a row: the description is the point here, and a
-    retuned badge is briefly tierless while its replacement is created.
-
-    Ordered as the catalogue declares, matching ``badge_options``, rather than by
-    the alphabetical ``Badge.Meta.ordering``.
+    Fixed copy rather than catalogue rows: "Achievement-based" covers the whole
+    catalogue at once, and tenure stars are not badges at all.
     """
-    badges = Badge.objects.prefetch_related(
-        Prefetch(
-            "tiers",
-            queryset=BadgeTier.objects.filter(is_active=True).order_by(
-                RANK_LADDER_ORDER
-            ),
-            to_attr="active_tiers",
-        )
-    )
-    rows = [
-        {
-            "token": (
-                TIER_TOKENS[badge.active_tiers[0].rank]
-                if badge.active_tiers
-                else TIER_TOKENS[TierRank.BRONZE]
-            ),
-            "name": badge.get_label_display(),
-            "description": badge.description,
-        }
-        for badge in sorted(badges, key=lambda badge: label_order(badge.label))
-    ]
-    return rows + [TENURE_ROW]
+    return [ACHIEVEMENT_BASED_ROW, TENURE_ROW]
