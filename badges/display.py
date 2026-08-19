@@ -22,7 +22,13 @@ from django.db.models import Prefetch
 from django.utils import timezone
 
 from badges.enums import BadgeLabel, TierRank, label_order, rank_order
-from badges.models import UserBadge
+from badges.models import (
+    RANK_LADDER_ORDER,
+    Achievement,
+    Badge,
+    BadgeTier,
+    UserBadge,
+)
 from badges.summary import user_badge_summary
 from core.constants import BadgeToken
 
@@ -325,3 +331,95 @@ def badge_card(user_badge):
 def _rank_key(user_badge):
     """Sort key placing the highest rank first, threshold breaking ties."""
     return rank_order(user_badge.tier.rank), user_badge.tier.threshold
+
+
+# The recognition dialogs explain the whole scheme rather than one member's
+# standing, so their rows come from the catalogue and take no user.
+#
+# Two kinds of recognition have no catalogue row to read: Boost Day and the
+# tenure stars are applied automatically from a date rather than accumulated from
+# grants, making them display states rather than earned records, so no
+# ``Achievement`` or ``Badge`` exists for either. Their wording is design-owned,
+# like ``PHRASES`` above.
+BOOST_DAY_ROW = {
+    "token": BadgeToken.BOOST_DAY,
+    "name": "Boost day celebration",
+    "description": (
+        "A celebration of the day you joined Boost. Awarded annually to mark "
+        "another year as part of the community."
+    ),
+}
+
+TENURE_ROW = {
+    "token": BadgeToken.STAR_TIER_1,
+    "name": "Tenure-based",
+    "description": (
+        "Awarded in recognition of your time on the platform. The longer you've "
+        "been part of the Boost community, the higher the tier you unlock."
+    ),
+}
+
+ACHIEVEMENTS_DIALOG_DESCRIPTION = (
+    "Achievements capture your contributions to Boost — automatically tracked "
+    "where possible, manually verified for high-value activities."
+)
+
+BADGES_DIALOG_DESCRIPTION = (
+    "Badges recognize your journey on Boost — from the contributions you make "
+    "to the time you've invested and the milestones you've reached along the way."
+)
+
+
+def achievement_dialog_rows():
+    """Every achievement type as a dialog row, Boost Day last.
+
+    Ordered by name, ``Achievement`` being an admin-editable registry with no
+    catalogue ordering of its own. The counter icon carries 1 rather than a real
+    tally: the dialog names what each achievement is, and the reader's own counts
+    are on their profile.
+    """
+    rows = [
+        {
+            "token": BadgeToken.ACHIEVEMENT_COUNT,
+            "count": 1,
+            "name": achievement.name,
+            "description": achievement.description,
+        }
+        for achievement in Achievement.objects.all()
+    ]
+    return rows + [BOOST_DAY_ROW]
+
+
+def badge_dialog_rows():
+    """Every badge category as a dialog row, tenure last.
+
+    Each row shows its badge's entry tier, the dialog saying what a badge is
+    awarded for rather than which rung the reader has reached. A badge with no
+    active tier still gets a row: the description is the point here, and a
+    retuned badge is briefly tierless while its replacement is created.
+
+    Ordered as the catalogue declares, matching ``badge_options``, rather than by
+    the alphabetical ``Badge.Meta.ordering``.
+    """
+    badges = Badge.objects.prefetch_related(
+        Prefetch(
+            "tiers",
+            queryset=BadgeTier.objects.filter(is_active=True).order_by(
+                RANK_LADDER_ORDER
+            ),
+            to_attr="active_tiers",
+        )
+    )
+    rows = [
+        {
+            "token": (
+                TIER_TOKENS[badge.active_tiers[0].rank]
+                if badge.active_tiers
+                else TIER_TOKENS[TierRank.BRONZE]
+            ),
+            "name": badge.get_label_display(),
+            "description": badge.description,
+        }
+        for badge in sorted(badges, key=lambda badge: label_order(badge.label))
+    ]
+    return rows + [TENURE_ROW]
