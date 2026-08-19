@@ -58,6 +58,7 @@ from .acl import can_approve
 from .constants import (
     NEWS_APPROVAL_SALT,
     MAGIC_LINK_EXPIRATION,
+    DESCRIPTION_RATE_LIMIT_MESSAGE,
     DESCRIPTION_SUMMARY_MAX_LENGTH,
 )
 
@@ -73,8 +74,23 @@ from .forms import (
     V3NewsForm,
     V3VideoForm,
 )
-from .models import BlogPost, Entry, Link, News, Poll, Video
-from .services import news_type_label
+from .models import (
+    BlogPost,
+    DescriptionGenerationOutcome,
+    DescriptionInputType,
+    Entry,
+    Link,
+    News,
+    Poll,
+    Video,
+)
+from .services import (
+    DescriptionQuotaExceeded,
+    consume_description_generation_quota,
+    description_generation_limit_reached,
+    ensure_description_generation_quota,
+    news_type_label,
+)
 from .tasks import generate_summary
 from .helpers import UnsafeURLError, extract_article, extract_content, safe_get
 from .notifications import (
@@ -564,6 +580,10 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
             "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
             "title": "Create Post",
             "edit": False,
+            "description_generation_limit_reached": (
+                description_generation_limit_reached(self.request)
+            ),
+            "description_rate_limit_message": DESCRIPTION_RATE_LIMIT_MESSAGE,
         }
 
     def get_v3_context_data(self, **kwargs):
@@ -954,6 +974,56 @@ class V3DeletePostView(LoginRequiredMixin, View):
         return redirect(reverse("news"))
 
 
+def _rate_limited_response(request, input_type, exc, input_size):
+    """JSON 429 for a user who is out of generations, logged for tuning.
+
+    Rejections get their own log event, separate from the per-attempt one, so
+    the real-world rejection rate can be read without filtering the successes.
+    """
+    logger.info(
+        "description_generation.rate_limited",
+        user_id=request.user.pk,
+        input_type=input_type,
+        input_size=input_size,
+        used=exc.used,
+        limit=exc.limit,
+    )
+    return JsonResponse(
+        {"error": DESCRIPTION_RATE_LIMIT_MESSAGE, "rate_limited": True},
+        status=429,
+    )
+
+
+def _resolve_generation_attempt(attempt, summary):
+    """Close out a reserved attempt and build the response for it.
+
+    A reserved attempt always resolves, so a failed model call is recorded as
+    such rather than left pending - and it still consumes the generation,
+    because the call was made and billed either way.
+    """
+    summary = (summary or "").strip()
+    attempt.outcome = (
+        DescriptionGenerationOutcome.SUCCESS
+        if summary
+        else DescriptionGenerationOutcome.UPSTREAM_ERROR
+    )
+    attempt.save(update_fields=["outcome"])
+    logger.info(
+        "description_generation.attempt",
+        user_id=attempt.user_id,
+        input_type=attempt.input_type,
+        input_size=attempt.input_size,
+        outcome=attempt.outcome,
+    )
+
+    if not summary:
+        return JsonResponse(
+            {"error": "Could not generate a description. Please try again."},
+            status=502,
+        )
+    return JsonResponse({"description": summary})
+
+
 @login_required
 @require_POST
 def generate_description(request):
@@ -963,8 +1033,8 @@ def generate_description(request):
     Runs the summarization model inline and returns the result as JSON so the
     browser can drop it into the Description field.
 
-    Login-gated since it calls a paid LLM. NOTE: still no rate limiting — add
-    per-user throttling before relying on auth alone to bound spend.
+    Login-gated and capped per user per day; see
+    `consume_description_generation_quota`.
     """
     title = request.POST.get("title", "").strip()
     content = request.POST.get("content", "").strip()
@@ -979,6 +1049,15 @@ def generate_description(request):
     content = extract_content(content)
 
     try:
+        attempt = consume_description_generation_quota(
+            request, DescriptionInputType.CONTENT, len(content)
+        )
+    except DescriptionQuotaExceeded as exc:
+        return _rate_limited_response(
+            request, DescriptionInputType.CONTENT, exc, len(content)
+        )
+
+    try:
         # Call the plain helper
         summary = generate_summary(
             content,
@@ -989,18 +1068,9 @@ def generate_description(request):
         )
     except Exception:
         logger.exception("generate_description: summarization failed")
-        return JsonResponse(
-            {"error": "Could not generate a description. Please try again."},
-            status=502,
-        )
+        summary = None
 
-    if not summary:
-        return JsonResponse(
-            {"error": "Could not generate a description. Please try again."},
-            status=502,
-        )
-
-    return JsonResponse({"description": summary.strip()})
+    return _resolve_generation_attempt(attempt, summary)
 
 
 _LINK_FETCH_ERROR = "We couldn't read that link. Please check the URL and try again."
@@ -1023,12 +1093,20 @@ def generate_link_description(request):
         read that link").
       - Summarization failed or returned empty (502, "couldn't generate").
 
-    NOTE: still no rate limiting — add per-user throttling before relying on
-    auth alone to bound spend.
+    Login-gated and capped per user per day; see
+    `consume_description_generation_quota`.
     """
     url = request.POST.get("url", "").strip()
     if not url:
         return JsonResponse({"error": _LINK_INVALID_ERROR}, status=400)
+
+    # Checked up front so a spent user can't loop the outbound fetch and the
+    # extraction for free. The reservation below stays authoritative: it needs
+    # the extracted body length, which isn't known yet here.
+    try:
+        ensure_description_generation_quota(request, DescriptionInputType.LINK)
+    except DescriptionQuotaExceeded as exc:
+        return _rate_limited_response(request, DescriptionInputType.LINK, exc, 0)
 
     try:
         resp = safe_get(url, timeout=10)
@@ -1046,6 +1124,15 @@ def generate_link_description(request):
         logger.warning("generate_link_description: extraction empty", url=url)
         return JsonResponse({"error": _LINK_FETCH_ERROR}, status=502)
 
+    try:
+        attempt = consume_description_generation_quota(
+            request, DescriptionInputType.LINK, len(body)
+        )
+    except DescriptionQuotaExceeded as exc:
+        return _rate_limited_response(
+            request, DescriptionInputType.LINK, exc, len(body)
+        )
+
     # Feed the extracted body through the same summarizer used by the Blog/News
     # path — synchronously, with a real timeout so a hung upstream doesn't tie
     # up a web worker (autoretry_for on the Celery task is a no-op when called
@@ -1060,18 +1147,9 @@ def generate_link_description(request):
         )
     except Exception:
         logger.exception("generate_link_description: summarization failed", url=url)
-        return JsonResponse(
-            {"error": "Could not generate a description. Please try again."},
-            status=502,
-        )
+        summary = None
 
-    if not summary:
-        return JsonResponse(
-            {"error": "Could not generate a description. Please try again."},
-            status=502,
-        )
-
-    return JsonResponse({"description": summary.strip()})
+    return _resolve_generation_attempt(attempt, summary)
 
 
 class EntryApproveView(
