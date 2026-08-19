@@ -4,6 +4,7 @@ import re
 
 import pytest
 from django.template.loader import render_to_string
+from django.test import override_settings
 
 from badges.display import (
     ACHIEVEMENT_BASED_ROW,
@@ -93,6 +94,7 @@ def test_badge_rows_use_the_cluster_icons():
     assert tokens == [BadgeToken.ACHIEVEMENT_BASED, BadgeToken.TENURE_BASED]
 
 
+@pytest.mark.parametrize("local_development", [True, False], ids=["local", "s3"])
 @pytest.mark.parametrize(
     "token,filename",
     [
@@ -100,17 +102,26 @@ def test_badge_rows_use_the_cluster_icons():
         (BadgeToken.TENURE_BASED, "tenure-based.png"),
     ],
 )
-def test_cluster_tokens_point_at_their_artwork(token, filename):
-    """Pins the token-to-asset mapping, a mistyped path being a silent 404.
+def test_cluster_tokens_point_at_their_artwork(token, filename, local_development):
+    """Pins the asset path each cluster token asks for; a typo is a silent 404.
 
-    Whether the file is really there cannot be checked here: ``static-large`` is
+    Both serving modes are forced because ``large_static`` wraps the same path in
+    two entirely different URLs, and only the path is ours to get right.
+
+    Whether the file is really there is not checkable: ``static-large`` is
     gitignored and synced from S3, so no checkout has it. Publishing a new asset
     means running ``just up_sync_images``.
     """
-    out = render_to_string("v3/includes/_badge_v3.html", {"token": token})
+    with override_settings(
+        LOCAL_DEVELOPMENT=local_development,
+        STATIC_URL="/static/",
+        STATIC_CONTENT_AWS_S3_ENDPOINT_URL="https://s3.example.test",
+        STATIC_CONTENT_BUCKET_NAME="bucket",
+    ):
+        out = render_to_string("v3/includes/_badge_v3.html", {"token": token})
 
     (src,) = re.findall(r'src="([^"]+)"', out)
-    assert src.endswith(f"/static-large/img/v3/badges/{filename}")
+    assert src.endswith(f"img/v3/badges/{filename}")
 
 
 def test_achievements_modal_renders_every_row(catalogue):
