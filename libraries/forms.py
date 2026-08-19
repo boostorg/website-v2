@@ -604,29 +604,30 @@ class CommitAuthorEmailForm(Form):
 
 
 class V3CommitAuthorEmailForm(Form):
-    """The v3 claim form: same field as the legacy CommitAuthorEmailForm
-    above (which is preserved untouched), but validating against the
-    claimed_by claim model where attribution is only bound at verification.
+    """The v3 claim form: same single email field as the legacy
+    CommitAuthorEmailForm above (which is preserved untouched), but validating
+    against the claimed_by claim model where attribution is only bound at
+    verification.
     """
 
-    email = forms.EmailField()
+    commit_email = forms.EmailField()
 
     class Meta:
-        fields = ["email"]
+        fields = ["commit_email"]
 
     def __init__(self, *args, user=None, **kwargs):
         self.user = user
         self.commit_author_email = None
         super().__init__(*args, **kwargs)
 
-    def clean_email(self):
+    def clean_commit_email(self):
         """Emails should have been created by the commit import process, so we
         need to ensure the email exists, then check the claim state of the row
         itself before the author-level binding: author.user is also set by the
         email/github matching heuristics, so on its own it only blocks a claim
         when a different user has verified a sibling email - otherwise
         verification is what settles ownership."""
-        email = self.cleaned_data.get("email")
+        email = self.cleaned_data.get("commit_email")
         commit_author_email = CommitAuthorEmail.objects.filter(
             email__iexact=email
         ).first()

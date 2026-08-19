@@ -236,7 +236,7 @@ flushed rather than leaking onto the next page. {% endcomment %}
           </div>
           </form>
         </div>
-        {% include 'v3/includes/_commit_email_card.html' with commit_email_addresses=commit_email_addresses csrf_token=csrf_token only %}
+        {% include 'v3/includes/_commit_email_card.html' with commit_email_addresses=commit_email_addresses commit_email_form=commit_email_form commit_email_card_error=commit_email_card_error csrf_token=csrf_token only %}
         <div class="basic-card card user-profile__email-preferences-card">
           <form method="post" action="{{ profile_account_edit_url }}" class="card__form"
                 x-data="createSectionForm({{ saved_sections.v3_update_email_preferences|yesno:'true,false' }})"

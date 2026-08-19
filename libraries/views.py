@@ -1,6 +1,6 @@
 import datetime
 import uuid
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 import structlog
 
@@ -28,7 +28,7 @@ from news.services import get_latest_post_cards
 from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
-from .constants import README_MISSING
+from .constants import COMMIT_EMAIL_STALE_ACTION_ERROR, README_MISSING
 from .forms import CommitAuthorEmailForm, V3CommitAuthorEmailForm
 from .godbolt import build_compiler_explorer_url
 from .mixins import VersionAlertMixin, BoostVersionMixin, ContributorMixin
@@ -915,7 +915,7 @@ class V3CommitAuthorEmailCardMixin:
     markup after making their change.
     """
 
-    def _card_body(self, request, form=None):
+    def _card_body(self, request, form=None, card_error=""):
         return TemplateResponse(
             request,
             "v3/includes/_commit_email_card_body.html",
@@ -924,14 +924,53 @@ class V3CommitAuthorEmailCardMixin:
                     request.user
                 ),
                 "commit_email_form": form or V3CommitAuthorEmailForm(),
+                "commit_email_card_error": card_error,
                 # only ever called on the htmx path below, so the card's
                 # no-JS fallback must be left out (see the template)
                 "htmx_swap": True,
             },
         )
 
-    def _redirect_to_profile(self, request):
-        return redirect(f"{reverse('profile-account')}?edit=true")
+    def _redirect_to_profile(self, request, email="", stale=False):
+        """Post/Redirect/Get back to the edit-profile page.
+
+        With JS off there is no htmx swap to carry a failure back into the
+        card, and the v3 edit template deliberately swallows Django `messages`
+        (it shows per-section save state instead), so what failed has to
+        survive the redirect. Only the inputs travel, never the message: the
+        profile view re-validates `ce_email` to regenerate the add error, and
+        `ce_alert` is a bare flag it maps to a constant. That keeps a single
+        source for every message and stops a hand-crafted URL from putting
+        arbitrary text in the card.
+        """
+        params = {"edit": "true"}
+        if email:
+            params["ce_email"] = email
+        if stale:
+            params["ce_alert"] = "1"
+        return redirect(f"{reverse('profile-account')}?{urlencode(params)}")
+
+    def _invalid_add(self, request, form):
+        """Report a rejected add: htmx swaps the card back with the bound
+        form, while the no-JS redirect hands the address to the profile view,
+        which rebuilds the same bound form from it.
+        """
+        if _is_htmx(request):
+            return self._card_body(request, form=form)
+        return self._redirect_to_profile(
+            request, email=form.data.get("commit_email", "")
+        )
+
+    def _stale_action(self, request):
+        """A list-row action that no longer applies - the row was verified or
+        withdrawn since the page rendered, or the request was forged past a
+        hidden button. This was a bare 404, which htmx silently drops and
+        which is a dead end with JS off; either way the user was told nothing.
+        The action is still refused; only the reporting changed.
+        """
+        if _is_htmx(request):
+            return self._card_body(request, card_error=COMMIT_EMAIL_STALE_ACTION_ERROR)
+        return self._redirect_to_profile(request, stale=True)
 
 
 class V3CommitAuthorEmailCreateView(
@@ -940,21 +979,15 @@ class V3CommitAuthorEmailCreateView(
     def post(self, request, *args, **kwargs):
         form = V3CommitAuthorEmailForm(request.POST, user=request.user)
         if not form.is_valid():
-            if _is_htmx(request):
-                return self._card_body(request, form=form)
-            for error in form.errors.get("email", []):
-                messages.error(request, error)
-            return self._redirect_to_profile(request)
+            return self._invalid_add(request, form)
 
         if form.commit_author_email.ask_to_claim(request) is None:
             # the row was verified or claimed by someone else between the
             # form's (unlocked) validation and the locked re-check
-            form.add_error("email", "This email address can no longer be claimed.")
-            if _is_htmx(request):
-                return self._card_body(request, form=form)
-            for error in form.errors.get("email", []):
-                messages.error(request, error)
-            return self._redirect_to_profile(request)
+            form.add_error(
+                "commit_email", "This email address can no longer be claimed."
+            )
+            return self._invalid_add(request, form)
 
         if _is_htmx(request):
             return self._card_body(request)
@@ -974,17 +1007,23 @@ class V3CommitAuthorEmailWithdrawView(
 
     def post(self, request, *args, **kwargs):
         # locked read so the guards can't race a concurrent verify: whoever
-        # locks first wins and the loser re-evaluates (verified -> 404 here)
+        # locks first wins and the loser re-evaluates (verified -> refused)
         with transaction.atomic():
-            commit_author_email = get_object_or_404(
-                CommitAuthorEmail.objects.select_for_update(),
-                pk=kwargs["pk"],
-                claimed_by=request.user,
-                claim_verified=False,
-                claim_hash__isnull=False,
+            commit_author_email = (
+                CommitAuthorEmail.objects.select_for_update()
+                .filter(
+                    pk=kwargs["pk"],
+                    claimed_by=request.user,
+                    claim_verified=False,
+                    claim_hash__isnull=False,
+                )
+                .first()
             )
-            commit_author_email.withdraw_claim()
+            if commit_author_email is not None:
+                commit_author_email.withdraw_claim()
 
+        if commit_author_email is None:
+            return self._stale_action(request)
         if _is_htmx(request):
             return self._card_body(request)
         return self._redirect_to_profile(request)
@@ -997,13 +1036,14 @@ class V3CommitAuthorEmailResendView(
         # no outer transaction: ask_to_claim re-checks its preconditions
         # under its own row lock, and the verification email must be
         # enqueued after that lock commits, not while it is held
-        commit_author_email = get_object_or_404(
-            CommitAuthorEmail,
+        commit_author_email = CommitAuthorEmail.objects.filter(
             pk=kwargs["pk"],
             claimed_by=request.user,
             claim_verified=False,
             claim_hash__isnull=False,
-        )
+        ).first()
+        if commit_author_email is None:
+            return self._stale_action(request)
         commit_author_email.ask_to_claim(request)
 
         if _is_htmx(request):

@@ -34,6 +34,16 @@ def _pending_claim(user, email="dev@example.com"):
     )
 
 
+def _assert_refused_with_alert(tp, response):
+    """A refused row action (withdraw/resend) reports the reason back through
+    the card rather than 404ing: htmx silently drops a 404, and with JS off it
+    is a dead-end error page, so either way the user was told nothing. The
+    action itself is still refused - each caller asserts state is untouched.
+    """
+    tp.response_302(response)
+    assert "ce_alert=" in response.url
+
+
 def _verified_claim(user, email="dev@example.com"):
     """A completed claim - what verify_claim leaves behind."""
     commit_author_email = _pending_claim(user, email=email)
@@ -51,7 +61,7 @@ def test_v3_commit_email_create_requires_login(tp):
     commit_author_email = _unclaimed_commit_email()
     response = tp.post(
         tp.reverse("v3-commit-author-email-create"),
-        data={"email": commit_author_email.email},
+        data={"commit_email": commit_author_email.email},
     )
     tp.response_302(response)
     assert "login" in response.url
@@ -63,7 +73,7 @@ def test_v3_commit_email_create_claims_and_sends_verification(user, tp, mailoutb
     with tp.login(user):
         response = tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": commit_author_email.email},
+            data={"commit_email": commit_author_email.email},
         )
     tp.response_302(response)
 
@@ -92,7 +102,7 @@ def test_v3_commit_email_verification_email_names_the_requester(user, tp, mailou
     with tp.login(user):
         tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": commit_author_email.email},
+            data={"commit_email": commit_author_email.email},
         )
     assert "The user Requesting User has asked to link" in mailoutbox[0].body
 
@@ -102,7 +112,7 @@ def test_v3_commit_email_create_htmx_returns_updated_card(user, tp):
     with tp.login(user):
         response = tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": commit_author_email.email},
+            data={"commit_email": commit_author_email.email},
             extra={"HTTP_HX_REQUEST": "true"},
         )
     tp.response_200(response)
@@ -122,7 +132,7 @@ def test_v3_commit_email_create_htmx_invalid_shows_inline_error(user, tp):
     with tp.login(user):
         response = tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": "not-a-real-commit-author@example.com"},
+            data={"commit_email": "not-a-real-commit-author@example.com"},
             extra={"HTTP_HX_REQUEST": "true"},
         )
     tp.response_200(response)
@@ -138,7 +148,7 @@ def test_v3_commit_email_create_own_verified_email_shows_own_account_error(user,
     with tp.login(user):
         response = tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": commit_author_email.email},
+            data={"commit_email": commit_author_email.email},
             extra={"HTTP_HX_REQUEST": "true"},
         )
     tp.response_200(response)
@@ -154,7 +164,7 @@ def test_v3_commit_email_create_other_verified_email_shows_other_user_error(user
     with tp.login(user):
         response = tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": commit_author_email.email},
+            data={"commit_email": commit_author_email.email},
             extra={"HTTP_HX_REQUEST": "true"},
         )
     tp.response_200(response)
@@ -169,7 +179,7 @@ def test_v3_commit_email_create_own_pending_claim_shows_pending_error(user, tp):
     with tp.login(user):
         response = tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": commit_author_email.email},
+            data={"commit_email": commit_author_email.email},
             extra={"HTTP_HX_REQUEST": "true"},
         )
     tp.response_200(response)
@@ -185,7 +195,7 @@ def test_v3_commit_email_create_other_pending_claim_shows_pending_error(user, tp
     with tp.login(user):
         response = tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": commit_author_email.email},
+            data={"commit_email": commit_author_email.email},
             extra={"HTTP_HX_REQUEST": "true"},
         )
     tp.response_200(response)
@@ -205,7 +215,7 @@ def test_v3_commit_email_create_expired_pending_claim_is_reclaimable(
     with tp.login(user):
         response = tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": commit_author_email.email},
+            data={"commit_email": commit_author_email.email},
         )
     tp.response_302(response)
     commit_author_email.refresh_from_db()
@@ -225,7 +235,7 @@ def test_v3_commit_email_create_sync_bound_author_is_claimable(user, tp, mailout
     with tp.login(user):
         response = tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": commit_author_email.email},
+            data={"commit_email": commit_author_email.email},
         )
     tp.response_302(response)
     commit_author_email.refresh_from_db()
@@ -248,7 +258,7 @@ def test_v3_commit_email_create_blocked_by_other_users_verified_sibling(user, tp
     with tp.login(user):
         response = tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": sibling.email},
+            data={"commit_email": sibling.email},
             extra={"HTTP_HX_REQUEST": "true"},
         )
     tp.response_200(response)
@@ -261,7 +271,7 @@ def test_v3_commit_email_create_rejects_unknown_email(user, tp):
     with tp.login(user):
         response = tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": "not-a-real-commit-author@example.com"},
+            data={"commit_email": "not-a-real-commit-author@example.com"},
         )
     tp.response_302(response)
     assert not CommitAuthorEmail.objects.filter(
@@ -422,7 +432,7 @@ def test_v3_commit_email_withdraw_refuses_verified_email(user, tp):
         response = tp.post(
             tp.reverse("v3-commit-author-email-withdraw", pk=commit_author_email.pk)
         )
-    tp.response_404(response)
+    _assert_refused_with_alert(tp, response)
     commit_author_email.refresh_from_db()
     assert commit_author_email.claim_verified is True
     assert commit_author_email.author.user == user
@@ -430,7 +440,7 @@ def test_v3_commit_email_withdraw_refuses_verified_email(user, tp):
 
 def test_v3_commit_email_withdraw_refuses_email_without_open_ask(user, tp):
     """A bound author's other imported emails were never claimed; withdrawing
-    one must 404 and leave everything alone."""
+    one must be refused and leave everything alone."""
     verified = _verified_claim(user, email="verified@example.com")
     sibling = baker.make(
         "libraries.CommitAuthorEmail",
@@ -441,7 +451,7 @@ def test_v3_commit_email_withdraw_refuses_email_without_open_ask(user, tp):
 
     with tp.login(user):
         response = tp.post(tp.reverse("v3-commit-author-email-withdraw", pk=sibling.pk))
-    tp.response_404(response)
+    _assert_refused_with_alert(tp, response)
     sibling.author.refresh_from_db()
     assert sibling.author.user == user
 
@@ -454,7 +464,7 @@ def test_v3_commit_email_withdraw_refuses_other_users_email(user, tp):
         response = tp.post(
             tp.reverse("v3-commit-author-email-withdraw", pk=commit_author_email.pk)
         )
-    tp.response_404(response)
+    _assert_refused_with_alert(tp, response)
     commit_author_email.refresh_from_db()
     assert commit_author_email.claim_hash is not None
     assert commit_author_email.claimed_by == other_user
@@ -485,7 +495,7 @@ def test_v3_commit_email_resend_refuses_other_users_email(user, tp, mailoutbox):
             tp.reverse("v3-commit-author-email-resend", pk=commit_author_email.pk)
         )
 
-    tp.response_404(response)
+    _assert_refused_with_alert(tp, response)
     commit_author_email.refresh_from_db()
     assert commit_author_email.claimed_by == other_user
     assert commit_author_email.claim_hash == old_hash
@@ -514,7 +524,7 @@ def test_v3_commit_email_resend_refuses_verified_email(user, tp, mailoutbox):
         response = tp.post(
             tp.reverse("v3-commit-author-email-resend", pk=commit_author_email.pk)
         )
-    tp.response_404(response)
+    _assert_refused_with_alert(tp, response)
     assert len(mailoutbox) == 0
 
 
@@ -531,8 +541,186 @@ def test_v3_commit_email_resend_refuses_email_without_open_ask(user, tp, mailout
 
     with tp.login(user):
         response = tp.post(tp.reverse("v3-commit-author-email-resend", pk=sibling.pk))
-    tp.response_404(response)
+    _assert_refused_with_alert(tp, response)
     assert len(mailoutbox) == 0
+
+
+# --- no-JS (non-htmx) error reporting ---
+#
+# With JS off there is no htmx swap to put a rejection back into the card, and
+# the v3 edit template deliberately swallows Django `messages`, so the redirect
+# carries the inputs and the profile page regenerates the message from them.
+# Each test follows the redirect: the querystring on its own proves nothing the
+# user can actually see.
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_create_no_js_renders_error_and_keeps_value(user, tp):
+    with tp.login(user):
+        response = tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": "not-a-real-commit-author@example.com"},
+        )
+        tp.response_302(response)
+        page = tp.get(response.url)
+
+    tp.response_200(page)
+    content = page.content.decode()
+    assert "field--error" in content
+    assert "Email address is not associated with any commits." in content
+    # the rejected address is handed back so it does not have to be retyped
+    assert 'value="not-a-real-commit-author@example.com"' in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_create_no_js_renders_already_claimed_error(user, tp):
+    other_user = baker.make("users.User")
+    commit_author_email = _verified_claim(other_user)
+
+    with tp.login(user):
+        response = tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": commit_author_email.email},
+        )
+        tp.response_302(response)
+        page = tp.get(response.url)
+
+    tp.response_200(page)
+    content = page.content.decode()
+    assert "field--error" in content
+    assert "already been claimed by another user" in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_create_no_js_error_row_replaces_the_noscript_row(user, tp):
+    """The card renders exactly one add row. When an error comes back the row
+    carrying it is server-rendered outside <noscript>, so the plain fallback
+    row must stand down or a JS-off user would see the field twice.
+    """
+    _verified_claim(user, email="done@example.com")
+
+    with tp.login(user):
+        response = tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": "not-a-real-commit-author@example.com"},
+        )
+        content = tp.get(response.url).content.decode()
+
+    card = content.split('id="commit-email-card-body"', 1)[1]
+    fallback = card.split("<noscript>", 1)[1].split("</noscript>", 1)[0]
+    assert "commit-email__add-row" not in fallback
+    # and the errored row itself is present, once
+    assert card.count('id="field-commit_email"') == 1
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_add_field_id_does_not_collide_with_account_email(user, tp):
+    """_field_text.html derives the input id from the field name, and the edit
+    page also renders the account's own `email` field. The card's field is
+    named `commit_email` so the two ids stay distinct - sharing one would point
+    this card's <label for> and its error's aria-describedby at that other
+    input, since it comes first in the document.
+    """
+    with tp.login(user):
+        response = tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": "not-a-real-commit-author@example.com"},
+        )
+        content = tp.get(response.url).content.decode()
+
+    assert content.count('id="field-commit_email"') == 1
+    assert 'for="field-commit_email"' in content
+    assert 'aria-describedby="field-commit_email-error"' in content
+    assert 'id="field-commit_email-error"' in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_withdraw_no_js_renders_refusal(user, tp):
+    commit_author_email = _verified_claim(user)
+
+    with tp.login(user):
+        response = tp.post(
+            tp.reverse("v3-commit-author-email-withdraw", pk=commit_author_email.pk)
+        )
+        _assert_refused_with_alert(tp, response)
+        page = tp.get(response.url)
+
+    tp.response_200(page)
+    assert "can no longer be changed" in page.content.decode()
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_resend_no_js_renders_refusal(user, tp, mailoutbox):
+    commit_author_email = _verified_claim(user)
+
+    with tp.login(user):
+        response = tp.post(
+            tp.reverse("v3-commit-author-email-resend", pk=commit_author_email.pk)
+        )
+        _assert_refused_with_alert(tp, response)
+        page = tp.get(response.url)
+
+    tp.response_200(page)
+    assert "can no longer be changed" in page.content.decode()
+    assert not mailoutbox
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_no_js_redirect_carries_no_message_text(user, tp):
+    """Only the inputs travel in the URL - the address, and a bare flag for a
+    refused row action. The message itself is regenerated server-side, so a
+    hand-crafted link cannot put arbitrary text in the card.
+    """
+    verified = _verified_claim(user)
+
+    with tp.login(user):
+        rejected_add = tp.post(
+            tp.reverse("v3-commit-author-email-create"),
+            data={"commit_email": "not-a-real-commit-author@example.com"},
+        )
+        refused_row = tp.post(
+            tp.reverse("v3-commit-author-email-withdraw", pk=verified.pk)
+        )
+
+    assert rejected_add.url == (
+        "/users/me/?edit=true&ce_email=not-a-real-commit-author%40example.com"
+    )
+    assert refused_row.url == "/users/me/?edit=true&ce_alert=1"
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_commit_email_no_js_falls_back_when_revalidation_passes(user, tp):
+    """The add error is regenerated by re-validating the address on the
+    redirected GET. If whatever blocked the add cleared in between there is no
+    validation error left, so the card must still say something rather than
+    render as though nothing had happened.
+    """
+    claimable = _unclaimed_commit_email()
+
+    with tp.login(user):
+        page = tp.get(
+            f"{tp.reverse('profile-account')}?edit=true&ce_email={claimable.email}"
+        )
+
+    tp.response_200(page)
+    content = page.content.decode()
+    assert "field--error" in content
+    assert "That email address could not be added." in content
+
+
+def test_v3_commit_email_refusal_is_reported_in_the_card_on_htmx_too(user, tp):
+    """The same refusal must surface with JS on: htmx does not swap non-2xx
+    responses, so the old 404 was dropped without a trace.
+    """
+    commit_author_email = _verified_claim(user)
+
+    with tp.login(user):
+        response = tp.post(
+            tp.reverse("v3-commit-author-email-withdraw", pk=commit_author_email.pk),
+            extra={"HTTP_HX_REQUEST": "true"},
+        )
+    tp.response_200(response)
+    assert "can no longer be changed" in response.content.decode()
 
 
 # --- card rendering ---
@@ -721,7 +909,7 @@ def test_verify_email_falls_back_when_claimant_has_no_display_name(
     with tp.login(user):
         tp.post(
             tp.reverse("v3-commit-author-email-create"),
-            data={"email": commit_author_email.email},
+            data={"commit_email": commit_author_email.email},
         )
     body = mailoutbox[0].body
     assert "A user has asked to link" in body

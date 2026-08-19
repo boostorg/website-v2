@@ -22,28 +22,38 @@
                         already showing one)
 
   Variables:
-    commit_email_addresses (queryset of CommitAuthorEmail, required)
-    commit_email_form      (CommitAuthorEmailForm, optional — bound with
-                             errors when re-rendering after a failed add)
-    htmx_swap              (bool, optional — true when this render is an htmx
-                             swap response, which must leave out the no-JS
-                             fallback: htmx parses responses with DOMParser,
-                             where scripting is off, so <noscript> children
-                             become live nodes instead of staying inert)
-    csrf_token             (required when included with `only`; provided by the
-                             request context when rendered from a view)
+    commit_email_addresses  (queryset of CommitAuthorEmail, required)
+    commit_email_form       (V3CommitAuthorEmailForm, required) — the add form;
+                              bound with errors when a rejected add is being
+                              re-rendered, and the single source for the add
+                              field's error and value on both the htmx and the
+                              no-JS path (the profile view rebuilds the same
+                              bound form after a no-JS redirect)
+    commit_email_card_error (optional) — card-level failure, for a list-row
+                              action that no longer applies rather than
+                              anything the user just typed
+    htmx_swap               (bool, optional — true when this render is an htmx
+                              swap response, which must leave out the no-JS
+                              fallback: htmx parses responses with DOMParser,
+                              where scripting is off, so <noscript> children
+                              become live nodes instead of staying inert)
+    csrf_token              (required when included with `only`; provided by the
+                              request context when rendered from a view)
 
   Usage:
     {% include 'v3/includes/_commit_email_card_body.html' with commit_email_addresses=commit_email_addresses only %}
 {% endcomment %}
 <div id="commit-email-card-body" class="commit-email__body" x-data="{ rowSeq: 0, extraRows: [] }">
   {% comment %} The caption sits above the list in every Figma variant, but only the base add row
-  below puts a real #field-email input in the DOM: the no-JS row is inert text while JS is on, and
+  below puts a real #field-commit_email input in the DOM: the no-JS row is inert text while JS is on, and
   htmx swaps drop it entirely. So it is a <label> only when that input is actually there. {% endcomment %}
-  {% if not commit_email_addresses or commit_email_form.errors %}
-    <label class="field__label" for="field-email">Email</label>
+  {% if not commit_email_addresses or commit_email_form.commit_email.errors.0 %}
+    <label class="field__label" for="field-commit_email">Email</label>
   {% else %}
     <span class="field__label">Email</span>
+  {% endif %}
+  {% if commit_email_card_error %}
+    <p class="field__error" role="alert">{{ commit_email_card_error }}</p>
   {% endif %}
   {% if commit_email_addresses %}
     <ul class="commit-email__items">
@@ -73,8 +83,8 @@
       {% endfor %}
     </ul>
   {% endif %}
-  {% if not commit_email_addresses or commit_email_form.errors %}
-    {% include 'v3/includes/_commit_email_add_row.html' with value=commit_email_form.email.value error=commit_email_form.email.errors.0 csrf_token=csrf_token only %}
+  {% if not commit_email_addresses or commit_email_form.commit_email.errors.0 %}
+    {% include 'v3/includes/_commit_email_add_row.html' with value=commit_email_form.commit_email.value error=commit_email_form.commit_email.errors.0 csrf_token=csrf_token only %}
   {% endif %}
   <template x-for="row in extraRows" :key="row">
     {# htmx only wires hx-* attributes on nodes it sees at load or swaps in itself; Alpine clones this row later, so it must be handed to htmx.process or the form falls back to a full-page POST (and the error banner) #}
@@ -82,7 +92,7 @@
       {% csrf_token %}
       <div class="field commit-email__add-field">
         <div class="field__control">
-          <input class="field__input" type="email" name="email" placeholder="Your email" aria-label="Email" :id="`field-email-extra-${row}`">
+          <input class="field__input" type="email" name="commit_email" placeholder="Your email" aria-label="Email" :id="`field-commit_email-extra-${row}`">
         </div>
       </div>
       <button type="submit" class="btn btn-primary" :disabled="empty">Submit</button>
@@ -103,9 +113,9 @@
         .commit-email__add-another { display: none; }
         .commit-email__body > noscript { display: contents; }
       </style>
-      {% if commit_email_addresses and not commit_email_form.errors %}
+      {% if commit_email_addresses and not commit_email_form.commit_email.errors.0 %}
         {# aria_label because the caption above is a plain <span> in this branch, not a <label> #}
-        {% include 'v3/includes/_commit_email_add_row.html' with value=commit_email_form.email.value error=commit_email_form.email.errors.0 aria_label='Email' csrf_token=csrf_token only %}
+        {% include 'v3/includes/_commit_email_add_row.html' with value=commit_email_form.commit_email.value error=commit_email_form.commit_email.errors.0 aria_label='Email' csrf_token=csrf_token only %}
       {% endif %}
     </noscript>
   {% endif %}

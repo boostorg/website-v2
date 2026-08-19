@@ -35,6 +35,11 @@ from waffle import flag_is_active
 from core.constants import BadgeToken
 from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin, V3AuthContextMixin
+from libraries.constants import (
+    COMMIT_EMAIL_ADD_FAILED_ERROR,
+    COMMIT_EMAIL_STALE_ACTION_ERROR,
+)
+from libraries.forms import V3CommitAuthorEmailForm
 from libraries.models import CommitAuthorEmail
 from .forms import (
     PreferencesForm,
@@ -160,6 +165,29 @@ class CurrentUserProfileView(
     def get_v3_edit_url(self):
         return f"{reverse('profile-account')}?edit=true"
 
+    def get_v3_commit_email_form(self):
+        """Build the commit-email card's add form for this render.
+
+        Unbound normally. After a rejected add with JS off, the card's create
+        view redirects here with the address it refused (`ce_email`) and no
+        message: re-validating that address regenerates the identical error,
+        so the message has exactly one source - the form - whichever way the
+        card was rendered, and the card template only ever reads a bound form.
+        """
+        email = self.request.GET.get("ce_email", "")
+        if not email:
+            return V3CommitAuthorEmailForm()
+
+        form = V3CommitAuthorEmailForm(
+            data={"commit_email": email}, user=self.request.user
+        )
+        if form.is_valid():
+            # whatever blocked the add cleared between that POST and this GET,
+            # so there is no validation error left to show - say something
+            # rather than re-rendering as though nothing had happened
+            form.add_error("commit_email", COMMIT_EMAIL_ADD_FAILED_ERROR)
+        return form
+
     def get_v3_edit_context(self, form=None):
         """Context for the v3 edit-profile template. `form` is a bound form
         (with errors) when re-rendering after a failed POST; otherwise a
@@ -184,6 +212,16 @@ class CurrentUserProfileView(
             "profile_account_url": reverse("profile-account"),
             "commit_email_addresses": CommitAuthorEmail.claimed_by_user(
                 self.request.user
+            ),
+            # The commit-email card's no-JS PRG landing (see
+            # V3CommitAuthorEmailCardMixin._redirect_to_profile). These are
+            # the same two variables the card's own htmx responses set, so the
+            # template never branches on how it was reached.
+            "commit_email_form": self.get_v3_commit_email_form(),
+            "commit_email_card_error": (
+                COMMIT_EMAIL_STALE_ACTION_ERROR
+                if self.request.GET.get("ce_alert")
+                else ""
             ),
             "badge_tiers": [
                 {"tier": "1", "name": "Bronze"},
