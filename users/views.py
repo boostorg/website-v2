@@ -2,6 +2,7 @@ import datetime
 
 from allauth.account import app_settings
 from allauth.socialaccount.adapter import get_adapter, DefaultSocialAccountAdapter
+from allauth.socialaccount.models import SocialApp
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
@@ -234,10 +235,14 @@ class CurrentUserProfileView(
         is_gh_conn: bool = user.is_github_connected
         is_go_conn: bool = user.is_google_connected
 
-        def _get_connection_context_data(platform: str, connected: bool) -> dict:
+        def _get_connection_context_data(platform: str, connected: bool) -> dict | None:
             adapter: DefaultSocialAccountAdapter = get_adapter(self.request)
+            try:
+                provider = adapter.get_provider(self.request, platform)
+            except SocialApp.DoesNotExist:
+                return None
             if platform not in ["github", "google"]:
-                return {}
+                return None
             label = ""
             if platform == "github":
                 label = "GitHub"
@@ -251,7 +256,7 @@ class CurrentUserProfileView(
                 # If not connected, we provide the login url for the chosen platform
                 # else, this points to the name of the disconnect modal associated with this platform
                 "action_url": (
-                    adapter.get_provider(self.request, platform).get_login_url(
+                    provider.get_login_url(
                         {auth.REDIRECT_FIELD_NAME: self.request.get_full_path()}
                     )
                     if not connected
@@ -290,10 +295,7 @@ class CurrentUserProfileView(
                 {"tier": "4", "name": "Platinum"},
                 {"tier": "5", "name": "Diamond"},
             ],
-            "account_connections": [
-                _get_connection_context_data("github", is_gh_conn),
-                _get_connection_context_data("google", is_go_conn),
-            ],
+            "account_connections": [],
         }
         # Delete-account card: the modal schedules deletion, and once
         # scheduled the card swaps to a single "Cancel deletion" control.
@@ -311,6 +313,13 @@ class CurrentUserProfileView(
         )
         ctx["profile_delete_url"] = reverse("profile-delete")
         ctx["postorius_url"] = settings.POSTORIUS_URL
+
+        gh_conn_data = _get_connection_context_data("github", is_gh_conn)
+        go_conn_data = _get_connection_context_data("google", is_go_conn)
+        if gh_conn_data:
+            ctx["account_connections"].append(gh_conn_data)
+        if go_conn_data:
+            ctx["account_connections"].append(go_conn_data)
         return ctx
 
     def get_v3_context_data(self, **kwargs):
@@ -357,7 +366,10 @@ class CurrentUserProfileView(
     def get_social_accounts(self):
         account_data = []
         for account in SocialAccount.objects.filter(user=self.request.user):
-            provider_account = account.get_provider_account()
+            try:
+                provider_account = account.get_provider_account()
+            except SocialApp.DoesNotExist:
+                continue
             account_data.append(
                 {
                     "id": account.pk,
