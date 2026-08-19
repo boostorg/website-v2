@@ -388,3 +388,76 @@ def test_parse_boostdep_artifact(
         library__key="numeric/conversion", version__name="boost-1.85.0"
     )
     assert lv.dependencies.count() == 1
+
+
+GIT_LOG_WITH_NUMSTAT = """commit abc123
+Author: Peter Dimov <pdimov@example.com>
+Date:   2024-01-02 10:00:00 +0000
+
+    Document the list algorithms
+
+    With a second paragraph.
+
+12\t3\tdoc/index.adoc
+-\t-\tdoc/img/diagram.png
+40\t0\tinclude/boost/mp11/list.hpp
+
+commit def456
+Merge: 111 222
+Author: Someone Else <else@example.com>
+Date:   2024-01-03 10:00:00 +0000
+
+    Merge pull request #1
+
+commit fff999
+Author: Peter Dimov <pdimov@example.com>
+Date:   2024-01-04 10:00:00 +0000
+
+    Fix a typo in the header
+
+40\t0\tinclude/boost/mp11/list.hpp
+"""
+
+
+@pytest.fixture
+def fake_git(monkeypatch):
+    """Answer the importer's git calls without a clone."""
+
+    def run(args, **kwargs):
+        completed = MagicMock()
+        completed.args = args
+        completed.stdout = b""
+        completed.stderr = b""
+        if args[1] == "clone":
+            completed.stderr = b"Cloning into bare repository"
+        elif "log" in args:
+            completed.stdout = GIT_LOG_WITH_NUMSTAT.encode()
+        elif "diff" in args:
+            completed.stdout = b" 3 files changed, 52 insertions(+), 3 deletions(-)"
+        return completed
+
+    monkeypatch.setattr("libraries.github.subprocess.run", run)
+
+
+@pytest.mark.django_db
+def test_commit_parse_counts_doc_files(fake_git):
+    """Per-file stats are read, and the message is not polluted by them."""
+    from libraries.github import ParsedCommit, get_commit_data_for_repo_versions
+
+    baker.make(Library, key="mp11", github_url="https://github.com/boostorg/mp11")
+
+    commits = [
+        item
+        for item in get_commit_data_for_repo_versions("mp11")
+        if isinstance(item, ParsedCommit)
+    ]
+
+    assert [(c.sha, c.docs_files_changed) for c in commits] == [
+        ("abc123", 2),
+        ("def456", 0),
+        ("fff999", 0),
+    ]
+    assert commits[0].message == (
+        "Document the list algorithms\n\nWith a second paragraph."
+    )
+    assert commits[1].is_merge is True
