@@ -461,3 +461,28 @@ def test_commit_parse_counts_doc_files(fake_git):
         "Document the list algorithms\n\nWith a second paragraph."
     )
     assert commits[1].is_merge is True
+
+
+@pytest.mark.django_db
+def test_reimport_heals_the_doc_count_without_moving_the_row(fake_git):
+    """The non-destructive path updates matched rows in place.
+
+    Which is what lets commits imported before the field existed gain a count
+    without any grant pointing at them being disturbed.
+    """
+    from libraries.models import Commit
+
+    library = baker.make(
+        Library, key="mp11", github_url="https://github.com/boostorg/mp11"
+    )
+    version = baker.make(LibraryVersion, library=library)
+    version.version.name = "master"
+    version.version.save()
+    stale = baker.make(
+        Commit, library_version=version, sha="abc123", docs_files_changed=0
+    )
+
+    LibraryUpdater().update_commits(library)
+
+    stale.refresh_from_db()
+    assert stale.docs_files_changed == 2
