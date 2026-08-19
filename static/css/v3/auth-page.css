@@ -25,8 +25,8 @@
   width: 100%;
 }
 
-/* Beats the shared body.v3 .min-vh-110 rule (hence the prefix): the auth layout is
-   pinned to the viewport, so this shrinks with it rather than growing past it. */
+/* Beats foundations.css's body.v3 > div > .min-vh-110 (hence the prefix): the auth
+   layout is pinned to the viewport, so this shrinks with it rather than growing. */
 body.v3 .auth-page .min-vh-110 {
   min-height: auto;
   padding: 0;
