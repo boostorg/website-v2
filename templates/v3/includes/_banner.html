@@ -1,9 +1,10 @@
 {% comment %}
   V3 Banner — amber by default, with optional icon, auto-fade, action and close (X).
 
-  With dismiss_key, dismissal persists in sessionStorage via @alpinejs/persist;
-  with dismiss_id it is CSS-only and works without JS. Without either, the Alpine
-  close button is hidden when JS is off, and the banner simply stays.
+  Either dismiss_id or dismiss_key renders a CSS-only close button that works
+  without JS; dismiss_key additionally persists the dismissal across pages in
+  sessionStorage via @alpinejs/persist. Without either, the Alpine close button is
+  hidden when JS is off, and the banner simply stays.
 
   Variables:
     banner_message  (required) — HTML message body; passed through |safe. A \n in the
@@ -11,9 +12,10 @@
                                  to split a two-sentence message; it is a space elsewhere.
     icon_name       (optional) — leading icon name. See includes/icon.html.
     fade_time       (optional) — milliseconds after which the banner auto-fades. See animations.css.
-    dismiss_key     (optional) — key scoping the dismissed state in sessionStorage. Omit
-                                 for one-shot messages: a persisted key would also
-                                 suppress the next message using it.
+    dismiss_key     (optional) — key scoping the dismissed state in sessionStorage, and
+                                 the close checkbox id. Omit for one-shot messages: a
+                                 persisted key would also suppress the next message
+                                 using it.
     variant         (optional) — "success" or "error"; adds .banner--<variant>. Default is amber.
     role            (optional) — ARIA role, default "alert". Use "status" to announce
                                  politely, or "region" (with aria_label) for a notice
@@ -21,8 +23,9 @@
     aria_label      (optional) — accessible name, required when role="region".
     action_url      (optional) — with action_label, renders a POST form (e.g. "Cancel deletion").
     action_label    (optional) — submit button text for action_url.
-    dismiss_id      (optional) — page-unique value; swaps the Alpine close button for a
-                                 CSS-only one. Use it for banners that never fade.
+    dismiss_id      (optional) — page-unique value scoping the close checkbox, for
+                                 banners with no dismiss_key. Use it for banners that
+                                 never fade.
 
   Usage:
     {% include "v3/includes/_banner.html" with banner_message="Heads up!" icon_name="alert" dismiss_key="my-banner" %}
@@ -46,9 +49,11 @@
         </form>
         {% endif %}
     </div>
-    {% if dismiss_id %}
-    <input type="checkbox" class="banner__dismiss" id="banner-dismiss-{{ dismiss_id }}" aria-label="Dismiss notice">
-    <label class="banner__close" for="banner-dismiss-{{ dismiss_id }}">
+    {% firstof dismiss_id dismiss_key as dismiss_target %}
+    {% if dismiss_target %}
+    <input type="checkbox" class="banner__dismiss" id="banner-dismiss-{{ dismiss_target }}" aria-label="Dismiss notice">
+    {# The label alone dismisses without JS; @click also persists it when dismiss_key is set. #}
+    <label class="banner__close" for="banner-dismiss-{{ dismiss_target }}" @click="visible = false">
         {% include 'includes/icon.html' with icon_name="close" icon_class="banner__close-icon" icon_size=16 %}
     </label>
     {% else %}
