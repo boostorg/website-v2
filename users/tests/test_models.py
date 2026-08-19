@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from django.contrib.auth import get_user_model
@@ -73,6 +75,33 @@ def test_user_model_image_file_size(user):
     # This should raise a ValidationError for file size
     with pytest.raises(ValidationError):
         user.full_clean()
+
+
+def test_get_thumbnail_url_returns_url_when_file_exists(user):
+    """The happy path: a stored profile image resolves to a thumbnail URL."""
+    assert user.get_thumbnail_url() == user.image_thumbnail.url
+    assert user.get_avatar_url() == user.image_thumbnail.url
+
+
+def test_get_thumbnail_url_returns_none_when_file_missing(user):
+    """A `profile_image` naming a file absent from storage must not raise.
+
+    `image_thumbnail` is an imagekit `ImageSpecField`; evaluating it for
+    truthiness generates the thumbnail, which opens the source file and
+    raises `FileNotFoundError` when the object is gone from storage.
+    """
+    Path(user.profile_image.path).unlink()
+    user.delete_cached_thumbnail()
+
+    assert user.get_thumbnail_url() is None
+
+
+def test_get_avatar_url_falls_back_when_file_missing(user):
+    """`get_avatar_url` degrades to the empty string that triggers initials."""
+    Path(user.profile_image.path).unlink()
+    user.delete_cached_thumbnail()
+
+    assert user.get_avatar_url() == ""
 
 
 def test_claim(user):
