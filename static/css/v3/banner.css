@@ -48,6 +48,16 @@
     letter-spacing: var(--letter-spacing-tight);
 }
 
+/* A \n in a message is an optional break: normal collapses it to a space, so it
+   only takes effect on mobile, where the banner is narrowest. Keep message
+   strings on one logical line (implicit concatenation) — any stray newline from
+   wrapping source code would break here too. */
+@media (max-width: 767px) {
+    .banner__message {
+        white-space: pre-line;
+    }
+}
+
 .banner__message a {
     text-decoration-line: underline;
     text-decoration-style: solid;

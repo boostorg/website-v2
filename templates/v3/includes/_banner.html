@@ -6,7 +6,9 @@
   close button is hidden when JS is off, and the banner simply stays.
 
   Variables:
-    banner_message  (required) — HTML message body; passed through |safe.
+    banner_message  (required) — HTML message body; passed through |safe. A \n in the
+                                 text breaks the line on mobile only (banner.css) — use it
+                                 to split a two-sentence message; it is a space elsewhere.
     icon_name       (optional) — leading icon name. See includes/icon.html.
     fade_time       (optional) — milliseconds after which the banner auto-fades. See animations.css.
     dismiss_key     (optional) — key scoping the dismissed state in sessionStorage. Omit
