@@ -505,14 +505,14 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
     http_method_names = ["get", "post"]
 
     _POST_BLOCK_MAP: dict[str, tuple[str, Block]] = {
-        "blog": BLOG_BLOCK,
+        "blogpost": BLOG_BLOCK,
         "news": NEWS_BLOCK,
         "link": LINK_BLOCK,
         "video": VIDEO_BLOCK,
     }
 
     _POST_TYPE_MAP = {
-        "blog": V3BlogPostForm,
+        "blogpost": V3BlogPostForm,
         "news": V3NewsForm,
         "link": V3LinkForm,
         "video": V3VideoForm,
@@ -529,7 +529,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         """Shared context variables needed by the v3 create-post template."""
         return {
             "post_type_options": [
-                ("blog", "Blog"),
+                ("blogpost", "Blog"),
                 ("news", "News"),
                 ("video", "Video"),
                 ("link", "Link"),

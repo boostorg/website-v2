@@ -22,16 +22,16 @@
     html:not(.js) .create-post-page__description-field { display: none; }
     html:not(.js) .field--file .field__control { cursor: pointer; }
 
-    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
+    html:not(.js) form:has(select[name="post_type"] option[value="blogpost"]:checked) .create-post-page__content-field,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: flex; }
 
-    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__description-section,
+    html:not(.js) form:has(select[name="post_type"] option[value="blogpost"]:checked) .create-post-page__description-section,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__description-section { display: flex; }
 
     html:not(.js) form:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__description-field,
     html:not(.js) form:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__description-field { display: flex; }
 
-    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__link-fields,
+    html:not(.js) form:has(select[name="post_type"] option[value="blogpost"]:checked) .create-post-page__link-fields,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__link-fields { display: none; }
   </style>
   <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
@@ -229,7 +229,7 @@
           image:        '{{ form.image.errors.0|default:""|escapejs }}',
         },
 
-        get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
+        get isWriteUp() { return this.postType === 'blogpost' || this.postType === 'news'; },
         get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
         get isLink() { return this.postType === 'link'; },
         // Auto-Generate fetches and summarizes the linked page, so enable it

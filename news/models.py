@@ -169,6 +169,10 @@ class Entry(models.Model):
         else:
             return self.image.url
 
+    @property
+    def needs_approval(self):
+        return not self.approved_at and not self.deleted_at
+
     @cached_property
     def tag(self):
         return getattr(self, "_tag", self.news_type)

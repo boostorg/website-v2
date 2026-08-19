@@ -21,7 +21,7 @@
       {% if not is_preview %}
         {% if user_can_approve or user_can_edit or user_can_delete %}
           <div class="post-detail__admin-actions">
-            {% if object.workflow_in_progress or not object.approved_at and not object.deleted_at %}
+            {% if object.needs_approval %}
               {% if user_can_approve %}
                 <form method="POST" action="{% url 'news-approve' object.slug %}" class="post-detail__approve-form">
                   {% csrf_token %}

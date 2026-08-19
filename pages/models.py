@@ -291,6 +291,10 @@ class PostPage(BasePage):
             return self.summary
         return self.content
 
+    @property
+    def needs_approval(self):
+        return self.workflow_in_progress
+
     @cached_property
     def stream_content_type(self):
         if not len(self.content):
