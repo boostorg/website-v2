@@ -391,8 +391,8 @@ class User(BaseUser):
 
     def get_hq_image_url(self):
         # convenience method for templates
-        if self.hq_image and self.hq_image_render:
-            with suppress(AttributeError, MissingSource, FileNotFoundError, OSError):
+        with suppress(AttributeError, MissingSource, FileNotFoundError, OSError):
+            if self.hq_image and self.hq_image_render:
                 return getattr(self.hq_image_render, "url", None)
 
     @property
