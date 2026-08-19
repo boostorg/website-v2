@@ -35,9 +35,18 @@
     const btn = ev.currentTarget;
     const block = btn.closest(".code-block");
     if (!block) return;
+    // A button may carry its own text via data-copy-text. The install card needs
+    // this: it pre-renders every option's command and hides all but the selected
+    // one, so reading the first .code-block__inner would copy the wrong command
+    // as soon as the user changes the dropdown. Buttons without the attribute
+    // fall back to reading the block, unchanged. Presence, not truthiness: an
+    // empty data-copy-text means "nothing to copy", and falling back there would
+    // silently copy the first option's command instead.
     const codeEl = block.querySelector(".code-block__inner code");
-    if (!codeEl) return;
-    const text = codeEl.textContent || codeEl.innerText || "";
+    const text = btn.hasAttribute("data-copy-text")
+      ? btn.dataset.copyText
+      : (codeEl ? codeEl.textContent || codeEl.innerText : "") || "";
+    if (!text) return;
 
     function showCopiedFeedback() {
       setCopiedState(btn, "true");

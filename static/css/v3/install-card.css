@@ -142,6 +142,32 @@
 .install-card__dropdown .dropdown__label {
   display: none;
 }
+/* Copy button: hidden by default. The per-option rules in _install_card.html's
+   generated <style> reveal the one matching the checked radio, and only once
+   install-card.js has added .js-copy-enabled — a copy button is useless
+   without JS, so it shouldn't be shown at all. */
+.install-card__copy {
+  display: none;
+}
+/* .code-block__copy pins itself absolute top/right, which lands on top of the
+   dropdown. In this card it's a flex item sitting between the command and the
+   dropdown instead, per Figma. */
+.install-card__command .install-card__copy {
+  position: static;
+  flex-shrink: 0;
+  /* Top-aligned like the dropdown, not centred: the row grows when a long
+     command wraps, and a centred icon would slide down away from the dropdown.
+     The 40px trigger centres at 20px, so a 16px icon needs 12px above it —
+     which is --space-medium, the same offset the command's first line uses. */
+  align-self: flex-start;
+  margin-block-start: var(--space-medium);
+  /* The row's gap (--space-xl) was set when it had two children. With the copy
+     button between the command and the dropdown that gap now applies twice, which
+     reads as too much space beside the dropdown. Figma specifies 9.33px here;
+     --space-default (8px) is the closest token — there is nothing between 8 and
+     12 in the scale. The command keeps its distance because it flex-grows. */
+  margin-inline-end: calc(var(--space-default) - var(--space-xl));
+}
 
 /* Tab panel switching */
 .install-card__radio--pkg:checked

@@ -10,6 +10,16 @@
  * Supports multiple install cards on the same page via querySelectorAll.
  */
 document.addEventListener("DOMContentLoaded", function () {
+  // Reveal the copy buttons only when JS is available to serve them. The CSS
+  // keeps .install-card__copy hidden until this class is present, so a no-JS
+  // visitor never sees a copy icon that cannot work. Same approach as
+  // _downloads_table_card.html.
+  document
+    .querySelectorAll("[data-install-card-wrapper]")
+    .forEach(function (wrapper) {
+      wrapper.classList.add("js-copy-enabled");
+    });
+
   document.querySelectorAll("[data-install-card]").forEach(function (card) {
     initInstallCard(card);
   });
