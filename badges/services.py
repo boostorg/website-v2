@@ -50,7 +50,7 @@ CASCADE_REVOCATION_NOTE = (
     "the {rank} threshold of {threshold}."
 )
 
-# Rows per DELETE ... WHERE pk IN (...) and per bulk_create. The unmatched set can
+# Rows per DELETE ... WHERE pk IN (...) and per bulk_create. The stored key set can
 # be as large as the achievement table.
 SYNC_BATCH_SIZE = 1000
 
@@ -355,26 +355,25 @@ def _sync_source(
     if user_ids is not None:
         stored = stored.filter(user_id__in=user_ids)
 
-    # Every stored key, keyed by what the iterator can reconstruct and valued by
-    # the rows carrying it. Whatever survives the walk is stale, and a key the
-    # walk cannot find here is a grant that does not exist yet - so one dict
-    # answers both halves and the walk needs no per-batch lookup of its own.
-    # Bounded by this achievement's row count rather than by the source's, so a
-    # scoped run holds one member's grants in memory and not every commit.
+    # Every stored grant, keyed the way its source names the evidence. A key the
+    # walk never yields is stale; a key it yields needs one row, so any surplus
+    # rows carrying it are stale too. Bounded by this achievement's row count
+    # rather than by the source's, so a scoped run holds one member's grants in
+    # memory and not every commit.
     #
-    # A list of rows per key, not one: the source pointer is nullable, so several
-    # automatic rows can share ``(user, NULL, NULL)``, and one slot per key would
-    # clear all but the last of them per run. A key with a real pointer can only
-    # ever hold one row - ``unique_automatic_user_achievement_source`` says so.
-    unmatched = {}
-    for pk, user_id, content_type_id, object_id in stored.values_list(
-        "pk", "user_id", "source_content_type_id", "source_object_id"
+    # A list of rows per key, not one: rows written before a source was keyed
+    # share ``(user, NULL)``, and duplicate source rows can share a real key
+    # until a reconcile collapses them.
+    stored_keys = {}
+    for pk, user_id, dedup_info in stored.values_list(
+        "pk", "user_id", "dedup_info"
     ).iterator(chunk_size=2000):
-        unmatched.setdefault((user_id, content_type_id, object_id), []).append(pk)
+        stored_keys.setdefault((user_id, dedup_info), []).append(pk)
 
     scope = None if user_ids is None else set(user_ids)
     yielded = added = 0
     changed = set()
+    seen = set()
     pending = {}
 
     def flush():
@@ -383,40 +382,48 @@ def _sync_source(
         if not pending:
             return
         if not dry_run:
-            # ignore_conflicts because ``unmatched`` is a snapshot: a concurrent
+            # ignore_conflicts because ``stored_keys`` is a snapshot: a concurrent
             # run of this same function may have inserted the row since.
             UserAchievement.objects.bulk_create(
                 list(pending.values()), ignore_conflicts=True
             )
         added += len(pending)
+        # An inserted row is not stale, and a key repeated in a later batch must
+        # not be inserted a second time.
+        for key in pending:
+            stored_keys.setdefault(key, [])
         pending = {}
 
-    for user, source in sources.BACKFILL_ITERATORS[slug]():
+    for user, source, dedup_key in sources.BACKFILL_ITERATORS[slug]():
         yielded += 1
+        if dedup_key is None:
+            # Without a key the engine cannot tell this grant from a new one, so
+            # every sweep would re-add it and every reconcile would remove it.
+            raise ValueError(f"Source '{slug}' yielded no dedup key for {source!r}.")
         # A deactivated account is skipped for every source at once, rather than
         # in each iterator, so a source wired later cannot forget the rule. It
         # sits after ``yielded`` on purpose: the refusal below asks whether the
         # source read empty, and "everyone it named is gone" is not that.
         #
         # Skipping is also what removes the grants such an account already holds,
-        # since its key stays in ``unmatched`` and reads as stale. That matters:
+        # since its key is never yielded and so reads as stale. That matters:
         # deleting an account scrubs its grants, but the libraries and commits
         # they derive from name it still, so without this the next sweep would
         # award them all back.
         if not user.is_active:
             continue
-        # The scope is applied here as well as on ``unmatched``: an out-of-scope
+        # The scope is applied here as well as on ``stored_keys``: an out-of-scope
         # member's key is absent from it, which on the additive side is
         # indistinguishable from a grant that needs creating.
         if scope is not None and user.pk not in scope:
             continue
-        content_type = ContentType.objects.get_for_model(source)
-        key = (user.pk, content_type.pk, source.pk)
-        if unmatched.pop(key, None) is not None:
+        key = (user.pk, dedup_key)
+        seen.add(key)
+        if key in stored_keys:
             continue
-        # ``pending`` is keyed, so an iterator that yields the same pair twice
-        # inside one batch counts it once. Across a flush the unique constraint
-        # is what catches it, and only the count is then optimistic.
+        # ``pending`` is keyed, so an iterator naming the same evidence twice
+        # inside one batch counts it once, and ``flush`` carries the key over so
+        # that holds across batches too.
         if not add or key in pending:
             continue
         changed.add(user.pk)
@@ -424,8 +431,9 @@ def _sync_source(
             user_id=user.pk,
             achievement=achievement,
             source_type=SourceType.AUTOMATIC,
-            source_content_type=content_type,
+            source_content_type=ContentType.objects.get_for_model(source),
             source_object_id=source.pk,
+            dedup_info=dedup_key,
         )
         if len(pending) >= batch_size:
             flush()
@@ -434,11 +442,11 @@ def _sync_source(
     # Paired with the member each row belongs to, so a chunk can recalculate the
     # members it just emptied without going back to the database to ask who they
     # were.
-    stale = (
-        [(pk, user_id) for (user_id, _, _), pks in unmatched.items() for pk in pks]
-        if remove
-        else []
-    )
+    stale = []
+    if remove:
+        for key, pks in stored_keys.items():
+            surplus = pks if key not in seen else pks[1:]
+            stale.extend((pk, key[0]) for pk in surplus)
     if stale and not yielded and not allow_empty:
         logger.warning(
             "Refusing to remove %s stale grant(s) for '%s': the source yielded "
@@ -454,7 +462,7 @@ def _sync_source(
         )
 
     if remove:
-        changed.update(user_id for user_id, _, _ in unmatched)
+        changed.update(user_id for _, user_id in stale)
 
     recalculated = set()
     if stale and not dry_run:

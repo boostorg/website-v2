@@ -845,6 +845,7 @@ class UserAchievementAdmin(
         "user__display_name",
         "achievement__name",
         "grant_notes",
+        "dedup_info",
     )
     autocomplete_fields = ("achievement", "user")
     readonly_fields = (
@@ -852,6 +853,7 @@ class UserAchievementAdmin(
         "invalidated_by",
         "invalidated_at",
         "granted_by",
+        "dedup_info",
     )
     actions = ["invalidate", "revalidate"]
     add_fieldsets = ((None, {"fields": ("user", "achievement", "grant_notes")}),)
