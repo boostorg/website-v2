@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import pytest
 from pytest_django.asserts import assertHTMLEqual
 
+from core.constants import SourceDocType
 from core.htmlhelper import (
     REMOVE_ALL,
     REMOVE_CSS_CLASSES,
@@ -9,6 +10,7 @@ from core.htmlhelper import (
     convert_h1_to_h2,
     get_library_documentation_urls,
     modernize_legacy_page,
+    wrap_main_body_elements,
     remove_css,
     remove_duplicate_tag,
     remove_first_tag,
@@ -793,3 +795,74 @@ def test_modernize_release_notes():
         .strip()
     )
     assert output == expected_output
+
+
+# Antora source markup, as the website-v2-docs antora-ui emits it: an inner
+# `.boostlook` div (body.hbs) wrapping an `article.doc` (article.hbs). This is
+# what /doc/user-guide, /doc/contributor-guide and doc/antora/url all look like.
+ANTORA_BODY = """
+    <div class="boostlook">
+      <div id="header"><div id="toc" class="nav-container toc2"></div></div>
+      <div id="content"><article class="doc"><h1 class="page">Title</h1></article></div>
+      <div id="footer"></div>
+    </div>
+"""
+
+
+@pytest.mark.parametrize(
+    "original_docs_type",
+    [None, SourceDocType.ANTORA, SourceDocType.ASCIIDOC],
+)
+def test_wrap_main_body_elements_always_applies_boostlook(original_docs_type):
+    """The wrapper needs `boostlook` alongside `source-docs-*` whatever the type.
+
+    Every `source-docs-antora` rule in boostlook.css is written as
+    `div.source-docs-antora.boostlook...`, so dropping `boostlook` for Antora
+    sources left all of them unmatched.
+    """
+    original = f"""<!DOCTYPE html>
+    <html>
+    <body>
+      <!-- BEGIN Manually appending items -->
+      <div id="boost-legacy-docs-header">Header</div>
+      <!-- END Manually appending items -->
+      {ANTORA_BODY}
+    </body>
+    </html>
+    """
+    soup = BeautifulSoup(original, "html.parser")
+
+    wrap_main_body_elements(soup, original_docs_type)
+
+    wrapper = soup.select_one("div[class*=source-docs-]")
+    assert wrapper is not None
+    assert "boostlook" in wrapper["class"]
+
+    suffix = (
+        original_docs_type.value
+        if original_docs_type
+        else SourceDocType.ANTORA.value
+    )
+    assert f"source-docs-{suffix}" in wrapper["class"]
+
+
+def test_wrap_main_body_elements_antora_wrapper_matches_stylesheet():
+    """The wrapper matches the selector boostlook.css actually ships."""
+    original = f"""<!DOCTYPE html>
+    <html>
+    <body>
+      <!-- BEGIN Manually appending items -->
+      <div id="boost-legacy-docs-header">Header</div>
+      <!-- END Manually appending items -->
+      {ANTORA_BODY}
+    </body>
+    </html>
+    """
+    soup = BeautifulSoup(original, "html.parser")
+
+    wrap_main_body_elements(soup, SourceDocType.ANTORA)
+
+    assert soup.select("div.source-docs-antora.boostlook")
+    # The source's own inner .boostlook is preserved, so the stylesheet's
+    # `:has(> .boostlook)` guards still resolve the nesting correctly.
+    assert soup.select("div.source-docs-antora.boostlook > .boostlook")

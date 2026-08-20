@@ -474,7 +474,7 @@ already switched the template to `docsiframe.html`, which never reads
 
 ### Findings
 
-**1. The `ANTORA` docs type drops the `.boostlook` class the CSS requires.**
+**1. The `ANTORA` docs type drops the `.boostlook` class the CSS requires.** *(FIXED)*
 
 `wrap_main_body_elements()` (`core/htmlhelper.py`) only appends `boostlook` to
 the wrapper when the type is *not* Antora:
@@ -494,11 +494,22 @@ classes on the wrapper. So when `original_docs_type is SourceDocType.ANTORA`,
 the wrapper renders as `<div class="source-docs-antora">` and all 37 Antora
 rules are dead. Verified by rendering the page both ways.
 
-Reachability: `establish_source_content_type()` returns `ANTORA` only when the
-S3 result carries no `source_content_type` *and* the request path contains
+Reachability: `establish_source_content_type()` returns `ANTORA` when the S3
+result carries no `source_content_type` *and* the request path contains
 `"antora"` -- i.e. the `doc/antora/url` entry in `FULLY_MODERNIZED_LIB_VERSIONS`.
-`charconv` and `redis` paths contain no `"antora"`, so they fall through to
-`None` and pick up both classes.
+`UserGuideTemplateView` reaches it far more directly, hardcoding
+`original_docs_type=SourceDocType.ANTORA`, so every `/doc/user-guide`,
+`/doc/contributor-guide` and `/doc/formal-reviews` page was affected too.
+`charconv` and `redis` paths contain no `"antora"`, so they fell through to
+`None` and already picked up both classes.
+
+**Fix:** `wrap_main_body_elements()` now appends `boostlook` unconditionally.
+Measured against a user-guide page shaped by the real `antora-ui` templates,
+matching `source-docs-antora` selectors go from 0/35 to 3/35 -- the container
+rules plus the `:has(> .boostlook)` nesting rules. The other 32 stay unmatched
+by design: they are gated on `:not(:has(> .boostlook))` and `:not(:has(.doc))`,
+both of which an Antora page correctly fails. Regression tests in
+`core/tests/test_htmlhelper.py` cover all three docs types.
 
 **2. `source_content_type` is not persisted, so the same URL can render two
 different ways.**

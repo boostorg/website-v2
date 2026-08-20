@@ -143,9 +143,12 @@ def wrap_main_body_elements(
     )
     wrapper_class_list.append(f"source-docs-{docs_type_suffix}")
 
-    if original_docs_type != SourceDocType.ANTORA:
-        # Antora docs have a boostlook class already; others need it.
-        wrapper_class_list.append("boostlook")
+    # Every `source-docs-antora` rule in boostlook.css is written as
+    # `div.source-docs-antora.boostlook...`, so the wrapper needs both classes.
+    # Antora sources carry their own inner `.boostlook` div, but that nesting is
+    # what the stylesheet's `:has(> .boostlook)` / `:not(:has(> .boostlook))`
+    # guards are for -- omitting the class here just left the rules unmatched.
+    wrapper_class_list.append("boostlook")
 
     wrapper_div["class"] = " ".join(wrapper_class_list)
 
