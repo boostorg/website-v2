@@ -403,6 +403,55 @@ That last line is the rule commented "CharConv template fix" at
 `boostlook.css:4203`, so this is the intended end state: the release-pinned
 embedded stylesheet is thrown away and replaced by the site-wide one.
 
+##### The `source-docs-antora` label on an Asciidoctor page
+
+Because charconv resolves to `original_docs_type = None`, it hits the fallback
+in `wrap_main_body_elements()`:
+
+```python
+# TODO: this is a hack that adds "-antora" to anything that's missing an original_docs_type.
+docs_type_suffix = (
+    original_docs_type.value if original_docs_type else SourceDocType.ANTORA.value
+)
+```
+
+So an Asciidoctor page is tagged `source-docs-antora`. That mislabel turns out
+to be harmless, and not by luck. Running all 35 distinct `source-docs-antora`
+selectors in `boostlook.css` against the rendered charconv DOM:
+
+```
+wrapper classes                     : ['source-docs-antora', 'boostlook']
+wrapper has direct .boostlook child : True
+any article.doc in page             : False    (Antora-only element)
+
+matched  4 / 35
+  div.source-docs-antora.boostlook
+  div.source-docs-antora.boostlook > #footer
+  div.source-docs-antora.boostlook:has(> .boostlook)
+  div.source-docs-antora.boostlook:has(> .boostlook) .boostlook #toc.toc2
+```
+
+The 31 that miss are almost all gated on `:not(:has(> .boostlook))`. That guard
+is exactly the point: a page carrying its own inner `.boostlook` div -- which is
+what `boostlook.rb` emits on every Asciidoctor build -- is opted out of the
+Antora fallback rules by the stylesheet itself. The four that do match are all
+container-level and are the ones you want, including the `:has(> .boostlook)`
+"CharConv template fix". `> #header` and `> #content` correctly miss, since on
+an Asciidoctor page those sit inside the inner `.boostlook`, not directly under
+the wrapper.
+
+One selector needs a caveat rather than a verdict:
+`body.article:has(div.source-docs-antora.boostlook)` does not match the parsed
+output, but only because of Finding 5 -- the wrapper is serialized after
+`</body>`. Browsers reparent stray trailing content into `<body>`, so this one
+does match in a real browser. It is the one place where Finding 5 is observable
+in the CSS rather than merely untidy.
+
+The residual cost of the mislabel is not broken styling; it is that
+`source-docs-asciidoc` has no rules at all in `boostlook.css`, so there is no
+way to style Asciidoctor docs distinctly, and anyone reading the DOM will
+reasonably conclude charconv is an Antora build when it is not.
+
 **So charconv renders correctly -- but for a reason nobody designed.** It hangs
 on a substring of stylesheet text. If boostlook drops or renames its
 `.spirit-nav` rules, or the build ever switches to `linkcss`, charconv silently
