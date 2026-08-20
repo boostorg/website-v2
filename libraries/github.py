@@ -29,7 +29,7 @@ from .models import (
     LibraryVersion,
     PullRequest,
 )
-from badges.services import discard_source_achievements
+from badges.services import discard_source_achievements, relink_source_achievements
 from core.githubhelper import GithubAPIClient, GithubDataParser
 
 from .utils import generate_fake_email, parse_boostdep_artifact, parse_date
@@ -566,11 +566,10 @@ class LibraryUpdater:
                     assert_never()
 
         with transaction.atomic():
+            doomed_ids = []
             if clean:
-                # The rows come back with new ids, and a grant names its source by
-                # id with no link back, so the grants have to go with them.
                 doomed = Commit.objects.filter(library_version__library=library)
-                discard_source_achievements(Commit, doomed.values_list("pk", flat=True))
+                doomed_ids = list(doomed.values_list("pk", flat=True))
                 doomed.delete()
             Commit.objects.bulk_create(
                 commits,
@@ -584,6 +583,22 @@ class LibraryUpdater:
                 ],
                 unique_fields=["library_version", "sha"],
             )
+            if clean:
+                # The same commits are back under new ids, and a grant names its
+                # evidence by sha, so the pointers are rebuilt rather than the
+                # grants dropped: dropping them would revoke the badges they
+                # justify and re-earn them dated today on the next sync.
+                relink_source_achievements(
+                    Commit,
+                    dict(
+                        Commit.objects.filter(
+                            library_version__library=library
+                        ).values_list("sha", "pk")
+                    ),
+                )
+                # Whatever still points into the deleted ids is evidence that did
+                # not come back, so those grants really are stale.
+                discard_source_achievements(Commit, doomed_ids)
             LibraryVersion.objects.bulk_update(
                 library_version_updates,
                 ["insertions", "deletions", "files_changed"],

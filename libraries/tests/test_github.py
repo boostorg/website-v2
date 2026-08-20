@@ -506,16 +506,10 @@ def test_reimport_heals_the_doc_count_without_moving_the_row(fake_git):
     assert stale.docs_files_changed == 2
 
 
-@pytest.mark.django_db
-def test_clean_reimport_discards_the_grants_it_orphans(
-    fake_git, catalogue, django_user_model
-):
-    """A wiped commit takes its grants with it, whatever source they came from.
-
-    Left behind, they count toward a threshold forever: a reconcile can only match
-    a grant against what the iterator yields, and a deleted row yields nothing.
-    """
-    from badges.models import Achievement, UserAchievement
+def _library_with_granted_commit(django_user_model, sha):
+    """A member holding a code-commits grant for one commit of one library."""
+    from badges.models import Achievement
+    from badges.services import recalculate_badges
     from badges.tests.fixtures import grant_from_source
     from libraries.models import Commit
 
@@ -528,11 +522,55 @@ def test_clean_reimport_discards_the_grants_it_orphans(
     version = baker.make(LibraryVersion, library=library)
     version.version.name = "master"
     version.version.save()
-    commit = baker.make(Commit, library_version=version, sha="abc123")
-    grant_from_source(
-        user, Achievement.objects.get(slug="code-commits"), commit, dedup_info="abc123"
-    )
+    commit = baker.make(Commit, library_version=version, sha=sha)
+    achievement = Achievement.objects.get(slug="code-commits")
+    grant_from_source(user, achievement, commit, dedup_info=sha)
+    recalculate_badges(user.pk, achievement.pk)
+    return library, commit
+
+
+@pytest.mark.django_db
+def test_clean_reimport_keeps_the_badges_it_would_have_revoked(
+    fake_git, catalogue, django_user_model
+):
+    """Evidence that comes back keeps its grant, so no badge moves.
+
+    The grant is re-pointed at the new row instead of deleted. Deleting it would
+    cascade-revoke the badge it justifies, record that revocation permanently, and
+    re-earn it dated today once the next sync put the grant back - rewriting
+    history for a re-import in which nothing actually changed.
+    """
+    from badges.models import UserAchievement, UserBadge
+    from libraries.models import Commit
+
+    library, commit = _library_with_granted_commit(django_user_model, "abc123")
+    badges = set(UserBadge.objects.values_list("pk", "awarded_at", "revoked_at"))
+    assert badges, "nothing was awarded, so the assertion below proves nothing"
 
     LibraryUpdater().update_commits(library, clean=True)
 
+    grant = UserAchievement.objects.get(dedup_info="abc123")
+    assert grant.source_object_id == Commit.objects.get(sha="abc123").pk
+    assert grant.source_object_id != commit.pk
+    assert (
+        set(UserBadge.objects.values_list("pk", "awarded_at", "revoked_at")) == badges
+    )
+
+
+@pytest.mark.django_db
+def test_clean_reimport_discards_grants_for_commits_that_do_not_return(
+    fake_git, catalogue, django_user_model
+):
+    """A wiped commit the repository no longer reports takes its grants with it.
+
+    Left behind, they count toward a threshold forever: a reconcile can only match
+    a grant against what the iterator yields, and a deleted row yields nothing.
+    """
+    from badges.models import UserAchievement
+
+    library, commit = _library_with_granted_commit(django_user_model, "deadbeef")
+
+    LibraryUpdater().update_commits(library, clean=True)
+
+    assert not UserAchievement.objects.filter(dedup_info="deadbeef").exists()
     assert not UserAchievement.objects.filter(source_object_id=commit.pk).exists()
