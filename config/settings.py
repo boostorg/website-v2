@@ -125,6 +125,7 @@ INSTALLED_APPS += [
     "news",
     "reports",
     "core",
+    "feedback",
     "slack",
     "testimonials",
     "patches",

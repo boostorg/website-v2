@@ -1,0 +1,178 @@
+{% comment %}
+  Beta feedback widget — floating launcher plus an inline form panel, rendered site-wide.
+
+  Rendered via {% feedback_widget %} (feedback/templatetags/feedback_tags.py), which
+  supplies the variables below. Do not {% include %} this directly — the type choices
+  and CSRF token come from the tag.
+
+  Variables:
+    feedback_type_options (required) — Feedback.Type.choices, for the type dropdown
+    image_max_bytes       (required) — screenshot size ceiling, mirrored from the model
+    message_max_length    (required) — message ceiling, mirrored from the model
+    csrf_token            (required) — forwarded by the tag so {% csrf_token %} resolves
+    request               (required) — for the current user and the page URL
+
+  Progressive enhancement:
+    - No JS: the launcher is a plain link to the standalone form at {% url 'feedback' %}.
+    - With JS: Alpine intercepts the click, opens the panel, and posts via fetch() so
+      the submitter stays on the page they are giving feedback about.
+
+  CSRF: the token travels in the FormData built from this form. CSRF_COOKIE_HTTPONLY is
+  on, so reading the cookie from JavaScript is not an option.
+{% endcomment %}
+<div class="feedback-widget"
+     x-data="feedbackWidget({{ image_max_bytes }})"
+     @click.outside="close()"
+     @keydown.escape.window="close()">
+
+  {# ?from= carries the page for the no-JS path, which cannot rely on Referer. #}
+  <a class="feedback-widget__launcher"
+     href="{% url 'feedback' %}?from={{ request.build_absolute_uri|urlencode }}"
+     x-ref="launcher"
+     @click.prevent="toggle()"
+     :aria-expanded="open"
+     aria-controls="feedback-widget-panel"
+     aria-haspopup="dialog">
+    {% include "includes/icon.html" with icon_name="message" icon_class="feedback-widget__launcher-icon" icon_size=16 icon_viewbox="0 0 16 16" %}
+    <span class="feedback-widget__launcher-label">Feedback</span>
+  </a>
+
+  <div class="feedback-widget__panel"
+       id="feedback-widget-panel"
+       role="dialog"
+       aria-labelledby="feedback-widget-title"
+       x-ref="panel"
+       tabindex="-1"
+       x-show="open"
+       x-cloak>
+    <div class="feedback-widget__header">
+      <h2 class="feedback-widget__title" id="feedback-widget-title">How's the beta going?</h2>
+      <button type="button"
+              class="feedback-widget__close"
+              @click="close()"
+              aria-label="Close feedback form">
+        {% include "includes/icon.html" with icon_name="close" icon_class="feedback-widget__close-icon" icon_size=20 %}
+      </button>
+    </div>
+
+    <div class="feedback-widget__sent" x-show="sent" x-cloak role="status">
+      <p class="feedback-widget__sent-title">Thank you — this is on its way to the team.</p>
+      <p class="feedback-widget__note">Keep them coming as you explore.</p>
+    </div>
+
+    <form class="feedback-widget__form"
+          method="post"
+          action="{% url 'feedback' %}"
+          enctype="multipart/form-data"
+          x-ref="form"
+          x-show="!sent"
+          @submit.prevent="submit($event)">
+      {% csrf_token %}
+      <input type="hidden" name="page_url" value="{{ request.build_absolute_uri }}">
+      {# Populated at submit time from js/feedback-diagnostics.js. #}
+      <input type="hidden" name="diagnostics" x-ref="diagnostics" value="">
+
+      <p class="feedback-widget__note">
+        Found a bug, or have an idea? We would love to hear from you.
+      </p>
+
+      <p class="feedback-widget__error"
+         x-show="errors.__all__"
+         x-text="errors.__all__"
+         x-cloak
+         role="alert"></p>
+
+      {% include "v3/includes/_field_dropdown.html" with name="feedback_type" label="What's this about?" options=feedback_type_options placeholder="Pick one" required=True alpine_error="errors.feedback_type" exclude_from_clear=True %}
+
+      {% include "v3/includes/_field_textarea.html" with name="message" label="Tell us more" placeholder="What happened, or what would you change?" rows=5 required=True maxlength=message_max_length alpine_error="errors.message" %}
+
+      {% include "v3/includes/_field_file.html" with name="image" label="Add a screenshot" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" help_text="Optional. PNG or JPEG, up to 2MB — a picture often saves us a lot of guesswork." %}
+
+      {% include "v3/includes/_button.html" with label="Send feedback" style="primary" type="submit" alpine_disabled="saving" label_x_text="saving ? 'Sending…' : 'Send feedback'" extra_classes="btn-flex" %}
+
+      <p class="feedback-widget__disclosure">
+        Sent as {{ request.user.display_name }}, with your browser and current page info.
+      </p>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('alpine:init', () => {
+    window.feedbackWidget = function (imageMaxBytes) {
+      return {
+        open: false,
+        sent: false,
+        saving: false,
+        errors: {},
+
+        toggle() {
+          if (this.open) {
+            this.close();
+            return;
+          }
+          this.open = true;
+          // Land keyboard and screen-reader users inside the dialog. The panel itself
+          // rather than a field, so opening does not expand the type dropdown.
+          this.$nextTick(() => this.$refs.panel?.focus());
+        },
+
+        // Closing clears a completed submission so reopening offers a fresh form.
+        close() {
+          const wasOpen = this.open;
+          this.open = false;
+          this.errors = {};
+          if (this.sent) {
+            this.sent = false;
+            this.$refs.form.reset();
+            this.$dispatch('field-set', { name: 'feedback_type', value: '', label: '' });
+          }
+          // Only when it was actually open: click.outside fires on every stray click,
+          // and focusing the launcher then would yank focus off whatever was clicked.
+          if (wasOpen) this.$refs.launcher?.focus();
+        },
+
+        // Checked here too so a phone photo fails instantly instead of after the upload.
+        oversizedImage(form) {
+          const file = form.elements.image?.files?.[0];
+          return file && file.size >= imageMaxBytes;
+        },
+
+        // Snapshot the ring buffer as late as possible, so it holds whatever
+        // went wrong right up to the moment the report was sent.
+        attachDiagnostics() {
+          if (!window.boostFeedbackDiagnosticsJSON) return;
+          this.$refs.diagnostics.value = window.boostFeedbackDiagnosticsJSON();
+        },
+
+        async submit(event) {
+          const form = event.target;
+          if (this.oversizedImage(form)) {
+            this.errors = { image: 'That image is over 2MB. Please attach a smaller one.' };
+            return;
+          }
+          this.attachDiagnostics();
+          this.saving = true;
+          this.errors = {};
+          try {
+            const response = await fetch(form.action, {
+              method: 'POST',
+              headers: { 'X-Requested-With': 'XMLHttpRequest' },
+              body: new FormData(form),
+            });
+            const data = await response.json();
+            if (response.ok) {
+              this.sent = true;
+            } else {
+              this.errors = data.errors || {};
+            }
+          } catch (error) {
+            this.errors = { __all__: 'Something went wrong on our end. Please try again in a moment.' };
+          } finally {
+            this.saving = false;
+          }
+        },
+      };
+    };
+  });
+</script>
