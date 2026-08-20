@@ -85,7 +85,10 @@ def get_commit_data_for_repo_versions(key, min_version=""):
     parser = re.compile(
         r"^commit (?P<sha>\w+)(?:\n(?P<merge>Merge).*)?\nAuthor: (?P<name>[^\<]+)"
         r"\s+\<(?P<email>[^\>]+)\>\nDate:\s+(?P<date>.*)\n(?P<message>(.|\n)+?)"
-        r"(?=(commit|\Z))",
+        # Anchored: the word "commit" is ordinary text in a message body and an
+        # ordinary word in a path, and an unanchored lookahead ends the match at
+        # the first of either - dropping the file stats that follow it.
+        r"(?=^commit |\Z)",
         flags=re.MULTILINE,
     )
     re.compile(
