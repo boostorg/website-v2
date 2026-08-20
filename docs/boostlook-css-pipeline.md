@@ -629,6 +629,71 @@ at `/static/font/v3/mona-sans/mona-sans-vf.ttf` or drop the face and align
 
 ---
 
+## Where boostlook is actually in use
+
+Derived from `config/urls.py`, `core/constants.py` and the upstream doc builds
+(GitHub code search across `boostorg`). Live `boost.org` / `stage.boost.org`
+are blocked by this environment's egress proxy, so none of these were fetched.
+
+### 1. Site pages -- stylesheet from `base.html`, `.boostlook` class in the template
+
+| URL pattern | Element carrying `.boostlook` |
+|---|---|
+| `/library/<version>/<slug>/` | `<section id="libraryReadMe" class="boostlook">` |
+| `/releases/` and `/releases/<version>/` | `<section id="libraryReadMe" class="boostlook">` |
+| `/releases/boost-in-progress/` | **`#libraryReadMe` with no `boostlook` class** -- see Finding 8 |
+
+Every other page rendered through `base.html` loads the stylesheet but has no
+`.boostlook` element, so only the reset and `:root` custom properties apply.
+
+### 2. Docs where the site injects its own boostlook.css into the iframe
+
+`FULLY_MODERNIZED_LIB_VERSIONS`, served via `docsiframe.html`:
+
+```
+/doc/libs/{1_87_0,1_88_0,1_89_0,latest,develop,master}/libs/charconv/...
+/doc/libs/{1_89_0,latest,develop,master}/libs/redis/...
+/doc/libs/<version>/doc/antora/url/...
+/doc/libs/**/tools/**              <- substring match on "tools/", so it also
+                                      catches any nested .../tools/... path
+```
+
+### 3. User guide family -- always typed `ANTORA`
+
+`UserGuideTemplateView` hardcodes `original_docs_type=SourceDocType.ANTORA`
+(`core/views.py:1178`), so **every one of these pages hits Finding 1** and loses
+the `.boostlook` class its wrapper needs. This is a far larger blast radius for
+that bug than `doc/antora/url` alone:
+
+```
+/doc/user-guide/...
+/doc/contributor-guide/...
+/doc/formal-reviews/...
+```
+
+The same method sets `context["skip_use_boostbook_v2"] = True`, but
+`docs_libs_placeholder.html` tests `skip_use_boostlook`. The names do not match,
+so the guard never fires and boostlook.css is linked regardless.
+
+### 4. Library docs that ship their own boostlook, served as-is
+
+These build with boostlook upstream but are not in `FULLY_MODERNIZED_LIB_VERSIONS`,
+so they render through `original_docs.html`, which links no site-wide stylesheet.
+They display using the copy frozen into that Boost release.
+
+| Library | Build | boostlook arrives as |
+|---|---|---|
+| json | Asciidoctor + `boostlook.rb` (`doc/Jamfile`) | embedded `<style>` |
+| charconv | Asciidoctor + `boostlook.rb` (`doc/Jamfile`) | embedded `<style>` |
+| redis, url, dynamic_bitset, decimal, msm, int128, openmethod | Antora on the `website-v2-docs` ui-bundle | `<link>` to `_/css/boostlook.css` |
+
+`graph` and `unordered` have Antora docs but no reference to the
+`website-v2-docs` ui-bundle -- `unordered` ships its own `unordered-ui-bundle` --
+so they appear not to use boostlook at all. Code search only indexes default
+branches, so treat that as unconfirmed rather than proven.
+
+---
+
 ## Key Files Reference
 
 | File                                 | Role in Pipeline                                                                                    |
