@@ -68,25 +68,48 @@ Supporting CSS files:
 
 ## Template Integration
 
+Which template a page uses decides whether `boostlook.css` is loaded at all.
+Only three templates link it.
+
 ```
-templates/base.html
+templates/base.html  (block extra_head)
+│   {% flag "v3" %} -> static/css/v3/boostlook-v3.css
+│   {% else %}      -> static/css/boostlook.css
+│   +-- Loaded on every page that renders through base.html and does NOT
+│       override `extra_head`. Note it is one OR the other, never both.
 │
-|-- <link href="{% static 'css/boostlook.css' %}" rel="stylesheet">
-│   +-- Loaded globally on every page
-│
-|-- templates/original_docs.html ---- Wrapper for legacy docs
-│   +-- Renders modernized content with .boostlook class
+|-- templates/docs_libs_placeholder.html -- extends base.html
+│   +-- OVERRIDES `extra_head` with no {{ block.super }}, so it emits its own
+│       styles.css + boostlook.css (v2) pair. The `v3` flag is not consulted
+│       here, so the docs iframe always gets v2 boostlook.css.
+│   +-- Guarded by `{% if not skip_use_boostlook %}`.
+│   +-- This rendered template is the `base_html` that `modernize_legacy_page()`
+│       grafts a <head> from -- this is how boostlook.css reaches the iframe.
 │
 |-- templates/docsiframe.html ------- Wrapper for fully modernized (Antora) docs
-│   +-- Renders content inside an <iframe srcdoc="..."> with .source-docs-antora class
+│   +-- Content goes into <iframe srcdoc="...">, an isolated document. The
+│       parent page's stylesheets do NOT apply inside; only the <head> grafted
+│       in by modernize_legacy_page() does.
 │
-|-- templates/docs_libs_placeholder.html -- Preload hint for boostlook.css
+|-- templates/original_docs.html ---- Wrapper for legacy docs
+│   +-- Links NO boostlook.css. Legacy/Quickbook pages keep whatever CSS the
+│       S3 page itself ships (their own boostlook.css <link> is not stripped
+│       on this path).
+│   +-- Its `<link href="{% static 'css/header.css' %}">` is dead: the tag has
+│       no rel="stylesheet" and static/css/header.css does not exist.
 │
 |-- templates/libraries/detail.html -- Library detail page
-│   +-- <section class="boostlook"> wrapping README content
+│   +-- <section id="libraryReadMe" class="boostlook"> wrapping README content
 │
-+-- templates/versions/detail.html --- Version/release page
-    +-- <section class="boostlook"> wrapping release notes
+|-- templates/versions/detail.html --- Version/release page
+│   +-- <section id="libraryReadMe" class="boostlook"> wrapping release notes
+│
++-- templates/versions/in_progress_release_notes.html
+    +-- <section id="libraryReadMe"> WITHOUT the boostlook class, so the
+        `.boostlook#libraryReadMe` rules do not apply there.
+
+V3 library pages (templates/v3/) do not use `.boostlook` at all; they use their
+own card components.
 ```
 
 ---
@@ -177,8 +200,9 @@ Note: `ModernizedDocsView` is a separate, special-case view only for Boost.Prepr
 
 | Documentation Type | CSS Classes Applied | Selector Target in boostlook.css | Processing Function | Example Libraries |
 |---|---|---|---|---|
-| **Legacy HTML / Quickbook** | `.boostlook` (from source HTML) | `.boostlook:not(:has(.doc))` | `remove_unwanted()` + template wrapping | accumulators, iterator, spirit |
-| **Antora (modern)** | `.boostlook`, `.source-docs-antora` | `div.source-docs-antora.boostlook`, `article.doc` | `modernize_legacy_page()` with `SourceDocType.ANTORA` | charconv (1.87+), redis (1.89+), url |
+| **Legacy HTML / Quickbook** | `.boostlook` (from source HTML) | `.boostlook:not(:has(.doc))` | `remove_unwanted()` + `original_docs.html` | accumulators, iterator, spirit |
+| | *`original_docs.html` links no boostlook.css, so these rules only apply via the stylesheet the S3 page ships itself.* | | | |
+| **Antora (modern)** | `.source-docs-antora`, plus `.boostlook` **only when `original_docs_type` is not `ANTORA`** (see Finding 1) | `div.source-docs-antora.boostlook`, `article.doc` | `wrap_main_body_elements()` inside `modernize_legacy_page()` | charconv (1.87+), redis (1.89+), url |
 | **AsciiDoc files** | `.boostlook` | `.boostlook` (general) | `convert_adoc_to_html()` via Asciidoctor | Library READMEs in `.adoc` format |
 | **Markdown files** | `.boostlook` | `section#libraryReadMe` | `process_md()` via Mistletoe | Library READMEs in `.md` format |
 | **Frameset (preprocessor)** | `.boostlook` | `.boostlook` + `preprocessing_fixes.css` | `modernize_preprocessor_docs()` | preprocessor (older versions) |
@@ -296,6 +320,128 @@ By the time the deploy script runs, `boostlook.css` is already in website-v2's `
 6. **Font fallback chain spans four sources.** Fonts cascade from local project files, to deployed static files, to the boostlook repo path, to the cppalliance.org CDN. This handles both local development and production scenarios.
 
 7. **`static_deploy/css/boostlook.css` is a deploy-time copy.** The canonical file is `static/css/boostlook.css`; the `static_deploy/` version is generated during the Django `collectstatic` step.
+
+---
+
+## Verification: is boostlook.css actually applied?
+
+The rendering path was exercised directly against `core/htmlhelper.py` with a
+representative Antora page (the S3 shape documented in the `boostlook.css`
+header comment: outer `div.boostlook` > `#header` / `#content` > `article.doc`).
+Live `boost.org` / S3 could not be reached from this environment, so anything
+that depends on the exact bytes of a published page is marked as such below.
+
+### What works
+
+| Behavior | Result |
+|---|---|
+| `/static/css/boostlook.css` is injected into the iframe `srcdoc` head for fully-modernized libs | Confirmed |
+| The library's own `<link ... boostlook.css>` from S3 is stripped (`remove_library_boostlook`) | Confirmed |
+| Inline `<style>` blocks containing `.boostlook` are stripped (`remove_embedded_boostlook`) | Confirmed |
+| With `original_docs_type=None`, the wrapper is `<div class="source-docs-antora boostlook">` and `div.source-docs-antora.boostlook` matches | Confirmed |
+| Both `static/css/boostlook.css` and `static/css/v3/boostlook-v3.css` carry the same 37 `div.source-docs-antora.boostlook` rules | Confirmed |
+
+### Findings
+
+**1. The `ANTORA` docs type drops the `.boostlook` class the CSS requires.**
+
+`wrap_main_body_elements()` (`core/htmlhelper.py`) only appends `boostlook` to
+the wrapper when the type is *not* Antora:
+
+```python
+if original_docs_type != SourceDocType.ANTORA:
+    # Antora docs have a boostlook class already; others need it.
+    wrapper_class_list.append("boostlook")
+```
+
+But every Antora rule in `boostlook.css` is written as
+`div.source-docs-antora.boostlook...` -- both classes on the *same* element --
+including the container rules at the "Legacy boostlook container" block. The
+nested-source case is already handled by
+`div.source-docs-antora.boostlook:has(> .boostlook)`, which still requires both
+classes on the wrapper. So when `original_docs_type is SourceDocType.ANTORA`,
+the wrapper renders as `<div class="source-docs-antora">` and all 37 Antora
+rules are dead. Verified by rendering the page both ways.
+
+Reachability: `establish_source_content_type()` returns `ANTORA` only when the
+S3 result carries no `source_content_type` *and* the request path contains
+`"antora"` -- i.e. the `doc/antora/url` entry in `FULLY_MODERNIZED_LIB_VERSIONS`.
+`charconv` and `redis` paths contain no `"antora"`, so they fall through to
+`None` and pick up both classes.
+
+**2. `source_content_type` is not persisted, so the same URL can render two
+different ways.**
+
+`RenderedContent` (`core/models.py`) has no `source_content_type` column, and
+`get_from_database()` returns only `content` / `content_type` / `updated`. On a
+cache miss `content_dict["source_content_type"]` comes from `get_from_s3()`; on
+a cache hit it is absent and `.get()` yields `None`. Since `save_rendered_content`
+runs on Celery, the first requests after an eviction can take the cache-miss
+branch repeatedly. Same URL, two code paths.
+
+**3. The `ASCIIDOC` branch of `_fully_modernize_content()` produces an iframe
+with no boostlook styling at all.**
+
+```python
+if source_content_type == SourceDocType.ASCIIDOC:
+    soup = convert_name_to_id(soup)
+    soup = remove_library_boostlook(soup)   # strips the S3 stylesheet
+    soup.find("head").append(... theme_handling.js ...)   # injects no CSS
+```
+
+It removes the page's own `boostlook.css` link and never grafts in the
+`docs_libs_placeholder.html` head, so the `srcdoc` document -- which inherits
+nothing from the parent page -- ends up with zero boostlook CSS. The code
+comment claims no library currently takes this path, which holds only as long as
+every fully-modernized page contains the string `spirit-nav` (that is the test
+in `get_from_s3()` that keeps `source_content_type` at `None`). That could not be
+confirmed against live S3 from here. Combined with Finding 2, the branch taken
+depends on cache state.
+
+`soup.find("head")` is also unguarded and raises `AttributeError` on a
+head-less fragment.
+
+**4. `remove_library_boostlook()` crashes on a `<link>` with no `href`.**
+
+```python
+tag.get("href").endswith("boostlook.css")   # AttributeError when href is absent
+```
+
+Reproduced. It runs over arbitrary S3 HTML, so a single `<link rel="stylesheet">`
+without an `href` anywhere in a doc page 500s that page.
+
+The same function hardcodes `"/static/css/boostlook.css"` as the "ours, keep it"
+value. That matches today because `STATIC_URL` is `/static/` in every
+environment and static files are served by `StaticFilesStorage`, not S3 -- but
+it silently breaks if `STATIC_URL` ever changes.
+
+**5. `wrap_main_body_elements()` appends the wrapper outside `</html>`.**
+
+`result.append(wrapper_div)` appends to the soup root, not to `<body>`, so the
+serialized output is `...</body></html><div class="source-docs-antora boostlook">...`.
+Browsers reparent stray trailing content into the body, so it renders, but the
+markup is invalid and `<body>` is left holding only the injected header.
+
+**6. The `v3` flag and the docs iframe disagree on which boostlook to load.**
+
+`base.html` serves `boostlook-v3.css` when the `v3` flag is on, but
+`docs_libs_placeholder.html` overrides `extra_head` without `{{ block.super }}`
+and hardcodes v2 `boostlook.css`. With the flag on, the shell is v3 and the docs
+iframe inside it is v2. Both files carry the same Antora rules, so this is a
+divergence to confirm as intentional rather than a broken render.
+
+**7. Smaller items.**
+
+- `versions/in_progress_release_notes.html` uses `id="libraryReadMe"` without
+  the `boostlook` class, so none of the `.boostlook#libraryReadMe` rules apply.
+- `boostlook.css` contains no `source-docs-asciidoc` selectors, so the
+  `SourceDocType.ASCIIDOC` branch of `wrap_main_body_elements()` would emit an
+  unstyled class if it were ever reached.
+- Every `@font-face` starts its `src` chain with `../font/*.ttf`, but
+  `static/font/` holds only `.woff2` (plus `NotoSansMono-Regular.ttf`). The
+  first entry always 404s and the browser falls back to `/static/font/*.woff2`.
+- `original_docs.html` links `static/css/header.css`, which does not exist, and
+  the tag has no `rel="stylesheet"` anyway.
 
 ---
 
