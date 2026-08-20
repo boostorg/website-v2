@@ -341,6 +341,88 @@ that depends on the exact bytes of a published page is marked as such below.
 | With `original_docs_type=None`, the wrapper is `<div class="source-docs-antora boostlook">` and `div.source-docs-antora.boostlook` matches | Confirmed |
 | Both `static/css/boostlook.css` and `static/css/v3/boostlook-v3.css` carry the same 37 `div.source-docs-antora.boostlook` rules | Confirmed |
 
+### Worked examples: the three fully-modernized libraries
+
+`FULLY_MODERNIZED_LIB_VERSIONS` covers charconv, redis, url and `tools/`. The
+first three do not share a build system, and that decides which branch each one
+takes. Verified against the upstream repos (`boostorg/charconv`,
+`boostorg/redis`, `boostorg/boostlook`, `boostorg/website-v2-docs`).
+
+| Library | Built by | Ships boostlook as | `spirit-nav` in the bytes? | `original_docs_type` | Renders correctly? |
+|---|---|---|---|---|---|
+| **charconv** | Asciidoctor (`doc/Jamfile`, `import asciidoctor`) + `boostlook.rb` | embedded `<style>` | yes -- but only as text *inside* the embedded stylesheet | `None` | Yes |
+| **redis** | Antora (`doc/redis-playbook.yml`, website-v2-docs ui-bundle) | `<link>` to `_/css/boostlook.css` | yes -- a real `<div class="spirit-nav">` element | `None` | Yes |
+| **url** (`doc/antora/url`) | Antora, same ui-bundle | `<link>` | yes -- real element | **`ANTORA`** | **No -- see Finding 1** |
+
+#### charconv in detail
+
+charconv is *not* an Antora library, despite sitting next to redis and url in
+the same list. `doc/Jamfile` builds it with Asciidoctor:
+
+```jam
+import asciidoctor ;
+html charconv.html : charconv.adoc : <use>/boost/boostlook//boostlook ;
+```
+
+and `boostorg/boostlook//boostlook` contributes
+`<asciidoctor-attribute>stylesheet=$(here)/boostlook.css` plus
+`-r boostlook.rb`. Asciidoctor defaults to `linkcss=false`, so **boostlook.css
+is embedded inline as a `<style>` block** rather than linked. `boostlook.rb` is
+a postprocessor that wraps the body in `<div class="boostlook">` and closes it
+again just before `#footer`.
+
+The request path matters too: `libs/charconv/index.html` is a meta-refresh stub,
+so the page actually rendered is
+`/doc/libs/<ver>/libs/charconv/doc/html/charconv.html`.
+
+The consequential step is the `get_from_s3()` heuristic, which is a raw
+substring test over the whole file:
+
+```python
+if not has_redirect and "spirit-nav".encode() not in content:
+    result["source_content_type"] = SourceDocType.ASCIIDOC
+```
+
+charconv's markup contains no spirit-nav element. But the *embedded stylesheet*
+contains the string -- both in boostlook.css's header comment and in its
+`.boostlook .toolbar .spirit-nav` selectors. The test therefore passes on
+stylesheet text, `source_content_type` stays `None`, and charconv takes the
+good path. Confirmed by running the real functions over a charconv-shaped page
+carrying the actual 177 KB embedded `boostlook.css`:
+
+```
+b'spirit-nav' in raw S3 bytes            : True   <- matched inside the <style> block
+=> source_content_type                   : None
+site-wide <link> boostlook.css           : /static/css/boostlook.css
+embedded boostlook <style>               : stripped by remove_embedded_boostlook()
+div.source-docs-antora.boostlook matches : True
+inner <div class="boostlook">            : present  -> :has(> .boostlook) matches
+```
+
+That last line is the rule commented "CharConv template fix" at
+`boostlook.css:4203`, so this is the intended end state: the release-pinned
+embedded stylesheet is thrown away and replaced by the site-wide one.
+
+**So charconv renders correctly -- but for a reason nobody designed.** It hangs
+on a substring of stylesheet text. If boostlook drops or renames its
+`.spirit-nav` rules, or the build ever switches to `linkcss`, charconv silently
+flips to the `ASCIIDOC` branch of Finding 3. Note also that
+`remove_library_boostlook()` is a no-op for charconv -- there is no `<link>` to
+strip; the function that matters here is `remove_embedded_boostlook()`.
+
+Redis and url reach `source_content_type is None` honestly, via the real
+`<div class="spirit-nav">` that `antora-ui/src/partials/pagination-spirit.hbs`
+emits into every page through `article.hbs` -> `toolbar.hbs`. The difference
+between them is purely the path test in `establish_source_content_type()`:
+`libs/redis` contains no `"antora"` so it stays `None` and picks up both
+classes, while `doc/antora/url` does, becomes `ANTORA`, and loses `.boostlook`.
+
+One dead flag: `is_in_no_wrapper_libs("libs/charconv")` is true, so
+`context["no_wrapper"] = True` is set -- but the fully-modernized check has
+already switched the template to `docsiframe.html`, which never reads
+`no_wrapper`. It only has an effect on charconv versions *not* in
+`FULLY_MODERNIZED_LIB_VERSIONS`.
+
 ### Findings
 
 **1. The `ANTORA` docs type drops the `.boostlook` class the CSS requires.**
@@ -391,12 +473,21 @@ if source_content_type == SourceDocType.ASCIIDOC:
 
 It removes the page's own `boostlook.css` link and never grafts in the
 `docs_libs_placeholder.html` head, so the `srcdoc` document -- which inherits
-nothing from the parent page -- ends up with zero boostlook CSS. The code
-comment claims no library currently takes this path, which holds only as long as
-every fully-modernized page contains the string `spirit-nav` (that is the test
-in `get_from_s3()` that keeps `source_content_type` at `None`). That could not be
-confirmed against live S3 from here. Combined with Finding 2, the branch taken
-depends on cache state.
+nothing from the parent page -- gets no site-wide boostlook CSS.
+
+How bad that is depends on how the library ships boostlook. A library that
+*links* it externally (any Antora build) ends up with nothing at all, because
+the link is stripped. A library that *embeds* it (charconv, and any
+Asciidoctor build) keeps its inline copy, because `remove_embedded_boostlook()`
+is not called on this branch -- so it still renders, but styled by the
+release-pinned stylesheet frozen into that Boost version rather than the
+current site-wide one. The code
+comment claims no library currently takes this path. That is true today, but
+only because every fully-modernized page happens to contain the string
+`spirit-nav` -- redis and url as a real element, charconv as text inside its
+embedded stylesheet (see the worked examples above). The heuristic is a raw
+substring test over the whole file, so it cannot tell markup from CSS.
+Combined with Finding 2, the branch taken also depends on cache state.
 
 `soup.find("head")` is also unguarded and raises `AttributeError` on a
 head-less fragment.
