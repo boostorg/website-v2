@@ -416,6 +416,18 @@ Date:   2024-01-04 10:00:00 +0000
     Fix a typo in the header
 
 40\t0\tinclude/boost/mp11/list.hpp
+
+commit eee888
+Author: Peter Dimov <pdimov@example.com>
+Date:   2024-01-05 10:00:00 +0000
+
+    Rework the guide
+
+    This commit rewrites doc/commit.adoc and the tutorial.
+
+3\t1\tdoc/commit.adoc
+7\t0\tdoc/tutorial.adoc
+2\t2\tsrc/commit_log.cpp
 """
 
 
@@ -456,11 +468,17 @@ def test_commit_parse_counts_doc_files(fake_git):
         ("abc123", 2),
         ("def456", 0),
         ("fff999", 0),
+        ("eee888", 2),
     ]
     assert commits[0].message == (
         "Document the list algorithms\n\nWith a second paragraph."
     )
     assert commits[1].is_merge is True
+    # "commit" as a word in the body and in a path: both used to end the match
+    # early, taking the file stats with them and reading as no documentation.
+    assert commits[3].message == (
+        "Rework the guide\n\nThis commit rewrites doc/commit.adoc and the tutorial."
+    )
 
 
 @pytest.mark.django_db
