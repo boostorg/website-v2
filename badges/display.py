@@ -25,8 +25,9 @@ TIER_TOKENS = {
 class BadgePhrases(NamedTuple):
     """How one badge describes a tier, earned and not yet earned.
 
-    ``earned`` and ``locked`` take ``count`` (the tier's threshold) and ``unit``;
-    ``verb`` is the imperative the held row's "N more ..." clause is built from.
+    ``earned`` takes ``count`` (what the member has done) and ``unit``; ``locked``
+    takes the tier's threshold in those slots; ``verb`` is the imperative the held
+    row's "N more ..." clause is built from.
     """
 
     earned: str
@@ -207,9 +208,7 @@ def _detail(phrases, tier, count, is_held, gap):
         return phrases.locked.format(
             count=tier.threshold, unit=_unit(phrases, tier.threshold)
         )
-    earned = phrases.earned.format(
-        count=tier.threshold, unit=_unit(phrases, tier.threshold)
-    )
+    earned = phrases.earned.format(count=count, unit=_unit(phrases, count))
     if is_held and gap:
         return (
             f"{earned}, {phrases.verb} {gap} more {_unit(phrases, gap)} "
