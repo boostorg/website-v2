@@ -344,7 +344,13 @@ class CurrentUserProfileView(
     def get_v3_context_data(self, **kwargs):
         if self.request.GET.get("edit", "").lower() == "true":
             return self.get_v3_edit_context()
-        return self.get_v3_public_context(self.request.user)
+        ctx = self.get_v3_public_context(self.request.user)
+        # Counted here rather than in the shared context so only the owner's own
+        # page can produce real tallies.
+        ctx["achievement_dialog_items"] = badge_display.achievement_dialog_rows(
+            self.request.user
+        )
+        return ctx
 
     def get_template_names(self):
         if (

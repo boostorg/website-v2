@@ -378,29 +378,43 @@ BADGES_DIALOG_DESCRIPTION = (
 )
 
 
-# Stands in until the dialog is given the reader's own tallies.
 PLACEHOLDER_ACHIEVEMENT_COUNT = 1
 
 
-def achievement_dialog_rows():
+def achievement_dialog_rows(user=None):
     """Every achievement type as a dialog row, Boost Day last.
 
     Each row carries a counter, which is what the design asks for: the tally is
     the point, the artwork being the same for every achievement type.
 
+    Given a member, the counters are that member's own valid grants, zero
+    included. Without one they carry a placeholder. Only the owner's own profile
+    passes a user, another member's tallies not being this dialog's to show.
+
     Ordered by name, ``Achievement`` being an admin-editable registry with no
     catalogue ordering of its own.
     """
+    counts = {} if user is None else _valid_grant_counts(user)
+    default = PLACEHOLDER_ACHIEVEMENT_COUNT if user is None else 0
     rows = [
         {
             "token": BadgeToken.ACHIEVEMENT_COUNT,
-            "count": PLACEHOLDER_ACHIEVEMENT_COUNT,
+            "count": counts.get(achievement.pk, default),
             "name": achievement.name,
             "description": achievement.description,
         }
         for achievement in Achievement.objects.all()
     ]
     return rows + [BOOST_DAY_ROW]
+
+
+def _valid_grant_counts(user):
+    """How many valid grants the member holds of each achievement, by pk.
+
+    Read through ``user_badge_summary`` so "a valid grant" keeps one definition
+    across the app. It counts ``is_valid`` rows and leaves invalidated ones out.
+    """
+    return {row.achievement.pk: row.valid_grants for row in user_badge_summary(user)}
 
 
 def badge_dialog_rows():

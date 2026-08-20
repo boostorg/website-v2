@@ -14,7 +14,8 @@ from badges.display import (
     achievement_dialog_rows,
     badge_dialog_rows,
 )
-from badges.models import Achievement
+from badges.enums import AchievementSlug
+from badges.models import Achievement, UserAchievement
 from core.constants import BadgeToken
 
 ACHIEVEMENTS = "v3/includes/_achievements_modal.html"
@@ -53,6 +54,46 @@ def test_single_digit_counts_render_padded(catalogue):
     out = render_to_string(ACHIEVEMENTS, {})
 
     assert ">01<" in out
+
+
+def test_counts_are_the_members_own_valid_grants(
+    catalogue, plain_user, grant_achievement
+):
+    """The tally is what the member has actually been granted."""
+    review = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
+    grant_achievement(plain_user, review, count=3)
+
+    rows = {row["name"]: row for row in achievement_dialog_rows(plain_user)}
+
+    assert rows[review.name]["count"] == 3
+    # Untouched achievements stay at zero rather than borrowing the count.
+    commits = Achievement.objects.get(slug=AchievementSlug.CODE_COMMITS)
+    assert rows[commits.name]["count"] == 0
+
+
+def test_invalidated_grants_do_not_count(catalogue, plain_user, grant_achievement):
+    """``is_valid`` is what the rest of the app counts, so it is what shows."""
+    review = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
+    _kept, dropped = grant_achievement(plain_user, review, count=2)
+    UserAchievement.objects.filter(pk=dropped.pk).update(is_valid=False)
+
+    rows = {row["name"]: row for row in achievement_dialog_rows(plain_user)}
+
+    assert rows[review.name]["count"] == 1
+
+
+def test_a_member_with_no_grants_counts_zero(catalogue, plain_user):
+    """Zero, not the placeholder: the answer for this member is known."""
+    rows = achievement_dialog_rows(plain_user)[:-1]
+
+    assert {row["count"] for row in rows} == {0}
+
+
+def test_without_a_member_the_placeholder_stands(catalogue):
+    """The showcase page and any caller holding no user get this."""
+    rows = achievement_dialog_rows()[:-1]
+
+    assert {row["count"] for row in rows} == {PLACEHOLDER_ACHIEVEMENT_COUNT}
 
 
 def test_achievement_rows_cost_one_query(catalogue, django_assert_num_queries):

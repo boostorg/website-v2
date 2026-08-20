@@ -90,6 +90,6 @@
     contained by an ancestor, matching how the demo page places its dialogs.
     Opened by the cards' CTAs above via :target.
   {% endcomment %}
-  {% include "v3/includes/_achievements_modal.html" %}
+  {% include "v3/includes/_achievements_modal.html" with items=achievement_dialog_items %}
   {% include "v3/includes/_badges_modal.html" %}
 {% endblock %}
