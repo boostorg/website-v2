@@ -574,3 +574,189 @@ def test_clean_reimport_discards_grants_for_commits_that_do_not_return(
 
     assert not UserAchievement.objects.filter(dedup_info="deadbeef").exists()
     assert not UserAchievement.objects.filter(source_object_id=commit.pk).exists()
+
+
+def _parse_log(monkeypatch, log):
+    """Run the importer's parser over ``log`` without cloning anything.
+
+    Separate from ``fake_git`` so a test can supply the log shape it is about,
+    rather than adding to a fixture every other test also reads.
+    """
+
+    def run(args, **kwargs):
+        completed = MagicMock()
+        completed.args = args
+        completed.stdout = b""
+        completed.stderr = b""
+        if args[1] == "clone":
+            completed.stderr = b"Cloning into bare repository"
+        elif "log" in args:
+            completed.stdout = log.encode()
+        elif "diff" in args:
+            completed.stdout = b" 1 file changed, 1 insertion(+)"
+        return completed
+
+    monkeypatch.setattr("libraries.github.subprocess.run", run)
+    from libraries.github import ParsedCommit, get_commit_data_for_repo_versions
+
+    baker.make(Library, key="mp11", github_url="https://github.com/boostorg/mp11")
+    return [
+        item
+        for item in get_commit_data_for_repo_versions("mp11")
+        if isinstance(item, ParsedCommit)
+    ]
+
+
+def _log_entry(body, stats):
+    """One commit as ``git log --numstat`` writes it, message body already indented."""
+    return (
+        "commit abc123\n"
+        "Author: Peter Dimov <pdimov@example.com>\n"
+        "Date:   2024-01-02 10:00:00 +0000\n"
+        "\n" + body + "\n" + stats
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("body", "stats", "doc_files", "message"),
+    [
+        pytest.param("", "1\t0\tdoc/a.adoc\n", 1, "", id="no-message-at-all"),
+        pytest.param(
+            "    commit abc1234 was reverted\n",
+            "1\t0\tdoc/a.adoc\n",
+            1,
+            "commit abc1234 was reverted",
+            id="body-line-that-reads-like-a-header",
+        ),
+        pytest.param(
+            "    Move the guide\n",
+            "2\t2\tdoc/{old => new}/guide.adoc\n",
+            1,
+            "Move the guide",
+            id="rename-inside-a-shared-prefix",
+        ),
+        pytest.param(
+            "    Rename it\n",
+            "1\t1\told.adoc => doc/new.adoc\n",
+            1,
+            "Rename it",
+            id="rename-with-no-shared-prefix",
+        ),
+        pytest.param(
+            "    Add a diagram\n",
+            "-\t-\tdoc/img/a.png\n",
+            1,
+            "Add a diagram",
+            id="binary-file-reports-dashes",
+        ),
+        pytest.param(
+            "    Fix the title\n",
+            "1\t0\tdoc/my guide.adoc\n",
+            1,
+            "Fix the title",
+            id="path-containing-a-space",
+        ),
+        pytest.param(
+            "    Drop the old build\n",
+            "0\t80\tdoc/html/index.html\n0\t4\tdoc/Jamfile.v2\n",
+            0,
+            "Drop the old build",
+            id="generated-output-and-build-files-do-not-count",
+        ),
+    ],
+)
+def test_the_parser_survives_awkward_log_shapes(
+    monkeypatch, body, stats, doc_files, message
+):
+    """The message and the file stats share one region and must not bleed.
+
+    The indented-header case is the one that matters most: the lookahead ending a
+    commit is anchored to column zero precisely because git indents every message
+    line by four spaces, so a body can say the word and still be a body.
+    """
+    commits = _parse_log(monkeypatch, _log_entry(body, stats))
+
+    assert len(commits) == 1
+    assert commits[0].docs_files_changed == doc_files
+    assert commits[0].message == message
+
+
+@pytest.mark.django_db
+def test_a_commit_touching_thousands_of_files_is_counted_in_full(monkeypatch):
+    """The stats are read line by line, so a huge commit has no special case."""
+    stats = "".join(f"1\t0\tdoc/page{n}.adoc\n" for n in range(1_200))
+
+    commits = _parse_log(monkeypatch, _log_entry("    Import the manual\n", stats))
+
+    assert commits[0].docs_files_changed == 1_200
+    assert commits[0].message == "Import the manual"
+
+
+@pytest.mark.django_db
+def test_a_second_non_destructive_import_changes_nothing(fake_git):
+    """The nightly task re-walks ranges it has already imported, every night."""
+    from libraries.models import Commit
+
+    library = baker.make(
+        Library, key="mp11", github_url="https://github.com/boostorg/mp11"
+    )
+    version = baker.make(LibraryVersion, library=library)
+    version.version.name = "master"
+    version.version.save()
+
+    LibraryUpdater().update_commits(library)
+    first = set(
+        Commit.objects.values_list("pk", "sha", "message", "docs_files_changed")
+    )
+    assert first, "nothing was imported, so the assertion below proves nothing"
+
+    LibraryUpdater().update_commits(library)
+
+    assert (
+        set(Commit.objects.values_list("pk", "sha", "message", "docs_files_changed"))
+        == first
+    )
+
+
+@pytest.mark.django_db
+def test_two_destructive_imports_in_a_row_leave_the_badges_alone(
+    fake_git, catalogue, django_user_model
+):
+    """Once is not enough: the second run re-points grants the first one moved."""
+    from badges.models import UserAchievement, UserBadge
+
+    library, _ = _library_with_granted_commit(django_user_model, "abc123")
+    badges = set(UserBadge.objects.values_list("pk", "awarded_at", "revoked_at"))
+    assert badges, "nothing was awarded, so the assertion below proves nothing"
+
+    for _ in range(2):
+        LibraryUpdater().update_commits(library, clean=True)
+
+    assert UserAchievement.objects.filter(dedup_info="abc123").count() == 1
+    assert (
+        set(UserBadge.objects.values_list("pk", "awarded_at", "revoked_at")) == badges
+    )
+
+
+@pytest.mark.django_db
+def test_the_stored_message_is_no_longer_cut_short_at_the_word_commit(fake_git):
+    """The parser fix changes a field the site renders, so it is pinned here.
+
+    Every message in the database was truncated at the first lowercase "commit"
+    before this, which is why none of them contained the word.
+    """
+    from libraries.models import Commit
+
+    library = baker.make(
+        Library, key="mp11", github_url="https://github.com/boostorg/mp11"
+    )
+    version = baker.make(LibraryVersion, library=library)
+    version.version.name = "master"
+    version.version.save()
+
+    LibraryUpdater().update_commits(library)
+
+    assert Commit.objects.get(sha="eee888").message == (
+        "Rework the guide\n\nThis commit rewrites doc/commit.adoc and the tutorial."
+    )
