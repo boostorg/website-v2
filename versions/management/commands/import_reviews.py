@@ -8,7 +8,10 @@ import requests
 from django.core.management.base import CommandError
 from django.db import transaction
 
-from badges.services import discard_source_achievements
+from badges.services import (
+    discard_source_achievements,
+    relink_source_achievements,
+)
 from libraries.models import CommitAuthor
 from versions.models import Review, ReviewResult
 from versions.review_keys import review_key
@@ -81,12 +84,12 @@ def command(clean):
     reviews_created = results_created = 0
     # Import everything in a transaction
     with transaction.atomic():
+        doomed_ids = []
         if clean:
-            # Parse before touching stored data, then make the grant discard,
-            # review deletion, and replacement one atomic operation.
-            discard_source_achievements(
-                Review, Review.objects.values_list("pk", flat=True)
-            )
+            # Parse before touching stored data, then make the deletion and its
+            # replacement one atomic operation. The grants are settled after the
+            # replacement rows exist, not before: see the end of this block.
+            doomed_ids = list(Review.objects.values_list("pk", flat=True))
             delete_output = Review.objects.all().delete()
             click.secho(f"Deleted {delete_output}\n", fg="yellow")
 
@@ -104,6 +107,11 @@ def command(clean):
                 review.submission, review.submitter_raw, review.review_dates
             )
             if key in existing_by_key:
+                # The survivor is the same review, so a grant naming it by
+                # fingerprint follows the survivor instead of being thrown away.
+                relink_source_achievements(
+                    Review, {"|".join(key): existing_by_key[key].pk}
+                )
                 discard_source_achievements(Review, [review.pk])
                 review.delete()
                 removed_duplicates += 1
@@ -139,6 +147,19 @@ def command(clean):
                     defaults=result,
                 )
                 results_created += int(created)
+
+        if clean:
+            # The same reviews are back under new ids, and a grant names its
+            # evidence by fingerprint, so the pointers are rebuilt rather than
+            # the grants dropped: dropping them would revoke the Reviewer badges
+            # they justify and re-earn them dated today on the next sync.
+            relink_source_achievements(
+                Review,
+                {"|".join(key): review.pk for key, review in existing_by_key.items()},
+            )
+            # Whatever still points into the deleted ids is evidence that did not
+            # come back, so those grants really are stale.
+            discard_source_achievements(Review, doomed_ids)
 
     click.secho("\nFinished importing reviews", fg="green")
     click.secho(

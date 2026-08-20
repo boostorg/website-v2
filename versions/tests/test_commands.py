@@ -555,3 +555,41 @@ def test_import_reviews_fails_when_the_heading_is_missing(capsys):
             call_command("import_reviews")
 
     assert "Could not find review result tables under" in capsys.readouterr().err
+
+
+@pytest.mark.django_db
+def test_import_reviews_clean_keeps_the_badges_it_would_have_revoked(
+    review_results_page, catalogue
+):
+    """A clean re-import replaces the rows; it does not un-earn the badge.
+
+    The fingerprint survives the swap, so the grant is re-pointed at the new row.
+    Discarding it instead would cascade-revoke the Reviewer badge, record that
+    revocation permanently, and re-earn it dated today on the next sync.
+    """
+    from badges.models import Achievement, UserAchievement, UserBadge
+    from badges.services import recalculate_badges
+    from badges.tests.fixtures import grant_from_source
+
+    user = baker.make("users.User")
+    submitter = baker.make(
+        "libraries.CommitAuthor", user=user, name="Christian Mazakas"
+    )
+    achievement = Achievement.objects.get(slug="library-review")
+    call_command("import_reviews")
+    review = Review.objects.get(submission="boost::container::hub")
+    review.submitters.add(submitter)
+    grant, _ = grant_from_source(user, achievement, review, review.dedup_key)
+    recalculate_badges(user.pk, achievement.pk)
+    badges = set(UserBadge.objects.values_list("pk", "awarded_at", "revoked_at"))
+    assert badges, "nothing was awarded, so the assertion below proves nothing"
+
+    call_command("import_reviews", "--clean")
+
+    replacement = Review.objects.get(submission="boost::container::hub")
+    assert replacement.pk != review.pk
+    survivor = UserAchievement.objects.get(pk=grant.pk)
+    assert survivor.source_object_id == replacement.pk
+    assert (
+        set(UserBadge.objects.values_list("pk", "awarded_at", "revoked_at")) == badges
+    )
