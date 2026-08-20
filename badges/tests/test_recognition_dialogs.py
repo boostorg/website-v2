@@ -9,13 +9,12 @@ from django.test import override_settings
 from badges.display import (
     ACHIEVEMENT_BASED_ROW,
     BOOST_DAY_ROW,
+    PLACEHOLDER_ACHIEVEMENT_COUNT,
     TENURE_ROW,
-    TIER_TOKENS,
     achievement_dialog_rows,
     badge_dialog_rows,
 )
-from badges.enums import AchievementSlug, TierRank
-from badges.models import Achievement, BadgeTier
+from badges.models import Achievement
 from core.constants import BadgeToken
 
 ACHIEVEMENTS = "v3/includes/_achievements_modal.html"
@@ -41,39 +40,23 @@ def test_achievement_rows_end_with_boost_day(catalogue):
     assert len(rows) == Achievement.objects.count() + 1
 
 
-def test_achievement_rows_are_iconed_by_the_badge_they_feed(catalogue):
-    rows = {row["name"]: row for row in achievement_dialog_rows()}
-    review = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
+def test_achievement_rows_carry_a_counter(catalogue):
+    """Per Figma the achievement icon is a tally, not tier artwork."""
+    rows = achievement_dialog_rows()[:-1]
 
-    assert rows[review.name]["token"] == TIER_TOKENS[TierRank.BRONZE]
-    assert "count" not in rows[review.name]
-
-
-def test_achievement_with_no_badge_falls_back_to_the_counter(db):
-    achievement = Achievement.objects.create(slug="manual-only", name="Manual Only")
-
-    row, _boost_day = achievement_dialog_rows()
-
-    assert row["name"] == achievement.name
-    assert row["token"] == BadgeToken.ACHIEVEMENT_COUNT
-    assert row["count"] == 1
+    assert {row["token"] for row in rows} == {BadgeToken.ACHIEVEMENT_COUNT}
+    assert {row["count"] for row in rows} == {PLACEHOLDER_ACHIEVEMENT_COUNT}
 
 
-def test_achievement_whose_badge_is_tierless_falls_back_to_the_counter(catalogue):
-    """A retuned badge is briefly tierless while its replacement is created."""
-    achievement = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
-    BadgeTier.objects.filter(badge__achievement=achievement).update(is_active=False)
+def test_single_digit_counts_render_padded(catalogue):
+    """A single digit is padded so the counter keeps one width."""
+    out = render_to_string(ACHIEVEMENTS, {})
 
-    rows = {row["name"]: row for row in achievement_dialog_rows()}
-
-    assert rows[achievement.name]["token"] == BadgeToken.ACHIEVEMENT_COUNT
+    assert ">01<" in out
 
 
-def test_achievement_rows_cost_a_fixed_number_of_queries(
-    catalogue, django_assert_num_queries
-):
-    """Prefetching keeps the row count from driving the query count."""
-    with django_assert_num_queries(3):
+def test_achievement_rows_cost_one_query(catalogue, django_assert_num_queries):
+    with django_assert_num_queries(1):
         achievement_dialog_rows()
 
 
