@@ -430,7 +430,51 @@ and hardcodes v2 `boostlook.css`. With the flag on, the shell is v3 and the docs
 iframe inside it is v2. Both files carry the same Antora rules, so this is a
 divergence to confirm as intentional rather than a broken render.
 
-**7. Smaller items.**
+This split is what PR #2411 introduced: it added the `{% flag "v3" %}` swap in
+`base.html` and vendored `static/css/v3/boostlook-v3.css`, but
+`docs_libs_placeholder.html` -- the template whose `<head>` is grafted into the
+docs iframe -- was not given the same swap.
+
+**7. The vendored `boostlook-v3.css` sits one directory deeper than its
+relative `url()`s assume, and its body font never loads.**
+
+PR #2411 vendored the file to `static/css/v3/boostlook-v3.css`, one level below
+v2's `static/css/boostlook.css`, but the `url()` references inside it were
+written for the shallower location. From `/static/css/v3/`, `../font/...`
+resolves to `/static/css/font/...` -- a directory that does not exist -- instead
+of `/static/font/...`. The `../../../../tools/boostlook/...` entries are
+shifted by the same amount.
+
+For Noto Sans, Monaspace Neon and Monaspace Xenon this is invisible: each of
+those `@font-face` rules lists an absolute `/static/font/*.woff2` as its second
+`src`, and that file exists, so the face still resolves.
+
+`"Mona Sans"` is the exception and it is the body font:
+
+```css
+--font-family-body: "Mona Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;   /* line 289 */
+
+@font-face {                                       /* line 871 */
+  font-family: "Mona Sans";
+  src: url("../font/MonaSansVF.ttf") format("truetype");   /* only src, no fallback */
+}
+```
+
+One `src`, relative, no fallback chain. It resolves to
+`/static/css/font/MonaSansVF.ttf`, and `MonaSansVF.ttf` does not exist anywhere
+in the repo. Nothing else rescues it: `"Mona Sans"` is declared as an
+`@font-face` only in `boostlook-v3.css`. The v3 font stack in
+`static/css/v3/fonts.css` declares `'Mona Sans VF'` and
+`'Mona Sans Display SemiCondensed'` from `/static/font/v3/...` -- different
+family names, so they do not satisfy `"Mona Sans"`, and `typography.css` builds
+`--font-sans` from `'Mona Sans VF'` accordingly.
+
+Net effect: with the `v3` flag on, every boostlook-v3 rule that reads
+`var(--font-family-body)` falls through to `system-ui`. Either repoint the face
+at `/static/font/v3/mona-sans/mona-sans-vf.ttf` or drop the face and align
+`--font-family-body` with the `'Mona Sans VF'` the rest of v3 uses.
+
+**8. Smaller items.**
 
 - `versions/in_progress_release_notes.html` uses `id="libraryReadMe"` without
   the `boostlook` class, so none of the `.boostlook#libraryReadMe` rules apply.
