@@ -280,12 +280,22 @@ CONTRIBUTOR_DATA_CACHE_PREFIX = "contributor_data_"
 
 
 def contributor_data_cache_key(user_id):
-    """Redis key for a user's cached profile contribution data.
-
-    Shared with the import-time cache invalidation in
-    `recompute_displayed_profile_roles`.
-    """
+    """Cache key for a user's cached profile contribution data."""
     return f"{CONTRIBUTOR_DATA_CACHE_PREFIX}{user_id}"
+
+
+def invalidate_contributor_data_cache():
+    """Drop every user's cached contribution data.
+
+    Called by `recompute_displayed_profile_roles`: a library import can change
+    anyone's contributions, not just the users whose role columns moved.
+    """
+    cache.delete_many(
+        [
+            contributor_data_cache_key(user_id)
+            for user_id in User.objects.values_list("id", flat=True)
+        ]
+    )
 
 
 def encode_role_option(role, library_id):

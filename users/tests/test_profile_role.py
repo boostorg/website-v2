@@ -12,7 +12,6 @@ from django.contrib.admin.sites import site
 
 from users.admin import EmailUserAdmin, EmailUserAdminForm
 from users.models import (
-    CONTRIBUTOR_DATA_CACHE_PREFIX,
     NO_PUBLIC_ROLE_OPTION,
     ProfileRole,
     contributor_data_cache_key,
@@ -28,12 +27,13 @@ User = get_user_model()
 def _clear_contributor_cache():
     """Keep the per-user contribution cache from leaking across tests.
 
-    The default cache is real Redis in this suite, so entries persist between
-    tests; scrub our namespace before and after each one.
+    The cache lives for the whole process, so wipe it around each test. Clearing
+    outright rather than calling `invalidate_contributor_data_cache`, which reads
+    the user table this fixture has no database access to.
     """
-    cache.delete_pattern(f"{CONTRIBUTOR_DATA_CACHE_PREFIX}*")
+    cache.clear()
     yield
-    cache.delete_pattern(f"{CONTRIBUTOR_DATA_CACHE_PREFIX}*")
+    cache.clear()
 
 
 def _apply_role(user, value):
