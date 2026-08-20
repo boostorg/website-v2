@@ -389,6 +389,10 @@ class ContributorMixin:
             CommitAuthor.humans.filter(commit__library_version__in=library_versions)
             .exclude(id__in=author_ca_ids + maintainer_ca_ids)
             .annotate(count=Count("commit"))
+            # A claimed contributor links to their Boost profile, which reads
+            # the user and their routing keys.
+            .select_related("user")
+            .prefetch_related("user__profile_routing_keys")
             .order_by("-count")
         )
         return (
