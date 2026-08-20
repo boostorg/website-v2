@@ -2,6 +2,7 @@ import datetime
 
 from allauth.account import app_settings
 from allauth.socialaccount.adapter import get_adapter, DefaultSocialAccountAdapter
+from allauth.socialaccount.forms import DisconnectForm
 from allauth.socialaccount.models import SocialApp
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -253,12 +254,14 @@ class CurrentUserProfileView(
                 "label": label,
                 "status_text": "Connected" if connected else "Not Connected",
                 "action_label": "Manage" if connected else "Connect",
+                "connected": connected,
                 # If not connected, we provide the login url for the chosen platform
                 # else, this points to the name of the disconnect modal associated with this platform
                 "action_url": (
                     provider.get_login_url(
                         self.request,
                         **{auth.REDIRECT_FIELD_NAME: self.request.get_full_path()},
+                        process="connect",
                     )
                     if not connected
                     else f"#disconnect-{platform}"
@@ -923,11 +926,12 @@ class DeleteImmediatelyView(LoginRequiredMixin, SuccessMessageMixin, FormView):
 
 class DisconnectSocialAccountView(LoginRequiredMixin, View):
     def post(self, *args, **kwargs):
+        redirect_url = self.request.GET.get("redirect_url", "").strip("'")
         platform = kwargs.get("platform")
         if not platform:
-            raise ValueError("Platform must be specified.")
+            messages.error(self.request, "Platform must be specified.")
+            return HttpResponseRedirect(redirect_url)
 
-        redirect_url = self.request.GET.get("redirect_url", "").strip("'")
         if not redirect_url:
             redirect_url = reverse("home")
 
@@ -935,10 +939,20 @@ class DisconnectSocialAccountView(LoginRequiredMixin, View):
         try:
             sa = SocialAccount.objects.get(user=user, provider=platform)
         except SocialAccount.DoesNotExist:
-            raise ValueError(
-                "No social account between this user and platform exists on Boost."
+            messages.error(
+                self.request,
+                "No social account between this user and platform exists on Boost.",
             )
-        sa.delete()
-        print(self.request.build_absolute_uri(redirect_url))
+            return HttpResponseRedirect(redirect_url)
+
+        form = DisconnectForm(request=self.request, data={"account": sa.pk})
+        if form.is_valid():
+            form.save()
+        else:
+            messages.error(
+                self.request,
+                " ".join(form.non_field_errors())
+                or "An error has occurred while removing your connection. Please try again shortly.",
+            )
 
         return HttpResponseRedirect(redirect_url)
