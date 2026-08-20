@@ -186,3 +186,25 @@ def test_resolve_selection_keeps_a_choice_the_picker_still_offers(
 
     assert default_option(options) != documenter.pk
     assert resolve_selection(options, documenter.pk) == documenter.pk
+
+
+def test_held_row_counts_what_the_member_did(catalogue, plain_user, grant_achievement):
+    """The earned clause states the member's own count, not the rung's threshold.
+
+    Five commits hold bronze (1) and are seven short of silver (12), so the two
+    numbers in the row have to add up to twelve. Pluralisation follows the count.
+    """
+    grant_achievement(plain_user, Achievement.objects.get(slug="code-commits"), 5)
+
+    row = _rows_for(plain_user, BadgeLabel.COMMITS_MASTER)[0]
+
+    assert row["detail"] == (
+        "Authored 5 commits, author 7 more commits to unlock the next badge"
+    )
+
+
+def test_locked_row_counts_the_tier_threshold(catalogue, plain_user):
+    """A rung not reached states what it takes, there being nothing done to state."""
+    row = _rows_for(plain_user, BadgeLabel.COMMITS_MASTER)[0]
+
+    assert row["detail"] == "Author 1 commit to any Boost repository to unlock"
