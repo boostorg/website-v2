@@ -11,8 +11,9 @@ it.
 
 This module also owns the achievement-side writes that feed recalculation:
 ``sync_source``, which makes the stored automatic grants for one source agree with
-that source in both directions, and ``discard_source_achievements``, for source
-rows about to be deleted outright.
+that source in both directions, ``discard_source_achievements``, for source rows
+about to be deleted outright, and ``relink_source_achievements``, for rows about to
+be replaced by the same evidence under new ids.
 
 Both delete in bulk, and both recalculate their own members rather than leaving it
 to the ``post_delete`` signal, which fires per row: see ``owns_recalculation``.
@@ -136,6 +137,47 @@ def discard_source_achievements(model, object_ids):
             grants.delete()
         for user_id, achievement_id in pairs:
             recalculate_badges(user_id, achievement_id)
+
+
+def relink_source_achievements(model, ids_by_key):
+    """Re-point automatic grants at rows re-created under the same dedup key.
+
+    A caller that deletes and re-inserts the same evidence - the commit importer
+    running destructively - leaves every pointer to it dangling, because a generic
+    foreign key carries no referential integrity. The dedup key is what survives
+    that swap, so the link is rebuilt from it rather than the grant thrown away:
+    discarding a grant revokes the badge it justifies, records that revocation
+    permanently, and re-earns the badge with today's date on the next sync, so a
+    re-import would rewrite history that nothing actually changed.
+
+    No grant appears or disappears, so no count moves and nothing is recalculated.
+
+    Args:
+        model: The model the grants point at.
+        ids_by_key: The new row id for each dedup key, as the source names it.
+
+    Returns:
+        How many grants were re-pointed.
+    """
+    if not ids_by_key:
+        return 0
+    content_type = ContentType.objects.get_for_model(model)
+    grants = UserAchievement.objects.filter(
+        source_content_type=content_type,
+        source_type=SourceType.AUTOMATIC,
+        dedup_info__in=list(ids_by_key),
+    ).only("pk", "dedup_info", "source_object_id")
+    moved = []
+    for grant in grants.iterator(chunk_size=2000):
+        object_id = ids_by_key[grant.dedup_info]
+        if object_id != grant.source_object_id:
+            grant.source_object_id = object_id
+            moved.append(grant)
+    if moved:
+        UserAchievement.objects.bulk_update(
+            moved, ["source_object_id"], batch_size=SYNC_BATCH_SIZE
+        )
+    return len(moved)
 
 
 class SourceSync(NamedTuple):
