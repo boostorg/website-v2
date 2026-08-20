@@ -1965,10 +1965,10 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "banner_message": "Your profile was successfully updated.",
             },
             {
-                "label": "Error",
+                "label": "Error (note: this message has an inline newline break that is only applied in mobile screensize)",
                 "variant": "error",
                 "icon_name": "warning-box",
-                "banner_message": "Something went wrong — your draft is saved, so give it another try.",
+                "banner_message": "Couldn't save changes.\n Check your connection and try again.",
             },
         ]
 
