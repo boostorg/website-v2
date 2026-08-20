@@ -162,6 +162,30 @@ html.v3 code {
 .border-error { border-color: var(--color-stroke-error); }
 .border-link-accent { border-color: var(--color-stroke-link-accent); }
 
+/* ==========================================================================
+   Underline links (#2297)
+   Left at `auto`, Firefox derives underline thickness and position from the
+   font's own metrics. For Mona Sans that seats the line inside the descenders,
+   and `skip-ink` then carves a gap around every g/p/y, so the underline renders
+   as disconnected fragments and heavier than in Chromium.
+
+   These three properties are inert unless a decoration is actually drawn, so
+   setting them on every v3 anchor is safe and covers links added later. Keep the
+   specificity low so a component can still override deliberately, and do not
+   reintroduce `auto`, a percentage, or `text-underline-position: from-font` in a
+   component rule: any of those puts the bug back for that component only.
+   ========================================================================== */
+body.v3 a,
+/* Non-anchor elements that carry their own underline. .learn-card__link is a
+   span inside the anchor, so the selector above does not reach it. */
+body.v3 .learn-card__link,
+body.v3 .btn-underline,
+body.v3 .dropdown__item--selected {
+  text-decoration-skip-ink: none;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
 /* Container for v3 content */
 .v3-container {
   width: 100%;

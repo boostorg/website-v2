@@ -94,7 +94,7 @@
 }
 
 .mailing-list-modal__select-all:hover {
-  text-decoration: underline;
+  text-decoration-line: underline;
 }
 
 .mailing-list-modal__list-card {

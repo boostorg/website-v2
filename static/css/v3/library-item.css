@@ -47,7 +47,7 @@
 }
 
 a.library-item__name:hover {
-  text-decoration: underline;
+  text-decoration-line: underline;
 }
 
 .library-item p {

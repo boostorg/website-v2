@@ -283,7 +283,7 @@ html.dark .v3-examples-section__toc {
 }
 
 .v3-examples-section__toc-link:hover {
-  text-decoration: underline;
+  text-decoration-line: underline;
 }
 
 .v3-examples-section-horizontal-container {

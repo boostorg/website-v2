@@ -29,9 +29,6 @@
 .banner__message a {
     text-decoration-line: underline;
     text-decoration-style: solid;
-    text-decoration-skip-ink: auto;
-    text-decoration-thickness: auto;
-    text-underline-offset: auto;
 }
 
 .banner__icon, .banner__close-icon {
