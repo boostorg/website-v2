@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect, JsonResponse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, FormView, View
 from django.views.generic.base import TemplateView
@@ -927,6 +928,12 @@ class DeleteImmediatelyView(LoginRequiredMixin, SuccessMessageMixin, FormView):
 class DisconnectSocialAccountView(LoginRequiredMixin, View):
     def post(self, *args, **kwargs):
         redirect_url = self.request.GET.get("redirect_url", "").strip("'")
+        if not url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
+            messages.error(
+                self.request, "An internal error has occurred. Please contact an admin."
+            )
+            return HttpResponseRedirect(reverse("home"))
+
         platform = kwargs.get("platform")
         if not platform:
             messages.error(self.request, "Platform must be specified.")
