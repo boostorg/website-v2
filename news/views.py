@@ -135,7 +135,6 @@ class EntryListView(V3Mixin, ListView):
     ordering = ["-publish_at"]
     paginate_by = 10
     context_object_name = "entry_list"  # Ensure children use the same name
-    header_text = "Latest Posts"
     filter_value = "all"
 
     #: Set in dispatch, and only when the v3 feed is the one being rendered.
@@ -214,46 +213,29 @@ class EntryListView(V3Mixin, ListView):
             # off, and a cached 301 would strand v2 visitors on the wrong list.
             elif redirect_url := self._canonical_feed_redirect():
                 return redirect(redirect_url)
-        if post_filter := self.request.GET.get("post-filter"):
-            match post_filter:
-                case "all":
-                    return HttpResponseRedirect(reverse_lazy("news"))
-                case "blogpost":
-                    return HttpResponseRedirect(reverse_lazy("news-blogpost-list"))
-                case "video":
-                    return HttpResponseRedirect(reverse_lazy("news-video-list"))
-                case "news":
-                    return HttpResponseRedirect(reverse_lazy("news-news-list"))
-                case "link":
-                    return HttpResponseRedirect(reverse_lazy("news-link-list"))
         return super().dispatch(request, *args, **kwargs)
 
 
 class BlogPostListView(EntryListView):
-    header_text = "Blogs"
     model = BlogPost
     filter_value = "blogpost"
 
 
 class LinkListView(EntryListView):
-    header_text = "Links"
     model = Link
     filter_value = "link"
 
 
 class NewsListView(EntryListView):
-    header_text = "News"
     model = News
     filter_value = "news"
 
 
 class PollListView(EntryListView):
-    header_text = "Polls"
     model = Poll
 
 
 class VideoListView(EntryListView):
-    header_text = "Videos"
     model = Video
     filter_value = "video"
 
