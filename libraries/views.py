@@ -44,6 +44,7 @@ from .models import (
 from .utils import (
     address_already_proven_by,
     apply_collective_author_overrides,
+    patch_commit_authors,
     prefer_boost_profile_links,
     get_view_from_cookie,
     set_view_in_cookie,
@@ -211,6 +212,11 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         queryset = getattr(self, "object_list") or []
         context = super().get_v3_context_data(**kwargs)
         view_str = self.kwargs.get("library_view_str")
+
+        # `author_details` falls back to the author's GitHub page, which is
+        # known only through the CommitAuthor that patch_commit_authors()
+        # attaches.
+        patch_commit_authors([author for lv in queryset for author in lv.authors.all()])
 
         cpp_options = [("all", "All")] + list(
             LibraryVersion.CPP_STANDARD_DISPLAY_NAMES.items()
