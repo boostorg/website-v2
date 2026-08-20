@@ -52,6 +52,9 @@ from libraries.views import (
     CommitAuthorEmailCreateView,
     VerifyCommitEmailView,
     CommitEmailResendView,
+    V3CommitAuthorEmailCreateView,
+    V3CommitAuthorEmailWithdrawView,
+    V3CommitAuthorEmailResendView,
 )
 from news.feeds import AtomNewsFeed, RSSNewsFeed
 from news.views import (
@@ -263,6 +266,21 @@ urlpatterns = (
             "libraries/resend_author_email_verify/<uuid:claim_hash>/",
             CommitEmailResendView.as_view(),
             name="commit-author-email-verify-resend",
+        ),
+        path(
+            "libraries/commit_author_email_create_v3/",
+            V3CommitAuthorEmailCreateView.as_view(),
+            name="v3-commit-author-email-create",
+        ),
+        path(
+            "libraries/commit_author_email_v3/<int:pk>/withdraw/",
+            V3CommitAuthorEmailWithdrawView.as_view(),
+            name="v3-commit-author-email-withdraw",
+        ),
+        path(
+            "libraries/commit_author_email_v3/<int:pk>/resend/",
+            V3CommitAuthorEmailResendView.as_view(),
+            name="v3-commit-author-email-resend",
         ),
         # Redirect for '/libs/' legacy boost.org urls.
         re_path(

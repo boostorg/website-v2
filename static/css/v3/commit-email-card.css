@@ -1,0 +1,192 @@
+/*
+    Commit Email Card
+    Lists the user's associated commit-author email addresses as read-only
+    field rows. A pending email shows an inline "Pending" status plus resend
+    (reload) and remove (close) icon buttons outside the field; a verified
+    email is a plain read-only row. New emails are added via editable field
+    rows with a Submit button that swaps to a spinner while the HTMX request
+    is in flight. Extends the base .card component; the Submit button reuses
+    .btn.btn-primary and the add-row input reuses .field from forms.css.
+
+    commit-email__items        — vertical list of saved email rows
+    commit-email__item         — one saved email: field + outside action icons
+    commit-email__field        — the field-styled box around the email value
+    commit-email__address      — the email address text inside the field
+    commit-email__status       — "Pending" inline text inside the field
+    commit-email__action-btn   — icon-only resend/remove button outside the field
+    commit-email__add-row      — an add-new-email form: field + Submit (+ close)
+    commit-email__spinner      — replaces Submit while the request is in flight
+    commit-email__add-another  — wrapper for the "+ Add Another" button
+*/
+
+.commit-email__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  width: 100%;
+}
+
+.commit-email__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  width: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.commit-email__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-default);
+  width: 100%;
+}
+
+.commit-email__field {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--space-default);
+  min-width: 0;
+  height: 40px;
+  padding: 0 var(--space-default) 0 var(--space-large);
+  background-color: var(--color-surface-weak);
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-xl);
+}
+
+.commit-email__address {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-tertiary);
+}
+
+.commit-email__status {
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-tertiary);
+}
+
+.commit-email__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-icon-primary);
+  cursor: pointer;
+}
+
+.commit-email__action-btn:hover {
+  color: var(--color-text-link-accent);
+}
+
+.commit-email__action-form {
+  display: flex;
+  margin: 0;
+}
+
+.commit-email__add-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-default);
+  width: 100%;
+}
+
+.commit-email__add-field {
+  flex: 1 1 auto;
+  /* .field is a column with gap; the include's always-rendered (usually
+     empty) error container would otherwise add a phantom gap below the
+     input, doubling the spacing between rows */
+  gap: 0;
+}
+
+.commit-email__add-field .field__error {
+  margin-top: var(--space-default);
+}
+
+/* centers the 24px close button against the 40px field control (the row
+   is top-aligned so an inline error doesn't push the buttons down) */
+.commit-email__add-row .commit-email__action-btn {
+  margin-top: var(--space-default);
+}
+
+.commit-email__add-row .btn {
+  height: 40px;
+  flex-shrink: 0;
+}
+
+/* Swap Submit for the spinner while this row's HTMX request is in flight.
+   htmx toggles the htmx-request class on the form carrying hx-post. */
+.commit-email__spinner {
+  display: none;
+  /* keeps the 3px border inside the 24px box, so the footprint math
+     below holds without relying on a global border-box reset */
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  /* centers the 24px spinner in the 128x40 footprint the hidden Submit
+     button leaves behind (Figma frame 2147238281 is FIXED 128x40) */
+  margin: var(--space-default) 52px;
+  border: 3px solid var(--color-surface-strong);
+  border-top-color: var(--color-icon-brand-accent);
+  border-radius: 50%;
+  animation: commit-email-spin 0.8s linear infinite;
+}
+
+.commit-email__add-row.htmx-request .btn {
+  display: none;
+}
+
+.commit-email__add-row.htmx-request .commit-email__spinner {
+  display: block;
+}
+
+@keyframes commit-email-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .commit-email__spinner {
+    animation: none;
+  }
+}
+
+.commit-email__add-another {
+  padding-top: var(--space-default);
+}
+
+.commit-email__add-another .btn-underline {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .commit-email__add-row {
+    flex-wrap: wrap;
+  }
+}

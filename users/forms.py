@@ -231,19 +231,9 @@ class V3ProfileLinkForm(forms.Form):
 V3ProfileLinkFormset = forms.formset_factory(V3ProfileLinkForm, extra=0)
 
 
-class V3CommitEmailForm(forms.Form):
-    email = forms.EmailField(
-        max_length=80, widget=forms.EmailInput(attrs={"placeholder": "abc@example.com"})
-    )
-
-
-V3CommitEmailFormSet = forms.formset_factory(V3CommitEmailForm, extra=0)
-
-
 class V3UserProfileForm(forms.Form):
     def __init__(self, *args, **kwargs):
         links = kwargs.pop("user_links", None)
-        commit_emails = kwargs.pop("commit_emails", None)
         self._user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
         self.fields["country"].choices = [("", "No country")] + list(countries)
@@ -252,15 +242,6 @@ class V3UserProfileForm(forms.Form):
                 initial=[
                     {"type": x, "value": links.get(x, "")}
                     for x in V3ProfileLinkChoices.values
-                ],
-            )
-        if commit_emails:
-            self.commit_email_formset = V3CommitEmailFormSet(
-                initial=[
-                    {
-                        "email": x,
-                    }
-                    for x in commit_emails
                 ],
             )
 
@@ -345,15 +326,6 @@ class V3UserProfileForm(forms.Form):
     override_commit_author_name = forms.BooleanField(
         help_text="Globally replaces your git commit author name with username value set above",
         required=False,
-    )
-
-    # Commit Emails
-    commit_email_formset = V3CommitEmailFormSet(
-        initial=[
-            {
-                "email": "abc@example.com",
-            },
-        ],
     )
 
     # Email Alerts

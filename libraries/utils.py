@@ -18,9 +18,11 @@ from django.conf import settings
 from django.db.models import Count, F, QuerySet
 from django.db.models.functions import Lower
 from django.urls import reverse
+from django.utils import timezone as django_timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
+from django.utils.timesince import timesince
 
 from libraries.constants import (
     DEFAULT_LIBRARIES_LANDING_VIEW,
@@ -127,6 +129,16 @@ def generate_random_string(length=4):
     characters = string.ascii_letters
     random_string = "".join(random.choice(characters) for _ in range(length))
     return random_string
+
+
+def format_duration(seconds: int) -> str:
+    """Human label for a duration, e.g. 86400 -> "1 day".
+
+    Mirrors the mailing-list confirm flow's formatting so expiry copy reads
+    the same across both email verification flows.
+    """
+    now = django_timezone.now()
+    return timesince(now - relativedelta(seconds=seconds), now, depth=1)
 
 
 def version_within_range(
@@ -440,6 +452,46 @@ def parse_boostdep_artifact(content: str):
             "Some library versions were skipped during artifact parsing.",
             skipped_library_versions=skipped_library_versions,
         )
+
+
+def address_already_proven_by(email, user) -> bool:
+    """True when `user` has already proven control of `email` somewhere other
+    than the commit-email claim flow, so claiming it needs no second round-trip.
+
+    Three routes count, each of which already required acting on a link sent to
+    the address itself:
+      - it is the account's own address. Email verification is mandatory
+        (ACCOUNT_EMAIL_VERIFICATION) and this only ever runs for a signed-in
+        user, so reaching here at all means it was confirmed at signup.
+      - an allauth EmailAddress marked verified - covers secondary addresses
+        added to the account later, and re-confirms the primary one.
+      - an active mailing-list subscription. Mailman only flips a row to ACTIVE
+        after the recipient opens a signed confirmation link (see
+        mailing_list/views.py); `pending` rows prove nothing and are excluded.
+
+    Every comparison is case-insensitive: CommitAuthorEmail rows are stored
+    exactly as git reported them, so mixed case is common there, while
+    User.email is lowercased on save. An exact match would miss those.
+    """
+    # local imports: this module is imported during app loading
+    from allauth.account.models import EmailAddress
+    from mailing_list.models import SubscriptionStatus, UserMailingListSubscription
+
+    email = (email or "").strip().lower()
+    if not email:
+        return False
+
+    if (user.email or "").lower() == email:
+        return True
+
+    if EmailAddress.objects.filter(
+        user=user, verified=True, email__iexact=email
+    ).exists():
+        return True
+
+    return UserMailingListSubscription.objects.filter(
+        user=user, status=SubscriptionStatus.ACTIVE, email__iexact=email
+    ).exists()
 
 
 def patch_commit_authors(users):

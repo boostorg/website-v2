@@ -236,26 +236,7 @@ flushed rather than leaking onto the next page. {% endcomment %}
           </div>
           </form>
         </div>
-        <div class="basic-card card user-profile__commit-email-card">
-          <div class="card__header">
-            <span class="card__title">Commit email address</span>
-          </div>
-          <hr class="card__hr" aria-hidden="true" />
-          <div class="card__column px-large user-profile__default-space-col">
-            {% for form in user_profile_form.commit_email_formset %}
-              <div class="user-profile__commit-email-form">
-                {% include 'v3/includes/_form_include.html' with form=form %}
-                {% include 'v3/includes/_button.html' with style='secondary' label='Submit' %}
-              </div>
-            {% endfor %}
-            <button class="user-profile__add-another-button btn-underline" type="button">+ Add Another</button>
-            <div class="field__help">Primary email will be displayed as the contact email on the public profile.</div>
-          </div>
-          <hr class="card__hr" aria-hidden="true" />
-          <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save changes' only %}
-          </div>
-        </div>
+        {% include 'v3/includes/_commit_email_card.html' with commit_email_addresses=commit_email_addresses commit_email_form=commit_email_form commit_email_card_error=commit_email_card_error csrf_token=csrf_token only %}
         <div class="basic-card card user-profile__email-preferences-card">
           <form method="post" action="{{ profile_account_edit_url }}" class="card__form"
                 x-data="createSectionForm({{ saved_sections.v3_update_email_preferences|yesno:'true,false' }})"

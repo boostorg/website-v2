@@ -26,6 +26,18 @@ OAUTH2_PROVIDER_REFRESH_TOKEN_MODEL = "oauth2_provider.RefreshToken"
 
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
+# Tests must not share the dev server's Redis: waffle caches Flag rows from
+# whichever database wrote last, so a test run would poison the dev cache
+# with test-database flag state (e.g. the v3 flag going inactive after every
+# pytest run until re-saved in the admin)
+CACHES = {
+    "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "static_content": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "static_content",
+    },
+}
+
 MIGRATION_MODULES = DisableMigrations()
 
 # User a faster password hasher

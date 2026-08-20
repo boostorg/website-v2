@@ -369,3 +369,17 @@ RELEASE_REPORT_SEARCH_TOP_COUNTRIES_LIMIT = 5
 DOCKER_CONTAINER_URL_WEB = "http://web:8000"
 
 RELEASE_REPORT_AUTHORS_PER_PAGE_THRESHOLD = 6
+
+# How long a commit email verification link stays valid (seconds).
+COMMIT_EMAIL_CLAIM_MAX_AGE = 24 * 60 * 60  # 24 hours
+
+# Commit-email card failures. Shared because the card's own views raise them on
+# the htmx path while the profile view re-renders them after a no-JS redirect,
+# and the message must be identical either way.
+COMMIT_EMAIL_STALE_ACTION_ERROR = (
+    "That email address can no longer be changed. Reload the page and try again."
+)
+# Fallback for the no-JS path: the rejected address is re-validated on the
+# redirected GET to regenerate its error, so this covers the race where the
+# blocking condition cleared in between and validation now passes.
+COMMIT_EMAIL_ADD_FAILED_ERROR = "That email address could not be added."

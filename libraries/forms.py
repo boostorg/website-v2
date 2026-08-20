@@ -601,3 +601,88 @@ class CommitAuthorEmailForm(Form):
             raise forms.ValidationError(msg)
 
         return email
+
+
+class V3CommitAuthorEmailForm(Form):
+    """The v3 claim form: same single email field as the legacy
+    CommitAuthorEmailForm above (which is preserved untouched), but validating
+    against the claimed_by claim model where attribution is only bound at
+    verification.
+    """
+
+    commit_email = forms.EmailField()
+
+    class Meta:
+        fields = ["commit_email"]
+
+    def __init__(self, *args, user=None, **kwargs):
+        self.user = user
+        self.commit_author_email = None
+        super().__init__(*args, **kwargs)
+
+    def clean_commit_email(self):
+        """Emails should have been created by the commit import process, so we
+        need to ensure the email exists, then check the claim state of the row
+        itself before the author-level binding: author.user is also set by the
+        email/github matching heuristics, so on its own it only blocks a claim
+        when a different user has verified a sibling email - otherwise
+        verification is what settles ownership."""
+        email = self.cleaned_data.get("commit_email")
+        # Case-insensitive because commit emails are stored exactly as git
+        # reported them. Rows differing only in case are possible (email is
+        # unique, but that uniqueness is case-sensitive), so take the address as
+        # typed when it exists and otherwise the oldest variant, rather than
+        # letting an unordered .first() pick one at random.
+        commit_author_email = (
+            CommitAuthorEmail.objects.filter(email=email).first()
+            or CommitAuthorEmail.objects.filter(email__iexact=email)
+            .order_by("pk")
+            .first()
+        )
+
+        if not commit_author_email:
+            raise forms.ValidationError(
+                "Email address is not associated with any commits."
+            )
+
+        claimant = commit_author_email.claimed_by
+        if commit_author_email.claim_verified:
+            owner = claimant or commit_author_email.author.user
+            if self.user is not None and owner == self.user:
+                msg = "This email address is already associated with your account."
+            else:
+                msg = (
+                    "This email address has already been claimed by another user. "
+                    "Report an issue if this is incorrect."
+                )
+            raise forms.ValidationError(msg)
+
+        has_open_claim = (
+            commit_author_email.claim_hash is not None
+            and claimant is not None
+            and not commit_author_email.is_verification_email_expired()
+        )
+        if has_open_claim:
+            if self.user is not None and claimant == self.user:
+                msg = "A verification email is already pending for this address."
+            else:
+                msg = "This email address has a verification pending by another user."
+            raise forms.ValidationError(msg)
+
+        author_user = commit_author_email.author.user
+        if author_user is not None and author_user != self.user:
+            other_verified_sibling = (
+                commit_author_email.author.commitauthoremail_set.filter(
+                    claim_verified=True
+                )
+                .exclude(pk=commit_author_email.pk)
+                .exists()
+            )
+            if other_verified_sibling:
+                raise forms.ValidationError(
+                    "This email address is already associated with another user. "
+                    "Report an issue if this is incorrect."
+                )
+
+        self.commit_author_email = commit_author_email
+        return email
