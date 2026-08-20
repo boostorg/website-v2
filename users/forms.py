@@ -46,7 +46,8 @@ class CustomResetPasswordFromKeyForm(ResetPasswordKeyForm):
 
 class CustomSignUpForm(SignupForm):
     accept_terms_of_use = forms.BooleanField(required=True)
-    username = forms.CharField(max_length=255, required=True)
+    # Named display_name rather than username on purpose.
+    display_name = forms.CharField(max_length=255, required=True, label="Username")
 
     def clean_email(self):
         email = super().clean_email()
