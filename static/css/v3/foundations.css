@@ -189,6 +189,12 @@ html.v3 code {
   padding-right: var(--v3-shell-gutter);
 }
 
+@media (max-width: 767px) {
+  .v3-container {
+    --v3-shell-gutter: var(--space-medium);
+  }
+}
+
 /* ==========================================================================
    Full-height page: the footer sits at the bottom of the viewport on pages
    whose content is too short to fill it, instead of riding up under the last
