@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("libraries", "0044_merge_20260814_1905"),
+        ("libraries", "0045_unbind_unverified_commit_author_claims"),
     ]
 
     operations = [
