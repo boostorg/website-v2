@@ -7,7 +7,7 @@ from reports.constants import WEB_ANALYTICS_API_URL_V2, WEB_ANALYTICS_DOMAIN
 
 logger = structlog.get_logger(__name__)
 
-NEWS_ENTRY_PREFIX = "/news/entry/"
+NEWS_ENTRY_PREFIX = "/news/"
 
 
 def fetch_post_views() -> dict[str, int]:

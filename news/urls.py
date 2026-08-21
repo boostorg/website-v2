@@ -5,7 +5,6 @@ from news.views import (
     BlogPostListView,
     EntryApproveView,
     EntryDeleteView,
-    EntryDetailView,
     EntryModerationDetailView,
     EntryModerationListView,
     EntryModerationMagicApproveView,
@@ -47,7 +46,6 @@ urlpatterns = [
         EntryModerationMagicApproveView.as_view(),
         name="news-magic-approve",
     ),
-    path("entry/<slug:slug>/", EntryDetailView.as_view(), name="news-detail"),
     path(
         "entry/<slug:slug>/approve/",
         EntryApproveView.as_view(),

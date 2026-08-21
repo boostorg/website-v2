@@ -72,11 +72,39 @@ class PostIndexPage(BasePage):
     PAGE_SIZE = 10
     RELATED_POSTS_LIMIT = 3
 
+    def route(self, request, path_components):
+        """
+        Overwrite routing to allow our PostIndexPage to act as a
+        umbrella handler for Legacy Entry serving, as well as
+        Wagtail serving
+        """
+        from news.models import Entry
+
+        path = request.path.rstrip("/").lstrip("/")
+        split_path = path.split("/")
+        base, *rest = split_path
+
+        # We need to handle the case in which an Entry exists, but no
+        # matching Post Page exists, since this now handles both. We do
+        # this by serving this page if an Entry is found, and our serve
+        # method then calls the legacy view.
+        if match_child := self.get_children().filter(slug=base).first():
+            matched_route = match_child.specific.route(request, rest)
+            return matched_route
+        if e := Entry.objects.filter(slug=rest[0]).first():
+            return self, [], {"pk": e.pk}
+        return super().route(request, path_components)
+
     def serve(self, request, *args, **kwargs):
         if not flag_is_active(request, "v3"):
             # Rather than return a 404 on non v3 views, we allow Legacy
             # and wagtail to live at the same endpoint by serving the Legacy view
             from news.views import EntryListView
+
+            if pk := kwargs.get("pk"):
+                from news.views import EntryDetailView
+
+                return EntryDetailView.as_view()(request, pk=pk)
 
             return EntryListView.as_view()(request)
 
@@ -198,6 +226,16 @@ class PostPage(BasePage):
         blank=True, default="", help_text="AI generated summary. Delete to regenerate."
     )
     tags = ClusterTaggableManager(through="pages.TaggedContent", blank=True)
+
+    def serve(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            # Rather than return a 404 on non v3 views, we allow Legacy
+            # and wagtail to live at the same endpoint by serving the Legacy view
+            from news.views import EntryDetailView
+
+            return EntryDetailView.as_view()(request, slug=self.slug)
+
+        return super().serve(request, *args, **kwargs)
 
     def get_content(self):
         if self.post_content_type in ["News", "Blogpost"]:

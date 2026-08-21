@@ -6,7 +6,6 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Case, ExpressionWrapper, FloatField, F, Func, Value, When
 from django.db.models.functions import Greatest, Now, Power
-from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.timezone import now
@@ -268,7 +267,7 @@ class Entry(models.Model):
         return result
 
     def get_absolute_url(self):
-        return reverse("news-detail", args=[self.slug])
+        return f"/news/{self.slug}/"
 
     def to_v3_post_card_dict(self):
         """Dict shape consumed by `v3/includes/_post_card.html` items."""
