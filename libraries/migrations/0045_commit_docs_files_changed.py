@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("libraries", "0043_libraryversion_website_adoc_and_more"),
+        ("libraries", "0044_merge_20260814_1905"),
     ]
 
     operations = [
