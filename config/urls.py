@@ -463,10 +463,6 @@ urlpatterns = (
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + [
-        path("outreach/", include(wagtail_urls)),
-        path("pages/", include(wagtail_urls)),
-    ]
-    + [
         # Libraries docs, some HTML parts are re-written
         re_path(
             r"^doc/libs/(?P<content_path>.+)/?",
@@ -492,6 +488,7 @@ urlpatterns = (
             name="images-page",
         ),
         # Static content (exclude Wagtail paths)
+        path("", include(wagtail_urls)),
         re_path(
             r"^(?!__debug__|outreach/|testimonials/)(?P<content_path>.+)/?",
             StaticContentTemplateView.as_view(),

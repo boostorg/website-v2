@@ -13,6 +13,8 @@ from django.utils.timezone import localtime, now
 
 from modelcluster.contrib.taggit import ClusterTaggableManager
 
+from waffle import flag_is_active
+
 
 from libraries.utils import library_filter_options
 from pages.blocks import POST_BLOCKS
@@ -69,6 +71,16 @@ class PostIndexPage(BasePage):
 
     PAGE_SIZE = 10
     RELATED_POSTS_LIMIT = 3
+
+    def serve(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            # Rather than return a 404 on non v3 views, we allow Legacy
+            # and wagtail to live at the same endpoint by serving the Legacy view
+            from news.views import EntryListView
+
+            return EntryListView.as_view()(request)
+
+        return super().serve(request, *args, **kwargs)
 
     def _filtered_queryset(self, filters) -> models.QuerySet["PostPage"]:
         posts = (

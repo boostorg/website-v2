@@ -10,6 +10,8 @@ from libraries.utils import get_version_from_cookie
 from versions.converters import BoostVersionSlugConverter
 from versions.models import Version
 
+from wagtail.templatetags.wagtailcore_tags import slugurl
+
 _BOOST_VERSION_SLUG_ROUTE_TOKEN = (
     f"<{BoostVersionSlugConverter.URL_TYPE_NAME}:version_slug>"
 )
@@ -228,7 +230,7 @@ def header_context(request):
         NavLink(label="Learn", url=reverse("learn"), nav_id="learn"),
         NavLink(label="Community", url=reverse("community"), nav_id="community"),
         NavLink(
-            label="Posts", url=reverse("news"), nav_id="news", is_unread=True
+            label="Posts", url=slugurl({}, "news"), nav_id="news", is_unread=True
         ),  # TODO: update is_unread based on actual unread state
         NavLink(
             label="Downloads", url=reverse("releases-most-recent"), nav_id="releases"

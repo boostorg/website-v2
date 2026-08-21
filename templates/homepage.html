@@ -4,6 +4,7 @@
 {% load text_helpers avatar_tags %}
 {% load waffle_tags %}
 {% load custom_static %}
+{% load wagtailcore_tags %}
 
 {% block content %}
   {# homepage hero #}
@@ -256,7 +257,7 @@
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">recent news</span>
         </div>
         <div class="absolute top-6 right-8 p-2 group">
-          <a href="{% url 'news' %}"
+          <a href="{% slugurl 'news' %}"
             class="text-sm font-medium md:text-base text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
             All News&nbsp;<i class="fas fa-chevron-right text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
           </a>

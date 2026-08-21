@@ -6,7 +6,6 @@ from news.views import (
     EntryApproveView,
     EntryDeleteView,
     EntryDetailView,
-    EntryListView,
     EntryModerationDetailView,
     EntryModerationListView,
     EntryModerationMagicApproveView,
@@ -22,7 +21,6 @@ from news.views import (
 )
 
 urlpatterns = [
-    path("", EntryListView.as_view(), name="news"),
     path("blogpost/", BlogPostListView.as_view(), name="news-blogpost-list"),
     path("link/", LinkListView.as_view(), name="news-link-list"),
     path("news/", NewsListView.as_view(), name="news-news-list"),
