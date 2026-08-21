@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("users", "0027_user_displayed_profile_role_and_more"),
+        ("users", "0028_user_displayed_profile_role_and_more"),
     ]
 
     operations = [
