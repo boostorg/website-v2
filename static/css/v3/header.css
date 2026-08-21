@@ -31,8 +31,20 @@ body.v3 .header {
   right: 0;
 }
 
-body.v3 .v3-container > .w-full {
+body.v3 .v3-container > .w-full,
+body.v3 .docs-iframe-page > .w-full {
   padding-top: calc(var(--header-height, 48px) + 2 * var(--space-medium));
+}
+
+/* Full-width docs pages (templates/docsiframe.html) replace .v3-container, so
+   they also need its width cap — otherwise the iframe runs edge to edge while
+   the header stays centred, and the two visibly disagree above 1440px. Matches
+   .header's own max-width so the doc and the header share a left edge. */
+body.v3 .docs-iframe-page {
+  width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ── Shared control surface ────────────────────── */
