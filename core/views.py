@@ -311,7 +311,7 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
         recent_entries = (
             Entry.objects.published()
             .filter(deleted_at__isnull=True)
-            .select_related("author")
+            .select_related("author", "author__displayed_profile_role_library")
             .order_by("-publish_at")[:4]
         )
 

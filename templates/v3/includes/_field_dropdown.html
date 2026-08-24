@@ -176,7 +176,7 @@
          name="{{ name }}"
          :value="selected"
          disabled
-         :disabled="!jsReady"
+         :disabled="!jsReady || {% if disabled %}true{% else %}false{% endif %}"
          {% if required %}required{% endif %}>
   {% if alpine_error %}
   <p class="field__error" id="field-{{ name }}-error" role="alert" x-show="{{ alpine_error }}" x-text="{{ alpine_error }}" x-cloak aria-live="polite"></p>

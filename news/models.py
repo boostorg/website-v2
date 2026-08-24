@@ -266,7 +266,7 @@ class Entry(models.Model):
     def get_absolute_url(self):
         return reverse("news-detail", args=[self.slug])
 
-    def to_v3_post_card_dict(self, author_role=None):
+    def to_v3_post_card_dict(self):
         """Dict shape consumed by `v3/includes/_post_card.html` items."""
         category = ""
 
@@ -280,7 +280,7 @@ class Entry(models.Model):
             "date": self.publish_at,
             "category": category,
             "tag": "",
-            "author": self.author.to_v3_profile_dict(role=author_role),
+            "author": self.author.to_v3_profile_dict(),
         }
 
     def can_view(self, user):

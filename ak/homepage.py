@@ -107,7 +107,7 @@ def build_community_posts(limit=5):
     popular_entries = (
         Entry.objects.ranked()
         .filter(deleted_at__isnull=True, published=True)
-        .select_related("author")[:limit]
+        .select_related("author", "author__displayed_profile_role_library")[:limit]
     )
     return [entry.to_v3_post_card_dict() for entry in popular_entries]
 

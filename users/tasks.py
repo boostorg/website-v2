@@ -5,6 +5,7 @@ import structlog
 
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives, send_mail
+from django.db import connection, transaction
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -15,7 +16,11 @@ from oauth2_provider.models import clear_expired
 
 from config.celery import app
 from core.githubhelper import GithubAPIClient
-from users.constants import UNVERIFIED_CLEANUP_DAYS, UNVERIFIED_CLEANUP_BEGIN
+from users.constants import (
+    PROFILE_ROLE_RECOMPUTE_LOCK,
+    UNVERIFIED_CLEANUP_DAYS,
+    UNVERIFIED_CLEANUP_BEGIN,
+)
 
 logger = structlog.getLogger(__name__)
 
@@ -163,3 +168,91 @@ def remove_unverified_users():
 
     except Exception as e:
         logger.exception(f"Error occurred processing unverified users for removal: {e}")
+
+
+@app.task
+def recompute_displayed_profile_roles():
+    """Recompute every user's auto-derived top library role.
+
+    Writes `User.resolved_profile_role` (the fallback shown when a user has
+    chosen neither a library role nor holds an internal title) and clears any
+    user-selected `displayed_profile_role` that is no longer valid. Enqueued
+    after author/maintainer and commit imports, with a daily safety run via beat.
+    """
+    from collections import defaultdict
+
+    from libraries.models import Commit, Library, LibraryVersion
+    from users.models import ProfileRole
+
+    cleared_choices = 0
+
+    # Snapshot and write under one transaction-scoped advisory lock. Reading
+    # outside it would let an older run's blind `resolved_profile_role` writes
+    # land after a newer run's, restoring a role the import had revoked. The
+    # lock releases on commit/rollback; concurrent runs queue behind it.
+    with transaction.atomic():
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT pg_advisory_xact_lock(%s)", [PROFILE_ROLE_RECOMPUTE_LOCK]
+            )
+
+        # (user_id, library_id) pairs per role: author / maintainer / contributor.
+        valid = {
+            ProfileRole.AUTHOR.value: set(
+                Library.authors.through.objects.values_list("user_id", "library_id")
+            ),
+            ProfileRole.MAINTAINER.value: set(
+                LibraryVersion.maintainers.through.objects.values_list(
+                    "user_id", "libraryversion__library_id"
+                ).distinct()
+            ),
+            ProfileRole.CONTRIBUTOR.value: set(
+                Commit.objects.filter(author__user_id__isnull=False)
+                .values_list("author__user_id", "library_version__library_id")
+                .distinct()
+            ),
+        }
+        held_any = {role: {uid for uid, _ in pairs} for role, pairs in valid.items()}
+
+        # Each user's highest-precedence role. Iterating high-to-low, setdefault
+        # keeps the first (highest) seen.
+        top = {}
+        for role in ProfileRole.library_role_precedence():
+            for uid in held_any[role]:
+                top.setdefault(uid, role)
+        by_role = defaultdict(list)
+        for uid, role in top.items():
+            by_role[role].append(uid)
+
+        # Clear explicit user choices the latest import has revoked, so `.role`
+        # falls through instead of displaying a role the user no longer holds.
+        stale_rows = []  # (uid, role, lib_id) as read in this snapshot
+        choosers = User.objects.exclude(displayed_profile_role="").values_list(
+            "id", "displayed_profile_role", "displayed_profile_role_library_id"
+        )
+        for uid, role, lib_id in choosers:
+            if lib_id:
+                ok = (uid, lib_id) in valid.get(role, set())
+            else:
+                ok = uid in held_any.get(role, set())
+            if not ok:
+                stale_rows.append((uid, role, lib_id))
+
+        User.objects.exclude(id__in=top).exclude(resolved_profile_role="").update(
+            resolved_profile_role=""
+        )
+        for role, ids in by_role.items():
+            User.objects.filter(id__in=ids).update(resolved_profile_role=role)
+        # Compare-and-swap: only clear rows still matching the snapshot values,
+        # so a selection the user saved after the snapshot survives.
+        for uid, role, lib_id in stale_rows:
+            cleared_choices += User.objects.filter(
+                id=uid,
+                displayed_profile_role=role,
+                displayed_profile_role_library_id=lib_id,
+            ).update(displayed_profile_role="", displayed_profile_role_library=None)
+    logger.info(
+        "recompute_displayed_profile_roles finished",
+        resolved=len(top),
+        cleared_choices=cleared_choices,
+    )

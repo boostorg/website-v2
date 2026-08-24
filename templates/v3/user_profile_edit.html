@@ -108,7 +108,11 @@ flushed rather than leaking onto the next page. {% endcomment %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.role %}
+            {% if user_profile_form.role.field.disabled %}
+              {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.role %}
+            {% else %}
+              {% include 'v3/includes/_field_combo.html' with name=user_profile_form.role.name label=user_profile_form.role.label options=user_profile_form.role.field.choices selected=user_profile_form.role.value placeholder="Search roles..." only %}
+            {% endif %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="user-profile__xl-space-col px-large">
@@ -600,6 +604,15 @@ flushed rather than leaking onto the next page. {% endcomment %}
           return el && window.Alpine ? (Alpine.$data(el).content || '') : '';
         },
 
+        // The role dropdown's value: the combo's hidden input once Alpine is
+        // ready (a sibling x-data scope, so read it from the DOM). null when the
+        // field is absent (the user holds no roles) so the payload omits role
+        // and leaves the stored value untouched.
+        roleValue() {
+          const el = [...document.querySelectorAll('[name="role"]')].find((e) => !e.disabled);
+          return el ? el.value : null;
+        },
+
         // Validates and persists the profile links, tagline, and biography via
         // PATCH before the section form submit proceeds (see handleSubmit in
         // createSectionForm). Returns true when it's safe to continue with the
@@ -637,6 +650,9 @@ flushed rather than leaking onto the next page. {% endcomment %}
             else if(avatarInputNew.files.length > 0) formData.append('profile_image', avatarInputNew.files[0])
           }
           formData.append('delete_profile_image', avatarDelete.checked)
+
+          const role = this.roleValue();
+          if (role !== null) formData.append('role', role);
 
           this.saving = true;
           this.saveError = '';

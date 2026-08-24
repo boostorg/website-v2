@@ -150,3 +150,11 @@ def setup_periodic_tasks(sender, **kwargs):
         crontab(hour="*/1", minute=0),
         app.signature("news.tasks.publish_scheduled_pages"),
     )
+
+    # Daily safety recompute of auto-derived profile roles. Eligibility only
+    # changes during imports, which enqueue this recompute themselves; this is a
+    # backstop after the daily import window (7:05/8:05 AM).
+    sender.add_periodic_task(
+        crontab(hour=9, minute=0),
+        app.signature("users.tasks.recompute_displayed_profile_roles"),
+    )
