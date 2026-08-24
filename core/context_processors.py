@@ -218,7 +218,7 @@ class NavLink:
 
 def edit_profile_url():
     """Shared CTA URL for the profile edit page."""
-    return f"{reverse('profile-account')}?edit=True"
+    return f"{reverse('profile-account')}?edit=true"
 
 
 def header_context(request):

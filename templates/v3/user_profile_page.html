@@ -11,14 +11,19 @@
 {% endblock %}
 
 {% block content %}
+  {% comment %}
+    Public profile view. Every card except the bio renders only when it has
+    data behind it, so a profile with no content is the bio card alone, showing
+    its own empty state. The bio is the one section always present.
+  {% endcomment %}
   <div class="user-profile__container">
     <div class="user-profile__profile-card-row">
       {% with user_info as user %}
-      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url badge_name=user.featured_badge.name badge=user.featured_badge.badge member_since=user.member_since role=user.role flag_emoji=user.flag_emoji compact=True %}
+      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url member_since=user.member_since role=user.role flag_emoji=user.flag_emoji compact=True %}
       {% endwith %}
       <div class="user-profile__button-group">
         {% for link in top_links %}
-        {% include "v3/includes/_button.html" with tp_label=link.tp_label tp_position="top" label=link.label url=link.url icon_name=link.icon disabled=link.disabled extra_classes=link.extra_classes icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
+        {% include "v3/includes/_button.html" with label=link.label url=link.url icon_name=link.icon icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
         {% endfor %}
       </div>
     </div>
@@ -27,33 +32,51 @@
         <div class="user-profile__bio">
           {% include 'v3/includes/_user_profile_bio_card.html' with title='Bio' markdown=bio contributor_data=contributor_data only %}
         </div>
+        {% if github_activity_card_data %}
         <div class="user-profile__github">
           {% with data=github_activity_card_data %}
             {% include 'v3/includes/_markdown_card.html' with title=data.title markdown=data.markdown_text button_url=data.button_url button_label=data.button_label %}
           {% endwith %}
         </div>
+        {% endif %}
+        {% if mailing_list_activity_card_data %}
         <div class="user-profile__mailing-list">
           {% with data=mailing_list_activity_card_data %}
             {% include 'v3/includes/_mailing_list_activity_card.html' with title=data.title mailing_list_items=data.mailing_list_items %}
           {% endwith %}
         </div>
+        {% endif %}
       </div>
+      {% comment %}
+        Drop the right column wholesale when none of its cards have data, so the
+        grid has a single child for `.user-profile__col:only-child` to widen.
+        An empty column would otherwise leave the bio at half width beside a
+        blank gap.
+      {% endcomment %}
+      {% if achievements_data.achievements or badges or posts or account_connections_none_connected %}
       <div class="user-profile__col">
+        {% if achievements_data.achievements %}
         <div class="user-profile__achievements">
-          {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements primary_button_url="https://www.example.com" %}
+          {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements %}
         </div>
+        {% endif %}
+        {% if badges %}
         <div class="user-profile__badges">
-          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=demo_badges %}
+          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=badges %}
         </div>
+        {% endif %}
+        {% if posts %}
         <div class="user-profile__posts">
           {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label=profile_post_cta_label primary_cta_url=profile_post_cta_url %}
         </div>
+        {% endif %}
         {% if account_connections_none_connected %}
         <div class="user-profile__connections">
           {% include "v3/includes/_account_connections_card.html" with connections=account_connections_none_connected %}
         </div>
         {% endif %}
       </div>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

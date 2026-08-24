@@ -46,6 +46,21 @@
     margin-bottom: var(--space-xl);
 }
 
+/* A profile whose right-column sections all lack data renders the left column
+   alone (the template drops the right one entirely). Span both tracks so the
+   bio fills the width instead of sitting at half width beside a blank gap. */
+.user-profile__col:only-child {
+    grid-column: 1 / -1;
+}
+
+/* Empty-state message shown in the bio card when no bio has been added.
+   Match the horizontal padding of the filled bio (.markdown-content) so the
+   text aligns with the card header instead of sitting flush against the edge. */
+.bio-card__empty {
+    color: var(--color-text-secondary);
+    padding: 0 var(--space-large);
+}
+
 
 .user-profile__col {
     display: flex;
