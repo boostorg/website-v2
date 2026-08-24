@@ -109,6 +109,10 @@
   font-size: var(--font-size-xl);
 }
 
+.user-card--lg .avatar__initials {
+  font-size: var(--font-size-xl);
+}
+
 /* Green accent (card variant only) */
 
 .user-card--green.card {
