@@ -1,3 +1,5 @@
+from pages.models import PostPage
+
 from .models import Entry
 
 # Display labels for a post's type "chip" (the small category label on post
@@ -69,13 +71,13 @@ def _get_wagtail_post_cards(limit: int) -> list[dict]:
 
     Stub for the planned migration of post content onto Wagtail pages (per the
     earlier discussion about authoring posts as pages rather than Entry models).
-    No post-style Wagtail page model exists yet, so this returns nothing and the
-    Learn/community/library surfaces fall back to Entry data only.
+    `PostPage` now exists, but the unfiltered surfaces (Learn, community,
+    homepage) still read Entry data only, so this returns nothing until that
+    cutover happens.
 
-    When the page model lands, query its published pages here and map each into
-    the post-card shape via a `_wagtail_page_to_post_card(page)` helper. Because
-    `get_latest_post_cards` already merges and re-sorts every source by date,
-    wiring this up requires no changes at the call sites.
+    To wire it up, query published `PostPage` rows here and map each one with
+    `_post_page_to_post_card`. Because `get_latest_post_cards` already merges
+    and re-sorts every source by date, that needs no changes at the call sites.
     """
     return []
 
@@ -93,3 +95,45 @@ def get_latest_post_cards(limit: int = 3) -> list[dict]:
     cards = _get_entry_post_cards(limit) + _get_wagtail_post_cards(limit)
     cards.sort(key=lambda card: card["date"], reverse=True)
     return cards[:limit]
+
+
+def _post_page_to_post_card(page: PostPage) -> dict:
+    author = page.author
+    return {
+        "title": page.title,
+        "url": page.get_absolute_url(),
+        "date": page.first_published_at,
+        "category": (
+            news_type_label(page.post_content_type) if page.post_content_type else ""
+        ),
+        "tag": "",
+        "author": author.to_v3_profile_dict() if author else None,
+    }
+
+
+def get_library_post_cards(library_slug: str, limit: int = 3) -> list[dict]:
+    """Return the latest posts tagged with `library_slug` as post-card dicts.
+
+    Posts are linked to a library through a `ContentTag` whose slug mirrors the
+    library slug (see the create-post view). Only Wagtail `PostPage` posts carry
+    that link; legacy news `Entry` rows have no library relation, so they are
+    deliberately excluded rather than shown unfiltered.
+
+    The filter goes through `tagged_items` rather than the `tags` manager: the
+    tag's parental key points at `wagtailcore.Page`, so filtering `tags__slug`
+    on a child page model builds a join against a `pages_postpage.id` column
+    that does not exist.
+
+    Returns an empty list when nothing is tagged, which is what hides the card.
+    """
+    if not library_slug:
+        return []
+
+    queryset = (
+        PostPage.objects.live()
+        .public()
+        .filter(tagged_items__tag__slug=library_slug)
+        .select_related("owner", "owner__displayed_profile_role_library")
+        .order_by("-first_published_at")[:limit]
+    )
+    return [_post_page_to_post_card(page) for page in queryset]
