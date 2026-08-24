@@ -14,7 +14,7 @@
     autoplay_delay (optional) — autoplay interval in milliseconds. Only used when autoplay is True. Default: 4000
 
   Usage (custom heading and id):
-    {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="libs-carousel" heading="Library categories" %}
+    {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="libs-carousel" heading="Browse our libraries" %}
 
   Usage (with autoplay, 5 second interval):
     {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="featured" autoplay=True autoplay_delay=5000 %}
@@ -25,7 +25,7 @@
   Usage (infinite looping carousel):
     {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="my-carousel" heading="Featured" cards=my_cards_list infinite=True %}
 {% endcomment %}
-{% with carousel_id=carousel_id|default:"cards-carousel" heading=heading|default:"Libraries categories" track_aria_label=track_aria_label|default:"Detail cards carousel" %}
+{% with carousel_id=carousel_id|default:"cards-carousel" heading=heading|default:"Browse our libraries" track_aria_label=track_aria_label|default:"Detail cards carousel" %}
 <div id="{{ carousel_id }}" data-carousel class="cards-carousel" role="region" aria-labelledby="{{ carousel_id }}-heading"{% if infinite %} data-carousel-infinite{% endif %}{% if autoplay %} data-carousel-autoplay="{{ autoplay_delay|default:4000 }}"{% endif %}>
   <div class="cards-carousel__header">
     <h2 id="{{ carousel_id }}-heading" class="cards-carousel__heading">{{ heading }}</h2>
