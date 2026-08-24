@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("badges", "0003_achievementsyncrun"),
-        ("users", "0027_remove_user_badges_delete_badge"),
+        ("users", "0028_user_displayed_profile_role_and_more"),
     ]
 
     operations = [
