@@ -327,7 +327,6 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
             "<ul>"
             "<li>Contribution statistics</li>"
             "<li>Progress towards next badge</li>"
-            "<li>Recent activity feed</li>"
             "</ul>"
         )
         ctx["create_account_card_preview_url"] = large_static(
