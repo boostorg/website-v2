@@ -1143,8 +1143,16 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
         content_type = self.content_dict.get("content_type")
         modernize = self.request.GET.get("modernize", "med").lower()
 
-        if not is_managed_content_type(content_type) or not is_valid_modernize_value(
-            modernize
+        if (
+            not is_managed_content_type(content_type)
+            or not is_valid_modernize_value(modernize)
+            # Guide nav lives inside the iframe, and docsiframe.html only
+            # injects <base target="_parent"> once the frame's load event
+            # fires (seconds, with Antora's fonts). A click before that
+            # navigates the frame, and without this the response is another
+            # full page, header and all, inside the existing frame.
+            # DocLibsTemplateView guards this for framesets like serialization.
+            or get_is_iframe_destination(self.request.headers)
         ):
             # eventually check for more things, for example ensure this HTML
             # was not generate from Antora builders.
