@@ -6,7 +6,7 @@
 .branch-buttons {
   display: flex;
   align-items: center;
-  gap: var(--space-s);
+  gap: var(--space-default);
 }
 
 .branch-button {
@@ -68,19 +68,17 @@
   border-radius: var(--border-radius-s);
 }
 
-/* Sub-page hero: far right, bottom-aligned with the actions row; right edge
-   inset to line up with the content cards below. */
-.hero__block > .branch-buttons {
+.hero__links > .branch-buttons {
+  position: absolute;
+  right: var(--space-large);
   align-self: flex-end;
   flex-shrink: 0;
-  margin-right: var(--space-large);
 }
 
-/* Mobile: stacks below the actions row, left-aligned with the cards. */
 @media (max-width: 767px) {
-  .hero__block > .branch-buttons {
-    align-self: flex-start;
-    margin-right: 0;
-    margin-top: var(--space-large);
+  .hero__links > .branch-buttons {
+    position: static;
+    flex-basis: 100%;
+    margin-top: calc(var(--space-large) - var(--space-s));
   }
 }
