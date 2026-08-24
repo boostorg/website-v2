@@ -91,8 +91,9 @@ class PostIndexPage(BasePage):
         if match_child := self.get_children().filter(slug=base).first():
             matched_route = match_child.specific.route(request, rest)
             return matched_route
-        if e := Entry.objects.filter(slug=rest[0]).first() and not flag_is_active("v3"):
-            return self, [], {"pk": e.pk}
+        if len(rest) > 0 and not flag_is_active(request, "v3"):
+            if e := Entry.objects.filter(slug=rest[0]).first():
+                return self, [], {"pk": e.pk}
         return super().route(request, path_components)
 
     def serve(self, request, *args, **kwargs):

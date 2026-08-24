@@ -9,6 +9,7 @@ from news.views import (
     EntryModerationListView,
     EntryModerationMagicApproveView,
     EntryUpdateView,
+    EntryDetailView,
     LinkCreateView,
     LinkListView,
     NewsCreateView,
@@ -60,5 +61,10 @@ urlpatterns = [
         "entry/<slug:slug>/update/",
         EntryUpdateView.as_view(),
         name="news-update",
+    ),
+    path(
+        "entry/<slug:slug>/",
+        EntryDetailView.as_view(),
+        name="news-detail",
     ),
 ]
