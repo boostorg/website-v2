@@ -11,6 +11,7 @@
       - cta_url         (string, required)  — link for the view more at the bottom of card
       - cta_aria_label  (string, optional)  — aria-label for the link; defaults to label
       - cta_label       (string, required)  — visible label for the link
+      - icon_name       (string, optional)  — icon for includes/icon.html; defaults to "bullseye-pixel"
     variant             (string, optional)  — "list" or "card", defaults to "list"
     theme               (string, optional)  — only for variant "card": "default", "grey", "yellow", "green", "teal"
     layout              (string, optional)  — "vertical" or "horizontal", defaults to "vertical"
@@ -27,7 +28,7 @@
   <ul class="card-group__list">
     {% for item in items %}
       <li class="card-group__item community-card">
-        {% include 'v3/includes/_content_detail_card_item.html' with title=item.title description=item.description cta_href=item.cta_url cta_label=item.cta_label icon_name="bullseye-pixel" icon_size=16 only %}
+        {% include 'v3/includes/_content_detail_card_item.html' with title=item.title description=item.description cta_href=item.cta_url cta_label=item.cta_label icon_name=item.icon_name|default:"bullseye-pixel" icon_size=16 only %}
       </li>
       {% endfor %}
     </ul>
