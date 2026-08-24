@@ -9,6 +9,7 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
+from django.core.cache import cache
 from django.core.mail import send_mail
 from django.db import models, transaction
 from django.db.models.signals import post_save
@@ -274,6 +275,27 @@ NO_PUBLIC_ROLE_OPTION = "__no_public_role__"
 NO_PUBLIC_ROLE_LABEL = (
     "No Public Role - Your role won't be linked to your name elsewhere on the site."
 )
+
+CONTRIBUTOR_DATA_CACHE_PREFIX = "contributor_data_"
+
+
+def contributor_data_cache_key(user_id):
+    """Cache key for a user's cached profile contribution data."""
+    return f"{CONTRIBUTOR_DATA_CACHE_PREFIX}{user_id}"
+
+
+def invalidate_contributor_data_cache():
+    """Drop every user's cached contribution data.
+
+    Called by `recompute_displayed_profile_roles`: a library import can change
+    anyone's contributions, not just the users whose role columns moved.
+    """
+    cache.delete_many(
+        [
+            contributor_data_cache_key(user_id)
+            for user_id in User.objects.values_list("id", flat=True)
+        ]
+    )
 
 
 def encode_role_option(role, library_id):
@@ -700,6 +722,30 @@ class User(BaseUser):
 
         pairs = sorted(self._role_library_pairs(), key=sort_key)
         return [{"role": role, "library": library} for role, library, _ in pairs]
+
+    def get_contributor_data(self):
+        """Library contributions grouped by role for the profile bio card.
+
+        Returns an ordered dict {role_label: [library_short_name, ...]} in role
+        precedence order; a role the user holds in no library is omitted, and an
+        empty dict means no contributions at all. Backed by the same source of
+        truth as the edit-page role dropdown (`get_role_library_options`).
+
+        Cached per user. The underlying roles only change on library imports,
+        which drop the entry via `recompute_displayed_profile_roles`; the TTL is
+        a safety net. An empty dict is a real cached value (distinct from a
+        cache miss, which returns None).
+        """
+        cache_key = contributor_data_cache_key(self.pk)
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return cached
+        data = {}
+        for option in self.get_role_library_options():
+            label = ProfileRole(option["role"]).label
+            data.setdefault(label, []).append(option["library"].display_name_short)
+        cache.set(cache_key, data, settings.CONTRIBUTOR_DATA_CACHE_TIMEOUT)
+        return data
 
     def _role_library_pairs(self):
         """(role, library, commit_count) tuples the user holds, computed live."""

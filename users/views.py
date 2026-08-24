@@ -309,6 +309,9 @@ class CurrentUserProfileView(
             "flag_emoji": user.flag_emoji,
         }
 
+        # Library contributions grouped by role (Author/Maintainer/Contributor)
+        ctx["contributor_data"] = user.get_contributor_data()
+
         # Data shared between both versions, Boost Github and Mailing List activity
         ctx["github_activity_card_data"] = {
             "title": "Latest Boost Github activity",
@@ -379,20 +382,6 @@ class CurrentUserProfileView(
 
                 These interests have shaped my contributions to the C++ ecosystem, particularly in developing libraries that make network programming more accessible and efficient for developers.
             """)
-            ctx["contributor_data"] = {
-                "Author": ["Beast", "JSON"],
-                "Maintainer": ["Beast", "Accumulator"],
-                "Contributor": [
-                    "Beast",
-                    "JSON",
-                    "Accumulator",
-                    "Asio",
-                    "Blood",
-                    "Redis",
-                    "MQTT5",
-                ],
-                "Reviews": ["Asio", "Blood (Manager)", "Redis", "MQTT5"],
-            }
             ctx["profile_post_cta_label"] = "View All Posts"
             ctx["profile_post_cta_url"] = "#"
             ctx["achievements_data"] = {
