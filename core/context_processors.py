@@ -231,7 +231,7 @@ def header_context(request):
             label="Posts", url=reverse("news"), nav_id="news", is_unread=True
         ),  # TODO: update is_unread based on actual unread state
         NavLink(
-            label="Download", url=reverse("releases-most-recent"), nav_id="releases"
+            label="Downloads", url=reverse("releases-most-recent"), nav_id="releases"
         ),
     ]
     return {
