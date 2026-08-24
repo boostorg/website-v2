@@ -34,7 +34,12 @@
 }
 
 .empty-state--inset {
+  min-height: 480px;
   padding: var(--space-xl) var(--space-card);
+}
+
+.card-group--list .empty-state--inset {
+  border-top: 1px solid var(--color-stroke-weak);
 }
 
 .empty-state--page {
