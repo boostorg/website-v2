@@ -1,6 +1,7 @@
 import os
 import random
 import re
+import uuid
 
 import requests
 from django.db.models import Count
@@ -17,14 +18,18 @@ from django.conf import settings
 from django.db.models import Exists, OuterRef
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
+from django.contrib.auth.decorators import login_required
+from django.core.files.storage import default_storage
 from django.http import (
     Http404,
     HttpResponse,
     HttpResponseNotFound,
     HttpResponseRedirect,
     HttpRequest,
+    JsonResponse,
 )
 from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -33,6 +38,7 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from waffle import flag_is_active
 
+from core.forms import WysiwygImageUploadForm
 from news.services import get_latest_post_cards
 from core.templatetags.custom_static import large_static
 from config.settings import ENABLE_DB_CACHE
@@ -1466,6 +1472,38 @@ class QRCodeView(View):
             redirect_path = f"{redirect_path}?{qs}"
 
         return HttpResponseRedirect(redirect_path)
+
+
+UPLOADED_IMAGE_DIRECTORY = "wysiwyg"
+
+
+@require_POST
+@login_required
+def wysiwyg_image_upload(request):
+    """Store an image dropped into the V3 WYSIWYG editor and return its URL.
+
+    The editor writes Markdown, which can only reference an image by URL, so an
+    uploaded file has to become one before it can be inserted. The response is
+    `{"url": ...}` on success and `{"error": ...}` with a 400 on a rejected
+    file, which is what the editor's Insert Image dialog renders.
+
+    The stored name is a UUID rather than the client's filename: the name comes
+    from the browser and is the only attacker-controlled part of the path.
+    """
+    if not flag_is_active(request, "v3"):
+        raise Http404
+
+    form = WysiwygImageUploadForm(request.POST, request.FILES)
+    if not form.is_valid():
+        errors = form.errors.get("image") or ["Could not upload that image."]
+        return JsonResponse({"error": errors[0]}, status=400)
+
+    image = form.cleaned_data["image"]
+    extension = os.path.splitext(image.name)[1].lower()
+    stored_name = default_storage.save(
+        f"{UPLOADED_IMAGE_DIRECTORY}/{uuid.uuid4().hex}{extension}", image
+    )
+    return JsonResponse({"url": default_storage.url(stored_name)})
 
 
 class V3ComponentDemoView(V3Mixin, TemplateView):
