@@ -535,3 +535,47 @@ def test_redirect_to_library_detail_view_with_cookie(tp):
     response = tp.get("redirect-to-library-view", library_slug="algorithm")
     tp.response_302(response)
     assert response["Location"] == "/library/1.86.0/algorithm/"
+
+
+@pytest.mark.parametrize("sec_fetch_dest", ["iframe", "frame"])
+def test_user_guide_iframe_request_is_not_modernized(request_factory, sec_fetch_dest):
+    """A guide page loading into a frame is returned as-is.
+
+    Nav inside the guide navigates the iframe itself. Without the
+    Sec-Fetch-Dest guard the response is another full page, header and all,
+    rendered inside the existing frame.
+    """
+    from core.views import UserGuideTemplateView
+
+    content = b"<html><body>guide page</body></html>"
+    view = UserGuideTemplateView()
+    view.request = request_factory.get(
+        "/doc/user-guide/index.html", headers={"sec-fetch-dest": sec_fetch_dest}
+    )
+    view.content_dict = {"content": content, "content_type": "text/html"}
+
+    with patch("core.views.modernize_legacy_page") as mock_modernize:
+        assert view.process_content(content) == content
+
+    mock_modernize.assert_not_called()
+
+
+@pytest.mark.parametrize("headers", [{}, {"sec-fetch-dest": "document"}])
+def test_user_guide_top_level_request_is_modernized(request_factory, headers):
+    """A top-level guide request still gets wrapped in the v3 iframe shell."""
+    from core.views import UserGuideTemplateView
+
+    content = b"<html><body>guide page</body></html>"
+    view = UserGuideTemplateView()
+    view.request = request_factory.get("/doc/user-guide/index.html", headers=headers)
+    view.content_dict = {"content": content, "content_type": "text/html"}
+
+    with patch(
+        "core.views.modernize_legacy_page", return_value="<p>modernized</p>"
+    ) as mock_modernize, patch(
+        "core.views.render_to_string", return_value="wrapped page"
+    ) as mock_render:
+        assert view.process_content(content) == "wrapped page"
+
+    mock_modernize.assert_called_once()
+    assert mock_render.call_args_list[-1].args[0] == "docsiframe.html"
