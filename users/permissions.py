@@ -13,15 +13,9 @@ class CustomUserPermissions(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        # allow all POST/DELETE/PUT requests
-        if (
-            request.method == "POST"
-            or request.method == "DELETE"
-            or request.method == "PUT"
-        ):
-            if request.user.is_staff or request.user.is_superuser:
-                return True
-            else:
-                return False
+        # Gate every write method, not an enumerated list, so PATCH can't be
+        # left out and a future method can't be added unguarded.
+        if request.method not in permissions.SAFE_METHODS:
+            return bool(request.user.is_staff or request.user.is_superuser)
 
         return request.user.is_authenticated
