@@ -268,6 +268,7 @@ class CurrentUserProfileView(
                     else f"#disconnect-{platform}"
                 ),
                 "disconnect_text": f"This will remove the link between your Boost account and {label}. You can reconnect at any time.",
+                "disconnect_url": f"{reverse('profile-disconnect-social', kwargs={"platform": platform})}?redirect_url={reverse("profile-account")}?edit=True",
             }
 
         ctx = {
@@ -927,7 +928,9 @@ class DeleteImmediatelyView(LoginRequiredMixin, SuccessMessageMixin, FormView):
 
 class DisconnectSocialAccountView(LoginRequiredMixin, View):
     def post(self, *args, **kwargs):
-        redirect_url = self.request.GET.get("redirect_url", "").strip("'")
+        redirect_url = self.request.GET.get("redirect_url", "").strip("'") or reverse(
+            "home"
+        )
         if not url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
             messages.error(
                 self.request, "An internal error has occurred. Please contact an admin."
@@ -938,9 +941,6 @@ class DisconnectSocialAccountView(LoginRequiredMixin, View):
         if not platform:
             messages.error(self.request, "Platform must be specified.")
             return HttpResponseRedirect(redirect_url)
-
-        if not redirect_url:
-            redirect_url = reverse("home")
 
         user = self.request.user
         try:

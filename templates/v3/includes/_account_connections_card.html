@@ -37,8 +37,7 @@
 </div>
 
 {% for conn in connections %}
-  {% url 'profile-disconnect-social' platform=conn.platform as disconnect_url %}
-  <form action="{{disconnect_url|add:"?redirect_url='/users/me/?edit=True'"}}" method="POST">
+  <form action="{{conn.disconnect_url}}" method="POST">
     {% csrf_token %}
     {% include 'v3/includes/_dialog.html' with dialog_id="disconnect-"|add:conn.platform title="Disconnect "|add:conn.label|add:"?" description=conn.disconnect_text primary_style="error" primary_label="Disconnect" secondary_label="Cancel" submit=True only %}
   </form>
