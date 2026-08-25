@@ -53,14 +53,18 @@
 }
 
 .card-masonry {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-areas:
-    "a b c"
-    "a b e"
-    "a d e";
-  row-gap: var(--space-card);
-  column-gap: var(--space-card);
+  display: flex;
+  gap: var(--space-card);
+}
+
+/* Each column stacks independently, so a short card never inherits leftover
+   height from a taller card in another column. */
+.masonry-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-card);
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .card-masonry .item-a {
@@ -83,20 +87,11 @@
   grid-area: e;
 }
 
-/* Cards fill their grid area so every vertical gap is exactly the row-gap. */
-.card-masonry .card,
-.card-masonry .card-group {
-  height: 100%;
-}
-
-/* The posts card spans the full grid height on its own, so it keeps its
-   natural height instead of stretching. */
-.card-masonry .item-a .card-group {
-  height: auto;
-}
-
 @media (max-width: 1280px) {
+  /* Narrower layouts keep the original grid; the column wrappers dissolve so
+     the cards are grid items again. */
   .card-masonry {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-template-areas:
       "a b"
@@ -105,6 +100,10 @@
       "c d"
       "c e"
       "c .";
+  }
+
+  .masonry-col {
+    display: contents;
   }
 
   .card,

@@ -29,27 +29,33 @@
       {% include 'v3/includes/_cards_carousel_v3.html' with carousel_id='library-cards-carousel' heading='Browse our libraries' cards=library_cards %}
     </div>
     <div class="card-masonry py-large">
-      <div class="item-a">
-        {% with data=post_cards_data %}
-          {% include 'v3/includes/_post_card.html' with heading=data.heading items=data.posts variant="card" theme="teal" layout="vertical" primary_cta_label=data.view_all_label primary_cta_url=data.view_all_url %}
-        {% endwith %}
+      <div class="masonry-col">
+        <div class="item-a">
+          {% with data=post_cards_data %}
+            {% include 'v3/includes/_post_card.html' with heading=data.heading items=data.posts variant="card" theme="teal" layout="vertical" primary_cta_label=data.view_all_label primary_cta_url=data.view_all_url %}
+          {% endwith %}
+        </div>
       </div>
-      <div class="item-b">
-        {% with data=boost_community_data %}
-          {% include 'v3/includes/_community_card.html' with heading=data.heading items=data.items variant="list" primary_cta_label=data.primary_cta_label primary_cta_url=data.primary_cta_url %}
-        {% endwith %}
+      <div class="masonry-col">
+        <div class="item-b">
+          {% with data=boost_community_data %}
+            {% include 'v3/includes/_community_card.html' with heading=data.heading items=data.items variant="list" primary_cta_label=data.primary_cta_label primary_cta_url=data.primary_cta_url %}
+          {% endwith %}
+        </div>
+        <div class="item-d">
+          {% url 'docs-user-guide' content_path='user-guide/boost-history.html' as boost_history_url %}
+          {% include 'v3/includes/_basic_card.html' with title="How we got here" text="Since 1998, Boost has been where C++ innovation happens. What started with three developers has grown into the foundation of modern C++ development." primary_button_url=boost_history_url primary_button_label="Explore our history" primary_style='secondary-grey' %}
+        </div>
       </div>
-      <div class="item-d">
-        {% url 'docs-user-guide' content_path='user-guide/boost-history.html' as boost_history_url %}
-        {% include 'v3/includes/_basic_card.html' with title="How we got here" text="Since 1998, Boost has been where C++ innovation happens. What started with three developers has grown into the foundation of modern C++ development." primary_button_url=boost_history_url primary_button_label="Explore our history" primary_style='secondary-grey' %}
-      </div>
-      <div class="item-c">
-        {% url 'calendar' as calendar_url %}
-        {% large_static 'img/v3/demo-page/calendar.png' as calendar_image %}
-        {% include 'v3/includes/_vertical_card.html' with title="Boost is released three times a year" text="Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." primary_button_url=calendar_url primary_button_label="View release calendar" primary_style='secondary-grey' image_url=calendar_image %}
-      </div>
-      <div class="item-e">
-        {% include 'v3/includes/_mailing_list_card.html' with subscribe_url=mailing_list_card_subscribe_url modal_subscribe_url=mailing_list_card_modal_subscribe_url list_id=mailing_list_card_list_id state=mailing_list_card_state user_email=mailing_list_card_user_email manage_url=mailing_list_card_manage_url subscription_count=mailing_list_card_subscription_count error_message=mailing_list_card_error_message mailing_lists=mailing_list_card_lists subscribed_ids=mailing_list_card_subscribed_ids %}
+      <div class="masonry-col">
+        <div class="item-c">
+          {% url 'calendar' as calendar_url %}
+          {% large_static 'img/v3/demo-page/calendar.png' as calendar_image %}
+          {% include 'v3/includes/_vertical_card.html' with title="Boost is released three times a year" text="Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." primary_button_url=calendar_url primary_button_label="View release calendar" primary_style='secondary-grey' image_url=calendar_image %}
+        </div>
+        <div class="item-e">
+          {% include 'v3/includes/_mailing_list_card.html' with subscribe_url=mailing_list_card_subscribe_url modal_subscribe_url=mailing_list_card_modal_subscribe_url list_id=mailing_list_card_list_id state=mailing_list_card_state user_email=mailing_list_card_user_email manage_url=mailing_list_card_manage_url subscription_count=mailing_list_card_subscription_count error_message=mailing_list_card_error_message mailing_lists=mailing_list_card_lists subscribed_ids=mailing_list_card_subscribed_ids %}
+        </div>
       </div>
     </div>
   </div>
