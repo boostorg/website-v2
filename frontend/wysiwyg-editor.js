@@ -60,20 +60,47 @@ const LABEL_ATTRIBUTE = "data-wysiwyg-label";
 /*
 What a diagram label is allowed to be: the wrapper mermaid emits (a styled div
 around a classed span) plus the inline formatting a label can carry. Narrower
-than DOMPurify's HTML profile on purpose — a label is a line of formatted text,
-so there is no reason for it to be able to introduce links, media or anything
-else the profile would wave through.
-
-`style` is the one broad thing left on the list, because mermaid lays every
-label out with an inline style and dropping it collapses the label box. It is
-not a script vector — `url(javascript:...)` in CSS is inert in every current
-browser — and label text is escaped by mermaid's own securityLevel before it
-reaches here, so reaching this attribute at all means mermaid's escaping was
-already defeated.
+than DOMPurify's HTML profile on purpose, because label markup is not mermaid's
+alone — mermaid sanitises what a diagram's source puts in a label but does not
+escape it, so `A["<img src=x>"]` arrives here as a real element. A label is a
+line of formatted text; links, media and the rest of the profile have no
+business in one.
 */
 const LABEL_PURIFY_CONFIG = {
   ALLOWED_TAGS: ["div", "span", "p", "br", "b", "i", "em", "strong", "code", "sub", "sup"],
   ALLOWED_ATTR: ["class", "style"],
+};
+
+/*
+The CSS a label may keep. `style` has to survive at all because mermaid sizes
+every label with one, and the values differ per label (each gets its own
+max-width), so they cannot be lifted into a stylesheet. But by the same route
+that puts an <img> in a label, a diagram's source can reach this attribute — and
+`position: fixed` in a preview pane is how a box escapes its box. Keeping only
+the properties mermaid actually lays labels out with leaves nothing to aim.
+*/
+const LABEL_STYLE_PROPERTIES = new Set([
+  "display",
+  "white-space",
+  "line-height",
+  "max-width",
+  "width",
+  "text-align",
+]);
+
+/* Drop every declaration outside LABEL_STYLE_PROPERTIES, in place. */
+const pruneLabelStyles = (root) => {
+  root.querySelectorAll("[style]").forEach((element) => {
+    const kept = [];
+    // Reading through the CSSOM leaves parsing the declarations to the browser.
+    for (const property of element.style) {
+      if (LABEL_STYLE_PROPERTIES.has(property)) {
+        kept.push(`${property}: ${element.style.getPropertyValue(property)}`);
+      }
+    }
+    if (kept.length) element.setAttribute("style", kept.join("; "));
+    else element.removeAttribute("style");
+  });
 };
 
 /*
@@ -83,10 +110,10 @@ Two passes, because one cannot do the job. mermaid puts every node and edge
 label in an SVG <foreignObject> wrapping HTML, and DOMPurify drops HTML whose
 parent is a foreignObject — `annotation-xml` is its only HTML integration point
 — so a single SVG-profile pass returns a diagram of unlabelled boxes. Instead
-the labels are lifted out and sanitised as HTML (see LABEL_PURIFY_CONFIG), the
-SVG skeleton is sanitised on its own, and the cleaned labels go back where they
-came from. Both halves still go through DOMPurify: this widens what survives,
-not what is trusted.
+the labels are lifted out and sanitised as HTML (see LABEL_PURIFY_CONFIG and
+pruneLabelStyles), the SVG skeleton is sanitised on its own, and the cleaned
+labels go back where they came from. Both halves still go through DOMPurify:
+this widens what survives, not what is trusted.
 
 A fragment rather than a string so that nothing serialises and re-parses the
 markup after DOMPurify has passed it — the round trip mutation XSS relies on,
@@ -114,7 +141,9 @@ export function sanitizeSvg(svgString) {
     host.removeAttribute(LABEL_ATTRIBUTE);
     // Parsed in an HTML context so the nodes keep the HTML namespace that
     // <foreignObject> exists to host; appending adopts them across documents.
-    host.append(...parseInert(label).content.childNodes);
+    const nodes = parseInert(label).content;
+    pruneLabelStyles(nodes);
+    host.append(...nodes.childNodes);
   });
 
   return cleaned;
