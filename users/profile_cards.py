@@ -106,13 +106,14 @@ def github_activity_bullets(data, login):
             f"{_plural(comments, 'comment', 'comments')}"
         )
 
-    # The featured PR is pulled out above, so the remaining count is "other".
-    prs_opened = (data.get("prs_opened") or 0) - (1 if featured else 0)
-    if prs_opened > 0:
+    # The full total, not the total minus the featured PR. The line above
+    # highlights one of these rather than excluding it, so every number on the
+    # card matches what GitHub reports.
+    prs_opened = data.get("prs_opened") or 0
+    if prs_opened:
         url = _search_url(login, "author:{login} is:pr created:>={since}")
-        other = " other" if featured else ""
         bullets.append(
-            f"* Opened {prs_opened}{other} pull "
+            f"* Opened {prs_opened} pull "
             f"{'request' if prs_opened == 1 else 'requests'} in "
             f"{_repo_link(data.get('pr_repo_count') or 0, url)}"
         )

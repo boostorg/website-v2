@@ -170,8 +170,10 @@ def test_card_renders_stored_numbers(user, db):
     assert "Created [**1 repository**]" in markdown
     assert "[**boostorg/url**](https://github.com/boostorg/url/pull/932)" in markdown
     assert "that received 6 comments" in markdown
-    # 18 opened total, one of which is featured above.
-    assert "Opened 17 other pull requests in [**6 repositories**]" in markdown
+    # The full total. The featured line above highlights one of these
+    # rather than excluding it, so this matches what GitHub reports.
+    assert "Opened 18 pull requests in [**6 repositories**]" in markdown
+    assert "other pull request" not in markdown
     assert "Reviewed 3 pull requests in [**3 repositories**]" in markdown
     assert card["button_label"] == "View on GitHub"
     assert card["button_url"] == "https://github.com/testuser"
