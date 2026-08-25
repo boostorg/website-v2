@@ -859,6 +859,24 @@ const renderDiagram = async (container, diagram) => {
   }
 };
 
+// Long enough that a diagram is not re-parsed on every keystroke, short enough
+// that the preview follows the typing.
+const MERMAID_RENDER_DELAY_MS = 400;
+
+/*
+Render `diagram` into `container`, unless the editor has moved on by then.
+
+Every edit inside a mermaid code block replaces the whole preview widget (its
+decoration is keyed by the diagram source), so a superseded container is
+detached before this fires and its render is skipped — which is what keeps
+typing a diagram from parsing a half-written one on every keystroke.
+*/
+const scheduleDiagram = (container, diagram) => {
+  setTimeout(() => {
+    if (container.isConnected) renderDiagram(container, diagram);
+  }, MERMAID_RENDER_DELAY_MS);
+};
+
 const mermaidPreviewKey = new PluginKey("mermaidPreview");
 
 /*
@@ -884,7 +902,7 @@ const mermaidDecorations = (doc) => {
           const container = document.createElement("div");
           container.className = "mermaid-preview";
           container.contentEditable = "false";
-          renderDiagram(container, diagram);
+          scheduleDiagram(container, diagram);
           return container;
         },
         { key: `mermaid:${diagram}`, side: 1 },
