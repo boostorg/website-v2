@@ -1,6 +1,7 @@
 
 import { Editor, Extension } from "@tiptap/core";
-import { Plugin } from "@tiptap/pm/state";
+import { Plugin, PluginKey } from "@tiptap/pm/state";
+import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import StarterKit from "@tiptap/starter-kit";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Underline from "@tiptap/extension-underline";
@@ -50,6 +51,9 @@ const CODE_LANGUAGES = [
 ];
 const DEFAULT_CODE_LANGUAGE = "cpp";
 
+// Matches core.validators.IMAGE_EXTENSIONS, which the upload endpoint enforces.
+const IMAGE_UPLOAD_ACCEPT = "image/jpeg,image/png";
+
 
 const turndown = new TurndownService({
   headingStyle: "atx",
@@ -94,51 +98,149 @@ export const isSafeUrl = (url) => {
   }
 };
 
-export const openModal = (title, fields) =>
+let dialogIdCounter = 0;
+
+/*
+Build one field of a dialog body, using the V3 form markup (_field_text.html /
+_field_file.html) so the inputs look like every other form on the site. Returns
+the wrapper element and the input to read the value from.
+*/
+const buildDialogField = ({ name, label, type, placeholder, accept, help }, dialogId) => {
+  const field = document.createElement("div");
+  field.className = type === "file" ? "field field--file" : "field";
+
+  const inputId = `${dialogId}-${name}`;
+  const labelEl = document.createElement("label");
+  labelEl.className = "field__label";
+  labelEl.setAttribute("for", inputId);
+  labelEl.textContent = label;
+  field.appendChild(labelEl);
+
+  const control = document.createElement("div");
+  control.className =
+    type === "file" ? "field__control field__control--file" : "field__control";
+
+  const input = document.createElement("input");
+  input.id = inputId;
+  input.type = type || "text";
+  input.className = type === "file" ? "field__input field__input--file" : "field__input";
+  if (placeholder) input.placeholder = placeholder;
+  if (accept) input.accept = accept;
+
+  if (type === "file") {
+    // _field_file.html hides the native input and shows its own label, because
+    // browsers render "No file chosen" in a style we can't touch.
+    const display = document.createElement("span");
+    display.className = "field__file-display";
+    display.setAttribute("aria-hidden", "true");
+    const placeholderEl = document.createElement("span");
+    placeholderEl.className = "field__file-placeholder";
+    placeholderEl.textContent = "Choose File";
+    display.appendChild(placeholderEl);
+    control.appendChild(display);
+    input.addEventListener("change", () => {
+      const file = input.files && input.files[0];
+      placeholderEl.className = file ? "field__file-name" : "field__file-placeholder";
+      placeholderEl.textContent = file ? file.name : "Choose File";
+    });
+  }
+
+  control.appendChild(input);
+  field.appendChild(control);
+
+  if (help) {
+    const helpEl = document.createElement("p");
+    helpEl.className = "field__help";
+    helpEl.id = `${inputId}-help`;
+    helpEl.textContent = help;
+    input.setAttribute("aria-describedby", helpEl.id);
+    field.appendChild(helpEl);
+  }
+
+  return { field, input };
+};
+
+/*
+Open a modal dialog and resolve with whatever `onSubmit` returns, or null if the
+user dismisses it.
+
+Rendered with the shared V3 Dialog component's classes (see _dialog.html /
+dialog.css) rather than a bespoke look; only the pieces that component has no
+template for — the form body, and backdrop/close as <button> instead of <a>,
+since there is nowhere to navigate — are styled in wysiwyg-editor.css.
+
+`onSubmit` receives the field values and may be async; throwing an Error keeps
+the dialog open and shows the message in it, which is how a rejected image
+upload or an unsafe URL is reported.
+*/
+export const openDialog = ({ title, fields, submitLabel = "Insert", onSubmit }) =>
   new Promise((resolve) => {
+    const dialogId = `wysiwyg-dialog-${++dialogIdCounter}`;
+    const previouslyFocused = document.activeElement;
+
     const overlay = document.createElement("div");
-    overlay.className = "wysiwyg-modal__overlay";
+    overlay.className = "dialog-modal dialog-modal--open wysiwyg-dialog";
 
-    const modal = document.createElement("div");
-    modal.className = "wysiwyg-modal";
+    const backdrop = document.createElement("button");
+    backdrop.type = "button";
+    backdrop.className = "dialog-modal__backdrop";
+    backdrop.tabIndex = -1;
+    backdrop.setAttribute("aria-label", "Close dialog");
+    overlay.appendChild(backdrop);
 
-    const heading = document.createElement("h3");
-    heading.className = "wysiwyg-modal__title";
+    const container = document.createElement("div");
+    container.className = "dialog-modal__container";
+    container.setAttribute("role", "dialog");
+    container.setAttribute("aria-modal", "true");
+    container.setAttribute("aria-labelledby", `${dialogId}-title`);
+
+    const header = document.createElement("div");
+    header.className = "dialog-modal__header";
+    const heading = document.createElement("h2");
+    heading.className = "dialog-modal__title";
+    heading.id = `${dialogId}-title`;
     heading.textContent = title;
-    modal.appendChild(heading);
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "dialog-modal__close";
+    closeBtn.setAttribute("aria-label", "Close dialog");
+    closeBtn.innerHTML = ICONS.close;
+    header.appendChild(heading);
+    header.appendChild(closeBtn);
+    container.appendChild(header);
 
+    const body = document.createElement("div");
+    body.className = "wysiwyg-dialog__body";
     const inputs = {};
-    fields.forEach(({ name, label, type, placeholder }) => {
-      const lbl = document.createElement("label");
-      lbl.className = "wysiwyg-modal__label";
-      lbl.textContent = label;
-      modal.appendChild(lbl);
-
-      const input = document.createElement("input");
-      input.type = type || "text";
-      input.className = "wysiwyg-modal__input";
-      if (placeholder) input.placeholder = placeholder;
-      modal.appendChild(input);
-      inputs[name] = input;
+    fields.forEach((spec) => {
+      const { field, input } = buildDialogField(spec, dialogId);
+      inputs[spec.name] = input;
+      body.appendChild(field);
     });
 
-    const actions = document.createElement("div");
-    actions.className = "wysiwyg-modal__actions";
+    const error = document.createElement("p");
+    error.className = "field__error";
+    error.setAttribute("role", "alert");
+    error.setAttribute("aria-live", "polite");
+    error.hidden = true;
+    body.appendChild(error);
+    container.appendChild(body);
 
+    const actions = document.createElement("div");
+    actions.className = "dialog-modal__buttons";
+    const submitBtn = document.createElement("button");
+    submitBtn.type = "button";
+    submitBtn.className = "btn btn-primary btn-flex";
+    submitBtn.textContent = submitLabel;
     const cancelBtn = document.createElement("button");
     cancelBtn.type = "button";
-    cancelBtn.className = "wysiwyg-modal__btn wysiwyg-modal__btn--cancel";
+    cancelBtn.className = "btn btn-secondary btn-flex";
     cancelBtn.textContent = "Cancel";
-
-    const insertBtn = document.createElement("button");
-    insertBtn.type = "button";
-    insertBtn.className = "wysiwyg-modal__btn wysiwyg-modal__btn--insert";
-    insertBtn.textContent = "Insert";
-
+    actions.appendChild(submitBtn);
     actions.appendChild(cancelBtn);
-    actions.appendChild(insertBtn);
-    modal.appendChild(actions);
-    overlay.appendChild(modal);
+    container.appendChild(actions);
+
+    overlay.appendChild(container);
     document.body.appendChild(overlay);
 
     const firstInput = Object.values(inputs)[0];
@@ -146,23 +248,66 @@ export const openModal = (title, fields) =>
 
     const close = (result) => {
       overlay.remove();
+      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
       resolve(result);
     };
 
+    const submit = async () => {
+      if (submitBtn.disabled) return;
+      const values = {};
+      for (const [key, input] of Object.entries(inputs)) {
+        values[key] = input.type === "file" ? input.files[0] || null : input.value.trim();
+      }
+      submitBtn.disabled = true;
+      error.hidden = true;
+      try {
+        close(await onSubmit(values));
+      } catch (err) {
+        submitBtn.disabled = false;
+        error.textContent = err?.message || "Something went wrong.";
+        error.hidden = false;
+      }
+    };
+
+    backdrop.addEventListener("click", () => close(null));
+    closeBtn.addEventListener("click", () => close(null));
     cancelBtn.addEventListener("click", () => close(null));
-    overlay.addEventListener("click", (e) => {
-      if (e.target === overlay) close(null);
-    });
-    insertBtn.addEventListener("click", () => {
-      const result = {};
-      for (const [k, v] of Object.entries(inputs)) result[k] = v.value;
-      close(result);
-    });
-    modal.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") insertBtn.click();
+    submitBtn.addEventListener("click", submit);
+    container.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && e.target.tagName === "INPUT") submit();
       if (e.key === "Escape") close(null);
     });
   });
+
+/*
+POST a file to the editor's upload endpoint and resolve with the stored URL.
+
+The endpoint and the CSRF token come from the wrapper's data attributes (see
+_wysiwyg_editor.html) because the editor is built entirely in JS and has no
+template of its own to read them from.
+*/
+export const uploadEditorImage = async (file, wrapper) => {
+  const uploadUrl = wrapper?.dataset.wysiwygUploadUrl;
+  if (!uploadUrl) throw new Error("Uploading images isn't available here.");
+
+  const body = new FormData();
+  body.append("image", file);
+  const response = await fetch(uploadUrl, {
+    method: "POST",
+    headers: { "X-CSRFToken": wrapper.dataset.wysiwygCsrfToken || "" },
+    credentials: "same-origin",
+    body,
+  });
+
+  let data = {};
+  try {
+    data = await response.json();
+  } catch (_) {}
+  if (!response.ok || !data.url) {
+    throw new Error(data.error || "Could not upload that image.");
+  }
+  return data.url;
+};
 
 let mermaidModule = null;
 let mermaidIdCounter = 0;
@@ -183,7 +328,16 @@ const getMermaid = async () => {
     });
     mermaidModule = window.mermaid;
   }
-  mermaidModule.initialize({ startOnLoad: false, theme: "default" });
+  // suppressErrorRendering: on a parse failure mermaid otherwise draws its
+  // "Syntax error in text" graphic into the scratch element it appends to
+  // <body> and leaves both behind, so a mistyped diagram in the editor turns up
+  // stranded at the foot of the page. With this set it cleans up and rethrows,
+  // and the error is reported next to the code block instead.
+  mermaidModule.initialize({
+    startOnLoad: false,
+    theme: "default",
+    suppressErrorRendering: true,
+  });
   return mermaidModule;
 };
 
@@ -283,6 +437,15 @@ export const ICONS = {
     '<svg width="18" height="18" viewBox="0 0 26 18" fill="currentColor" aria-hidden="true"><path d="M2 2h3l3 4 3-4h3v10h-3V6l-3 4-3-4v6H2V2zm17 0h3l3 5h-2v5h-3V7h-2l4-5z" fill-rule="evenodd"/></svg>',
   preview:
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  // Undo / redo and close are the UI-kit glyphs, shared by every preset so no
+  // toolbar falls back to a text arrow. `close` mirrors includes/icon.html's
+  // "close" pixel-art icon, which templates get from the icon include.
+  undo:
+    '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M8.66667 7.83203C7.25 8.08203 6 8.58203 4.83333 9.4987L2.5 7.08203V12.9154H8.33333L6.08333 10.6654C9.16667 8.4987 13.4167 9.16536 15.6667 12.2487C15.8333 12.4987 16 12.6654 16.0833 12.9154L17.5833 12.1654C15.75 8.9987 12.25 7.2487 8.66667 7.83203Z"/></svg>',
+  redo:
+    '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M11.3333 7.83203C12.75 8.08203 14 8.58203 15.1667 9.4987L17.5 7.08203V12.9154H11.6667L13.9167 10.6654C10.8333 8.41536 6.58333 9.16536 4.41667 12.2487C4.25 12.4987 4.08333 12.6654 4 12.9154L2.5 12.1654C4.25 8.9987 7.75 7.2487 11.3333 7.83203Z"/></svg>',
+  close:
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z"/></svg>',
 };
 
 /*
@@ -301,10 +464,6 @@ export const BIO_ICONS = {
     '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M2.08203 13.3346H3.7487V13.7513H2.91536V14.5846H3.7487V15.0013H2.08203V15.8346H4.58203V12.5013H2.08203V13.3346ZM2.91536 7.5013H3.7487V4.16797H2.08203V5.0013H2.91536V7.5013ZM2.08203 9.16797H3.58203L2.08203 10.918V11.668H4.58203V10.8346H3.08203L4.58203 9.08464V8.33464H2.08203V9.16797ZM6.2487 5.0013V6.66797H17.9154V5.0013H6.2487ZM6.2487 15.0013H17.9154V13.3346H6.2487V15.0013ZM6.2487 10.8346H17.9154V9.16797H6.2487V10.8346Z"/></svg>',
   markdown:
     '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M18.125 3.75H1.875C1.54348 3.75 1.22554 3.8817 0.991117 4.11612C0.756696 4.35054 0.625 4.66848 0.625 5V15C0.625 15.3315 0.756696 15.6495 0.991117 15.8839C1.22554 16.1183 1.54348 16.25 1.875 16.25H18.125C18.4565 16.25 18.7745 16.1183 19.0089 15.8839C19.2433 15.6495 19.375 15.3315 19.375 15V5C19.375 4.66848 19.2433 4.35054 19.0089 4.11612C18.7745 3.8817 18.4565 3.75 18.125 3.75ZM18.125 15H1.875V5H18.125V15ZM10 8.125V11.875C10 12.0408 9.93415 12.1997 9.81694 12.3169C9.69973 12.4342 9.54076 12.5 9.375 12.5C9.20924 12.5 9.05027 12.4342 8.93306 12.3169C8.81585 12.1997 8.75 12.0408 8.75 11.875V9.63359L7.31719 11.0672C7.25914 11.1253 7.19021 11.1714 7.11434 11.2029C7.03846 11.2343 6.95713 11.2505 6.875 11.2505C6.79287 11.2505 6.71154 11.2343 6.63566 11.2029C6.55979 11.1714 6.49086 11.1253 6.43281 11.0672L5 9.63359V11.875C5 12.0408 4.93415 12.1997 4.81694 12.3169C4.69973 12.4342 4.54076 12.5 4.375 12.5C4.20924 12.5 4.05027 12.4342 3.93306 12.3169C3.81585 12.1997 3.75 12.0408 3.75 11.875V8.125C3.7499 8.00132 3.78651 7.88038 3.85517 7.77751C3.92384 7.67464 4.02149 7.59446 4.13576 7.54711C4.25002 7.49977 4.37576 7.48739 4.49707 7.51154C4.61837 7.5357 4.72978 7.59531 4.81719 7.68281L6.875 9.74141L8.93281 7.68281C9.02022 7.59531 9.13163 7.5357 9.25293 7.51154C9.37424 7.48739 9.49998 7.49977 9.61424 7.54711C9.72851 7.59446 9.82616 7.67464 9.89483 7.77751C9.96349 7.88038 10.0001 8.00132 10 8.125ZM16.0672 9.55781C16.1253 9.61586 16.1714 9.68479 16.2029 9.76066C16.2343 9.83654 16.2505 9.91787 16.2505 10C16.2505 10.0821 16.2343 10.1635 16.2029 10.2393C16.1714 10.3152 16.1253 10.3841 16.0672 10.4422L14.1922 12.3172C14.1341 12.3753 14.0652 12.4214 13.9893 12.4529C13.9135 12.4843 13.8321 12.5005 13.75 12.5005C13.6679 12.5005 13.5865 12.4843 13.5107 12.4529C13.4348 12.4214 13.3659 12.3753 13.3078 12.3172L11.4328 10.4422C11.3155 10.3249 11.2497 10.1659 11.2497 10C11.2497 9.83415 11.3155 9.67509 11.4328 9.55781C11.5501 9.44054 11.7091 9.37465 11.875 9.37465C12.0409 9.37465 12.1999 9.44054 12.3172 9.55781L13.125 10.3664V8.125C13.125 7.95924 13.1908 7.80027 13.3081 7.68306C13.4253 7.56585 13.5842 7.5 13.75 7.5C13.9158 7.5 14.0747 7.56585 14.1919 7.68306C14.3092 7.80027 14.375 7.95924 14.375 8.125V10.3664L15.1828 9.55781C15.2409 9.4997 15.3098 9.4536 15.3857 9.42215C15.4615 9.3907 15.5429 9.37451 15.625 9.37451C15.7071 9.37451 15.7885 9.3907 15.8643 9.42215C15.9402 9.4536 16.0091 9.4997 16.0672 9.55781Z"/></svg>',
-  undo:
-    '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M8.66667 7.83203C7.25 8.08203 6 8.58203 4.83333 9.4987L2.5 7.08203V12.9154H8.33333L6.08333 10.6654C9.16667 8.4987 13.4167 9.16536 15.6667 12.2487C15.8333 12.4987 16 12.6654 16.0833 12.9154L17.5833 12.1654C15.75 8.9987 12.25 7.2487 8.66667 7.83203Z"/></svg>',
-  redo:
-    '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M11.3333 7.83203C12.75 8.08203 14 8.58203 15.1667 9.4987L17.5 7.08203V12.9154H11.6667L13.9167 10.6654C10.8333 8.41536 6.58333 9.16536 4.41667 12.2487C4.25 12.4987 4.08333 12.6654 4 12.9154L2.5 12.1654C4.25 8.9987 7.75 7.2487 11.3333 7.83203Z"/></svg>',
 };
 
 
@@ -448,6 +607,8 @@ const TOOLBAR_PRESETS = {
 };
 
 const buildToolbar = (editor, toolbarEl, preset = "full") => {
+  // Carries the image-upload endpoint and CSRF token (see _wysiwyg_editor.html).
+  const wrapper = toolbarEl.closest('[data-wysiwyg="v3"]');
   const left = document.createElement("div");
   left.className = "wysiwyg-toolbar__left";
   const right = document.createElement("div");
@@ -503,31 +664,52 @@ const buildToolbar = (editor, toolbarEl, preset = "full") => {
     link: () => createToolbarButton(editor, {
       label: "Link", title: "Insert link", html: bioIcon("link", ICONS.link),
       onClick: async () => {
-        const result = await openModal("Insert Link", [
-          { name: "url", label: "URL", type: "url", placeholder: "https://example.com" },
-        ]);
-        if (!result || !result.url) return;
-        if (!isSafeUrl(result.url)) {
-          window.alert("Only http, https, and mailto URLs are allowed.");
-          return;
-        }
-        editor.chain().focus().setLink({ href: result.url }).run();
+        const result = await openDialog({
+          title: "Insert Link",
+          fields: [
+            { name: "url", label: "URL", type: "url", placeholder: "https://example.com" },
+          ],
+          onSubmit: ({ url }) => {
+            if (!url) throw new Error("Enter a URL.");
+            if (!isSafeUrl(url)) {
+              throw new Error("Only http, https, and mailto URLs are allowed.");
+            }
+            return { href: url };
+          },
+        });
+        if (result) editor.chain().focus().setLink(result).run();
       },
       isActive: () => editor.isActive("link"),
     }),
     image: () => createToolbarButton(editor, {
       label: "Image", title: "Insert image", html: ICONS.image,
       onClick: async () => {
-        const result = await openModal("Insert Image", [
-          { name: "url", label: "Image URL", type: "url", placeholder: "https://example.com/image.png" },
-          { name: "alt", label: "Alt text", type: "text", placeholder: "Image description" },
-        ]);
-        if (!result || !result.url) return;
-        if (!isSafeUrl(result.url)) {
-          window.alert("Only http, https, and mailto URLs are allowed.");
-          return;
-        }
-        editor.chain().focus().setImage({ src: result.url, alt: result.alt || "" }).run();
+        const result = await openDialog({
+          title: "Insert Image",
+          fields: [
+            {
+              name: "file",
+              label: "Upload an image",
+              type: "file",
+              accept: IMAGE_UPLOAD_ACCEPT,
+              help: "JPEG or PNG, up to 5 MB.",
+            },
+            {
+              name: "url",
+              label: "Or link to one",
+              type: "url",
+              placeholder: "https://example.com/image.png",
+            },
+            { name: "alt", label: "Alt text", type: "text", placeholder: "Image description" },
+          ],
+          onSubmit: async ({ file, url, alt }) => {
+            if (file) return { src: await uploadEditorImage(file, wrapper), alt };
+            if (!url) throw new Error("Choose an image to upload, or paste its URL.");
+            if (!isSafeUrl(url)) throw new Error("Only http and https image URLs are allowed.");
+            return { src: url, alt };
+          },
+        });
+        if (result) editor.chain().focus().setImage(result).run();
       },
       isActive: () => false,
     }),
@@ -624,17 +806,17 @@ const buildToolbar = (editor, toolbarEl, preset = "full") => {
       return previewBtn;
     },
     undo: () => createToolbarButton(editor, {
-      label: "Undo", title: "Undo", html: bioIcon("undo", "&#8630;"),
+      label: "Undo", title: "Undo", html: ICONS.undo,
       onClick: () => editor.chain().focus().undo().run(),
       isActive: () => false,
       // Grey out when there is no history to undo.
-      isDisabled: isBio ? () => !editor.can().undo() : undefined,
+      isDisabled: () => !editor.can().undo(),
     }),
     redo: () => createToolbarButton(editor, {
-      label: "Redo", title: "Redo", html: bioIcon("redo", "&#8631;"),
+      label: "Redo", title: "Redo", html: ICONS.redo,
       onClick: () => editor.chain().focus().redo().run(),
       isActive: () => false,
-      isDisabled: isBio ? () => !editor.can().redo() : undefined,
+      isDisabled: () => !editor.can().redo(),
     }),
   };
 
@@ -654,53 +836,85 @@ const buildToolbar = (editor, toolbarEl, preset = "full") => {
   return { mdBtn: ctx.mdBtn, previewBtn: ctx.previewBtn, handleDocClick: ctx.handleDocClick };
 };
 
-export const setupMermaidEditMode = (editor, editorEl) => {
-  const renderMermaid = debounce(async () => {
-    const pres = editorEl.querySelectorAll("pre");
-    const activePreviews = new Set();
+/*
+Render `diagram` into `container` as an SVG, or as an inline error message.
 
-    for (const pre of pres) {
-      const code = pre.querySelector("code");
-      if (!code || !code.classList.contains("language-mermaid")) continue;
-
-      let preview = pre.nextElementSibling;
-      if (!preview || !preview.classList.contains("mermaid-preview")) {
-        preview = document.createElement("div");
-        preview.className = "mermaid-preview";
-        pre.after(preview);
-      }
-      activePreviews.add(preview);
-
-      const diagram = code.textContent.trim();
-      if (!diagram) {
-        preview.innerHTML = "";
-        continue;
-      }
-
-      try {
-        const mermaid = await getMermaid();
-        const id = `mermaid-edit-${++mermaidIdCounter}`;
-        const { svg } = await mermaid.render(id, diagram);
-        preview.innerHTML = sanitizeSvg(svg);
-        preview.classList.remove("mermaid-error");
-      } catch (err) {
-        const errSpan = document.createElement("span");
-        errSpan.className = "mermaid-error";
-        errSpan.textContent = err.message || "Invalid diagram";
-        preview.innerHTML = "";
-        preview.appendChild(errSpan);
-        preview.classList.add("mermaid-error");
-      }
-    }
-
-    editorEl.querySelectorAll(".mermaid-preview").forEach((el) => {
-      if (!activePreviews.has(el)) el.remove();
-    });
-  }, 500);
-
-  editor.on("update", renderMermaid);
-  renderMermaid();
+Both outcomes stay inside the container the caller owns. That matters for the
+editor, where the alternative — mermaid's own error rendering — escapes to the
+end of <body>; see the suppressErrorRendering note in getMermaid.
+*/
+const renderDiagram = async (container, diagram) => {
+  try {
+    const mermaid = await getMermaid();
+    const { svg } = await mermaid.render(`mermaid-${++mermaidIdCounter}`, diagram);
+    container.classList.remove("mermaid-preview--error");
+    container.innerHTML = sanitizeSvg(svg);
+  } catch (err) {
+    const message = document.createElement("span");
+    message.className = "mermaid-error";
+    message.textContent = err?.message || "Invalid diagram";
+    container.innerHTML = "";
+    container.classList.add("mermaid-preview--error");
+    container.appendChild(message);
+  }
 };
+
+const mermaidPreviewKey = new PluginKey("mermaidPreview");
+
+/*
+One preview per mermaid code block, as a ProseMirror widget decoration keyed by
+the diagram source.
+
+Widgets rather than plain DOM appended after the <pre>: ProseMirror owns
+everything inside the editable area and reconciles away nodes it doesn't know
+about, so an injected preview is wiped on the next transaction. The `key` makes
+ProseMirror reuse the existing widget while the source is unchanged, so typing
+elsewhere in the document doesn't re-render every diagram.
+*/
+const mermaidDecorations = (doc) => {
+  const decorations = [];
+  doc.descendants((node, pos) => {
+    if (node.type.name !== "codeBlock" || node.attrs.language !== "mermaid") return;
+    const diagram = node.textContent.trim();
+    if (!diagram) return;
+    decorations.push(
+      Decoration.widget(
+        pos + node.nodeSize,
+        () => {
+          const container = document.createElement("div");
+          container.className = "mermaid-preview";
+          container.contentEditable = "false";
+          renderDiagram(container, diagram);
+          return container;
+        },
+        { key: `mermaid:${diagram}`, side: 1 },
+      ),
+    );
+  });
+  return DecorationSet.create(doc, decorations);
+};
+
+export const MermaidPreview = Extension.create({
+  name: "mermaidPreview",
+
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: mermaidPreviewKey,
+        state: {
+          init: (_, { doc }) => mermaidDecorations(doc),
+          apply: (tr, previous) =>
+            tr.docChanged ? mermaidDecorations(tr.doc) : previous,
+        },
+        props: {
+          decorations(state) {
+            return mermaidPreviewKey.getState(state);
+          },
+        },
+      }),
+    ];
+  },
+});
 
 export const highlightPreviewCodeBlocks = (container) => {
   container.querySelectorAll("pre code[class*='language-']").forEach((codeEl) => {
@@ -718,9 +932,6 @@ export const highlightPreviewCodeBlocks = (container) => {
 
 export const renderMermaidPreview = async (container) => {
   const mermaidCodes = container.querySelectorAll("code.language-mermaid");
-  if (mermaidCodes.length === 0) return;
-
-  const mermaid = await getMermaid();
   for (const codeEl of mermaidCodes) {
     const pre = codeEl.parentElement;
     if (!pre || pre.tagName !== "PRE") continue;
@@ -729,18 +940,8 @@ export const renderMermaidPreview = async (container) => {
 
     const div = document.createElement("div");
     div.className = "mermaid-preview";
-    try {
-      const id = `mermaid-preview-${++mermaidIdCounter}`;
-      const { svg } = await mermaid.render(id, diagram);
-      div.innerHTML = sanitizeSvg(svg);
-    } catch (err) {
-      const errSpan = document.createElement("span");
-      errSpan.className = "mermaid-error";
-      errSpan.textContent = err.message || "Invalid diagram";
-      div.appendChild(errSpan);
-      div.classList.add("mermaid-error");
-    }
     pre.replaceWith(div);
+    await renderDiagram(div, diagram);
   }
 };
 
@@ -817,6 +1018,7 @@ export const initWysiwyg = (textareaId) => {
       Image,
       TaskList,
       TaskItem.configure({ nested: true }),
+      MermaidPreview,
       ...(maxlength ? [MarkdownLengthLimit] : []),
     ],
     content: initialContent,
@@ -883,7 +1085,6 @@ export const initWysiwyg = (textareaId) => {
 
   const { mdBtn, previewBtn, handleDocClick } = buildToolbar(editor, toolbarEl, preset);
   setupTableContextBar(editor, toolbarEl);
-  setupMermaidEditMode(editor, editorEl);
 
   const markdownPane = document.createElement("div");
   markdownPane.className = "wysiwyg-editor__markdown-pane";
