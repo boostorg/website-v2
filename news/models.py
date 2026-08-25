@@ -10,6 +10,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 
 from core.validators import (
     attachment_validator,
@@ -267,7 +268,7 @@ class Entry(models.Model):
         return result
 
     def get_absolute_url(self):
-        return f"/news/{self.slug}/"
+        return reverse("news-detail", args=[self.slug])
 
     def to_v3_post_card_dict(self):
         """Dict shape consumed by `v3/includes/_post_card.html` items."""

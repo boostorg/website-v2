@@ -7,6 +7,7 @@ from reports.constants import WEB_ANALYTICS_API_URL_V2, WEB_ANALYTICS_DOMAIN
 
 logger = structlog.get_logger(__name__)
 
+LEGACY_NEWS_ENTRY_PREFIX = "/news/entry/"
 NEWS_ENTRY_PREFIX = "/news/"
 
 
@@ -51,9 +52,14 @@ def fetch_post_views() -> dict[str, int]:
     slug_views: dict[str, int] = {}
     for result in data["results"]:
         path = result["dimensions"][0]
-        if not path.startswith(NEWS_ENTRY_PREFIX):
+        prefix = (
+            LEGACY_NEWS_ENTRY_PREFIX
+            if path.startswith(LEGACY_NEWS_ENTRY_PREFIX)
+            else NEWS_ENTRY_PREFIX
+        )
+        if not path.startswith(prefix):
             continue
-        slug = path[len(NEWS_ENTRY_PREFIX) :].rstrip("/")
+        slug = path[len(prefix) :].rstrip("/")
         if slug:
             slug_views[slug] = int(result["metrics"][0])
 

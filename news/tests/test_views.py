@@ -113,7 +113,8 @@ def test_entry_list(
 
     # 11 queries if authenticated, less otherwise. The 11th prefetches the
     # authors' profile routing keys, which the cards link to. One query for the
-    # page rather than one per card.
+    # page rather than one per card. This number increased with the
+    # introduction of wagtail.
     response = tp.assertGoodView(
         tp.reverse(url_name), test_query_count=11, verbose=True
     )

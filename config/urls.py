@@ -488,12 +488,12 @@ urlpatterns = (
             name="images-page",
         ),
         # Static content (exclude Wagtail paths)
-        path("", include(wagtail_urls)),
         re_path(
-            r"^(?!__debug__|outreach/|testimonials/)(?P<content_path>.+)/?",
+            r"^(?!__debug__|outreach/|testimonials/|news/)(?P<content_path>.+)/?",
             StaticContentTemplateView.as_view(),
             name="static-content-page",
         ),
+        path("", include(wagtail_urls)),
     ]
     + djdt_urls
 )

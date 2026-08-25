@@ -3,6 +3,7 @@ from news.views import (
     AllTypesCreateView,
     BlogPostCreateView,
     BlogPostListView,
+    EntryListView,
     EntryApproveView,
     EntryDeleteView,
     EntryModerationDetailView,
@@ -21,6 +22,7 @@ from news.views import (
 )
 
 urlpatterns = [
+    path("entry/", EntryListView.as_view(), name="news"),
     path("blogpost/", BlogPostListView.as_view(), name="news-blogpost-list"),
     path("link/", LinkListView.as_view(), name="news-link-list"),
     path("news/", NewsListView.as_view(), name="news-news-list"),
