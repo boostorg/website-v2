@@ -418,7 +418,7 @@ The wrapper shrink-wraps the image so the handle sits on the picture's corner
 rather than the column's. `height` is deliberately absent everywhere here: the
 image is sized by width alone and `height: auto` above keeps the aspect ratio.
 */
-.wysiwyg-image {
+.wysiwyg-editor__prose .wysiwyg-image {
   position: relative;
   display: block;
   width: fit-content;
@@ -447,15 +447,16 @@ image is sized by width alone and `height: auto` above keeps the aspect ratio.
   display: block;
 }
 
-.wysiwyg-image--selected img,
-.wysiwyg-image__handle:focus {
+/* Which image the handle belongs to. */
+.wysiwyg-image--selected img {
   outline: 2px solid var(--color-stroke-brand-accent);
   outline-offset: 2px;
 }
 
-/* Mid-drag the pointer is committed to the resize, not to selecting text. */
-.wysiwyg-image--resizing {
-  user-select: none;
+/* Keyboard focus, in the accent the rest of v3 uses for a focus ring. */
+.wysiwyg-image__handle:focus {
+  outline: 2px solid var(--color-stroke-link-accent);
+  outline-offset: 2px;
 }
 
 /* Tables */
