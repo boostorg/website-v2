@@ -97,7 +97,7 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
   text-decoration-skip-ink: none;
 }
 
-.content-detail-icon__cta:hover {
+a.content-detail-icon__cta:hover {
   text-decoration-line: underline;
   /* Match .learn-card__link:hover. Without this the hover was inert, since the
      link is already underlined at rest. */

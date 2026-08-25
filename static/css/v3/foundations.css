@@ -180,7 +180,8 @@ body.v3 a,
    span inside the anchor, so the selector above does not reach it. */
 body.v3 .learn-card__link,
 body.v3 .btn-underline,
-body.v3 .dropdown__item--selected {
+body.v3 .dropdown__item--selected,
+body.v3 .mailing-list-modal__select-all {
   text-decoration-skip-ink: none;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
