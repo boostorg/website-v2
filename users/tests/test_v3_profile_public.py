@@ -56,17 +56,17 @@ def test_public_profile_hides_every_section_with_no_data(user, tp):
     """A profile with no content leaves its data sections out entirely rather
     than rendering them as empty shells.
 
-    The badges card is the documented exception on the owner's own page: its
-    empty state is how a member learns badges exist and how to earn them, so it
-    renders with no badges held - see
-    `badges.tests.test_profile.test_own_profile_page_renders_without_badges`.
+    The two recognition cards are the documented exceptions on the owner's own
+    page: their empty states carry the only CTAs that open the badge and
+    achievement dialogs, so they render with nothing held - see
+    `badges.tests.test_profile.test_own_profile_page_renders_without_badges`
+    and `users.tests.test_profile_dialogs`.
     """
     with tp.login(user):
         response = tp.get("profile-account")
     content = response.content.decode()
     assert "user-profile__bio" in content
     for section_class in (
-        "user-profile__achievements",
         "user-profile__github",
         "user-profile__mailing-list",
         "user-profile__posts",
