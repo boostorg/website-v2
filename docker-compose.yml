@@ -58,7 +58,11 @@ services:
   #   volumes:
   #     - ./mailman/core:/opt/mailman/
   #   networks:
-  #     - backend
+  #     backend:
+  #       # Dotted alias so MAILMAN_REST_API_URL can use it as both the reachable
+  #       # host and the list mail domain - see docs/mailman/README.md.
+  #       aliases:
+  #         - lists.local.test
   #   env_file:
   #     - .env
   #   depends_on:

@@ -5,16 +5,23 @@
 #
 #   list lists    — print all mailing lists on the server
 #   list members  — pick a mailing list and print its member roster (JSON)
-#   create lists  — create the lists defined in MAILMAN_LISTS (from .env)
+#   create lists  — create the default lists (see LIST_PREFIXES below), under
+#                   the domain derived from MAILMAN_REST_API_URL (from .env)
 #   delete lists  — pick one or more lists to delete (fzf multi-select)
 #
 # Environment variables (loaded from ../.env if present):
 #   MAILMAN_DEV_API_URL    Host-side URL of the Mailman Core REST API
 #                          (default: http://localhost:8001 — the mapped container port)
+#   MAILMAN_REST_API_URL   Used by Django inside Docker to reach Mailman Core; its
+#                          host is also the mail domain every list is created under
+#                          here, mirroring mailing_list/constants.py's derivation.
 #   MAILMAN_REST_API_USER  REST API username  (default: restadmin)
 #   MAILMAN_REST_API_PASS  REST API password  (default: restpass)
-#   MAILMAN_LISTS          Comma-separated list IDs to create
-#                          e.g. boost-users.lists.boost.org,boost.lists.boost.org
+#
+# LIST_PREFIXES below are the three lists the app manages (see
+# mailing_list/constants.py::MailingLists). To create extra lists locally, add
+# more prefixes to that array — there is no env var for this.
+LIST_PREFIXES=(boost boost-announce boost-users)
 
 set -euo pipefail
 
@@ -51,6 +58,19 @@ _list_id_to_fqdn() {
   echo "$1" | sed 's/\./@/'
 }
 
+# Mirrors mailing_list/constants.py::get_domain_with_subdomains — strip scheme,
+# path, and port from MAILMAN_REST_API_URL, leaving just the host.
+_mailman_domain() {
+  if [[ -z "${MAILMAN_REST_API_URL:-}" ]]; then
+    echo "MAILMAN_REST_API_URL is not set in .env — cannot derive the list domain." >&2
+    return 1
+  fi
+  local host="${MAILMAN_REST_API_URL#*://}"
+  host="${host%%/*}"
+  host="${host%%:*}"
+  echo "$host"
+}
+
 # ---------------------------------------------------------------------------
 # Actions
 # ---------------------------------------------------------------------------
@@ -79,15 +99,11 @@ action_list_members() {
 }
 
 action_create_lists() {
-  if [[ -z "${MAILMAN_LISTS:-}" ]]; then
-    echo "MAILMAN_LISTS is not set in .env — nothing to create." >&2
-    exit 1
-  fi
+  domain=$(_mailman_domain) || exit 1
 
-  IFS=',' read -ra list_ids <<< "$MAILMAN_LISTS"
-  for list_id in "${list_ids[@]}"; do
+  for prefix in "${LIST_PREFIXES[@]}"; do
+    list_id="${prefix}.${domain}"
     fqdn=$(_list_id_to_fqdn "$list_id")
-    domain="${list_id#*.}" # Extracts the domain (everything after the first dot)
 
     echo "Ensuring domain $domain exists..."
     domain_http_code=$(curl -s -o /dev/null -w "%{http_code}" \

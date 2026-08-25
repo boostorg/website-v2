@@ -94,7 +94,23 @@ and HTMX swaps [data-ml-block] in place; x-init then clears the URL hash so the 
   {% endif %}
 
   {% if modal_subscribe_url and mailing_lists %}
-    <div class="dialog-modal" id="mailing-list-modal">
+    <div class="dialog-modal" id="mailing-list-modal"
+         x-data="{
+           totalLists: {{ mailing_lists|length }},
+           checkedCount: 0,
+           updateCount() {
+             this.checkedCount = this.$refs.checkboxContainer.querySelectorAll('[name=list_id]:checked').length;
+           },
+           unselectAll() {
+             this.$refs.checkboxContainer.querySelectorAll('[name=list_id]').forEach(cb => { cb.checked = false; });
+             this.checkedCount = 0;
+           },
+           selectAll() {
+             this.$refs.checkboxContainer.querySelectorAll('[name=list_id]').forEach(cb => { cb.checked = true; });
+             this.checkedCount = this.totalLists;
+           }
+         }"
+         x-init="updateCount()">
       <a class="dialog-modal__backdrop" href="#_" tabindex="-1"></a>
       <div class="dialog-modal__container"
            role="dialog"
@@ -114,7 +130,8 @@ and HTMX swaps [data-ml-block] in place; x-init then clears the URL hash so the 
           <p>Pick the lists you want to subscribe to. You can change these any time.</p>
           <button type="button"
                   class="mailing-list-modal__select-all"
-                  @click="$el.closest('.dialog-modal__container').querySelector('form').querySelectorAll('[name=list_id]').forEach(cb => cb.checked = true)">Select All</button>
+                  @click="checkedCount === totalLists ? unselectAll() : selectAll()"
+                  x-text="checkedCount === totalLists ? 'Unselect All' : 'Select All'"></button>
         </div>
         <form method="post"
               action="{{ modal_subscribe_url }}"
@@ -124,26 +141,27 @@ and HTMX swaps [data-ml-block] in place; x-init then clears the URL hash so the 
           {% csrf_token %}
           <input type="hidden" name="email" value="{{ user_email|default:'' }}" :value="mlEmail">
           <div class="mailing-list-modal__list-card">
-          <ul class="mailing-list-modal__list" role="list">
-            {% for ml in mailing_lists %}
-              <li class="mailing-list-modal__item">
-                <label class="mailing-list-modal__label">
-                  <input class="mailing-list-modal__checkbox"
-                         type="checkbox"
-                         name="list_id"
-                         value="{{ ml.id }}"
-                         {% if subscribed_ids %}{% if ml.id in subscribed_ids %}checked{% endif %}{% else %}checked{% endif %}>
-                  <span class="mailing-list-modal__checkbox-box" aria-hidden="true">
-                    {% include "includes/icon.html" with icon_name="check" icon_class="mailing-list-modal__checkbox-check" icon_size=16 %}
-                  </span>
-                  <div class="mailing-list-modal__item-content">
-                    <span class="mailing-list-modal__item-name">{{ ml.name }}</span>
-                    <span class="mailing-list-modal__item-description">{{ ml.description }}</span>
-                  </div>
-                </label>
-              </li>
-            {% endfor %}
-          </ul>
+            <ul class="mailing-list-modal__list" role="list" x-ref="checkboxContainer">
+              {% for ml in mailing_lists %}
+                <li class="mailing-list-modal__item">
+                  <label class="mailing-list-modal__label">
+                    <input class="mailing-list-modal__checkbox"
+                           type="checkbox"
+                           name="list_id"
+                           value="{{ ml.id }}"
+                           {% if subscribed_ids %}{% if ml.id in subscribed_ids %}checked{% endif %}{% else %}checked{% endif %}
+                           @change="updateCount()">
+                    <span class="mailing-list-modal__checkbox-box" aria-hidden="true">
+                      {% include "includes/icon.html" with icon_name="check" icon_class="mailing-list-modal__checkbox-check" icon_size=16 %}
+                    </span>
+                    <div class="mailing-list-modal__item-content">
+                      <span class="mailing-list-modal__item-name">{{ ml.name }}</span>
+                      <span class="mailing-list-modal__item-description">{{ ml.description }}</span>
+                    </div>
+                  </label>
+                </li>
+              {% endfor %}
+            </ul>
           </div>
           <div class="dialog-modal__buttons">
             <a href="#_" class="btn btn-secondary btn-flex">Cancel</a>

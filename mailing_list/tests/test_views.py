@@ -293,3 +293,60 @@ def test_confirm_anonymous_token_subscribes_without_db_record(client):
         response = client.get(url)
     assert response.status_code == 200
     MockClient.return_value.subscribe.assert_called_once_with(EMAIL, LIST_ID)
+
+
+# ---------------------------------------------------------------------------
+# _prg_redirect — no-JS fallback
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_no_js_quick_subscribe_keeps_referer_query_string(client, user):
+    """POST /mailing-list/quick-subscribe/ — no-JS: the referer's query string survives the PRG.
+
+    The edit profile page carries its state in ?edit=true, so dropping the query
+    would bounce the user back to the read-only profile.
+    """
+    client.force_login(user)
+    url = reverse("mailing-list-quick-subscribe")
+    with patch("mailing_list.views._send_confirmation_email"):
+        response = client.post(
+            url,
+            {"email": EMAIL, "list_id": LIST_ID},
+            HTTP_REFERER="http://testserver/users/me/?edit=true",
+        )
+    assert response.status_code == 302
+    assert response["Location"] == "/users/me/?edit=true"
+
+
+@pytest.mark.django_db
+def test_no_js_quick_subscribe_drops_stale_ml_params(client, user):
+    """POST /mailing-list/quick-subscribe/ — no-JS: ml_* params on the referer are replaced, not appended."""
+    client.force_login(user)
+    url = reverse("mailing-list-quick-subscribe")
+    response = client.post(
+        url,
+        {"email": "", "list_id": LIST_ID},
+        HTTP_REFERER="http://testserver/users/me/?edit=true&ml_state=pending&ml_email=old@example.com",
+    )
+    assert response.status_code == 302
+    location = response["Location"]
+    assert location.startswith("/users/me/?edit=true&")
+    assert "ml_state=error" in location
+    assert "ml_state=pending" not in location
+    assert "old%40example.com" not in location
+
+
+@pytest.mark.django_db
+def test_no_js_quick_subscribe_strips_referer_host(client, user):
+    """POST /mailing-list/quick-subscribe/ — no-JS: an off-site referer can't drive the redirect."""
+    client.force_login(user)
+    url = reverse("mailing-list-quick-subscribe")
+    with patch("mailing_list.views._send_confirmation_email"):
+        response = client.post(
+            url,
+            {"email": EMAIL, "list_id": LIST_ID},
+            HTTP_REFERER="https://evil.example.com/community/?edit=true",
+        )
+    assert response.status_code == 302
+    assert response["Location"] == "/community/?edit=true"

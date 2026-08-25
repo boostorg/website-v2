@@ -51,23 +51,38 @@ class MailingListCardMixin:
       mailing_list_card_list_id
       mailing_list_card_state              ("pending", "active", "error", or None)
       mailing_list_card_error_message      (set on error state, used by no-JS PRG flow)
-      mailing_list_card_user_email         (authenticated users only, or from PRG params)
+      mailing_list_card_user_email         (the subscription email if one exists, else the
+                                            account email; authenticated users only, or
+                                            from PRG params)
       mailing_list_card_manage_url         (authenticated users only)
       mailing_list_card_subscription_count (authenticated users only — ACTIVE count only)
     """
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        request = self.request
+        context.update(self.get_mailing_list_card_context())
+        return context
 
-        context["mailing_list_card_subscribe_url"] = reverse(
-            "mailing-list-quick-subscribe"
-        )
-        context["mailing_list_card_modal_subscribe_url"] = reverse(
-            "mailing-list-modal-subscribe"
-        )
-        context["mailing_list_card_list_id"] = _DEFAULT_LIST_ID
-        context["mailing_list_card_lists"] = constants.MAILING_LIST_LABELS.values()
+    def get_mailing_list_card_context(self) -> dict:
+        """Build the card context once per request.
+
+        V3Mixin.get_context_data() re-enters self.get_context_data(), so any view
+        combining both mixins would otherwise run these queries twice per request.
+        """
+        if not hasattr(self, "_mailing_list_card_context"):
+            self._mailing_list_card_context = self._build_mailing_list_card_context()
+        return self._mailing_list_card_context
+
+    def _build_mailing_list_card_context(self) -> dict:
+        request = self.request
+        context = {
+            "mailing_list_card_subscribe_url": reverse("mailing-list-quick-subscribe"),
+            "mailing_list_card_modal_subscribe_url": reverse(
+                "mailing-list-modal-subscribe"
+            ),
+            "mailing_list_card_list_id": _DEFAULT_LIST_ID,
+            "mailing_list_card_lists": constants.MAILING_LIST_LABELS.values(),
+        }
 
         if request.user.is_authenticated:
             managed_lists = set(constants.MAILMAN_LISTS)
@@ -75,7 +90,7 @@ class MailingListCardMixin:
 
             context["mailing_list_card_state"] = state.state
             context["mailing_list_card_subscription_count"] = state.count
-            context["mailing_list_card_user_email"] = state.email
+            context["mailing_list_card_user_email"] = state.email or request.user.email
             context["mailing_list_card_manage_url"] = reverse("profile-account")
             context["mailing_list_card_subscribed_ids"] = set(
                 UserMailingListSubscription.objects.filter(
