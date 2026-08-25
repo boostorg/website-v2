@@ -38,8 +38,86 @@ export function parseMarkdownSafe(md) {
   return DOMPurify.sanitize(marked.parse(md));
 }
 
+/*
+Parse markup without letting any of it come alive.
+
+A <template>'s content belongs to an inert document with no browsing context:
+setting innerHTML on one runs no script and starts no resource load, which is
+the same guarantee DOMPurify itself relies on.
+*/
+const parseInert = (html) => {
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  return template;
+};
+
+/*
+Links a <foreignObject> in the sanitised SVG back to its own sanitised label.
+Position would be too fragile — a removed element shifts every later index.
+*/
+const LABEL_ATTRIBUTE = "data-wysiwyg-label";
+
+/*
+What a diagram label is allowed to be: the wrapper mermaid emits (a styled div
+around a classed span) plus the inline formatting a label can carry. Narrower
+than DOMPurify's HTML profile on purpose — a label is a line of formatted text,
+so there is no reason for it to be able to introduce links, media or anything
+else the profile would wave through.
+
+`style` is the one broad thing left on the list, because mermaid lays every
+label out with an inline style and dropping it collapses the label box. It is
+not a script vector — `url(javascript:...)` in CSS is inert in every current
+browser — and label text is escaped by mermaid's own securityLevel before it
+reaches here, so reaching this attribute at all means mermaid's escaping was
+already defeated.
+*/
+const LABEL_PURIFY_CONFIG = {
+  ALLOWED_TAGS: ["div", "span", "p", "br", "b", "i", "em", "strong", "code", "sub", "sup"],
+  ALLOWED_ATTR: ["class", "style"],
+};
+
+/*
+Sanitize a mermaid-rendered SVG, labels included. Returns a DocumentFragment.
+
+Two passes, because one cannot do the job. mermaid puts every node and edge
+label in an SVG <foreignObject> wrapping HTML, and DOMPurify drops HTML whose
+parent is a foreignObject — `annotation-xml` is its only HTML integration point
+— so a single SVG-profile pass returns a diagram of unlabelled boxes. Instead
+the labels are lifted out and sanitised as HTML (see LABEL_PURIFY_CONFIG), the
+SVG skeleton is sanitised on its own, and the cleaned labels go back where they
+came from. Both halves still go through DOMPurify: this widens what survives,
+not what is trusted.
+
+A fragment rather than a string so that nothing serialises and re-parses the
+markup after DOMPurify has passed it — the round trip mutation XSS relies on,
+and foreignObject, sitting on the SVG/HTML namespace boundary, is exactly where
+parsers disagree. Callers insert the nodes as they are.
+*/
 export function sanitizeSvg(svgString) {
-  return DOMPurify.sanitize(svgString, { USE_PROFILES: { svg: true, svgFilters: true }, ADD_TAGS: ["use"] });
+  const source = parseInert(svgString);
+
+  const labels = [];
+  source.content.querySelectorAll("foreignObject").forEach((host) => {
+    host.setAttribute(LABEL_ATTRIBUTE, String(labels.length));
+    labels.push(DOMPurify.sanitize(host.innerHTML, LABEL_PURIFY_CONFIG));
+    host.replaceChildren();
+  });
+
+  const cleaned = DOMPurify.sanitize(source.innerHTML, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+    ADD_TAGS: ["use", "foreignObject"],
+    RETURN_DOM_FRAGMENT: true,
+  });
+
+  cleaned.querySelectorAll(`foreignObject[${LABEL_ATTRIBUTE}]`).forEach((host) => {
+    const label = labels[Number(host.getAttribute(LABEL_ATTRIBUTE))] ?? "";
+    host.removeAttribute(LABEL_ATTRIBUTE);
+    // Parsed in an HTML context so the nodes keep the HTML namespace that
+    // <foreignObject> exists to host; appending adopts them across documents.
+    host.append(...parseInert(label).content.childNodes);
+  });
+
+  return cleaned;
 }
 
 const lowlight = createLowlight(common);
@@ -848,14 +926,13 @@ const renderDiagram = async (container, diagram) => {
     const mermaid = await getMermaid();
     const { svg } = await mermaid.render(`mermaid-${++mermaidIdCounter}`, diagram);
     container.classList.remove("mermaid-preview--error");
-    container.innerHTML = sanitizeSvg(svg);
+    container.replaceChildren(sanitizeSvg(svg));
   } catch (err) {
     const message = document.createElement("span");
     message.className = "mermaid-error";
     message.textContent = err?.message || "Invalid diagram";
-    container.innerHTML = "";
     container.classList.add("mermaid-preview--error");
-    container.appendChild(message);
+    container.replaceChildren(message);
   }
 };
 
