@@ -294,10 +294,8 @@ class PopularSearchTermExclusion(models.Model):
 def wysiwyg_image_path(instance, filename):
     """Name every upload after a UUID.
 
-    The submitted filename is the one attacker-controlled part of the path, and
-    media storage runs with `file_overwrite = True`, so two authors uploading
-    `screenshot.png` would otherwise clobber each other. The extension is kept
-    because the upload form already restricts it.
+    The submitted filename is attacker-controlled, and media storage runs with
+    `file_overwrite = True`.
     """
     return f"{UPLOADED_IMAGE_DIRECTORY}/{uuid4().hex}{Path(filename).suffix.lower()}"
 
@@ -305,10 +303,8 @@ def wysiwyg_image_path(instance, filename):
 class WysiwygImage(TimeStampedModel):
     """An image uploaded through the V3 WYSIWYG editor's Insert Image dialog.
 
-    The editor writes Markdown, which can only reference an image by URL, so the
-    file has to be stored and served before it can be inserted. The row exists so
-    that those files are accountable: without one, an upload is an anonymous
-    object in a bucket that no page links to and nobody can attribute.
+    Markdown can only reference an image by URL, so the file has to be stored
+    before it can be inserted. The row is what makes it attributable.
     """
 
     image = models.ImageField(
@@ -318,7 +314,7 @@ class WysiwygImage(TimeStampedModel):
     )
     width = models.PositiveIntegerField(null=True, blank=True)
     height = models.PositiveIntegerField(null=True, blank=True)
-    # As submitted, for recognising an upload in the admin; never used as a path.
+    # Recorded for the admin; the stored path is a UUID.
     original_filename = models.CharField(max_length=255, blank=True, default="")
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -342,13 +338,8 @@ def delete_wysiwyg_image(sender, instance, **kwargs):
     """Take the file out of storage when its row is deleted.
 
     A `post_delete` receiver disables fast-delete, so the admin's bulk action
-    emits signals per row rather than skipping them. Deferred to commit because
-    an object removed from S3 cannot be restored if the delete is rolled back,
-    and swallowed on failure so a storage outage cannot break an otherwise
-    successful deletion.
-
-    Any post still referencing the URL will show a broken image, which is the
-    intended outcome: deleting the row is how an upload is taken down.
+    emits it per row. Deferred to commit because an S3 delete cannot be rolled
+    back, and swallowed so a storage outage cannot fail the deletion.
     """
     image = instance.image
     if not image:

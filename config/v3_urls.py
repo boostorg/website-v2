@@ -73,8 +73,7 @@ v3_urlpatterns = [
         V3AllTypesCreateView.as_view(),
         name="v3-news-create",
     ),
-    # Endpoint behind the WYSIWYG editor's Insert Image dialog; not a page, so
-    # it is a plain function view rather than a `V3Mixin` template view.
+    # Endpoint behind the editor's Insert Image dialog, not a page.
     path(
         "v3/wysiwyg/image/",
         wysiwyg_image_upload,

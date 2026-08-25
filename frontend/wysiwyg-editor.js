@@ -39,11 +39,8 @@ export function parseMarkdownSafe(md) {
 }
 
 /*
-Parse markup without letting any of it come alive.
-
-A <template>'s content belongs to an inert document with no browsing context:
-setting innerHTML on one runs no script and starts no resource load, which is
-the same guarantee DOMPurify itself relies on.
+A <template>'s content belongs to an inert document: setting innerHTML on one
+runs no script and starts no resource load.
 */
 const parseInert = (html) => {
   const template = document.createElement("template");
@@ -51,20 +48,13 @@ const parseInert = (html) => {
   return template;
 };
 
-/*
-Links a <foreignObject> in the sanitised SVG back to its own sanitised label.
-Position would be too fragile — a removed element shifts every later index.
-*/
+/* Links a <foreignObject> back to its own label; sanitising shifts positions. */
 const LABEL_ATTRIBUTE = "data-wysiwyg-label";
 
 /*
-What a diagram label is allowed to be: the wrapper mermaid emits (a styled div
-around a classed span) plus the inline formatting a label can carry. Narrower
-than DOMPurify's HTML profile on purpose, because label markup is not mermaid's
-alone — mermaid sanitises what a diagram's source puts in a label but does not
-escape it, so `A["<img src=x>"]` arrives here as a real element. A label is a
-line of formatted text; links, media and the rest of the profile have no
-business in one.
+Narrower than DOMPurify's HTML profile on purpose: mermaid does not escape what
+a diagram's source puts in a label, so `A["<img src=x>"]` arrives as a real
+element. A label is a line of formatted text and nothing more.
 */
 const LABEL_PURIFY_CONFIG = {
   ALLOWED_TAGS: ["div", "span", "p", "br", "b", "i", "em", "strong", "code", "sub", "sup"],
@@ -72,12 +62,10 @@ const LABEL_PURIFY_CONFIG = {
 };
 
 /*
-The CSS a label may keep. `style` has to survive at all because mermaid sizes
-every label with one, and the values differ per label (each gets its own
-max-width), so they cannot be lifted into a stylesheet. But by the same route
-that puts an <img> in a label, a diagram's source can reach this attribute — and
-`position: fixed` in a preview pane is how a box escapes its box. Keeping only
-the properties mermaid actually lays labels out with leaves nothing to aim.
+`style` cannot simply be dropped: mermaid sizes each label with one and the
+values differ per label. But a diagram's source reaches it by the same route as
+the <img> above, and `position: fixed` is how a box escapes its box, so only the
+properties mermaid lays labels out with are kept.
 */
 const LABEL_STYLE_PROPERTIES = new Set([
   "display",
@@ -88,11 +76,10 @@ const LABEL_STYLE_PROPERTIES = new Set([
   "text-align",
 ]);
 
-/* Drop every declaration outside LABEL_STYLE_PROPERTIES, in place. */
 const pruneLabelStyles = (root) => {
   root.querySelectorAll("[style]").forEach((element) => {
     const kept = [];
-    // Reading through the CSSOM leaves parsing the declarations to the browser.
+    // Via the CSSOM, so the browser parses the declarations rather than a regex.
     for (const property of element.style) {
       if (LABEL_STYLE_PROPERTIES.has(property)) {
         kept.push(`${property}: ${element.style.getPropertyValue(property)}`);
@@ -106,19 +93,14 @@ const pruneLabelStyles = (root) => {
 /*
 Sanitize a mermaid-rendered SVG, labels included. Returns a DocumentFragment.
 
-Two passes, because one cannot do the job. mermaid puts every node and edge
-label in an SVG <foreignObject> wrapping HTML, and DOMPurify drops HTML whose
-parent is a foreignObject — `annotation-xml` is its only HTML integration point
-— so a single SVG-profile pass returns a diagram of unlabelled boxes. Instead
-the labels are lifted out and sanitised as HTML (see LABEL_PURIFY_CONFIG and
-pruneLabelStyles), the SVG skeleton is sanitised on its own, and the cleaned
-labels go back where they came from. Both halves still go through DOMPurify:
-this widens what survives, not what is trusted.
+Two passes, because DOMPurify drops HTML whose parent is a <foreignObject>, and
+that is where mermaid puts every label — one SVG-profile pass returns a diagram
+of unlabelled boxes. So labels are lifted out and sanitised as HTML, the
+skeleton is sanitised on its own, and the two are reassembled. Both halves still
+go through DOMPurify: this widens what survives, not what is trusted.
 
-A fragment rather than a string so that nothing serialises and re-parses the
-markup after DOMPurify has passed it — the round trip mutation XSS relies on,
-and foreignObject, sitting on the SVG/HTML namespace boundary, is exactly where
-parsers disagree. Callers insert the nodes as they are.
+A fragment rather than a string so nothing re-parses the markup after DOMPurify
+has passed it — the round trip mutation XSS relies on.
 */
 export function sanitizeSvg(svgString) {
   const source = parseInert(svgString);
@@ -139,8 +121,7 @@ export function sanitizeSvg(svgString) {
   cleaned.querySelectorAll(`foreignObject[${LABEL_ATTRIBUTE}]`).forEach((host) => {
     const label = labels[Number(host.getAttribute(LABEL_ATTRIBUTE))] ?? "";
     host.removeAttribute(LABEL_ATTRIBUTE);
-    // Parsed in an HTML context so the nodes keep the HTML namespace that
-    // <foreignObject> exists to host; appending adopts them across documents.
+    // In an HTML context, so the nodes keep the namespace foreignObject hosts.
     const nodes = parseInert(label).content;
     pruneLabelStyles(nodes);
     host.append(...nodes.childNodes);
@@ -161,11 +142,8 @@ const DEFAULT_CODE_LANGUAGE = "cpp";
 // Matches core.validators.IMAGE_EXTENSIONS, which the upload endpoint enforces.
 const IMAGE_UPLOAD_ACCEPT = "image/jpeg,image/png";
 
-// Narrowest an image may be dragged. Below this the handle is most of the
-// picture and there is nothing left to take hold of.
 const MIN_IMAGE_WIDTH = 48;
-// One arrow-key press on the resize handle, and one with Shift held. Coarse
-// enough to cross an image in a few presses, fine enough to stop where you meant.
+// One arrow-key press on the resize handle, and one with Shift held.
 const IMAGE_RESIZE_STEP = 16;
 const IMAGE_RESIZE_STEP_LARGE = 64;
 
@@ -212,13 +190,10 @@ const escapeAttribute = (value) =>
 
 /*
 A resized image has to leave as HTML: `![alt](src)` has nowhere to put a size.
+Only images carrying a width take this path, so the rest stay plain Markdown.
 
-Only images carrying a width take this path, so an image nobody has resized
-stays ordinary Markdown and the source stays readable. The width travels in
-`style` rather than the `width` attribute an <img> already has, because that is
-the one the server keeps — nh3 allows `src`, `alt` and `title` on an image and
-drops every other attribute, while its CSS property allowlist includes `width`.
-See core/tests/test_markdown_rendering.py, which pins that from the other side.
+The width goes in `style`, not the `width` attribute, because nh3 keeps only
+`src`, `alt` and `title` on an image — see core/tests/test_markdown_rendering.py.
 */
 turndown.addRule("resizedImage", {
   filter: (node) => node.nodeName === "IMG" && !!node.style?.width,
@@ -246,11 +221,7 @@ export const isSafeUrl = (url) => {
 
 let dialogIdCounter = 0;
 
-/*
-Build one field of a dialog body, using the V3 form markup (_field_text.html /
-_field_file.html) so the inputs look like every other form on the site. Returns
-the wrapper element and the input to read the value from.
-*/
+/* One dialog field, in the V3 form markup (_field_text.html / _field_file.html). */
 const buildDialogField = ({ name, label, type, placeholder, accept, help }, dialogId) => {
   const field = document.createElement("div");
   field.className = type === "file" ? "field field--file" : "field";
@@ -274,8 +245,7 @@ const buildDialogField = ({ name, label, type, placeholder, accept, help }, dial
   if (accept) input.accept = accept;
 
   if (type === "file") {
-    // _field_file.html hides the native input and shows its own label, because
-    // browsers render "No file chosen" in a style we can't touch.
+    // _field_file.html hides the native input: "No file chosen" is unstyleable.
     const display = document.createElement("span");
     display.className = "field__file-display";
     display.setAttribute("aria-hidden", "true");
@@ -308,16 +278,10 @@ const buildDialogField = ({ name, label, type, placeholder, accept, help }, dial
 
 /*
 Open a modal dialog and resolve with whatever `onSubmit` returns, or null if the
-user dismisses it.
+user dismisses it. Uses the shared V3 Dialog markup (_dialog.html / dialog.css).
 
-Rendered with the shared V3 Dialog component's classes (see _dialog.html /
-dialog.css) rather than a bespoke look; only the pieces that component has no
-template for — the form body, and backdrop/close as <button> instead of <a>,
-since there is nowhere to navigate — are styled in wysiwyg-editor.css.
-
-`onSubmit` receives the field values and may be async; throwing an Error keeps
-the dialog open and shows the message in it, which is how a rejected image
-upload or an unsafe URL is reported.
+`onSubmit` may be async; throwing an Error keeps the dialog open and shows the
+message, which is how a rejected upload or an unsafe URL is reported.
 */
 export const openDialog = ({ title, fields, submitLabel = "Insert", onSubmit }) =>
   new Promise((resolve) => {
@@ -427,10 +391,8 @@ export const openDialog = ({ title, fields, submitLabel = "Insert", onSubmit }) 
 
 /*
 POST a file to the editor's upload endpoint and resolve with the stored URL.
-
-The endpoint and the CSRF token come from the wrapper's data attributes (see
-_wysiwyg_editor.html) because the editor is built entirely in JS and has no
-template of its own to read them from.
+The endpoint and CSRF token come from the wrapper's data attributes, since the
+editor has no template of its own to read them from (see _wysiwyg_editor.html).
 */
 export const uploadEditorImage = async (file, wrapper) => {
   const uploadUrl = wrapper?.dataset.wysiwygUploadUrl;
@@ -474,11 +436,8 @@ const getMermaid = async () => {
     });
     mermaidModule = window.mermaid;
   }
-  // suppressErrorRendering: on a parse failure mermaid otherwise draws its
-  // "Syntax error in text" graphic into the scratch element it appends to
-  // <body> and leaves both behind, so a mistyped diagram in the editor turns up
-  // stranded at the foot of the page. With this set it cleans up and rethrows,
-  // and the error is reported next to the code block instead.
+  // Without suppressErrorRendering, a parse failure leaves mermaid's "Syntax
+  // error" graphic stranded on <body>, at the foot of the page.
   mermaidModule.initialize({
     startOnLoad: false,
     theme: "default",
@@ -583,9 +542,7 @@ export const ICONS = {
     '<svg width="18" height="18" viewBox="0 0 26 18" fill="currentColor" aria-hidden="true"><path d="M2 2h3l3 4 3-4h3v10h-3V6l-3 4-3-4v6H2V2zm17 0h3l3 5h-2v5h-3V7h-2l4-5z" fill-rule="evenodd"/></svg>',
   preview:
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
-  // Undo / redo and close are the UI-kit glyphs, shared by every preset so no
-  // toolbar falls back to a text arrow. `close` mirrors includes/icon.html's
-  // "close" pixel-art icon, which templates get from the icon include.
+  // UI-kit glyphs; `close` mirrors the one templates get from includes/icon.html.
   undo:
     '<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M8.66667 7.83203C7.25 8.08203 6 8.58203 4.83333 9.4987L2.5 7.08203V12.9154H8.33333L6.08333 10.6654C9.16667 8.4987 13.4167 9.16536 15.6667 12.2487C15.8333 12.4987 16 12.6654 16.0833 12.9154L17.5833 12.1654C15.75 8.9987 12.25 7.2487 8.66667 7.83203Z"/></svg>',
   redo:
@@ -984,10 +941,8 @@ const buildToolbar = (editor, toolbarEl, preset = "full") => {
 
 /*
 Render `diagram` into `container` as an SVG, or as an inline error message.
-
-Both outcomes stay inside the container the caller owns. That matters for the
-editor, where the alternative — mermaid's own error rendering — escapes to the
-end of <body>; see the suppressErrorRendering note in getMermaid.
+Both outcomes stay in the container; mermaid's own error rendering does not (see
+the suppressErrorRendering note in getMermaid).
 */
 const renderDiagram = async (container, diagram) => {
   try {
@@ -1004,17 +959,12 @@ const renderDiagram = async (container, diagram) => {
   }
 };
 
-// Long enough that a diagram is not re-parsed on every keystroke, short enough
-// that the preview follows the typing.
 const MERMAID_RENDER_DELAY_MS = 400;
 
 /*
 Render `diagram` into `container`, unless the editor has moved on by then.
-
-Every edit inside a mermaid code block replaces the whole preview widget (its
-decoration is keyed by the diagram source), so a superseded container is
-detached before this fires and its render is skipped — which is what keeps
-typing a diagram from parsing a half-written one on every keystroke.
+Editing the block replaces the widget, so a superseded container is detached
+before this fires — which is what keeps typing from parsing every keystroke.
 */
 const scheduleDiagram = (container, diagram) => {
   setTimeout(() => {
@@ -1025,14 +975,10 @@ const scheduleDiagram = (container, diagram) => {
 const mermaidPreviewKey = new PluginKey("mermaidPreview");
 
 /*
-One preview per mermaid code block, as a ProseMirror widget decoration keyed by
-the diagram source.
-
-Widgets rather than plain DOM appended after the <pre>: ProseMirror owns
-everything inside the editable area and reconciles away nodes it doesn't know
-about, so an injected preview is wiped on the next transaction. The `key` makes
-ProseMirror reuse the existing widget while the source is unchanged, so typing
-elsewhere in the document doesn't re-render every diagram.
+One preview per mermaid code block, as a widget decoration keyed by the diagram
+source. A widget rather than DOM appended after the <pre>, because ProseMirror
+reconciles away anything it doesn't know about inside the editable area; the
+`key` is what lets it reuse a widget whose source hasn't changed.
 */
 const mermaidDecorations = (doc) => {
   const decorations = [];
@@ -1083,15 +1029,12 @@ export const MermaidPreview = Extension.create({
 An image with a drag handle on its corner.
 
 Width is the only thing stored, and that is the whole aspect-ratio strategy:
-`height` is never written, so it stays `auto` and the ratio holds at every size,
-at every viewport, in the editor and on the rendered page alike. There is no
-second number to drift out of step with the first, which is what makes a round
-trip through Markdown safe — a stored height would have to be recomputed on the
-way back in, from an image that may not have loaded yet.
+`height` is never written, so it stays `auto` and the ratio holds at every size
+with no second number to drift out of step with the first.
 
-The width rides in `style` rather than the `width` attribute an <img> already
-has, because `style` is the one that survives the server (see the turndown rule
-above). Both are accepted on the way in, since pasted HTML uses either.
+It rides in `style` rather than the `width` attribute because that is the one
+the server keeps (see the turndown rule above); both are accepted on the way in,
+since pasted HTML uses either.
 */
 export const ResizableImage = Image.extend({
   addAttributes() {
@@ -1119,14 +1062,12 @@ export const ResizableImage = Image.extend({
 
       const dom = document.createElement("div");
       dom.className = "wysiwyg-image";
-      // A leaf node's DOM is not a place for a caret to end up.
       dom.contentEditable = "false";
 
       const img = document.createElement("img");
       const handle = document.createElement("span");
       handle.className = "wysiwyg-image__handle";
-      // A resize only a mouse can perform is a resize not everyone can perform,
-      // so the handle is a real slider and answers to the arrow keys.
+      // A real slider, so the arrow keys work and a resize is not mouse-only.
       handle.setAttribute("role", "slider");
       handle.setAttribute("tabindex", "0");
       handle.setAttribute("aria-label", "Image width");
@@ -1134,10 +1075,9 @@ export const ResizableImage = Image.extend({
       dom.append(img, handle);
 
       /*
-      The widest this image may be dragged: never past its own pixels, since
-      upscaling only buys blur, and never past the column, since `max-width:
-      100%` would silently ignore the excess and the handle would drift away
-      from the pointer that is supposedly dragging it.
+      Never past the image's own pixels, since upscaling only buys blur, and
+      never past the column, since `max-width: 100%` would ignore the excess and
+      the handle would drift away from the pointer dragging it.
       */
       const maxWidth = () => {
         const natural = img.naturalWidth || Infinity;
@@ -1164,26 +1104,17 @@ export const ResizableImage = Image.extend({
       const commit = (width) => {
         const pos = typeof getPos === "function" ? getPos() : null;
         if (pos == null) return;
-        // Dispatching re-syncs the editor's DOM selection, which can take focus
-        // back off the handle mid-gesture and send the next arrow key to the
-        // document instead.
+        // Dispatching re-syncs the DOM selection, which can pull focus off the
+        // handle and send the next arrow key to the document instead.
         const focused = document.activeElement === handle;
-        /*
-        Dragged all the way back out, the width is cleared rather than pinned at
-        whatever number the drag stopped on: an unsized image serialises as plain
-        `![alt](src)`, which is what an author who has undone their resize should
-        get back. Tested against the maximum rather than the image's own width,
-        so that an image too wide for the column — which can never be dragged out
-        to its full size — still has a way back to unsized.
-        */
+        // Dragged back out to the maximum, the width is cleared rather than
+        // pinned there, so the image returns to plain `![alt](src)`.
         const value = width >= maxWidth() ? null : width;
         editor.view.dispatch(editor.view.state.tr.setNodeAttribute(pos, "width", value));
         /*
-        Repaint here rather than leaving it to the node view's `update`: that
-        only runs when the attribute actually changes, and both gestures below
-        paint as they go. Committing a width the node already had — dragging out
-        to the maximum twice — would otherwise leave the last painted size on an
-        image the editor considers unsized.
+        Repaint here rather than leaving it to `update`, which only runs when the
+        attribute actually changes: committing a width the node already had would
+        otherwise leave the last painted size on an image now considered unsized.
         */
         img.style.width = value ? `${value}px` : "";
         syncHandle();
@@ -1199,13 +1130,11 @@ export const ResizableImage = Image.extend({
         syncHandle();
       };
 
-      // naturalWidth is 0 until the file arrives, and it is the ceiling on every
-      // resize, so the handle's range is only right once the image has loaded.
+      // naturalWidth is 0 until the file arrives, and it is the resize ceiling.
       img.addEventListener("load", () => syncHandle());
 
-      // Set while a drag is in flight, so that a node view torn down mid-gesture
-      // (an undo, a paste over the image) does not leave listeners on the
-      // document mutating an element the editor has already thrown away.
+      // Set while a drag is in flight, so a node view torn down mid-gesture does
+      // not leave document listeners driving a discarded element.
       let endDrag = null;
 
       handle.addEventListener("pointerdown", (event) => {
@@ -1218,12 +1147,8 @@ export const ResizableImage = Image.extend({
         dom.classList.add("wysiwyg-image--resizing");
 
         const onMove = (moveEvent) => {
-          /*
-          Horizontal travel only. A corner handle gets dragged diagonally, and
-          the vertical component is exactly what must be ignored: height is
-          never written, so width has to be the sole input or the two would
-          disagree about the shape of the picture.
-          */
+          // Horizontal travel only: a corner handle is dragged diagonally, but
+          // width is the sole input, so nothing can contradict the ratio.
           width = clamp(startWidth + (moveEvent.clientX - startX));
           img.style.width = `${width}px`;
           syncHandle(width);
@@ -1237,12 +1162,8 @@ export const ResizableImage = Image.extend({
           if (finished !== false) commit(width);
         };
         endDrag = () => onEnd(false);
-        /*
-        On the document rather than the handle, and without pointer capture: the
-        pointer leaves a 12px grip almost immediately, and setPointerCapture
-        throws for a pointer the browser no longer considers active, which would
-        end the gesture before a single move had been handled.
-        */
+        // On the document, not the handle: the pointer leaves a 12px grip at
+        // once, and setPointerCapture throws for a pointer already inactive.
         document.addEventListener("pointermove", onMove);
         document.addEventListener("pointerup", onEnd);
         document.addEventListener("pointercancel", onEnd);
@@ -1255,8 +1176,7 @@ export const ResizableImage = Image.extend({
         else if (event.key === "ArrowRight" || event.key === "ArrowUp") delta = step;
         else return;
         event.preventDefault();
-        // Before the file arrives there is no width to resize from, and every
-        // key would clamp the image to the minimum.
+        // Before the file arrives every key would clamp it to the minimum.
         if (!img.naturalWidth) return;
         commit(clamp(renderedWidth() + delta));
       });
@@ -1271,16 +1191,12 @@ export const ResizableImage = Image.extend({
           render();
           return true;
         },
-        // The handles belong to the selected image, not to whatever the pointer
-        // happens to be over: a document full of images is not a document full
-        // of grips.
         selectNode: () => dom.classList.add("wysiwyg-image--selected"),
         deselectNode: () => dom.classList.remove("wysiwyg-image--selected"),
-        // A drag on the handle is the node view's own gesture; letting it reach
-        // the editor would start ProseMirror's drag of the image instead.
+        // Otherwise a drag on the handle starts ProseMirror's drag of the image.
         stopEvent: (event) =>
           event.target instanceof Node && handle.contains(event.target),
-        // A leaf node with no content: every mutation here is one this view made.
+        // A leaf node: every mutation here is one this view made.
         ignoreMutation: () => true,
         destroy: () => endDrag?.(),
       };

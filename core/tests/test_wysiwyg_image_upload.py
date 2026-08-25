@@ -1,4 +1,4 @@
-"""Tests for the V3 WYSIWYG editor's image-upload endpoint (issue #2303)."""
+"""Tests for the V3 WYSIWYG editor's image-upload endpoint."""
 
 import io
 
@@ -47,11 +47,9 @@ def test_upload_stores_the_image_and_returns_its_url(user, tp, cleanup_uploads):
     stored = _stored_name(url)
     cleanup_uploads.append(stored)
     assert default_storage.exists(stored)
-    # The client's filename never reaches the path: it is the one
-    # attacker-controlled part of the upload.
+    # The client's filename is attacker-controlled and never reaches the path.
     assert "diagram" not in url
 
-    # Recorded, so the file is attributable rather than an anonymous object.
     upload = WysiwygImage.objects.get()
     assert upload.image.name == stored
     assert upload.uploaded_by == user

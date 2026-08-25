@@ -77,9 +77,8 @@
   border-radius: var(--border-radius-xl, 12px) var(--border-radius-xl, 12px) 0 0;
   background: var(--color-surface-weak, #fff);
   min-width: 0; /* allow shrinking so content can wrap */
-  /* No overflow here: the toolbar already wraps onto extra rows on narrow
-     viewports, and a scroll container would clip the Insert Table size picker,
-     which is positioned below the toolbar's own box. */
+  /* No overflow container: it would clip the Insert Table size picker, which
+     is positioned below the toolbar's box. */
 }
 
 /* When in markdown mode, hide all formatting controls except the MD toggle */
@@ -362,9 +361,7 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
   list-style-type: decimal;
 }
 
-/* Headings — the type scale only defines regular (400) and medium (500), so a
-   heading in the editor must never render heavier than the same heading does
-   on the published page (see markdown-card.css). */
+/* The type scale stops at 500; heavier would not match the published page. */
 .wysiwyg-editor__prose :is(h1, h2, h3) {
   font-family: var(--font-display);
   font-weight: var(--font-weight-medium);
@@ -411,13 +408,9 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
   border-radius: var(--border-radius-l, 8px);
 }
 
-/*
-Resizable image node view (ResizableImage in frontend/wysiwyg-editor.js).
-
-The wrapper shrink-wraps the image so the handle sits on the picture's corner
-rather than the column's. `height` is deliberately absent everywhere here: the
-image is sized by width alone and `height: auto` above keeps the aspect ratio.
-*/
+/* Resizable image node view (ResizableImage in frontend/wysiwyg-editor.js).
+   No `height` anywhere below: width alone sizes the image, and the
+   `height: auto` above is what holds the aspect ratio. */
 .wysiwyg-editor__prose .wysiwyg-image {
   position: relative;
   display: block;
@@ -437,23 +430,21 @@ image is sized by width alone and `height: auto` above keeps the aspect ratio.
   border-radius: var(--border-radius-xs);
   background: var(--color-surface-weak);
   cursor: nwse-resize;
-  /* The handle owns the gesture: without this a touch drag scrolls the page. */
+  /* Without this a touch drag scrolls the page instead. */
   touch-action: none;
 }
 
-/* Shown for the selected image, and for a handle reached by keyboard. */
 .wysiwyg-image--selected .wysiwyg-image__handle,
 .wysiwyg-image__handle:focus {
   display: block;
 }
 
-/* Which image the handle belongs to. */
 .wysiwyg-image--selected img {
   outline: 2px solid var(--color-stroke-brand-accent);
   outline-offset: 2px;
 }
 
-/* Keyboard focus, in the accent the rest of v3 uses for a focus ring. */
+/* The accent v3 uses for focus rings elsewhere. */
 .wysiwyg-image__handle:focus {
   outline: 2px solid var(--color-stroke-link-accent);
   outline-offset: 2px;
@@ -629,8 +620,7 @@ image is sized by width alone and `height: auto` above keeps the aspect ratio.
   height: auto;
 }
 
-/* A diagram that failed to parse: the message replaces the drawing, so the
-   panel reads as a warning rather than an empty box. */
+/* A message, not a drawing — hence left-aligned. */
 .mermaid-preview--error {
   border-style: solid;
   border-color: var(--color-stroke-error);
@@ -709,13 +699,10 @@ image is sized by width alone and `height: auto` above keeps the aspect ratio.
 
 /* ── Dialogs (Insert Link / Insert Image) ──────────────────────── */
 
-/*
-Built in JS (openDialog in frontend/wysiwyg-editor.js) but rendered with the
-shared V3 Dialog component's markup, so it inherits dialog.css. Only the parts
-that component has no template for are styled here: a form body, and a backdrop
-and close control rendered as <button> rather than <a> because a runtime dialog
-has nowhere to navigate to.
-*/
+/* Built in JS (openDialog in frontend/wysiwyg-editor.js) on the shared Dialog
+   component's markup, so it inherits dialog.css. Only what that component has
+   no template for is styled here: a form body, and a backdrop and close button
+   that are <button> rather than <a> — a runtime dialog has nowhere to link. */
 .wysiwyg-dialog__body {
   display: flex;
   flex-direction: column;
