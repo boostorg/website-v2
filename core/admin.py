@@ -2,6 +2,7 @@ from datetime import date
 
 from django.contrib import admin
 from django.urls import path
+from django.utils.html import format_html
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.db import transaction
@@ -14,6 +15,7 @@ from .models import (
     PopularSearchTermExclusion,
     RenderedContent,
     SiteSettings,
+    WysiwygImage,
 )
 from .tasks import delete_all_rendered_content
 
@@ -197,3 +199,69 @@ class PopularSearchTermAdmin(admin.ModelAdmin):
 class PopularSearchTermExclusionAdmin(admin.ModelAdmin):
     list_display = ("term", "note")
     search_fields = ("term",)
+
+
+@admin.register(WysiwygImage)
+class WysiwygImageAdmin(admin.ModelAdmin):
+    """What the WYSIWYG editor has put in storage, and who put it there.
+
+    Browse and delete only: an upload is created by the editor and referenced
+    from a post by URL, so there is nothing here that can usefully be edited.
+    Deleting a row deletes the file, which is how an upload is taken down.
+    """
+
+    list_display = (
+        "preview",
+        "original_filename",
+        "uploader",
+        "dimensions",
+        "created",
+    )
+    # `uploader` reads obj.uploaded_by on every row, a query each without this.
+    list_select_related = ("uploaded_by",)
+    list_filter = ("created",)
+    search_fields = ("original_filename", "image", "uploaded_by__email")
+    date_hierarchy = "created"
+    readonly_fields = (
+        "full_preview",
+        "image",
+        "original_filename",
+        "uploaded_by",
+        "dimensions",
+        "created",
+        "modified",
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    @admin.display(description="Preview")
+    def preview(self, obj):
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener">'
+            '<img src="{}" alt="" style="max-height:40px;max-width:80px"></a>',
+            obj.image.url,
+            obj.image.url,
+        )
+
+    @admin.display(description="Image")
+    def full_preview(self, obj):
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener">'
+            '<img src="{}" alt="" style="max-height:400px;max-width:100%"></a>',
+            obj.image.url,
+            obj.image.url,
+        )
+
+    @admin.display(description="Uploaded by")
+    def uploader(self, obj):
+        return str(obj.uploaded_by) if obj.uploaded_by else "(deleted account)"
+
+    @admin.display(description="Dimensions")
+    def dimensions(self, obj):
+        if not obj.width or not obj.height:
+            return "—"
+        return f"{obj.width} x {obj.height}"

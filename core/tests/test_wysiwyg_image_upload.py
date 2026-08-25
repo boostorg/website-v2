@@ -8,7 +8,7 @@ from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
 
-from core.views import UPLOADED_IMAGE_DIRECTORY
+from core.models import UPLOADED_IMAGE_DIRECTORY, WysiwygImage
 
 pytestmark = pytest.mark.django_db
 
@@ -50,6 +50,32 @@ def test_upload_stores_the_image_and_returns_its_url(user, tp, cleanup_uploads):
     # The client's filename never reaches the path: it is the one
     # attacker-controlled part of the upload.
     assert "diagram" not in url
+
+    # Recorded, so the file is attributable rather than an anonymous object.
+    upload = WysiwygImage.objects.get()
+    assert upload.image.name == stored
+    assert upload.uploaded_by == user
+    assert upload.original_filename == "diagram.png"
+    assert (upload.width, upload.height) == (20, 20)
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_deleting_the_row_removes_the_file(
+    user, tp, cleanup_uploads, django_capture_on_commit_callbacks
+):
+    """Deleting an upload in the admin is what takes it out of storage."""
+    with tp.login(user):
+        response = tp.post(
+            tp.reverse("v3-wysiwyg-image-upload"), data={"image": _png()}
+        )
+    stored = _stored_name(response.json()["url"])
+    cleanup_uploads.append(stored)
+
+    with django_capture_on_commit_callbacks(execute=True):
+        # Through the queryset, as the admin's bulk action deletes.
+        WysiwygImage.objects.all().delete()
+
+    assert not default_storage.exists(stored)
 
 
 @waffle.testutils.override_flag("v3", active=True)
