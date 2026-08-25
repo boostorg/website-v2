@@ -93,6 +93,12 @@
   height: 100%;
 }
 
+/* The posts card spans the full grid height on its own, so it keeps its
+   natural height instead of stretching. */
+.card-masonry .item-a .card-group {
+  height: auto;
+}
+
 @media (max-width: 1280px) {
   /* Narrower layouts keep the original grid; the column wrappers dissolve so
      the cards are grid items again. */
