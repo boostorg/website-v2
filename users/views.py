@@ -58,6 +58,7 @@ from .mixins import V3UserProfileContextMixin
 from .models import NO_PUBLIC_ROLE_OPTION, User, encode_role_option
 from .password_rules import build_password_rules
 from .permissions import CustomUserPermissions
+from .profile_cards import github_activity_card_context
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
 from . import tasks
 
@@ -123,6 +124,24 @@ class PublicUserProfileView(V3UserProfileContextMixin, V3Mixin, DetailView):
         context = super().get_v3_context_data(**kwargs)
         context.update(self.get_v3_public_context(self.object))
         return context
+
+
+class GithubActivityFragmentView(LoginRequiredMixin, TemplateView):
+    """Re-render just the GitHub activity card.
+
+    Polled by the card itself while a background refresh runs, so the numbers
+    appear without the user reloading. Read-only: it renders whatever is stored
+    and never waits on GitHub.
+    """
+
+    template_name = "v3/includes/_github_activity_card.html"
+
+    def get_context_data(self, **kwargs):
+        try:
+            attempt = int(self.request.GET.get("attempt", 0))
+        except ValueError:
+            attempt = 0
+        return github_activity_card_context(self.request.user, attempt=attempt)
 
 
 class CurrentUserProfileView(

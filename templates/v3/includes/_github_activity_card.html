@@ -1,0 +1,25 @@
+{% comment %}
+  GitHub activity card plus its sync status line.
+
+  While a background refresh is running this element re-requests itself and
+  swaps itself out. Each response decides whether polling continues: the
+  hx-* attributes are only rendered while still refreshing and under the
+  attempt cap, so the chain stops on its own once the data lands (or once we
+  give up and ask the user to reload).
+
+  Inputs:
+    data: dict, required - from users.profile_cards.github_activity_card
+    attempt: int, required - how many polls have happened so far
+    poll_exhausted: bool, required - whether the attempt cap has been reached
+    poll_url: str, required - url of the fragment endpoint
+    poll_interval: int, required - seconds between polls
+{% endcomment %}
+<div id="github-activity-card"
+     {% if data.refreshing and not poll_exhausted %}
+     hx-get="{{ poll_url }}?attempt={{ next_attempt }}"
+     hx-trigger="load delay:{{ poll_interval }}s"
+     hx-swap="outerHTML"
+     {% endif %}>
+  {% include 'v3/includes/_markdown_card.html' with title=data.title markdown=data.markdown_text button_url=data.button_url button_label=data.button_label %}
+  {% include 'v3/includes/_github_activity_status.html' with refreshing=data.refreshing last_synced=data.last_synced poll_exhausted=poll_exhausted only %}
+</div>

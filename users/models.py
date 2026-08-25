@@ -29,6 +29,7 @@ from core.validators import (
     large_file_max_size_validator,
     downscale_image_file_size_validator,
 )
+from users.constants import GITHUB_ACTIVITY_STALE_AFTER
 
 logger = logging.getLogger(__name__)
 
@@ -994,6 +995,43 @@ class Preferences(models.Model):
         if isinstance(value, bool):
             value = [value]
         self.change_notification_allowed(self.TERMS_CHANGED, value)
+
+
+class GithubActivity(models.Model):
+    """Cached Boost org GitHub contribution data for a user.
+
+    Populated by the ``refresh_github_activity`` Celery task. One row per user
+    with a linked GitHub account; never written during a web request.
+    """
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="github_activity",
+    )
+    data = models.JSONField(default=dict, blank=True)
+    last_synced = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "GitHub Activity"
+        verbose_name_plural = "GitHub Activities"
+
+    def __str__(self):
+        return f"GitHub Activity for {self.user}"
+
+    @property
+    def is_stale(self) -> bool:
+        if self.last_synced is None:
+            return True
+        return timezone.now() - self.last_synced > GITHUB_ACTIVITY_STALE_AFTER
+
+    @classmethod
+    def upsert_for_user(cls, user, activity_data: dict) -> "GithubActivity":
+        obj, _ = cls.objects.update_or_create(
+            user=user,
+            defaults={"data": activity_data, "last_synced": timezone.now()},
+        )
+        return obj
 
 
 @receiver(post_save, sender=User)

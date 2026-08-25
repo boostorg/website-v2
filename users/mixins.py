@@ -2,6 +2,7 @@ from urllib.parse import urlparse
 
 from badges import display as badge_display
 from core.context_processors import edit_profile_url
+from users.profile_cards import github_activity_card_context
 
 
 class V3UserProfileContextMixin:
@@ -88,7 +89,7 @@ class V3UserProfileContextMixin:
         of the context so the template omits them entirely. The bio section
         is always rendered, falling back to an empty state."""
         is_owner = user == self.request.user
-        return {
+        context = {
             "user_info": {
                 "user_name": user.display_name,
                 "avatar_url": user.get_avatar_url(),
@@ -121,3 +122,13 @@ class V3UserProfileContextMixin:
             "bio": user.biography or None,
             "top_links": self.get_v3_profile_link_buttons(user),
         }
+        # Owner-only: the card kicks a background refresh, and publishing it on
+        # a public profile would expose data that `hide_github_activity` is
+        # meant to withhold, an opt-out not yet wired up to rendering.
+        # Omitted entirely without a linked account, so a profile with no data
+        # stays the bio card alone.
+        if is_owner:
+            activity = github_activity_card_context(user)
+            if activity["data"]["linked"]:
+                context["github_activity"] = activity
+        return context

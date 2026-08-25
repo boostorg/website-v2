@@ -1,11 +1,13 @@
 import datetime
+import json
 from unittest.mock import MagicMock, Mock
 
 import pytest
+import requests
 import responses
 from ghapi.all import GhApi
 
-from core.githubhelper import GithubAPIClient, GithubDataParser
+from core.githubhelper import GithubAPIClient, GithubDataParser, boost_activity
 
 """GithubAPIClient Tests"""
 
@@ -258,3 +260,110 @@ def test_extract_contributor_data():
     assert expected["valid_email"] is False
     assert expected["display_name"] == result["display_name"]
     assert "email" in result
+
+
+"""boost_activity Tests"""
+
+GRAPHQL_URL = "https://api.github.com/graphql"
+
+
+def _contributions_payload(prs=None, **overrides):
+    """Build a contributionsCollection GraphQL response."""
+    collection = {
+        "totalCommitContributions": 5,
+        "totalRepositoriesWithContributedCommits": 3,
+        "totalPullRequestContributions": 5,
+        "totalRepositoriesWithContributedPullRequests": 5,
+        "totalPullRequestReviewContributions": 2,
+        "totalRepositoriesWithContributedPullRequestReviews": 1,
+        "repositoryContributions": {"totalCount": 0},
+        "pullRequestContributions": {"nodes": prs or []},
+    }
+    collection.update(overrides)
+    return {"data": {"user": {"contributionsCollection": collection}}}
+
+
+def _pr_node(repo, comments, title="A PR", url="https://github.com/x/y/pull/1"):
+    return {
+        "pullRequest": {
+            "title": title,
+            "url": url,
+            "repository": {"nameWithOwner": repo},
+            "comments": {"totalCount": comments},
+        }
+    }
+
+
+@responses.activate
+def test_boost_activity_queries_boostorg_only(settings):
+    """Exactly one GraphQL call, scoped to the boostorg node ID."""
+    settings.BOOST_GITHUB_ORG_NODE_ID = "O_kgDOADBg4Q"
+    responses.add(responses.POST, GRAPHQL_URL, json=_contributions_payload())
+
+    result = boost_activity("testuser")
+
+    assert len(responses.calls) == 1
+    body = json.loads(responses.calls[0].request.body)
+    assert body["variables"]["orgId"] == "O_kgDOADBg4Q"
+    assert body["variables"]["login"] == "testuser"
+    assert result["total_commits"] == 5
+    assert result["commit_repo_count"] == 3
+
+
+@responses.activate
+def test_boost_activity_raises_on_graphql_error():
+    """A GraphQL errors payload raises instead of returning partial data."""
+    responses.add(
+        responses.POST,
+        GRAPHQL_URL,
+        json={"errors": [{"message": "Could not resolve to a node"}]},
+    )
+
+    with pytest.raises(ValueError):
+        boost_activity("testuser")
+
+
+@responses.activate
+def test_boost_activity_raises_on_http_error():
+    """A transient 502 must raise so callers keep the last good snapshot."""
+    responses.add(responses.POST, GRAPHQL_URL, status=502, json={})
+
+    with pytest.raises(requests.exceptions.HTTPError):
+        boost_activity("testuser")
+
+
+@responses.activate
+def test_boost_activity_raises_on_unknown_login():
+    """A null user is a success payload, but must not be stored as zeros."""
+    responses.add(responses.POST, GRAPHQL_URL, json={"data": {"user": None}})
+
+    with pytest.raises(ValueError):
+        boost_activity("nosuchuser")
+
+
+@responses.activate
+def test_boost_activity_featured_pr_is_highest_comment_count():
+    """The featured PR is the one with the most conversation comments."""
+    responses.add(
+        responses.POST,
+        GRAPHQL_URL,
+        json=_contributions_payload(
+            prs=[
+                _pr_node("boostorg/url", 5),
+                _pr_node("boostorg/beast", 9),
+                _pr_node("boostorg/json", 2),
+            ]
+        ),
+    )
+
+    featured = boost_activity("testuser")["featured_pr"]
+
+    assert featured["repo"] == "boostorg/beast"
+    assert featured["comment_count"] == 9
+
+
+@responses.activate
+def test_boost_activity_featured_pr_none_when_no_prs():
+    responses.add(responses.POST, GRAPHQL_URL, json=_contributions_payload(prs=[]))
+
+    assert boost_activity("testuser")["featured_pr"] is None

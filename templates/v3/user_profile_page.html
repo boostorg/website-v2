@@ -32,11 +32,9 @@
         <div class="user-profile__bio">
           {% include 'v3/includes/_user_profile_bio_card.html' with title='Bio' markdown=bio contributor_data=contributor_data only %}
         </div>
-        {% if github_activity_card_data %}
+        {% if github_activity %}
         <div class="user-profile__github">
-          {% with data=github_activity_card_data %}
-            {% include 'v3/includes/_markdown_card.html' with title=data.title markdown=data.markdown_text button_url=data.button_url button_label=data.button_label %}
-          {% endwith %}
+          {% include 'v3/includes/_github_activity_card.html' with data=github_activity.data attempt=github_activity.attempt next_attempt=github_activity.next_attempt poll_exhausted=github_activity.poll_exhausted poll_url=github_activity.poll_url poll_interval=github_activity.poll_interval only %}
         </div>
         {% endif %}
         {% if mailing_list_activity_card_data %}

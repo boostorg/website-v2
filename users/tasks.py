@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import structlog
 
+from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.db import connection, transaction
@@ -17,6 +18,7 @@ from oauth2_provider.models import clear_expired
 from config.celery import app
 from core.githubhelper import GithubAPIClient
 from users.constants import (
+    GITHUB_PROVIDER,
     PROFILE_ROLE_RECOMPUTE_LOCK,
     UNVERIFIED_CLEANUP_DAYS,
     UNVERIFIED_CLEANUP_BEGIN,
@@ -103,6 +105,69 @@ def send_account_deleted_email(email):
         settings.DEFAULT_FROM_EMAIL,
         [email],
     )
+
+
+@app.task
+def refresh_github_activity(user_pk):
+    """Fetch and cache Boost org GitHub activity for a single user.
+
+    Keeps the last good snapshot on API error rather than blanking the row.
+    """
+    from core.githubhelper import boost_activity
+    from users.models import GithubActivity
+
+    try:
+        user = User.objects.get(pk=user_pk)
+    except User.DoesNotExist:
+        logger.exception("refresh_github_activity_user_not_found", user_pk=user_pk)
+        raise
+
+    login = user.github_username
+    if not login:
+        logger.info("refresh_github_activity_no_username", user_pk=user_pk)
+        return
+
+    try:
+        activity_data = boost_activity(login)
+    except Exception as exc:
+        logger.error(
+            "refresh_github_activity_failed",
+            user_pk=user_pk,
+            login=login,
+            exc_msg=str(exc),
+        )
+        raise
+
+    # The account can be disconnected while the fetch above is in flight, and
+    # the disconnect already deleted the row. Re-check under the same lock the
+    # disconnect handler takes, so we never write back data for an account the
+    # user has just unlinked, or for a handle they have since changed.
+    with transaction.atomic():
+        user = User.objects.select_for_update().filter(pk=user_pk).first()
+        if user is None:
+            logger.info("refresh_github_activity_user_gone", user_pk=user_pk)
+            return
+
+        if user.github_username != login:
+            logger.info(
+                "refresh_github_activity_login_changed",
+                user_pk=user_pk,
+                fetched=login,
+                current=user.github_username,
+            )
+            return
+
+        if not SocialAccount.objects.filter(
+            user_id=user_pk, provider=GITHUB_PROVIDER
+        ).exists():
+            logger.info(
+                "refresh_github_activity_disconnected", user_pk=user_pk, login=login
+            )
+            return
+
+        GithubActivity.upsert_for_user(user, activity_data)
+
+    logger.info("refresh_github_activity_done", user_pk=user_pk, login=login)
 
 
 @shared_task
