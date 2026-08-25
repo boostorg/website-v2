@@ -1,7 +1,6 @@
 import os
 import random
 import re
-import uuid
 
 import requests
 from django.db.models import Count
@@ -19,7 +18,6 @@ from django.db.models import Exists, OuterRef
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
 from django.contrib.auth.decorators import login_required
-from django.core.files.storage import default_storage
 from django.http import (
     Http404,
     HttpResponse,
@@ -96,7 +94,7 @@ from .htmlhelper import (
     add_canonical_link,
 )
 from .markdown import process_md
-from .models import RenderedContent, SiteSettings
+from .models import RenderedContent, SiteSettings, WysiwygImage
 from .tasks import (
     clear_rendered_content_cache_by_cache_key,
     clear_rendered_content_cache_by_content_type,
@@ -1466,21 +1464,13 @@ class QRCodeView(View):
         return HttpResponseRedirect(redirect_path)
 
 
-UPLOADED_IMAGE_DIRECTORY = "wysiwyg"
-
-
 @require_POST
 @login_required
 def wysiwyg_image_upload(request):
     """Store an image dropped into the V3 WYSIWYG editor and return its URL.
 
-    The editor writes Markdown, which can only reference an image by URL, so an
-    uploaded file has to become one before it can be inserted. The response is
-    `{"url": ...}` on success and `{"error": ...}` with a 400 on a rejected
-    file, which is what the editor's Insert Image dialog renders.
-
-    The stored name is a UUID rather than the client's filename: the name comes
-    from the browser and is the only attacker-controlled part of the path.
+    The response is `{"url": ...}` on success and `{"error": ...}` with a 400 on
+    a rejected file, which is what the Insert Image dialog renders.
     """
     if not flag_is_active(request, "v3"):
         raise Http404
@@ -1490,12 +1480,13 @@ def wysiwyg_image_upload(request):
         errors = form.errors.get("image") or ["Could not upload that image."]
         return JsonResponse({"error": errors[0]}, status=400)
 
-    image = form.cleaned_data["image"]
-    extension = os.path.splitext(image.name)[1].lower()
-    stored_name = default_storage.save(
-        f"{UPLOADED_IMAGE_DIRECTORY}/{uuid.uuid4().hex}{extension}", image
+    upload = WysiwygImage.objects.create(
+        image=form.cleaned_data["image"],
+        # The submitted name, which clean_image may since have re-encoded away.
+        original_filename=request.FILES["image"].name[:255],
+        uploaded_by=request.user,
     )
-    return JsonResponse({"url": default_storage.url(stored_name)})
+    return JsonResponse({"url": upload.image.url})
 
 
 class V3ComponentDemoView(V3Mixin, TemplateView):

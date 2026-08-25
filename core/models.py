@@ -1,6 +1,12 @@
 import re
+from pathlib import Path
+from uuid import uuid4
 
-from django.db import models
+import structlog
+from django.conf import settings
+from django.db import models, transaction
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django.db.models.functions import Lower
@@ -11,6 +17,10 @@ from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
 from libraries.path_matcher.utils import determine_latest_url
 from versions.models import Version
 from .managers import PopularSearchTermManager, RenderedContentManager
+
+logger = structlog.get_logger()
+
+UPLOADED_IMAGE_DIRECTORY = "wysiwyg"
 
 
 class LatestPathMatchIndicator(models.IntegerChoices):
@@ -279,3 +289,75 @@ class PopularSearchTermExclusion(models.Model):
 
     def __str__(self):
         return self.term
+
+
+def wysiwyg_image_path(instance, filename):
+    """Name every upload after a UUID.
+
+    The submitted filename is the one attacker-controlled part of the path, and
+    media storage runs with `file_overwrite = True`, so two authors uploading
+    `screenshot.png` would otherwise clobber each other. The extension is kept
+    because the upload form already restricts it.
+    """
+    return f"{UPLOADED_IMAGE_DIRECTORY}/{uuid4().hex}{Path(filename).suffix.lower()}"
+
+
+class WysiwygImage(TimeStampedModel):
+    """An image uploaded through the V3 WYSIWYG editor's Insert Image dialog.
+
+    The editor writes Markdown, which can only reference an image by URL, so the
+    file has to be stored and served before it can be inserted. The row exists so
+    that those files are accountable: without one, an upload is an anonymous
+    object in a bucket that no page links to and nobody can attribute.
+    """
+
+    image = models.ImageField(
+        upload_to=wysiwyg_image_path,
+        width_field="width",
+        height_field="height",
+    )
+    width = models.PositiveIntegerField(null=True, blank=True)
+    height = models.PositiveIntegerField(null=True, blank=True)
+    # As submitted, for recognising an upload in the admin; never used as a path.
+    original_filename = models.CharField(max_length=255, blank=True, default="")
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="wysiwyg_images",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        default=None,
+    )
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name = "WYSIWYG image"
+
+    def __str__(self):
+        return self.original_filename or self.image.name
+
+
+@receiver(post_delete, sender=WysiwygImage)
+def delete_wysiwyg_image(sender, instance, **kwargs):
+    """Take the file out of storage when its row is deleted.
+
+    A `post_delete` receiver disables fast-delete, so the admin's bulk action
+    emits signals per row rather than skipping them. Deferred to commit because
+    an object removed from S3 cannot be restored if the delete is rolled back,
+    and swallowed on failure so a storage outage cannot break an otherwise
+    successful deletion.
+
+    Any post still referencing the URL will show a broken image, which is the
+    intended outcome: deleting the row is how an upload is taken down.
+    """
+    image = instance.image
+    if not image:
+        return
+
+    def remove_from_storage():
+        try:
+            image.delete(save=False)
+        except Exception:
+            logger.warning("Could not delete WYSIWYG image from storage", exc_info=True)
+
+    transaction.on_commit(remove_from_storage)
