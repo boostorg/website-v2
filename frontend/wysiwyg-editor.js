@@ -161,6 +161,14 @@ const DEFAULT_CODE_LANGUAGE = "cpp";
 // Matches core.validators.IMAGE_EXTENSIONS, which the upload endpoint enforces.
 const IMAGE_UPLOAD_ACCEPT = "image/jpeg,image/png";
 
+// Narrowest an image may be dragged. Below this the handle is most of the
+// picture and there is nothing left to take hold of.
+const MIN_IMAGE_WIDTH = 48;
+// One arrow-key press on the resize handle, and one with Shift held. Coarse
+// enough to cross an image in a few presses, fine enough to stop where you meant.
+const IMAGE_RESIZE_STEP = 16;
+const IMAGE_RESIZE_STEP_LARGE = 64;
+
 
 const turndown = new TurndownService({
   headingStyle: "atx",
@@ -193,6 +201,37 @@ turndown.addRule("taskList", {
   filter: (node) =>
     node.nodeName === "UL" && node.getAttribute("data-type") === "taskList",
   replacement: (content) => "\n" + content + "\n",
+});
+
+const escapeAttribute = (value) =>
+  String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+/*
+A resized image has to leave as HTML: `![alt](src)` has nowhere to put a size.
+
+Only images carrying a width take this path, so an image nobody has resized
+stays ordinary Markdown and the source stays readable. The width travels in
+`style` rather than the `width` attribute an <img> already has, because that is
+the one the server keeps — nh3 allows `src`, `alt` and `title` on an image and
+drops every other attribute, while its CSS property allowlist includes `width`.
+See core/tests/test_markdown_rendering.py, which pins that from the other side.
+*/
+turndown.addRule("resizedImage", {
+  filter: (node) => node.nodeName === "IMG" && !!node.style?.width,
+  replacement: (_content, node) => {
+    const attributes = [
+      `src="${escapeAttribute(node.getAttribute("src"))}"`,
+      `alt="${escapeAttribute(node.getAttribute("alt"))}"`,
+    ];
+    const title = node.getAttribute("title");
+    if (title) attributes.push(`title="${escapeAttribute(title)}"`);
+    attributes.push(`style="width: ${parseInt(node.style.width, 10)}px"`);
+    return `<img ${attributes.join(" ")}>`;
+  },
 });
 
 
@@ -1040,6 +1079,194 @@ export const MermaidPreview = Extension.create({
   },
 });
 
+/*
+An image with a drag handle on its corner.
+
+Width is the only thing stored, and that is the whole aspect-ratio strategy:
+`height` is never written, so it stays `auto` and the ratio holds at every size,
+at every viewport, in the editor and on the rendered page alike. There is no
+second number to drift out of step with the first, which is what makes a round
+trip through Markdown safe — a stored height would have to be recomputed on the
+way back in, from an image that may not have loaded yet.
+
+The width rides in `style` rather than the `width` attribute an <img> already
+has, because `style` is the one that survives the server (see the turndown rule
+above). Both are accepted on the way in, since pasted HTML uses either.
+*/
+export const ResizableImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: null,
+        parseHTML: (element) => {
+          const fromStyle = parseFloat(element.style.width);
+          if (element.style.width.endsWith("px") && Number.isFinite(fromStyle)) {
+            return Math.round(fromStyle);
+          }
+          const fromAttribute = parseInt(element.getAttribute("width") || "", 10);
+          return Number.isFinite(fromAttribute) ? fromAttribute : null;
+        },
+        renderHTML: (attributes) =>
+          attributes.width ? { style: `width: ${attributes.width}px` } : {},
+      },
+    };
+  },
+
+  addNodeView() {
+    return ({ node, editor, getPos }) => {
+      let current = node;
+
+      const dom = document.createElement("div");
+      dom.className = "wysiwyg-image";
+      // A leaf node's DOM is not a place for a caret to end up.
+      dom.contentEditable = "false";
+
+      const img = document.createElement("img");
+      const handle = document.createElement("span");
+      handle.className = "wysiwyg-image__handle";
+      // A resize only a mouse can perform is a resize not everyone can perform,
+      // so the handle is a real slider and answers to the arrow keys.
+      handle.setAttribute("role", "slider");
+      handle.setAttribute("tabindex", "0");
+      handle.setAttribute("aria-label", "Image width");
+      handle.draggable = false;
+      dom.append(img, handle);
+
+      /*
+      The widest this image may be dragged: never past its own pixels, since
+      upscaling only buys blur, and never past the column, since `max-width:
+      100%` would silently ignore the excess and the handle would drift away
+      from the pointer that is supposedly dragging it.
+      */
+      const maxWidth = () => {
+        const natural = img.naturalWidth || Infinity;
+        const available = dom.parentElement?.clientWidth || Infinity;
+        return Math.max(MIN_IMAGE_WIDTH, Math.floor(Math.min(natural, available)));
+      };
+
+      const clamp = (width) =>
+        Math.min(maxWidth(), Math.max(MIN_IMAGE_WIDTH, Math.round(width)));
+
+      const renderedWidth = () =>
+        current.attrs.width ?? Math.round(img.getBoundingClientRect().width);
+
+      const syncHandle = (width) => {
+        const value = width ?? renderedWidth();
+        handle.setAttribute("aria-valuenow", String(value));
+        handle.setAttribute("aria-valuemin", String(MIN_IMAGE_WIDTH));
+        handle.setAttribute("aria-valuemax", String(maxWidth()));
+        handle.setAttribute("aria-valuetext", `${value} pixels wide`);
+      };
+
+      const commit = (width) => {
+        const pos = typeof getPos === "function" ? getPos() : null;
+        if (pos == null) return;
+        // Dispatching re-syncs the editor's DOM selection, which can take focus
+        // back off the handle mid-gesture and send the next arrow key to the
+        // document instead.
+        const focused = document.activeElement === handle;
+        /*
+        Dragged back out to the image's own size, the width is cleared rather
+        than pinned at it: an unsized image serialises as plain `![alt](src)`,
+        which is what an author who has undone their resize should get back.
+        */
+        const natural = img.naturalWidth;
+        const value = natural && width >= natural ? null : width;
+        editor.view.dispatch(editor.view.state.tr.setNodeAttribute(pos, "width", value));
+        if (focused) handle.focus();
+      };
+
+      const render = () => {
+        img.setAttribute("src", current.attrs.src || "");
+        img.setAttribute("alt", current.attrs.alt || "");
+        if (current.attrs.title) img.setAttribute("title", current.attrs.title);
+        else img.removeAttribute("title");
+        img.style.width = current.attrs.width ? `${current.attrs.width}px` : "";
+        syncHandle();
+      };
+
+      // naturalWidth is 0 until the file arrives, and it is the ceiling on every
+      // resize, so the handle's range is only right once the image has loaded.
+      img.addEventListener("load", () => syncHandle());
+
+      handle.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const startX = event.clientX;
+        const startWidth = img.getBoundingClientRect().width;
+        let width = clamp(startWidth);
+        dom.classList.add("wysiwyg-image--resizing");
+
+        const onMove = (moveEvent) => {
+          /*
+          Horizontal travel only. A corner handle gets dragged diagonally, and
+          the vertical component is exactly what must be ignored: height is
+          never written, so width has to be the sole input or the two would
+          disagree about the shape of the picture.
+          */
+          width = clamp(startWidth + (moveEvent.clientX - startX));
+          img.style.width = `${width}px`;
+          syncHandle(width);
+        };
+        const onEnd = () => {
+          document.removeEventListener("pointermove", onMove);
+          document.removeEventListener("pointerup", onEnd);
+          document.removeEventListener("pointercancel", onEnd);
+          dom.classList.remove("wysiwyg-image--resizing");
+          commit(width);
+        };
+        /*
+        On the document rather than the handle, and without pointer capture: the
+        pointer leaves a 12px grip almost immediately, and setPointerCapture
+        throws for a pointer the browser no longer considers active, which would
+        end the gesture before a single move had been handled.
+        */
+        document.addEventListener("pointermove", onMove);
+        document.addEventListener("pointerup", onEnd);
+        document.addEventListener("pointercancel", onEnd);
+      });
+
+      handle.addEventListener("keydown", (event) => {
+        const step = event.shiftKey ? IMAGE_RESIZE_STEP_LARGE : IMAGE_RESIZE_STEP;
+        let delta = 0;
+        if (event.key === "ArrowLeft" || event.key === "ArrowDown") delta = -step;
+        else if (event.key === "ArrowRight" || event.key === "ArrowUp") delta = step;
+        else return;
+        event.preventDefault();
+        const width = clamp(renderedWidth() + delta);
+        img.style.width = `${width}px`;
+        syncHandle(width);
+        commit(width);
+      });
+
+      render();
+
+      return {
+        dom,
+        update: (updatedNode) => {
+          if (updatedNode.type !== current.type) return false;
+          current = updatedNode;
+          render();
+          return true;
+        },
+        // The handles belong to the selected image, not to whatever the pointer
+        // happens to be over: a document full of images is not a document full
+        // of grips.
+        selectNode: () => dom.classList.add("wysiwyg-image--selected"),
+        deselectNode: () => dom.classList.remove("wysiwyg-image--selected"),
+        // A drag on the handle is the node view's own gesture; letting it reach
+        // the editor would start ProseMirror's drag of the image instead.
+        stopEvent: (event) =>
+          event.target instanceof Node && handle.contains(event.target),
+        // A leaf node with no content: every mutation here is one this view made.
+        ignoreMutation: () => true,
+      };
+    };
+  },
+});
+
 export const highlightPreviewCodeBlocks = (container) => {
   container.querySelectorAll("pre code[class*='language-']").forEach((codeEl) => {
     const match = codeEl.className.match(/language-\{?(\w+)\}?/);
@@ -1139,7 +1366,7 @@ export const initWysiwyg = (textareaId) => {
       TableRow,
       TableCell,
       TableHeader,
-      Image,
+      ResizableImage,
       TaskList,
       TaskItem.configure({ nested: true }),
       MermaidPreview,

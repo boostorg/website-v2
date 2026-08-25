@@ -411,6 +411,53 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
   border-radius: var(--border-radius-l, 8px);
 }
 
+/*
+Resizable image node view (ResizableImage in frontend/wysiwyg-editor.js).
+
+The wrapper shrink-wraps the image so the handle sits on the picture's corner
+rather than the column's. `height` is deliberately absent everywhere here: the
+image is sized by width alone and `height: auto` above keeps the aspect ratio.
+*/
+.wysiwyg-image {
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.wysiwyg-image__handle {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  display: none;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--color-stroke-strong);
+  border-radius: var(--border-radius-xs);
+  background: var(--color-surface-weak);
+  cursor: nwse-resize;
+  /* The handle owns the gesture: without this a touch drag scrolls the page. */
+  touch-action: none;
+}
+
+/* Shown for the selected image, and for a handle reached by keyboard. */
+.wysiwyg-image--selected .wysiwyg-image__handle,
+.wysiwyg-image__handle:focus {
+  display: block;
+}
+
+.wysiwyg-image--selected img,
+.wysiwyg-image__handle:focus {
+  outline: 2px solid var(--color-stroke-brand-accent);
+  outline-offset: 2px;
+}
+
+/* Mid-drag the pointer is committed to the resize, not to selecting text. */
+.wysiwyg-image--resizing {
+  user-select: none;
+}
+
 /* Tables */
 .wysiwyg-editor__prose table {
   border-collapse: collapse;
