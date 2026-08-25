@@ -87,6 +87,12 @@
   grid-area: e;
 }
 
+/* Cards fill their grid area so every vertical gap is exactly the row-gap. */
+.card-masonry .card,
+.card-masonry .card-group {
+  height: 100%;
+}
+
 @media (max-width: 1280px) {
   /* Narrower layouts keep the original grid; the column wrappers dissolve so
      the cards are grid items again. */
