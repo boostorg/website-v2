@@ -585,7 +585,8 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
    panel reads as a warning rather than an empty box. */
 .mermaid-preview--error {
   border-style: solid;
-  border-color: var(--color-text-error);
+  border-color: var(--color-stroke-error);
+  background: var(--color-surface-error-weak);
   text-align: left;
 }
 
