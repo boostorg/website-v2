@@ -45,7 +45,7 @@ html.dark {
   --color-stroke-weak: #f7f7f81a;
 
   /* Surface */
-  --color-surface-brand-accent-hovered: #ffa000d9;
+  --color-surface-brand-accent-hovered: #c67f0a;
   --color-surface-error-strong: var(--color-error-mid);
   --color-surface-error-weak: #fdf2f217;
   --color-surface-mid: var(--color-primary-grey-900);
