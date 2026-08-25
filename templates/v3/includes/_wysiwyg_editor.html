@@ -10,10 +10,8 @@
     preset          (string, optional, default "full")    — toolbar preset: "full", "minimal" or "bio"
     maxlength       (int, optional, default unset)        — character limit; input past it is blocked
 
-  The Insert Image dialog POSTs to `v3-wysiwyg-image-upload`. Its URL and the
-  CSRF token travel as data attributes because the editor is built entirely in
-  JS and has no template of its own to read them from. An `only` include must
-  therefore pass `csrf_token=csrf_token`, or uploads from it are rejected.
+  The Insert Image dialog reads its endpoint and CSRF token from the data
+  attributes below, so an `only` include must pass `csrf_token=csrf_token`.
 
   Usage:
     {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_content" textarea_name="content" %}

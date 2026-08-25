@@ -205,9 +205,8 @@ class PopularSearchTermExclusionAdmin(admin.ModelAdmin):
 class WysiwygImageAdmin(admin.ModelAdmin):
     """What the WYSIWYG editor has put in storage, and who put it there.
 
-    Browse and delete only: an upload is created by the editor and referenced
-    from a post by URL, so there is nothing here that can usefully be edited.
-    Deleting a row deletes the file, which is how an upload is taken down.
+    Browse and delete only; nothing about an upload is worth editing here.
+    Deleting a row deletes the file with it (see `delete_wysiwyg_image`).
     """
 
     list_display = (
@@ -217,7 +216,7 @@ class WysiwygImageAdmin(admin.ModelAdmin):
         "dimensions",
         "created",
     )
-    # `uploader` reads obj.uploaded_by on every row, a query each without this.
+    # For uploader(), which touches the FK on every row.
     list_select_related = ("uploaded_by",)
     list_filter = ("created",)
     search_fields = ("original_filename", "image", "uploaded_by__email")

@@ -50,10 +50,8 @@
   display: flex !important;
 }
 
-/* JS-driven open, for dialogs created at runtime rather than rendered by a
-   template — the WYSIWYG editor's Insert Link / Insert Image dialogs, which
-   exist only once a toolbar button is pressed and so have no :target anchor
-   and no toggle to pair with. */
+/* For dialogs built at runtime by JS, which have no :target anchor to open
+   against and no toggle to pair with. */
 .dialog-modal--open {
   display: flex !important;
 }

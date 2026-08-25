@@ -1,16 +1,14 @@
 """Tests for the site-wide markdown allowlist in `settings.WAGTAILMARKDOWN`.
 
-Everything the V3 WYSIWYG editor writes — post bodies, profile biographies — is
-Markdown rendered through wagtail-markdown's `markdown` filter and sanitised by
-nh3. The editor serialises marks nh3's default allowlist doesn't all cover, so
-the allowlist is part of the editor's contract, not just a settings detail.
+Everything the V3 WYSIWYG editor writes is rendered through it and sanitised by
+nh3, so what the allowlist keeps is part of the editor's contract.
 """
 
 from wagtailmarkdown.utils import render_markdown
 
 
 def test_underline_survives_sanitisation():
-    """The editor's Underline mark round-trips as a literal <u> tag (#2303)."""
+    """The editor serialises its Underline mark as a literal <u>."""
     assert render_markdown("<u>underlined</u>") == "<p><u>underlined</u></p>"
 
 
@@ -33,12 +31,7 @@ def test_scripts_and_event_handlers_are_still_stripped():
 
 
 def test_image_width_survives_sanitisation():
-    """A resized image keeps its size.
-
-    The editor stores a resize as an inline `width`, which is the only channel
-    that survives: nh3 allows `src`, `alt` and `title` on an image and drops
-    every other attribute, but its CSS property allowlist includes `width`.
-    """
+    """An inline `width` is the only channel a resize survives on."""
     rendered = render_markdown(
         '<img src="/media/wysiwyg/a.jpg" alt="A" ' 'style="width: 320px">'
     )
@@ -48,10 +41,10 @@ def test_image_width_survives_sanitisation():
 
 
 def test_the_width_attribute_is_not_a_channel():
-    """Why the width rides in `style` and not where an <img> would expect it.
+    """Why the width rides in `style`: nh3 allows only src/alt/title on an img.
 
-    If this ever starts passing with the attribute intact, the editor could
-    serialise the simpler form instead.
+    Should this ever stop stripping it, the editor could serialise the simpler
+    form instead.
     """
     rendered = render_markdown('<img src="/media/wysiwyg/a.jpg" alt="A" width="320">')
 
@@ -61,11 +54,8 @@ def test_the_width_attribute_is_not_a_channel():
 def test_an_image_style_cannot_carry_anything_but_size():
     """Sizing is all the inline style is allowed to do.
 
-    Markdown is author-written, so the style attribute is reachable by hand and
-    not only through the editor. nh3 filters it down to its own property
-    allowlist, which is what keeps a width from turning into a way out of the
-    page — including the `max-width` the site's stylesheet uses to keep an
-    oversized image inside its column.
+    Markdown is author-written, so this attribute is reachable by hand — the
+    `max-width` keeping an oversized image in its column has to stay unreachable.
     """
     rendered = render_markdown(
         '<img src="/a.jpg" style="position: fixed; inset: 0; z-index: 9999; '

@@ -762,10 +762,8 @@ RICH_TEXT_FEATURES = [
 ]
 WAGTAILMARKDOWN = {
     "autodownload_fontawesome": True,
-    # Extends nh3's default allowlist (see wagtailmarkdown.constants). `u` is
-    # needed because the V3 WYSIWYG editor serialises its Underline mark as a
-    # literal <u> tag — nh3 would otherwise strip it and the underline would be
-    # silently lost on every rendered post and biography.
+    # The V3 WYSIWYG editor serialises its Underline mark as a literal <u>,
+    # which nh3's default allowlist strips.
     "allowed_tags": ["u"],  # optional. a list of HTML tags. e.g. ['div', 'p', 'a']
     "allowed_styles": [],  # optional. a list of styles
     "allowed_attributes": {},  # optional. a dict with HTML tag as key and a list of attributes as value
