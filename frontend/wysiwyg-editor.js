@@ -1153,9 +1153,11 @@ export const ResizableImage = Image.extend({
 
       const syncHandle = (width) => {
         const value = width ?? renderedWidth();
+        const max = maxWidth();
         handle.setAttribute("aria-valuenow", String(value));
         handle.setAttribute("aria-valuemin", String(MIN_IMAGE_WIDTH));
-        handle.setAttribute("aria-valuemax", String(maxWidth()));
+        // Unbounded until the file arrives and gives the image a natural width.
+        if (Number.isFinite(max)) handle.setAttribute("aria-valuemax", String(max));
         handle.setAttribute("aria-valuetext", `${value} pixels wide`);
       };
 
@@ -1167,13 +1169,24 @@ export const ResizableImage = Image.extend({
         // document instead.
         const focused = document.activeElement === handle;
         /*
-        Dragged back out to the image's own size, the width is cleared rather
-        than pinned at it: an unsized image serialises as plain `![alt](src)`,
-        which is what an author who has undone their resize should get back.
+        Dragged all the way back out, the width is cleared rather than pinned at
+        whatever number the drag stopped on: an unsized image serialises as plain
+        `![alt](src)`, which is what an author who has undone their resize should
+        get back. Tested against the maximum rather than the image's own width,
+        so that an image too wide for the column — which can never be dragged out
+        to its full size — still has a way back to unsized.
         */
-        const natural = img.naturalWidth;
-        const value = natural && width >= natural ? null : width;
+        const value = width >= maxWidth() ? null : width;
         editor.view.dispatch(editor.view.state.tr.setNodeAttribute(pos, "width", value));
+        /*
+        Repaint here rather than leaving it to the node view's `update`: that
+        only runs when the attribute actually changes, and both gestures below
+        paint as they go. Committing a width the node already had — dragging out
+        to the maximum twice — would otherwise leave the last painted size on an
+        image the editor considers unsized.
+        */
+        img.style.width = value ? `${value}px` : "";
+        syncHandle();
         if (focused) handle.focus();
       };
 
@@ -1189,6 +1202,11 @@ export const ResizableImage = Image.extend({
       // naturalWidth is 0 until the file arrives, and it is the ceiling on every
       // resize, so the handle's range is only right once the image has loaded.
       img.addEventListener("load", () => syncHandle());
+
+      // Set while a drag is in flight, so that a node view torn down mid-gesture
+      // (an undo, a paste over the image) does not leave listeners on the
+      // document mutating an element the editor has already thrown away.
+      let endDrag = null;
 
       handle.addEventListener("pointerdown", (event) => {
         if (event.button !== 0) return;
@@ -1210,13 +1228,15 @@ export const ResizableImage = Image.extend({
           img.style.width = `${width}px`;
           syncHandle(width);
         };
-        const onEnd = () => {
+        const onEnd = (finished) => {
           document.removeEventListener("pointermove", onMove);
           document.removeEventListener("pointerup", onEnd);
           document.removeEventListener("pointercancel", onEnd);
           dom.classList.remove("wysiwyg-image--resizing");
-          commit(width);
+          endDrag = null;
+          if (finished !== false) commit(width);
         };
+        endDrag = () => onEnd(false);
         /*
         On the document rather than the handle, and without pointer capture: the
         pointer leaves a 12px grip almost immediately, and setPointerCapture
@@ -1235,10 +1255,10 @@ export const ResizableImage = Image.extend({
         else if (event.key === "ArrowRight" || event.key === "ArrowUp") delta = step;
         else return;
         event.preventDefault();
-        const width = clamp(renderedWidth() + delta);
-        img.style.width = `${width}px`;
-        syncHandle(width);
-        commit(width);
+        // Before the file arrives there is no width to resize from, and every
+        // key would clamp the image to the minimum.
+        if (!img.naturalWidth) return;
+        commit(clamp(renderedWidth() + delta));
       });
 
       render();
@@ -1262,6 +1282,7 @@ export const ResizableImage = Image.extend({
           event.target instanceof Node && handle.contains(event.target),
         // A leaf node with no content: every mutation here is one this view made.
         ignoreMutation: () => true,
+        destroy: () => endDrag?.(),
       };
     };
   },
