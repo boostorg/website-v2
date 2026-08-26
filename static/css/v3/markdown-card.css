@@ -101,7 +101,7 @@
   padding-left: 14px;
 }
 
-.markdown-content :is(code, tt, pre) {
+.markdown-content :is(code, tt, pre):not(.mermaid-diagram) {
   display: inline;
   font-family: var(--font-code);
   font-size: 0.88em;
