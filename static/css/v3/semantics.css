@@ -59,7 +59,7 @@
      SURFACE SEMANTIC COLORS
      ============================================ */
   --color-surface-brand-accent-default: var(--color-primary-orange-mustard);
-  --color-surface-brand-accent-hovered: #FFA000BF;
+  --color-surface-brand-accent-hovered: #FFB840;
   --color-surface-error-strong: var(--color-error-strong);
   --color-surface-error-weak: var(--color-error-weak);
   --color-surface-mid: var(--color-primary-grey-100);
