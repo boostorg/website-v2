@@ -23,6 +23,7 @@ from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
 from mailing_list.constants import MAILING_LIST_LABELS
 from news.models import Entry
+from pages.routing import post_index_url
 from testimonials.models import Testimonial
 from ak.homepage import (
     WHY_BOOST_CARDS,
@@ -101,6 +102,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
 
         # Posts Card
         ctx["community_posts"] = build_community_posts()
+        ctx["posts_url"] = post_index_url(self.request)
 
         # Join Card
         ctx["join_developers_links"] = build_join_developers_links()

@@ -643,8 +643,7 @@ class LibraryDetail(
             version_str,
         )
 
-        context["library_posts"] = get_library_post_cards(self.object.slug, limit=3)
-        context["library_posts_cta_url"] = reverse("news")
+        context["library_posts"] = get_latest_post_cards(limit=3, request=self.request)
 
         this_release = _build_release_contributors(context)
         context["this_release_contributors"] = (

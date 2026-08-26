@@ -101,7 +101,7 @@ from .tasks import (
 
 
 from libraries.models import Category, Library, LibraryVersion, Tier
-from news.models import Entry
+from pages.routing import post_index_url
 from news.services import get_latest_post_cards
 from libraries.utils import (
     get_commit_data_by_release_for_library,
@@ -325,8 +325,8 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
                 },
             )
         )
-        ctx["posts"] = build_recent_community_posts()
-        ctx["news_url"] = self.request.build_absolute_uri(reverse("news"))
+        ctx["posts"] = get_latest_post_cards(limit=4, request=self.request)
+        ctx["news_url"] = self.request.build_absolute_uri(post_index_url(self.request))
         ctx["contribute_url"] = self.request.build_absolute_uri(
             "/doc/contributor-guide/contributors-faq.html"
         )
@@ -616,9 +616,9 @@ class LearnPageView(MailingListCardMixin, V3Mixin, TemplateView):
 
         ctx["post_cards_data"] = {
             "heading": "Posts from the Boost community",
-            "view_all_url": reverse("news"),
+            "view_all_url": post_index_url(self.request),
             "view_all_label": "View all posts",
-            "posts": get_latest_post_cards(limit=4),
+            "posts": get_latest_post_cards(limit=4, request=self.request),
         }
         ctx["boost_community_data"] = {
             "heading": "The Boost community",
@@ -1856,7 +1856,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "description": "Blog posts, announcements, and community news from the Boost project.",
                 "icon_name": "device-tv",
                 "cta_label": "Read news",
-                "cta_href": reverse("news"),
+                "cta_href": post_index_url(self.request),
             },
             {
                 "title": "Getting started",
