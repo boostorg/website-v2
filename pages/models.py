@@ -1,13 +1,14 @@
 from structlog import get_logger
 from wagtail.admin.panels import FieldPanel
 from wagtail.models import PageManager
+from wagtail.url_routing import RouteResult
 from wagtail.fields import RichTextField, StreamField
 from wagtail.search import index
 
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import ExpressionWrapper, FloatField, F, Func, Value
-from django.db.models.functions import Greatest, Now, Power
+from django.db.models.functions import Coalesce, Greatest, Now, Power
 from django.db import models
 from django.urls import reverse_lazy
 from django.utils.functional import cached_property
@@ -77,27 +78,22 @@ class PostIndexPage(BasePage):
     RELATED_POSTS_LIMIT = 3
 
     def route(self, request, path_components):
-        """
-        Overwrite routing to allow our PostIndexPage to act as a
-        umbrella handler for Legacy Entry serving, as well as
-        Wagtail serving
+        """Act as an umbrella handler for both Wagtail posts and legacy entries.
+
+        `path_components` is the remainder of the path below this page, so for
+        `/news/some-post/` it is `["some-post"]`. With the flag off an entry
+        that has no `PostPage` counterpart would 404 here, so we route it to
+        this page and let `serve()` hand it to the legacy detail view.
         """
         from news.models import Entry
 
-        path = request.path.rstrip("/").lstrip("/")
-        split_path = path.split("/")
-        base, *rest = split_path
-
-        # We need to handle the case in which an Entry exists, but no
-        # matching Post Page exists, since this now handles both. We do
-        # this by serving this page if an Entry is found, and our serve
-        # method then calls the legacy view.
-        if match_child := self.get_children().filter(slug=base).first():
-            matched_route = match_child.specific.route(request, rest)
-            return matched_route
-        if len(rest) > 0 and not flag_is_active(request, "v3"):
-            if e := Entry.objects.filter(slug=rest[0]).first():
-                return self, [], {"pk": e.pk}
+        if (
+            len(path_components) == 1
+            and not flag_is_active(request, "v3")
+            and not self.get_children().filter(slug=path_components[0]).exists()
+        ):
+            if entry := Entry.objects.filter(slug=path_components[0]).first():
+                return RouteResult(self, kwargs={"pk": entry.pk})
         return super().route(request, path_components)
 
     def serve(self, request, *args, **kwargs):
@@ -212,9 +208,11 @@ class ExtractEpoch(Func):
 class PostPageManager(PageManager):
     def ranked(self):
         gravity = float(getattr(settings, "POSTS_RANKING_GRAVITY", 2.0))
+        # `first_published_at` is nullable; without the Coalesce its NULL score
+        # would sort ahead of every real post under Postgres' DESC NULLS FIRST.
+        published_at = Coalesce("first_published_at", "last_published_at", Now())
         age_in_hours = ExpressionWrapper(
-            Greatest(ExtractEpoch(Now() - F("first_published_at")), Value(0.0))
-            / Value(3600.0),
+            Greatest(ExtractEpoch(Now() - published_at), Value(0.0)) / Value(3600.0),
             output_field=FloatField(),
         )
         score = ExpressionWrapper(
@@ -336,10 +334,14 @@ class PostPage(BasePage):
         return {
             "title": self.title,
             "url": self.get_absolute_url(),
-            "date": self.publish_at,
+            "date": self.date or self.publish_at,
             "category": category,
             "tag": "",
-            "author": self.author.to_v3_profile_dict(role=author_role),
+            "author": (
+                self.author.to_v3_profile_dict(role=author_role)
+                if self.author
+                else None
+            ),
         }
 
     @cached_property
