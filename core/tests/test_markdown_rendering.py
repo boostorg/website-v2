@@ -69,3 +69,55 @@ def test_an_image_style_cannot_carry_anything_but_size():
     assert "z-index" not in compact
     assert "max-width" not in compact
     assert "background" not in compact
+
+
+def test_a_mermaid_fence_renders_as_a_diagram_block():
+    """The class is the hook static/js/v3/markdown-diagrams.js renders from."""
+    rendered = render_markdown("```mermaid\ngraph TD; A-->B;\n```")
+
+    assert rendered == (
+        '<pre class="mermaid-diagram"><code>graph TD; A--&gt;B;</code></pre>'
+    )
+
+
+def test_the_braced_spelling_is_a_diagram_too():
+    """The editor's own preview accepts ```{mermaid}, so this has to as well."""
+    rendered = render_markdown("```{mermaid}\ngraph TD; A-->B;\n```")
+
+    assert 'class="mermaid-diagram"' in rendered
+
+
+def test_a_diagram_reaches_the_page_as_text():
+    """The source is what mermaid parses, so nothing may interpret it first.
+
+    Highlighting a diagram is also what used to happen to it: `codehilite` hands
+    every fence to pygments and drops the language on the way, which is why the
+    block arrived indistinguishable from any other code.
+    """
+    rendered = render_markdown('```mermaid\ngraph TD; A["<b>bold</b>"];\n```')
+
+    assert "&lt;b&gt;bold&lt;/b&gt;" in rendered
+    assert "<b>" not in rendered
+    assert "codehilite" not in rendered
+
+
+def test_other_languages_are_still_highlighted():
+    rendered = render_markdown("```python\nprint(1)\n```")
+
+    assert "codehilite" in rendered
+    assert "mermaid-diagram" not in rendered
+
+
+def test_a_mermaid_fence_inside_another_fence_is_that_block_s_source():
+    rendered = render_markdown("```python\n# ```mermaid\nprint(1)\n```")
+
+    assert "mermaid-diagram" not in rendered
+    assert "codehilite" in rendered
+
+
+def test_an_unclosed_mermaid_fence_keeps_the_rest_of_the_document():
+    """No closing fence means no diagram to find the end of; the text stands."""
+    rendered = render_markdown("```mermaid\ngraph TD; A-->B;\n\nAfter the fence.")
+
+    assert "mermaid-diagram" not in rendered
+    assert "After the fence." in rendered
