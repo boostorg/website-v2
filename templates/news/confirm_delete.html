@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% load wagtailcore_tags %}
 
 {% block content %}
   <div class="py-0 px-3 mb-3 text-center md:py-6 md:px-0">
@@ -14,7 +13,7 @@
       <button type="submit" name="delete" class="py-2 px-3 text-white rounded-md bg-orange">{% translate 'Yes, Delete' %}</button>
     </form>
     <p>
-      <a href="{% slugurl entry.slug %}">{% translate 'No, take me back!' %}</a>
+      <a href="{% url 'news-detail' entry.slug %}">{% translate 'No, take me back!' %}</a>
     </p>
   </div>
 {% endblock %}
