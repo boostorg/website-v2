@@ -69,7 +69,7 @@
   overflow-y: auto;
   /* ≈ 3 rows × 80px (48px avatar + 2 × 16px padding) + 2 × 1px hr separators */
   max-height: 242px;
-  scrollbar-color: var(--color-icon-primary) var(--color-surface-strong);
+  scrollbar-color: var(--color-stroke-mid) var(--color-surface-strong);
 }
 
 .library-intro-card__authors:focus-visible {

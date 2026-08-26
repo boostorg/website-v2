@@ -17,7 +17,22 @@ body.v3,
 html.v3 *,
 body.v3 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary-grey-500) transparent;
+  scrollbar-color: var(--color-stroke-mid) var(--color-surface-strong);
+}
+
+/* Scroll regions inside the page keep their scrollbar hidden until hovered or
+   focused. Only the colours change — `scrollbar-width: thin` above still
+   reserves the gutter, so revealing a scrollbar never reflows content.
+   Scoped to `body.v3 *` so the document's own scrollbar stays visible, and to
+   hover-capable pointers, since touch has no hover to reveal it with. */
+@media (hover: hover) {
+  body.v3 * {
+    scrollbar-color: transparent transparent;
+  }
+
+  body.v3 *:is(:hover, :focus, :focus-within) {
+    scrollbar-color: var(--color-stroke-mid) var(--color-surface-strong);
+  }
 }
 
 /* Reserve the scrollbar gutter so dialog scroll-lock doesn't reflow the page. */

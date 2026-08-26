@@ -60,7 +60,7 @@
 }
 
 html.dark .v3-examples-section__example-box {
-  background: var(--color-surface-mid);
+  background: transparent;
 }
 
 .v3-examples-section__tools {
@@ -255,7 +255,7 @@ html.dark .v3-examples-section__example-box {
 }
 
 html.dark .v3-examples-section__toc {
-  background: var(--color-surface-mid);
+  background: transparent;
 }
 
 .v3-examples-section__toc-heading {
@@ -290,6 +290,11 @@ html.dark .v3-examples-section__toc {
   display: flex;
   gap: var(--space-xl);
   overflow-x: auto;
+}
+
+/* Fixed-width benchmark cards must scroll, not shrink, in the row above. */
+.v3-examples-section-horizontal-container .stats--benchmarks {
+  flex-shrink: 0;
 }
 
 /* ── V3 Paths Registry table ──────────────────── */

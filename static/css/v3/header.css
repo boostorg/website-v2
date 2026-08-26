@@ -366,7 +366,7 @@ html.dark .header__icon--theme-moon {
   max-height: calc(var(--dropdown-item-height) * 7); /* Show up to 7 items, then scroll */
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-icon-primary) var(--color-surface-strong);
+  scrollbar-color: var(--color-stroke-mid) var(--color-surface-strong) !important;
 }
 
 .header__version-dropdown .header__version-option {

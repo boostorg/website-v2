@@ -1,10 +1,23 @@
+/*
+  Contributors List
+
+  Card listing contributors as .user-profile rows inside .contributors-list__body
+  (the scroll region). Release variant is a single column; .all-contributors is a
+  responsive grid.
+*/
+
 .contributors-list :is(h2, h3, h4, h5, h6) {
     margin: 0;
 }
 
+.contributors-list__body {
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+}
+
 .contributors-list .card__column {
     gap: var(--space-medium);
-    overflow-y: auto;
 }
 
 .contributors-list.all-contributors {
@@ -20,7 +33,6 @@
 @media (max-width: 768px) {
     .contributors-list.all-contributors .card__column {
         grid-template-columns: 1fr;
-        overflow-y: auto;
     }
 
     .contributors-list {
