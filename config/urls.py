@@ -493,9 +493,9 @@ urlpatterns = (
             StaticContentTemplateView.as_view(),
             name="static-content-page",
         ),
-        path("", include(wagtail_urls)),
     ]
     + djdt_urls
+    + [path("", include(wagtail_urls))]
 )
 
 handler404 = "ak.views.custom_404_view"
