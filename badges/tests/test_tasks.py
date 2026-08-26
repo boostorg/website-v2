@@ -18,6 +18,19 @@ def test_backfill_task_sweeps_every_source_by_default(catalogue, capsys):
         assert f"{slug}:" in output
 
 
+def test_backfill_task_scopes_to_one_source(catalogue, capsys):
+    """A slug reaches the command as ``--source`` rather than being ignored.
+
+    The task passes it by the argument's ``dest``, a different word from the
+    option, so the only proof it landed is one source running and the others not.
+    """
+    backfill_achievements_task(slug="library-authoring")
+
+    output = capsys.readouterr().out
+    assert "library-authoring:" in output
+    assert "code-commits:" not in output
+
+
 def test_reconcile_task_scopes_its_run_to_one_member(
     stale_commit_grant, commit_by_someone_else, plain_user, super_user
 ):

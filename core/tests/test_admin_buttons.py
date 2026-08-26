@@ -438,3 +438,23 @@ def test_status_names_the_source_of_a_scoped_run(client, super_user):
         body = client.get(reverse(CHANGELIST_URL)).content.decode()
 
     assert "Backfill achievements (Code Commits): <strong>Running</strong>" in body
+
+
+def test_scoped_lock_is_per_argument(client, super_user):
+    """One source running does not refuse a run for another.
+
+    They are different jobs; they only share a button.
+    """
+    client.force_login(super_user)
+    cache.set(
+        f"{LAST_RUN_KEY}:job:code-commits", "running-task", TASK_BUTTON_COOLDOWN_SECONDS
+    )
+
+    with _state("STARTED"), patch(TASK_PATH, return_value=_result()) as delay:
+        refused = client.post(
+            reverse(BACKFILL_URL), {"slug": "code-commits"}, follow=True
+        )
+        client.post(reverse(BACKFILL_URL), {"slug": "library-authoring"})
+
+    assert "not starting another one" in refused.content.decode()
+    delay.assert_called_once_with(slug="library-authoring", actor_id=super_user.pk)
