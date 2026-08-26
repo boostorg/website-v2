@@ -43,6 +43,14 @@ HANDS_BACK_CONTROL = re.compile(
 UNDERLINE_SHORTHAND = re.compile(r"(?<!-)\btext-decoration\s*:\s*[^;]*underline")
 STATE_SELECTOR = re.compile(r":(?:hover|focus|focus-visible|active|visited)")
 
+# The shared rule's three declarations, and the selector that has to carry them.
+SHARED_RULE_SELECTOR = "body.v3 a"
+SHARED_RULE_DECLARATIONS = (
+    ("text-decoration-skip-ink", "none"),
+    ("text-decoration-thickness", "1px"),
+    ("text-underline-offset", "2px"),
+)
+
 
 def _without_comments(text):
     """Blank out /* ... */ comments, preserving newlines so line numbers hold.
@@ -66,12 +74,13 @@ def _rules(path):
     """Yield (selector, body) for each rule in a stylesheet.
 
     Deliberately naive: a regex, not a parser. It is enough for flat component
-    stylesheets and keeps the test dependency-free.
+    stylesheets and keeps the test dependency-free. The selector keeps its whole
+    comma-separated list on one line, because dropping any part of it would hide
+    a `:hover` that appears in a lead selector rather than the last one.
     """
     source = _without_comments(path.read_text())
     for match in re.finditer(r"([^{}]+)\{([^{}]*)\}", source):
-        selector = match.group(1).strip().split("\n")[-1].strip()
-        yield selector, match.group(2)
+        yield " ".join(match.group(1).split()), match.group(2)
 
 
 def test_stylesheets_are_discoverable():
@@ -82,17 +91,37 @@ def test_stylesheets_are_discoverable():
 
 
 def test_shared_underline_rule_is_present():
-    """The other tests only make sense if the rule they defer to still exists."""
-    foundations = (V3_CSS / "foundations.css").read_text()
-    for prop, value in (
-        ("text-decoration-skip-ink", "none"),
-        ("text-decoration-thickness", "1px"),
-        ("text-underline-offset", "2px"),
-    ):
-        assert re.search(rf"{prop}\s*:\s*{value}", foundations), (
-            f"foundations.css no longer pins {prop}: {value}. If the shared rule "
-            f"moved, point these tests at its new home rather than deleting them."
+    """The other tests only make sense if the rule they defer to still exists.
+
+    All three declarations have to sit in one rule that reaches v3 anchors.
+    Finding them scattered across the file would not pin anything, so this walks
+    the rule bodies rather than searching the stylesheet as a whole.
+    """
+    candidates = []
+    for selector, body in _rules(V3_CSS / "foundations.css"):
+        if SHARED_RULE_SELECTOR not in selector:
+            continue
+        missing = [
+            f"{prop}: {value}"
+            for prop, value in SHARED_RULE_DECLARATIONS
+            if not re.search(rf"{prop}\s*:\s*{value}\b", body)
+        ]
+        if not missing:
+            return
+        candidates.append((selector, missing))
+
+    detail = (
+        "\n".join(
+            f"  `{selector}` is missing {', '.join(missing)}"
+            for selector, missing in candidates
         )
+        or f"  no rule in foundations.css selects `{SHARED_RULE_SELECTOR}`"
+    )
+    raise AssertionError(
+        "foundations.css no longer pins the underline geometry in a single rule "
+        f"for `{SHARED_RULE_SELECTOR}`:\n" + detail + "\n\nIf the shared rule "
+        "moved, point these tests at its new home rather than deleting them."
+    )
 
 
 @pytest.mark.parametrize("path", _stylesheets(), ids=lambda p: p.name)
@@ -100,14 +129,14 @@ def test_no_rule_hands_underline_geometry_back_to_the_browser(path):
     """No v3 rule may set these to `auto`, a percentage, or `from-font`.
 
     Any of them reopens #2297 for that component alone, which is why this is
-    worth a test rather than a comment.
+    worth a test rather than a comment. The whole stylesheet is scanned in one
+    pass, not line by line, so a declaration wrapped after its colon cannot slip
+    through.
     """
+    source = _without_comments(path.read_text())
     offenders = [
-        (i, line.strip())
-        for i, line in enumerate(
-            _without_comments(path.read_text()).splitlines(), start=1
-        )
-        if HANDS_BACK_CONTROL.search(line)
+        (source.count("\n", 0, m.start()) + 1, " ".join(m.group(0).split()))
+        for m in HANDS_BACK_CONTROL.finditer(source)
     ]
     assert not offenders, (
         f"{path.name} hands underline geometry back to the browser:\n"
