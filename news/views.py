@@ -47,6 +47,7 @@ from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin
 from pages.blocks import NEWS_BLOCK, BLOG_BLOCK, LINK_BLOCK, VIDEO_BLOCK
 from pages.models import PostPage, PostIndexPage
+from pages.routing import post_detail_url, post_index_url, v3_posts_active
 from pages.mixins import ContentTag
 from .acl import can_approve
 from .constants import (
