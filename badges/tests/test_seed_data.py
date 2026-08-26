@@ -3,7 +3,7 @@
 ``Achievement.slug`` is an open field by design (admins may add manual-only
 types), so the slugs the codebase hard-codes are only safe if something checks
 they still exist. These tests are that check: they cover the seams between
-``badges.enums`` and ``badges.seed_data``.
+``badges.enums``, ``badges.seed_data`` and ``badges.sources``.
 """
 
 import os
@@ -15,6 +15,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Count
 from model_bakery import baker
 
+from badges import sources
 from badges.enums import AchievementSlug, BadgeLabel, TierRank
 from badges.models import Achievement, Badge, BadgeTier
 from badges.seed_data import SEED_CATALOGUE, seed_catalogue
@@ -90,6 +91,18 @@ def test_thresholds_increase_with_rank():
     for slug, _name, _description, _label, tiers in SEED_CATALOGUE:
         ordered = [tiers[rank] for rank in sorted(tiers, key=lambda r: r.order)]
         assert ordered == sorted(ordered), slug
+
+
+def test_every_wired_source_has_a_catalogue_entry():
+    """A backfill iterator without an achievement type can never grant."""
+    assert set(sources.BACKFILL_ITERATORS) <= set(SEED_SLUGS)
+
+
+def test_automatic_slugs_are_derived_from_the_iterators():
+    """The CLI --source choices cannot drift from the wired iterators."""
+    assert sources.AUTOMATIC_SLUGS == [
+        slug.value for slug in sources.BACKFILL_ITERATORS
+    ]
 
 
 @pytest.mark.django_db

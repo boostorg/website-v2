@@ -1,0 +1,6 @@
+{% if status.label %}
+  <li class="task-button-status"{% if status.poll %} hx-get="{{ status.url }}" hx-trigger="{{ status.poll_interval }}" hx-swap="outerHTML"{% endif %}>
+    {{ status.name }}{% if status.scope %} ({{ status.scope }}){% endif %}: <strong>{{ status.label }}</strong>
+    {% if status.error %}<span class="task-button-error">{{ status.error|truncatechars:100 }}</span>{% endif %}
+  </li>
+{% endif %}

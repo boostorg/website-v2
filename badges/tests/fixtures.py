@@ -6,6 +6,7 @@ available everywhere; the plain helpers have to be imported.
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
+from django.core.management import call_command
 from model_bakery import baker
 
 from badges.enums import BadgeLabel, TierRank
@@ -110,6 +111,42 @@ def badge(db, achievement):
 def plain_user(db):
     """A lightweight user (no profile image) for badge tests."""
     return baker.make("users.User", email="badge-user@example.com")
+
+
+@pytest.fixture
+def commit_by_someone_else(catalogue, super_user):
+    """A live attributed commit belonging to another member, already recorded.
+
+    ``sync_source`` refuses to act on a source that yields nothing at all, so a
+    test about one member's stale grants has to leave the source yielding somebody.
+    Only the tests of the refusal itself do without this.
+
+    Backfilled, so this member is fully *in step* with the source: otherwise a
+    two-way run would have a grant to create here, and every test using this
+    fixture would be quietly asserting against that as well.
+    """
+    author = baker.make("libraries.CommitAuthor", user=super_user)
+    commit = baker.make("libraries.Commit", author=author)
+    call_command("backfill_achievements", "--source", "code-commits")
+    return commit
+
+
+@pytest.fixture
+def stale_commit_grant(catalogue, plain_user):
+    """Give ``plain_user`` a commits achievement, then break its attribution.
+
+    Reproduces what reconciliation exists for: the ``Commit`` row survives, the
+    ``UserAchievement`` row survives, and the two no longer agree because the
+    ``CommitAuthor`` stopped pointing at the member. Returns the commit.
+    """
+    author = baker.make("libraries.CommitAuthor", user=plain_user)
+    commit = baker.make("libraries.Commit", author=author)
+    call_command("backfill_achievements", "--source", "code-commits")
+    assert UserBadge.objects.filter(user=plain_user, revoked_at=None).exists()
+
+    author.user = None
+    author.save()
+    return commit
 
 
 @pytest.fixture

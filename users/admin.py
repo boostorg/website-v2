@@ -4,6 +4,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm
+from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
@@ -51,7 +52,7 @@ class EmailUserAdminForm(UserChangeForm):
 @admin.register(User)
 class EmailUserAdmin(UserAdmin):
     form = EmailUserAdminForm
-    readonly_fields = ("role_eligibility_display",)
+    readonly_fields = ("role_eligibility_display", "badge_summary")
     fieldsets = (
         (None, {"fields": ("email", "password")}),
         (
@@ -69,6 +70,7 @@ class EmailUserAdmin(UserAdmin):
                 )
             },
         ),
+        (_("Badges"), {"fields": ("badge_summary",)}),
         (
             _("Permissions"),
             {
@@ -132,3 +134,19 @@ class EmailUserAdmin(UserAdmin):
                 for role, libraries in grouped.items()
             ),
         ) or format_html("—")
+
+    @admin.display(description=_("Badges"))
+    def badge_summary(self, obj):
+        """Link out to the per-user badge page, which lives in the badges app.
+
+        That page answers why each badge is or is not shown - below threshold,
+        revoked, or hidden by the member - and is where a single member's badges
+        are recalculated. This is only the way in from the user record.
+        """
+        if obj.pk is None:
+            return _("Save the user first.")
+        return format_html(
+            '<a href="{}">{}</a>',
+            reverse("admin:badges_userbadge_user_summary", args=[obj.pk]),
+            _("View badges and achievements"),
+        )
