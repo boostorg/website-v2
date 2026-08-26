@@ -13,10 +13,36 @@ from news.models import Entry
 
 from django.template.defaultfilters import urlize
 
+# Wagtail caps Page.slug at 255 characters; Entry.slug allows 300.
+WAGTAIL_SLUG_MAX_LENGTH = 255
+
+
+def page_slug_for(
+    entry: Entry, index_page: PostIndexPage, page: PostPage | None = None
+) -> str | None:
+    """Slug the PostPage should carry so its URL matches the entry's.
+
+    Every legacy post URL is redirected to `/news/<entry.slug>/` under V3, and
+    `PostPage.serve()` hands `self.slug` back to the legacy detail view when
+    the flag is off, so the two slugs have to line up. Returns None when the
+    entry slug cannot be used (too long after truncation to stay unique, or
+    already taken by another sibling); the caller then leaves Wagtail's own
+    slug in place and that post keeps its legacy URL.
+    """
+    slug = entry.slug[:WAGTAIL_SLUG_MAX_LENGTH]
+    taken = index_page.get_children().filter(slug=slug)
+    if page is not None and page.pk:
+        taken = taken.exclude(pk=page.pk)
+    if taken.exists():
+        return None
+    return slug
+
 
 def get_or_create_page(entry: Entry, index_page: PostIndexPage) -> PostPage:
     try:
         page = index_page.get_children().get(title=entry.title).specific
+        if slug := page_slug_for(entry, index_page, page):
+            page.slug = slug
         page.first_published_at = entry.publish_at
         page.last_published_at = entry.publish_at
         page.latest_revision_created_at = entry.publish_at
@@ -32,7 +58,10 @@ def get_or_create_page(entry: Entry, index_page: PostIndexPage) -> PostPage:
             latest_revision_created_at=entry.publish_at,
             owner=entry.author,
             live=entry.is_published,
+            page_views=entry.page_views,
         )
+        if slug := page_slug_for(entry, index_page):
+            page.slug = slug
         index_page.add_child(instance=page)
     return page
 
