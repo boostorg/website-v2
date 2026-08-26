@@ -112,3 +112,12 @@
   border: none;
   border-radius: 0;
 }
+
+.markdown-content ol {
+  list-style: decimal;
+  padding-left: var(--space-xl);
+}
+
+.markdown-content ol > li {
+  padding-left: var(--space-s);
+}
