@@ -1,9 +1,13 @@
 from structlog import get_logger
+from wagtail.admin.panels import FieldPanel
+from wagtail.models import PageManager
 from wagtail.fields import RichTextField, StreamField
 from wagtail.search import index
 
 from django.conf import settings
 from django.core.paginator import Paginator
+from django.db.models import ExpressionWrapper, FloatField, F, Func, Value
+from django.db.models.functions import Greatest, Now, Power
 from django.db import models
 from django.urls import reverse_lazy
 from django.utils.functional import cached_property
@@ -199,10 +203,35 @@ class PostIndexPage(BasePage):
         return ctx
 
 
+class ExtractEpoch(Func):
+    function = "EXTRACT"
+    template = "%(function)s(EPOCH FROM %(expressions)s)"
+    output_field = FloatField()
+
+
+class PostPageManager(PageManager):
+    def ranked(self):
+        gravity = float(getattr(settings, "POSTS_RANKING_GRAVITY", 2.0))
+        age_in_hours = ExpressionWrapper(
+            Greatest(ExtractEpoch(Now() - F("first_published_at")), Value(0.0))
+            / Value(3600.0),
+            output_field=FloatField(),
+        )
+        score = ExpressionWrapper(
+            F("page_views") / Power(age_in_hours + Value(2.0), Value(gravity)),
+            output_field=FloatField(),
+        )
+        return (
+            self.get_queryset().annotate(ranking_score=score).order_by("-ranking_score")
+        )
+
+
 class PostPage(BasePage):
     """
     News items, inheriting from base Page and having their content defined by a stream field named content
     """
+
+    objects = PostPageManager()
 
     parent_page_types = ["pages.PostIndexPage"]
     subpage_types = []
@@ -227,6 +256,7 @@ class PostPage(BasePage):
         blank=True, default="", help_text="AI generated summary. Delete to regenerate."
     )
     tags = ClusterTaggableManager(through="pages.TaggedContent", blank=True)
+    page_views = models.PositiveIntegerField(default=0)
 
     def serve(self, request, *args, **kwargs):
         if not flag_is_active(request, "v3"):
@@ -293,6 +323,24 @@ class PostPage(BasePage):
 
     def delete_url(self):
         return reverse_lazy("v3-news-delete", kwargs={"slug": self.slug})
+    def to_v3_post_card_dict(self, author_role=None):
+        """Dict shape consumed by `v3/includes/_post_card.html` items."""
+        from news.models import POST_CARD_TAG_LABELS
+
+        category = ""
+
+        if self.tag:
+            tag_key = str(self.tag).lower()
+            category = POST_CARD_TAG_LABELS.get(tag_key, self.tag.capitalize())
+
+        return {
+            "title": self.title,
+            "url": self.get_absolute_url(),
+            "date": self.publish_at,
+            "category": category,
+            "tag": "",
+            "author": self.author.to_v3_profile_dict(role=author_role),
+        }
 
     @cached_property
     def use_summary(self):
@@ -431,6 +479,7 @@ class PostPage(BasePage):
         "image",
         "summary",
         "video_thumbnail",
+        FieldPanel("page_views", read_only=True),
     ]
 
     # `title` is already indexed by Page.search_fields, so it is not repeated

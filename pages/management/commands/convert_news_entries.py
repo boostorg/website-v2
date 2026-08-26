@@ -22,6 +22,7 @@ def get_or_create_page(entry: Entry, index_page: PostIndexPage) -> PostPage:
         page.latest_revision_created_at = entry.publish_at
         page.owner = entry.author
         page.live = entry.is_published
+        page.page_views = entry.page_views
 
     except Page.DoesNotExist:
         page = PostPage(
