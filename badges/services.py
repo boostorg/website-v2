@@ -133,29 +133,41 @@ def discard_source_achievements(model, object_ids, *, key_field=None):
     if not object_ids:
         return
     content_type = ContentType.objects.get_for_model(model)
-    grants = UserAchievement.objects.filter(
-        source_content_type=content_type, source_object_id__in=object_ids
-    )
+    surviving = None
     if key_field is not None:
+        # Every id at once rather than per chunk: a key whose only other row sits
+        # in a later chunk is not a survivor, and chunking this would call it one.
         surviving = model.objects.exclude(pk__in=object_ids).values(key_field)
+
+    def chunk_grants(ids):
+        """The grants this chunk is responsible for."""
+        grants = UserAchievement.objects.filter(
+            source_content_type=content_type, source_object_id__in=ids
+        )
+        if surviving is None:
+            return grants
         # An unkeyed grant cannot be matched against the source at all, so it
         # stays in the delete set. Converting an environment written before the
         # keys existed means emptying the grants and backfilling, not healing
         # them one import at a time.
-        grants = grants.filter(
-            Q(dedup_info__isnull=True) | ~Q(dedup_info__in=surviving)
-        )
-    pairs = set(grants.values_list("user_id", "achievement_id"))
+        return grants.filter(Q(dedup_info__isnull=True) | ~Q(dedup_info__in=surviving))
+
     # The pairs are known before the delete, so the per-row signal can only reach
-    # the same answer once per row instead of once per pair.
+    # the same answer once per row instead of once per pair. Accumulated across
+    # every chunk and recalculated after the last one, because a member with
+    # grants in two chunks is still one answer to reach.
     #
     # Atomic here as well as at the caller: deleting a grant without recalculating
     # it in the same transaction leaves a member holding a badge nothing supports,
     # and leaves nothing behind to notice it by. Cheap to guarantee locally rather
     # than depend on every future caller reading the paragraph above.
+    pairs = set()
     with transaction.atomic():
         with owns_recalculation():
-            grants.delete()
+            for start in range(0, len(object_ids), SYNC_BATCH_SIZE):
+                grants = chunk_grants(object_ids[start : start + SYNC_BATCH_SIZE])
+                pairs |= set(grants.values_list("user_id", "achievement_id"))
+                grants.delete()
         for user_id, achievement_id in pairs:
             recalculate_badges(user_id, achievement_id)
 
