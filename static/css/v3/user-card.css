@@ -30,6 +30,10 @@
   height: 100%;
 }
 
+.user-card .avatar .avatar__initials {
+  font-size: var(--font-size-xl);
+}
+
 .user-card__flag {
   position: absolute;
   bottom: var(--space-s);

@@ -12,7 +12,7 @@ Variables:
 
 No-JS: a server-rendered, pre-checked checkbox toggle (.dialog-modal__toggle)
 opens the modal via CSS, and the form submits natively (method/action) — the
-view redirects (PRG) for non-HTMX requests. The backdrop and Cancel are
+view redirects (PRG) for non-HTMX requests. The backdrop and Skip are
 <label>s that uncheck the toggle to close.
 JS enhances this with HTMX submit, inline email validation, and ESC/focus trap
 via dialog.js (which recognises the checkbox toggle).
@@ -124,7 +124,7 @@ via dialog.js (which recognises the checkbox toggle).
         <label for="ml-post-auth-toggle"
                class="btn btn-secondary btn-flex"
                role="button"
-               tabindex="0">Cancel</label>
+               tabindex="0">Skip</label>
         {% include "v3/includes/_button.html" with type="submit" label="Subscribe" style="primary" extra_classes="btn-flex" only %}
       </div>
     </form>

@@ -93,6 +93,10 @@
   font-size: var(--font-size-base);
 }
 
+.avatar.avatar--xxxl .avatar__initials {
+  font-size: var(--font-size-xl);
+}
+
 /* Initials variants (no image): same element has .avatar.avatar--* .avatar__initials */
 .avatar.avatar--yellow {
   background: var(--color-accent-weak-yellow);
