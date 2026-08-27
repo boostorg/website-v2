@@ -541,6 +541,14 @@ def update_user_github_username(user_id: int):
 
 
 @shared_task
+def import_commits(clean=False):
+    options = {}
+    if clean:
+        options["clean"] = True
+    call_command("import_commits", **options)
+
+
+@shared_task
 def update_commit_authors_users():
     logger.info("Linking commit authors to users")
     for commit_author in CommitAuthor.objects.filter(user__isnull=True):
