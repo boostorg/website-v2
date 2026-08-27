@@ -114,6 +114,54 @@ def test_a_grant_with_no_key_is_replaced(plain_user):
     assert grant.dedup_info == "cafe1234"
 
 
+def test_discarding_rows_spares_a_grant_whose_key_has_another_row(plain_user):
+    """The key decides, not the pointer.
+
+    ``discard_source_achievements`` was the last caller deciding a deletion from
+    the row a grant points at, which is the identity this module replaced. Two
+    rows carry the sha, one is deleted, and the grant survives on the other.
+    """
+    from badges.services import discard_source_achievements
+    from libraries.models import Commit
+
+    library = baker.make("libraries.Library", key="mp11")
+    doomed, kept = (
+        _commit(
+            plain_user,
+            "cafe1234",
+            library_version=baker.make("libraries.LibraryVersion", library=library),
+        )
+        for _ in range(2)
+    )
+    call_command("backfill_achievements", "--source", "code-commits")
+    grant = _grants(plain_user).get()
+    UserAchievement.objects.filter(pk=grant.pk).update(source_object_id=doomed.pk)
+
+    discard_source_achievements(Commit, [doomed.pk], key_field="sha")
+
+    assert _grants(plain_user).filter(pk=grant.pk).exists()
+    assert UserBadge.objects.filter(user=plain_user, revoked_at__isnull=True).exists()
+    assert Commit.objects.filter(pk=kept.pk).exists()
+
+
+def test_discarding_the_last_row_for_a_key_still_takes_the_grant(plain_user):
+    """The other half of the same rule, so the check cannot spare everything.
+
+    Without a surviving row the evidence really is gone, and a grant left behind
+    counts toward its threshold forever.
+    """
+    from badges.services import discard_source_achievements
+    from libraries.models import Commit
+
+    commit = _commit(plain_user, "cafe1234")
+    call_command("backfill_achievements", "--source", "code-commits")
+    assert _grants(plain_user).exists()
+
+    discard_source_achievements(Commit, [commit.pk], key_field="sha")
+
+    assert not _grants(plain_user).exists()
+
+
 def test_a_source_that_names_nothing_fails_loudly(plain_user):
     """A missing key would be added every sweep and removed every reconcile."""
     from unittest.mock import patch

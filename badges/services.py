@@ -26,7 +26,7 @@ from typing import NamedTuple
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import DatabaseError, transaction
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.utils import timezone
 
 from badges import sources
@@ -107,12 +107,24 @@ def recalculation_is_owned():
     return _owns_recalculation.get()
 
 
-def discard_source_achievements(model, object_ids):
-    """Delete automatic grants pointing at the given rows and recalculate.
+def discard_source_achievements(model, object_ids, *, key_field=None):
+    """Delete automatic grants whose evidence is going away, and recalculate.
 
     A grant reaches its source through a generic foreign key, which carries no
     referential integrity, so deleting a source row on its own leaves a grant
     still counting toward a threshold. Call this first.
+
+    ``key_field`` names the column holding the source's dedup key, and is what a
+    source whose key can span several rows passes. A grant is identified by its
+    key, not by the row it points at, so "the row I point at is going" only means
+    "my evidence is gone" where a key has exactly one row. A commit is stored once
+    per library version covering it and once per library sharing the repository,
+    so for those the surviving rows have to be consulted before anything is
+    deleted. Left out, every grant pointing into ``object_ids`` is discarded,
+    which is correct for a source storing one row per key.
+
+    The survivors are read excluding ``object_ids``, so it does not matter whether
+    the caller has already deleted them.
 
     Atomic in itself, so the grants and the badges they justify move together
     whether or not the caller has a transaction of its own around the source rows.
@@ -124,6 +136,15 @@ def discard_source_achievements(model, object_ids):
     grants = UserAchievement.objects.filter(
         source_content_type=content_type, source_object_id__in=object_ids
     )
+    if key_field is not None:
+        surviving = model.objects.exclude(pk__in=object_ids).values(key_field)
+        # An unkeyed grant cannot be matched against the source at all, so it
+        # stays in the delete set. Converting an environment written before the
+        # keys existed means emptying the grants and backfilling, not healing
+        # them one import at a time.
+        grants = grants.filter(
+            Q(dedup_info__isnull=True) | ~Q(dedup_info__in=surviving)
+        )
     pairs = set(grants.values_list("user_id", "achievement_id"))
     # The pairs are known before the delete, so the per-row signal can only reach
     # the same answer once per row instead of once per pair.

@@ -563,8 +563,14 @@ def test_clean_reimport_discards_grants_for_commits_that_do_not_return(
 ):
     """A wiped commit the repository no longer reports takes its grants with it.
 
-    Left behind, they count toward a threshold forever: a reconcile can only match
-    a grant against what the iterator yields, and a deleted row yields nothing.
+    Left behind they count toward a threshold forever, and nothing else in the
+    pipeline removes them: the release step runs ``backfill_achievements``, which
+    only adds. A reconcile would drop them, but no automatic caller runs one, and
+    the admin's clean re-import runs no sweep at all.
+
+    No other commit carries this sha, which is what makes the grant stale rather
+    than merely re-pointed - see
+    ``test_a_clean_import_spares_a_grant_whose_sha_survives_elsewhere``.
     """
     from badges.models import UserAchievement
 
@@ -574,6 +580,38 @@ def test_clean_reimport_discards_grants_for_commits_that_do_not_return(
 
     assert not UserAchievement.objects.filter(dedup_info="deadbeef").exists()
     assert not UserAchievement.objects.filter(source_object_id=commit.pk).exists()
+
+
+@pytest.mark.django_db
+def test_a_clean_import_spares_a_grant_whose_sha_survives_elsewhere(
+    fake_git, catalogue, django_user_model
+):
+    """One sha, two libraries, one of them re-imported without it.
+
+    A grant is identified by its sha and points at whichever copy the sweep
+    happened to see first, so the copy going away says nothing about whether the
+    work did. Discarding the grant here would revoke a badge the surviving row
+    still justifies.
+    """
+    from badges.models import UserAchievement, UserBadge
+    from libraries.models import Commit
+
+    library, commit = _library_with_granted_commit(django_user_model, "deadbeef")
+    elsewhere = baker.make(
+        Library, key="core", github_url="https://github.com/boostorg/core"
+    )
+    other_version = baker.make(LibraryVersion, library=elsewhere)
+    survivor = baker.make(
+        Commit, library_version=other_version, sha="deadbeef", author=commit.author
+    )
+    badges = set(UserBadge.objects.values_list("pk", "revoked_at"))
+    assert badges, "nothing was awarded, so the assertion below proves nothing"
+
+    LibraryUpdater().update_commits(library, clean=True)
+
+    assert UserAchievement.objects.filter(dedup_info="deadbeef").exists()
+    assert Commit.objects.filter(pk=survivor.pk).exists()
+    assert set(UserBadge.objects.values_list("pk", "revoked_at")) == badges
 
 
 @pytest.mark.django_db
