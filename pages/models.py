@@ -235,16 +235,13 @@ class PostPage(BasePage):
             next_objects = pages
         if next_objects.exists():
             ctx["next_post_items"] = [next_objects.last()]
-        if self.tags.exists():
-            ctx["related_posts"] = (
-                pages.filter(tags__in=self.tags.all())
-                .exclude(pk=self.pk)
-                .distinct()[:3]
-            )
-        else:
-            ctx["related_posts"] = pages.filter(
-                content__0__type=self.stream_content_type
-            )[:3]
+        ctx["related_posts"] = (
+            pages.filter(tags__in=self.tags.all()).exclude(pk=self.pk).distinct()[:3]
+        ) or pages.filter(content__0__type=self.stream_content_type).exclude(
+            pk=self.pk
+        )[
+            :3
+        ]
         ctx["object"] = self.specific
         ctx["post_author"] = self.author
         ctx["user_can_edit"] = self.user_can_edit(request.user)
@@ -353,7 +350,7 @@ class PostPage(BasePage):
     def tag(self):
         if self.tags.exists():
             return self.tags.first()
-        return self.post_content_type
+        return None
 
     @cached_property
     def external_url(self):
