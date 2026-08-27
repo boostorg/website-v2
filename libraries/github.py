@@ -571,7 +571,14 @@ class LibraryUpdater:
         with transaction.atomic():
             doomed_ids = []
             if clean:
-                doomed = Commit.objects.filter(library_version__library=library)
+                # Scoped by the same floor that chose the versions to rebuild.
+                # Unscoped, a run with a floor deletes the whole library and
+                # rebuilds only the top of it, and the commits below the floor
+                # are gone from the table until someone runs a full import.
+                doomed = Commit.objects.filter(
+                    library_version__library=library,
+                    library_version__version__name__gte=min_version,
+                )
                 doomed_ids = list(doomed.values_list("pk", flat=True))
                 doomed.delete()
             Commit.objects.bulk_create(

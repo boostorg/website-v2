@@ -576,6 +576,42 @@ def test_clean_reimport_discards_grants_for_commits_that_do_not_return(
     assert not UserAchievement.objects.filter(source_object_id=commit.pk).exists()
 
 
+@pytest.mark.django_db
+def test_a_clean_import_with_a_floor_keeps_the_commits_below_it(
+    fake_git, catalogue, django_user_model
+):
+    """The floor chooses which versions are rebuilt, so it has to scope the delete.
+
+    Unscoped, a run with a floor empties the library and rebuilds only the top of
+    it, and the commits below the floor are gone from the table - so the grants
+    they support cannot be re-pointed and cannot be earned again either, because
+    no backfill can see evidence that no longer exists.
+    """
+    from badges.models import UserAchievement, UserBadge
+    from libraries.models import Commit
+
+    library, _ = _library_with_granted_commit(django_user_model, "deadbeef")
+    old_version = baker.make(
+        LibraryVersion,
+        library=library,
+        version=baker.make("versions.Version", name="boost-1.80.0"),
+    )
+    baker.make(
+        LibraryVersion,
+        library=library,
+        version=baker.make("versions.Version", name="boost-1.88.0"),
+    )
+    Commit.objects.filter(sha="deadbeef").update(library_version=old_version)
+    badges = set(UserBadge.objects.values_list("pk", "revoked_at"))
+    assert badges, "nothing was awarded, so the assertion below proves nothing"
+
+    LibraryUpdater().update_commits(library, clean=True, min_version="boost-1.88.0")
+
+    assert Commit.objects.filter(sha="deadbeef").exists()
+    assert UserAchievement.objects.filter(dedup_info="deadbeef").exists()
+    assert set(UserBadge.objects.values_list("pk", "revoked_at")) == badges
+
+
 def _parse_log(monkeypatch, log):
     """Run the importer's parser over ``log`` without cloning anything.
 
