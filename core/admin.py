@@ -138,6 +138,7 @@ def get_buttons():
         description=(
             "Cleanly Reimports all commits to reconcile before granting achievements and badges."
         ),
+        permission="libraries.delete_commit",
     )
 
     BACKFILL_BUTTON = TaskButton(
