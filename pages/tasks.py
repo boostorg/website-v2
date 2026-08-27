@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task
-def backfill_achievements_task():
+def convert_news_entries_task():
     """
     Run the `convert_news_entries` management command as a one-off request.
 

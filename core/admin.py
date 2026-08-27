@@ -8,6 +8,8 @@ from django.db import transaction
 from django.db.models import BooleanField, Case, Value, When
 from django.utils import timezone
 
+from core.admin_buttons import TaskButtonAdminMixin, TaskButton
+
 from .constants import HOMEPAGE_POPULAR_TERMS_DISPLAY
 from .models import (
     PopularSearchTerm,
@@ -92,8 +94,95 @@ class RenderedContentAdmin(admin.ModelAdmin):
         return super().changelist_view(request, extra_context=extra_context)
 
 
+def get_buttons():
+    from badges.tasks import backfill_achievements_task
+    from badges.admin import SOURCE_CHOICES
+
+    from pages.tasks import convert_news_entries_task, update_index_task
+
+    from libraries.tasks import import_commits
+
+    from users.tasks import recompute_displayed_profile_roles
+
+    CONVERT_NEW_ENTRIES_BUTTON = TaskButton(
+        name="convert_news_entries",
+        label="Convert News Entries",
+        task=convert_news_entries_task,
+        success_message="Entries are being converted in the background.",
+        busy_message="A conversion is already queued or running; not starting another one.",
+        argument="slug",
+        pass_actor=False,
+        description=("Converts legacy Entry models into Wagtail Post Pages."),
+    )
+
+    UPDATE_INDEX_BUTTON = TaskButton(
+        name="update_index",
+        label="Update Index",
+        task=update_index_task,
+        success_message="The index is being updated in the background.",
+        busy_message="An index update is already queued or running; not starting another one.",
+        pass_actor=False,
+        description=(
+            "Update the Index in order to allow for Wagtail searching. Should be run after "
+            "all pages are succesfully converted."
+        ),
+    )
+
+    IMPORT_COMMITS_BUTTON = TaskButton(
+        name="import_commits",
+        label="Import Commits",
+        task=import_commits,
+        success_message="Commits are being Reimported in the background.",
+        busy_message="An import is already queued or running; not starting another one.",
+        pass_actor=False,
+        description=(
+            "Cleanly Reimports all commits to reconcile before granting achievements and badges."
+        ),
+    )
+
+    BACKFILL_BUTTON = TaskButton(
+        name="backfill",
+        label="Backfill achievements",
+        task=backfill_achievements_task,
+        success_message="Achievements are being backfilled in the background.",
+        busy_message="A backfill is already queued or running; not starting another one.",
+        argument="slug",
+        choice_label="Source",
+        choices=SOURCE_CHOICES,
+        all_label="All sources",
+        pass_actor=True,
+        description=(
+            "Grants the automatic achievements the sources support and this site is "
+            "missing, then awards any badge that reaches its threshold. It only ever "
+            "adds, so it is safe to run at any time; this is what runs itself after "
+            "each release. Use Reconcile instead if an achievement needs removing."
+        ),
+    )
+
+    UPDATE_DISPLAYED_ROLES_BUTTON = TaskButton(
+        name="update_roles",
+        label="Update Roles",
+        task=recompute_displayed_profile_roles,
+        success_message="Roles are being updated in the background.",
+        busy_message="A role update is already queued or running; not starting another one.",
+        pass_actor=False,
+        description=(
+            "Updates available user roles based on their contributions to boost."
+        ),
+    )
+
+    return [
+        CONVERT_NEW_ENTRIES_BUTTON,
+        UPDATE_INDEX_BUTTON,
+        IMPORT_COMMITS_BUTTON,
+        BACKFILL_BUTTON,
+        UPDATE_DISPLAYED_ROLES_BUTTON,
+    ]
+
+
 @admin.register(SiteSettings)
-class SiteSettingsAdmin(admin.ModelAdmin):
+class SiteSettingsAdmin(TaskButtonAdminMixin, admin.ModelAdmin):
+    task_buttons = get_buttons()
     list_display = ("id", "wordcloud_ignore", "rendered_content_replacement_start")
     readonly_fields = ("rendered_content_replacement_start",)
     filter_horizontal = ("pinned_community_libraries",)

@@ -541,7 +541,7 @@ def update_user_github_username(user_id: int):
 
 
 @shared_task
-def import_commits(clean=False):
+def import_commits(clean=True):
     options = {}
     if clean:
         options["clean"] = True
