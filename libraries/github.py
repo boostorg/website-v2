@@ -606,9 +606,12 @@ class LibraryUpdater:
                         ).values_list("sha", "pk")
                     ),
                 )
-                # Whatever still points into the deleted ids is evidence that did
-                # not come back, so those grants really are stale.
-                discard_source_achievements(Commit, doomed_ids)
+                # A grant is stale when no commit carries its sha any more, not
+                # when the particular row it pointed at went away: the same sha
+                # is stored once per library version covering it and once per
+                # library sharing the repository, and this run only rebuilt one
+                # library's worth.
+                discard_source_achievements(Commit, doomed_ids, key_field="sha")
             LibraryVersion.objects.bulk_update(
                 library_version_updates,
                 ["insertions", "deletions", "files_changed"],
