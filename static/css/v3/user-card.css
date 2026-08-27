@@ -109,7 +109,7 @@
   font-size: var(--font-size-xl);
 }
 
-.user-card--lg .avatar__initials {
+.user-card--lg .avatar .avatar__initials {
   font-size: var(--font-size-xl);
 }
 
