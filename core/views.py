@@ -176,7 +176,7 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
                 "cta_text": f"Join Slack {SLACK_MEMBER_COUNT} members",
                 "cta_url": "https://cppalliance.org/slack/",
                 "author": {
-                    "name": "Character Name",
+                    "name": "Ethan Mercer",
                     "role": "Contributor",
                     "avatar_url": large_static(
                         "img/v3/community-page/avatar-beaver-character.png"
@@ -189,7 +189,7 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
                 "cta_text": "Subscribe now",
                 "cta_url": "https://lists.boost.org/mailman3/lists/boost.lists.boost.org/",
                 "author": {
-                    "name": "Character Name",
+                    "name": "Sofia Delgado",
                     "role": "Author",
                     "avatar_url": large_static(
                         "img/v3/community-page/avatar-mouse-character.png"
@@ -202,7 +202,7 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
                 "cta_text": "Report it on GitHub",
                 "cta_url": "https://github.com/boostorg/boost",
                 "author": {
-                    "name": "Character Name",
+                    "name": "Lars Hoffmann",
                     "role": "Maintainer",
                     "avatar_url": large_static(
                         "img/v3/community-page/avatar-cheetah-character.png"
@@ -215,7 +215,7 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
                 "cta_text": "Visit Reddit",
                 "cta_url": "https://www.reddit.com/user/boostlibs/",
                 "author": {
-                    "name": "Character Name",
+                    "name": "Priya Nambiar",
                     "role": "Contributor",
                     "avatar_url": large_static(
                         "img/v3/community-page/avatar-fish-character.png"
@@ -327,7 +327,6 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
             "<ul>"
             "<li>Contribution statistics</li>"
             "<li>Progress towards next badge</li>"
-            "<li>Recent activity feed</li>"
             "</ul>"
         )
         ctx["create_account_card_preview_url"] = large_static(
