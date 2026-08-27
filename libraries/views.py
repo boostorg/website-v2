@@ -4,6 +4,7 @@ from urllib.parse import urlencode, urlparse
 
 import structlog
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
@@ -547,8 +548,7 @@ class LibraryDetail(
         except LibraryVersion.DoesNotExist:
             # No LibraryVersion for the selected release (e.g. viewing a version
             # older than the library's first release). Flag it so the v3 template
-            # renders a placeholder instead of an empty subpage.
-            # TODO: replace with a designed empty-state (separate ticket).
+            # renders the empty state instead of an empty subpage.
             context["library_version_missing"] = True
             return context
 
@@ -585,6 +585,11 @@ class LibraryDetail(
 
     def get_v3_context_data(self, **kwargs):
         context = {**kwargs}
+
+        if context.get("library_version_missing"):
+            # The empty state renders a hero and nothing else, so none of the
+            # card context below applies.
+            return self.get_missing_version_context(context)
 
         version_str = context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
 
@@ -656,6 +661,69 @@ class LibraryDetail(
             context["library_hero_image_url_dark"] = ""
             context["hero_image_url"] = ""
 
+        return context
+
+    def get_missing_version_context(self, context):
+        """Add the copy and CTA for the "no records for this version" empty state.
+
+        Built here rather than in the template because both the sentence and the
+        CTA branch on data: a library with no releases at all has no second
+        sentence and nowhere to switch to, and a library that has left Boost
+        needs the last release that shipped it rather than the first.
+        """
+        library = self.object
+        selected_version = context.get("selected_version")
+        selected_is_branch = selected_version.slug in settings.BOOST_BRANCHES
+        selected_label = (
+            f"the {selected_version.display_name} branch"
+            if selected_is_branch
+            else f"Boost {selected_version.display_name}"
+        )
+        description = (
+            f"There is no version of the {library.display_name} library for "
+            f"{selected_label}."
+        )
+
+        released_versions = Version.objects.active().filter(
+            library_version__library=library, beta=False, full_release=True
+        )
+        newest_version = released_versions.order_by("-name").first()
+
+        left_boost = newest_version and (
+            selected_is_branch
+            or selected_version.cleaned_version_parts_int
+            > newest_version.cleaned_version_parts_int
+        )
+        if left_boost:
+            description += (
+                f" The last release which included {library.display_name} was "
+                f"{newest_version.display_name}."
+            )
+        elif first_version := released_versions.order_by("name").first():
+            description += (
+                f" The first release of {library.display_name} library was version "
+                f"{first_version.display_name}."
+            )
+        context["library_version_missing_description"] = description
+
+        if newest_version:
+            is_latest = newest_version == Version.objects.most_recent()
+            context["library_version_missing_cta_url"] = reverse(
+                "library-detail",
+                kwargs={
+                    "version_slug": (
+                        LATEST_RELEASE_URL_PATH_STR
+                        if is_latest
+                        else newest_version.slug
+                    ),
+                    "library_slug": library.slug,
+                },
+            )
+            context["library_version_missing_cta_label"] = (
+                f"Switch to latest ({newest_version.display_name})"
+                if is_latest
+                else f"Switch to {newest_version.display_name}"
+            )
         return context
 
     def get_dependency_diff(self, library_version):

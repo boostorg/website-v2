@@ -264,13 +264,118 @@ def test_library_detail_404(library, old_version, tp):
     tp.response_404(response)
 
 
+@waffle.testutils.override_flag("v3", active=False)
 def test_library_detail_missing_version(library, old_version, tp):
-    # custom error due to no existing version
+    # custom error due to no existing version; pinned to the legacy template now
+    # that v3 renders its own empty state
     url = tp.reverse("library-detail", old_version.display_name, library.slug)
     response = tp.get(url)
     assert (
         "There was no version of the Boost.MultiArray library in the 1.70.0 version of "
         "Boost." in response.content.decode("utf-8")
+    )
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_missing_version_v3_empty_state(
+    library_version, old_version, tp
+):
+    """The v3 subpage swaps in the empty state, pointing at the current release."""
+    library = library_version.library
+    url = tp.reverse("library-detail", old_version.display_name, library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+    tp.assertContext("library_version_missing", True)
+    tp.assertContext(
+        "library_version_missing_description",
+        "There is no version of the Boost.MultiArray library for Boost 1.70.0. "
+        "The first release of Boost.MultiArray library was version 1.79.0.",
+    )
+    tp.assertContext("library_version_missing_cta_label", "Switch to latest (1.79.0)")
+    tp.assertContext(
+        "library_version_missing_cta_url",
+        tp.reverse("library-detail", "latest", library.slug),
+    )
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_missing_version_v3_cta_targets_newest_available(
+    library, version, old_version, tp
+):
+    """A library that left Boost points at its last release, not at latest."""
+    baker.make("libraries.LibraryVersion", library=library, version=old_version)
+    url = tp.reverse("library-detail", version.display_name, library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+    tp.assertContext(
+        "library_version_missing_description",
+        "There is no version of the Boost.MultiArray library for Boost 1.79.0. "
+        "The last release which included Boost.MultiArray was 1.70.0.",
+    )
+    tp.assertContext("library_version_missing_cta_label", "Switch to 1.70.0")
+    tp.assertContext(
+        "library_version_missing_cta_url",
+        tp.reverse("library-detail", old_version.slug, library.slug),
+    )
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_missing_version_v3_before_first_release_of_departed_library(
+    library, version, old_version, tp
+):
+    """A release older than the first still gets the "first release" sentence.
+
+    A library that has left Boost is still missing from the releases that predate
+    it, and there "the last release which included it" would answer a question the
+    visitor did not ask.
+    """
+    older_version = baker.make(
+        "versions.Version",
+        name="boost-1.60.0",
+        release_date=datetime.date.today() - datetime.timedelta(days=730),
+        fully_imported=True,
+    )
+    baker.make("libraries.LibraryVersion", library=library, version=old_version)
+    url = tp.reverse("library-detail", older_version.display_name, library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+    tp.assertContext(
+        "library_version_missing_description",
+        "There is no version of the Boost.MultiArray library for Boost 1.60.0. "
+        "The first release of Boost.MultiArray library was version 1.70.0.",
+    )
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_missing_version_v3_develop_branch_of_departed_library(
+    library, version, old_version, tp
+):
+    """A branch head gets the "last release" sentence and the branch wording.
+
+    develop carries no version number, so it cannot be placed by the numeric
+    comparison, but it is by definition ahead of every release.
+    """
+    develop = baker.make(
+        "versions.Version",
+        name="develop",
+        slug="develop",
+        release_date=datetime.date.today(),
+        full_release=False,
+        fully_imported=True,
+    )
+    baker.make("libraries.LibraryVersion", library=library, version=old_version)
+    url = tp.reverse("library-detail", develop.slug, library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+    tp.assertContext(
+        "library_version_missing_description",
+        "There is no version of the Boost.MultiArray library for the develop branch. "
+        "The last release which included Boost.MultiArray was 1.70.0.",
+    )
+    tp.assertContext("library_version_missing_cta_label", "Switch to 1.70.0")
+    tp.assertContext(
+        "library_version_missing_cta_url",
+        tp.reverse("library-detail", old_version.slug, library.slug),
     )
 
 

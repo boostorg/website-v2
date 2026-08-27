@@ -11,11 +11,7 @@
 {% block content %}
 
 {% if library_version_missing %}
-  {% comment %} TODO: Extract this to a separate template & implement UI for empty state {% endcomment %}
-  <div style="margin: 10rem auto; max-width: 40rem; text-align: center;">
-    <h1 class="library-no-version__title">No library records available for this version.</h1>
-    <p class="library-no-version__description">There is no version of the <b>{{ object.display_name }}</b> library for Boost {{ selected_version.display_name }}. The first release of <b>{{ object.display_name }}</b> library was version <b>{{ object.first_boost_version.display_name }}</b>.</p>
-  </div>
+  {% include "v3/includes/_library_version_unavailable.html" %}
 {% else %}
   {% with cpp_ver=library_version.get_cpp_standard_minimum_display|default:"C++03" %}
       {% if is_flagship_lib %}

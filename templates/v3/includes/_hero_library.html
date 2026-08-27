@@ -13,6 +13,9 @@
     source_url         (optional) — Source code link URL. Omit to hide.
     slack_url          (optional) — Discuss in Slack URL. Omit to hide.
     github_url         (optional) — GitHub Issues URL. Omit to hide.
+    cta_label          (optional) — Label for a primary hero button below the text. Needs cta_url.
+    cta_url            (optional) — Destination for that button. Needs cta_label.
+    cta_icon_name      (optional) — Icon for that button, from includes/icon.html. Defaults to "arrow-right".
     hero_image_url     (optional) — Image URL. If omitted, image block is not shown.
     hero_image_url_mobile (optional) — Art-directed image swapped in at &lt;=767px (e.g. a tighter crop). If omitted, the desktop image is used at all widths.
     hero_background_image_url (optional) — Background image URL for the hero container.
@@ -24,12 +27,20 @@
   row is hidden. If none of doc_url/source_url/slack_url/github_url are passed,
   the links row is hidden.
 
+  When version_alert/version_alert_message/selected_version are in context, the
+  v3/includes/_version_alert.html banner renders as the first child of the hero
+  section, above the block, which is where the design puts it. Callers using
+  `only` must forward those three explicitly. The banner carries the clearance
+  for the absolutely positioned header in that case; see .hero:has(> .banner) in
+  heros.css.
+
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
 {% endcomment %}
 <section class="hero{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero--with-bg-and-image{% endif %}{% if hero_background_image_url %} hero--with-background-image{% endif %}{% if extra_classes %} {{ extra_classes }}{% endif %}"
          {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
          aria-label="Library hero">
+  {% include "v3/includes/_version_alert.html" %}
   <div class="hero__block">
     <div class="hero__content">
       <div class="hero__meta">
@@ -57,6 +68,11 @@
           {% endif %}
         </div>
       </div>
+      {% if cta_label and cta_url %}
+      <div class="hero__actions">
+        {% include "v3/includes/_button_hero.html" with label=cta_label url=cta_url icon_name=cta_icon_name|default:"arrow-right" style="primary" %}
+      </div>
+      {% endif %}
       {% if doc_url or source_url or slack_url or github_url or rss_url or show_branch_buttons %}
       <div class="hero__links">
         {% if doc_url %}
@@ -102,5 +118,4 @@
     {% endwith %}
     {% endif %}
   </div>
-  {% include "v3/includes/_version_alert.html" %}
 </section>

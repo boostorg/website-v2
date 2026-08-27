@@ -1,0 +1,21 @@
+{% load custom_static %}
+{% comment %}
+  V3 library subpage empty state: the selected Boost release has no version of
+  this library (usually a release older than the library's first, but also a
+  library that has since been dropped from Boost).
+
+  Reuses the shared library hero — headline, sentence, "Switch to …" button and
+  the bookshelf illustration — on the page surface instead of the hero's accent
+  background.
+
+  Context (LibraryDetail.get_missing_version_context):
+    library_version_missing_description — sentence naming the library and versions.
+    library_version_missing_cta_label / _cta_url — the "Switch to …" button; both
+      are absent when the library has no releases at all, which collapses the button.
+
+  Usage:
+    {% include "v3/includes/_library_version_unavailable.html" %}
+{% endcomment %}
+{% large_static 'img/v3/library-page/empty-library-light.png' as empty_library_image_light %}
+{% large_static 'img/v3/library-page/empty-library-dark.png' as empty_library_image_dark %}
+{% include "v3/includes/_hero_library.html" with extra_classes="hero--library-unavailable" title="No library records available for this version." description=library_version_missing_description cta_label=library_version_missing_cta_label cta_url=library_version_missing_cta_url hero_image_url="" hero_image_url_light=empty_library_image_light hero_image_url_dark=empty_library_image_dark %}
