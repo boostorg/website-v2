@@ -5,8 +5,12 @@ from wagtail.fields import RichTextField, StreamField
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import models
+from django.urls import reverse_lazy
 from django.utils.functional import cached_property
 from django.utils.text import slugify
+from django.utils.timezone import localtime, now
+
+from modelcluster.contrib.taggit import ClusterTaggableManager
 
 
 from pages.blocks import POST_BLOCKS
@@ -215,6 +219,7 @@ class PostPage(BasePage):
     summary = models.TextField(
         blank=True, default="", help_text="AI generated summary. Delete to regenerate."
     )
+    tags = ClusterTaggableManager(through="pages.TaggedContent", blank=True)
 
     def get_content(self):
         if self.post_content_type in ["News", "Blogpost"]:
@@ -224,17 +229,26 @@ class PostPage(BasePage):
 
     def get_context(self, request, *args, **kwargs):
         ctx = super().get_context(request, *args, **kwargs)
-        pages = self.__class__.objects.live().order_by("-first_published_at")
-        if self.live:
+        pages: models.QuerySet = PostPage.objects.live().order_by("-first_published_at")
+        if self.first_published_at:
             next_objects = pages.filter(first_published_at__gt=self.first_published_at)
         else:
             next_objects = pages
-        ctx["next_post_items"] = [next_objects.last()]
-        ctx["related_posts"] = pages.filter(content__0__type=self.stream_content_type)[
+        if next_objects.exists():
+            ctx["next_post_items"] = [next_objects.last()]
+        ctx["related_posts"] = (
+            pages.filter(tags__in=self.tags.all()).exclude(pk=self.pk).distinct()[:3]
+        ) or pages.filter(content__0__type=self.stream_content_type).exclude(
+            pk=self.pk
+        )[
             :3
         ]
         ctx["object"] = self.specific
         ctx["post_author"] = self.author
+        ctx["user_can_edit"] = self.user_can_edit(request.user)
+        ctx["user_can_delete"] = self.user_can_delete(request.user)
+        ctx["user_can_approve"] = False
+
         return ctx
 
     def save(self, *args, **kwargs):
@@ -252,6 +266,17 @@ class PostPage(BasePage):
 
         return result
 
+    def get_preview_context(self, request, mode_name):
+        ctx = super().get_preview_context(request, mode_name)
+        ctx["is_preview"] = True
+        return ctx
+
+    def edit_url(self):
+        return reverse_lazy("v3-news-edit", kwargs={"slug": self.slug})
+
+    def delete_url(self):
+        return reverse_lazy("v3-news-delete", kwargs={"slug": self.slug})
+
     @cached_property
     def use_summary(self):
         return bool(len(self.summary))
@@ -263,6 +288,10 @@ class PostPage(BasePage):
         if self.use_summary:
             return self.summary
         return self.content
+
+    @property
+    def needs_approval(self):
+        return self.workflow_in_progress
 
     @cached_property
     def stream_content_type(self):
@@ -322,7 +351,7 @@ class PostPage(BasePage):
     def tag(self):
         if self.tags.exists():
             return self.tags.first()
-        return self.post_content_type
+        return None
 
     @cached_property
     def external_url(self):
@@ -333,7 +362,27 @@ class PostPage(BasePage):
         else:
             return None
 
+    def _in_edit_window(self):
+        first_revision = self.revisions.order_by("created_at").first()
+        if not first_revision:
+            return False
+
+        right_now = localtime(now())
+        td = abs(right_now - first_revision.created_at)
+        if td.days > 0 or abs(right_now - first_revision.created_at).seconds > (
+            6 * 60 * 60
+        ):
+            return False
+        return True
+
+    def user_can_edit(self, user):
+        return self.owner == user and self._in_edit_window()
+
+    def user_can_delete(self, user):
+        return self.owner == user and self._in_edit_window()
+
     content_panels = BasePage.content_panels + [
+        "tags",
         "content",
         "image",
         "summary",

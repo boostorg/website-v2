@@ -169,6 +169,10 @@ class Entry(models.Model):
         else:
             return self.image.url
 
+    @property
+    def needs_approval(self):
+        return not self.approved_at and not self.deleted_at
+
     @cached_property
     def tag(self):
         return getattr(self, "_tag", self.news_type)
@@ -298,6 +302,12 @@ class Entry(models.Model):
 
     def author_needs_moderation(self):
         return acl.author_needs_moderation(self)
+
+    def edit_url(self):
+        return reverse("news-update", kwargs={"slug": self.slug})
+
+    def delete_url(self):
+        return reverse("news-delete", kwargs={"slug": self.slug})
 
 
 class News(Entry):

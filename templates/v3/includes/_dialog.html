@@ -13,6 +13,7 @@
     secondary_label (required): Label for the secondary action button.
     primary_style   (optional): Button style for primary action.  Default "secondary-grey".
     secondary_style (optional): Button style for secondary action. Default "primary".
+    submit          (optional): Renders primary button as a "submit", to allow dialog to be part of a form
     primary_url     (optional): URL for primary button. Defaults to "" (renders as <button>).
     secondary_url   (optional): URL for secondary button. Defaults to "#" (closes the dialog).
 
@@ -46,8 +47,12 @@
     </div>
     {% endif %}
     <div class="dialog-modal__buttons">
-      {% include "v3/includes/_button.html" with label=primary_label style="primary" url=primary_url extra_classes="btn-flex" %}
-      {% include "v3/includes/_button.html" with label=secondary_label url=secondary_url|default:"#_" style="secondary" extra_classes="btn-flex" %}
+      {% if submit %}
+        {% include "v3/includes/_button.html" with label=primary_label style=primary_style|default:"primary" type="submit" url=primary_url extra_classes="btn-flex" %}
+      {% else %}
+        {% include "v3/includes/_button.html" with label=primary_label style=primary_style|default:"primary" type="button" url=primary_url extra_classes="btn-flex" %}
+      {% endif %}
+      {% include "v3/includes/_button.html" with label=secondary_label url=secondary_url|default:"#_" style=secondary_style|default:"secondary" extra_classes="btn-flex" %}
     </div>
   </div>
 </div>

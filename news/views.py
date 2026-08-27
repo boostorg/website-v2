@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.humanize.templatetags import humanize
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import PermissionDenied
 from django.http import (
     Http404,
     HttpResponseRedirect,
@@ -39,6 +40,9 @@ from django.views.decorators.http import require_POST
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 from wagtail.blocks import Block
 from wagtail.images.models import Image
+from wagtail.models import Page
+from waffle import flag_is_active
+
 
 from core.mixins import V3Mixin
 from pages.blocks import NEWS_BLOCK, BLOG_BLOCK, LINK_BLOCK, VIDEO_BLOCK
@@ -389,26 +393,6 @@ class EntryModerationMagicApproveView(View):
         return redirect(entry)
 
 
-def _v3_create_context():
-    """Shared context variables needed by the v3 create-post template."""
-    return {
-        "post_type_options": [
-            ("blog", "Blog"),
-            ("news", "News"),
-            ("video", "Video"),
-            ("link", "Link"),
-        ],
-        "related_libraries_options": [
-            (
-                library.slug,
-                library.name,
-            )
-            for library in Library.objects.all().order_by("name")
-        ],
-        "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
-    }
-
-
 class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = None
     form_class = None
@@ -522,14 +506,14 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
     http_method_names = ["get", "post"]
 
     _POST_BLOCK_MAP: dict[str, tuple[str, Block]] = {
-        "blog": BLOG_BLOCK,
+        "blogpost": BLOG_BLOCK,
         "news": NEWS_BLOCK,
         "link": LINK_BLOCK,
         "video": VIDEO_BLOCK,
     }
 
     _POST_TYPE_MAP = {
-        "blog": V3BlogPostForm,
+        "blogpost": V3BlogPostForm,
         "news": V3NewsForm,
         "link": V3LinkForm,
         "video": V3VideoForm,
@@ -542,10 +526,84 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
             return response
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def _v3_create_context(self):
+        """Shared context variables needed by the v3 create-post template."""
+        return {
+            "post_type_options": [
+                ("blogpost", "Blog"),
+                ("news", "News"),
+                ("video", "Video"),
+                ("link", "Link"),
+            ],
+            "related_libraries_options": [
+                (
+                    library.slug,
+                    library.name,
+                )
+                for library in Library.objects.all().order_by("name")
+            ],
+            "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
+            "title": "Create Post",
+            "edit": False,
+        }
+
+    def get_v3_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(_v3_create_context())
+        context.update(self._v3_create_context())
         return context
+
+    def error_message_and_render(self, message: str, extra_context: dict | None = None):
+        messages.error(self.request, message)
+        if extra_context:
+            context = self.get_context_data(**extra_context)
+        else:
+            context = self.get_context_data()
+        return self.render_to_response(context)
+
+    def set_page_attrs(
+        self,
+        page: PostPage,
+        form,
+        related_libraries: list,
+        block_name: str,
+        post_type: str,
+    ):
+        cleaned_data = form.cleaned_data
+        page.title = cleaned_data.get("title")
+        page.summary = cleaned_data.get("summary", "")
+        page.go_live_at = cleaned_data.get("publish_at")
+        page.content = [
+            (
+                block_name,
+                cleaned_data.get("content") or cleaned_data.get("external_url"),
+            )
+        ]
+        page.live = False
+        if image := cleaned_data.get("image"):
+            if image.size >= settings.DOWNSCALE_IMAGE_THRESHOLD:
+                image = downsize_uploaded_image(image)
+            wagtail_image = Image.objects.create(
+                title=image.name,
+                file=image,
+            )
+            page.image = wagtail_image
+        tags = []
+        if related_libraries:
+            for library in related_libraries:
+                lib = Library.objects.get(slug=library)
+                tag, created = ContentTag.objects.get_or_create(
+                    slug=lib.slug,
+                    defaults={
+                        "name": lib.name,
+                    },
+                )
+                tags.append(tag)
+        if tags:
+            page.tags.set(tags)
+        else:
+            page.tags.clear()
+
+        return page
 
     def post(self, request, *args, **kwargs):
         post_type = request.POST.get("post_type", "")
@@ -553,13 +611,11 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         form_class = self._POST_TYPE_MAP.get(post_type)
 
         if block_config is None or form_class is None:
-            messages.error(
-                request,
-                _("Invalid post type selected. Please choose a valid post type."),
+            return self.error_message_and_render(
+                message=_(
+                    "Invalid post type selected. Please choose a valid post type."
+                )
             )
-            context = self.get_context_data()
-            return self.render_to_response(context)
-
         block_name, block_class = block_config
 
         # The v3 create page has two Description textareas — `description` for
@@ -572,71 +628,38 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         )
         if post_data.get(description_field) and not post_data.get("summary"):
             post_data["summary"] = post_data[description_field]
-
         form = form_class(post_data, request.FILES)
 
         if form.is_valid():
-            cleaned_data = form.cleaned_data
             # Since the PostIndexPage is limited to one, we can just grab the first
             index_page = PostIndexPage.objects.first()
             if not index_page:
-                messages.error(
-                    request,
+                return self.error_message_and_render(
                     _(
                         "An internal database error has occurred. Please contact an admin."
                     ),
+                    {"form": form, "post_type_selected": post_type},
                 )
-                context = self.get_context_data(form=form, post_type_selected=post_type)
-                return self.render_to_response(context)
 
             try:
                 page = PostPage()
                 page.owner = request.user
-                page.title = cleaned_data.get("title")
-                page.summary = cleaned_data.get("summary", "")
-                page.go_live_at = cleaned_data.get("publish_at")
-                page.content = [
-                    (
-                        block_name,
-                        cleaned_data.get("content") or cleaned_data.get("external_url"),
+                try:
+                    page = self.set_page_attrs(
+                        page=page,
+                        form=form,
+                        block_name=block_name,
+                        post_type=post_type,
+                        related_libraries=post_data.getlist("related_libraries"),
                     )
-                ]
-                page.live = False
-                if image := form.cleaned_data.get("image"):
-                    if image.size >= settings.DOWNSCALE_IMAGE_THRESHOLD:
-                        image = downsize_uploaded_image(image)
-                    wagtail_image = Image.objects.create(
-                        title=image.name,
-                        file=image,
+                except Library.DoesNotExist:
+                    return self.error_message_and_render(
+                        _(
+                            "That related library does not exist, please select another."
+                        ),
+                        {"form": form, "post_type_selected": post_type},
                     )
-                    page.image = wagtail_image
-                tags = []
-                if related_libraries := post_data.getlist("related_libraries"):
-                    for library in related_libraries:
-                        try:
-                            lib = Library.objects.get(slug=library)
-                        except Library.DoesNotExist:
-                            messages.error(
-                                request,
-                                _(
-                                    "That related library does not exist, please select another."
-                                ),
-                            )
-                            context = self.get_context_data(
-                                form=form, post_type_selected=post_type
-                            )
-                            return self.render_to_response(context)
-
-                        tag, created = ContentTag.objects.get_or_create(
-                            slug=lib.slug,
-                            defaults={
-                                "name": lib.name,
-                            },
-                        )
-                        tags.append(tag)
                 index_page.add_child(instance=page)
-                if tags:
-                    page.tags.add(*tags)
                 page.save_revision(user=request.user)
                 page.get_workflow().start(obj=page, user=request.user)
             except ValidationError as e:
@@ -668,6 +691,247 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
         context = self.get_context_data(form=form, post_type_selected=post_type)
         return self.render_to_response(context)
+
+
+class V3AllTypesEditView(V3AllTypesCreateView):
+    _page = PostPage.objects.none()
+
+    def _v3_edit_context(self, page: PostPage):
+        ctx = {}
+        ctx["edit"] = True
+        ctx["title"] = "Edit Post"
+
+        if not page:
+            return ctx
+        ctx["post_type_selected"] = page.post_content_type.lower()
+        ctx["post_type_options"] = [
+            (page.post_content_type.lower(), page.post_content_type),
+        ]
+
+        if page.image:
+            ctx["current_image"] = page.image_url
+
+        form_class = self._POST_TYPE_MAP.get(page.post_content_type.lower(), None)
+        if not form_class:
+            messages.error(
+                self.request,
+                _("An internal database error has occurred. Please contact an admin."),
+            )
+            return ctx
+
+        form_data = {
+            "title": page.title,
+            "summary": page.summary,
+            "related_libraries": list(page.tags.all().values_list("slug", flat=True)),
+        }
+        go_live = page.go_live_at or localtime(now())
+        form_data["publish_at"] = go_live.strftime("%Y-%m-%dT%H:%M")
+        if page.stream_content_type in ["video", "url"]:
+            form_data["external_url"] = page.external_url
+        else:
+            # Return the raw value of the markdown block not rendered to html
+            # for cleaner editing in a javascriptless environment
+            form_data["content"] = page.content[0].value
+
+        form = form_class(initial=form_data)
+        ctx["form"] = form
+
+        return ctx
+
+    def get_v3_context_data(self, **kwargs):
+        page = self._page
+        context = super().get_v3_context_data(**kwargs)
+        context["related_libraries"] = list(
+            page.tags.all().values_list("slug", flat=True)
+        )
+        context.update(self._v3_edit_context(page))
+        return context
+
+    def get_page(self, slug):
+        index_page = PostIndexPage.objects.first()
+        if not index_page:
+            messages.error(
+                self.request,
+                _("An internal database error has occurred. Please contact an admin."),
+            )
+            return
+        try:
+            page: PostPage = (
+                PostPage.objects.child_of(index_page)
+                .get(slug=slug)
+                .get_latest_revision_as_object()
+            )
+        except PostPage.DoesNotExist:
+            messages.error(
+                self.request,
+                _("No page with slug %(slug)s exists…") % {"slug": slug},
+            )
+            return
+
+        if not self.request.user == page.owner:
+            raise PermissionDenied("Only the author of a page may edit it.")
+
+        self._page = page
+
+    def get(self, request, *args, **kwargs):
+        slug = kwargs.get("slug", "")
+        self.get_page(slug)
+
+        if self._page and not self._page.user_can_edit(request.user):
+            raise PermissionDenied("You do not have permission to edit this page.")
+
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        slug = kwargs.get("slug", "")
+        self.get_page(slug)
+        index_page = PostIndexPage.objects.first()
+        if not index_page:
+            return self.error_message_and_render(
+                _("An internal database error has occurred. Please contact an admin."),
+            )
+        try:
+            page: PostPage = index_page.get_children().get(slug=slug).specific
+        except Page.DoesNotExist:
+            messages.error(
+                self.request,
+                _("No page with slug %(slug)s exists…") % {"slug": slug},
+            )
+            context = self.get_context_data()
+            return self.render_to_response(context)
+
+        post_type = page.post_content_type.lower()
+        block_config = self._POST_BLOCK_MAP.get(post_type, None)
+        form_class = self._POST_TYPE_MAP.get(post_type)
+
+        if block_config is None or form_class is None:
+            return self.error_message_and_render(
+                message=_(
+                    "Invalid post type selected. Please choose a valid post type."
+                )
+            )
+
+        block_name, block_class = block_config
+
+        # The v3 create page has two Description textareas — `description` for
+        # Blog/News and `link_description` for Link/Video — so the two don't
+        # collide in the submitted form. Bind whichever applies to the model's
+        # `summary` field on submit for the forms that include it.
+        post_data = request.POST.copy()
+        description_field = (
+            "link_description" if post_type in ("link", "video") else "description"
+        )
+        if post_data.get(description_field) and not post_data.get("summary"):
+            post_data["summary"] = post_data[description_field]
+
+        form = form_class(post_data, request.FILES)
+        if form.is_valid():
+            if not page.user_can_edit(request.user):
+                messages.error(
+                    self.request,
+                    _("You do not have permission to edit this page."),
+                )
+                context = self.get_context_data(form=form, post_type_selected=post_type)
+                return self.render_to_response(context)
+
+            try:
+                page = self.set_page_attrs(
+                    page=page,
+                    form=form,
+                    block_name=block_name,
+                    post_type=post_type,
+                    related_libraries=post_data.getlist("related_libraries"),
+                )
+                page.save_revision(user=request.user)
+                if not page.workflow_in_progress:
+                    page.get_workflow().start(obj=page, user=request.user)
+            except Library.DoesNotExist:
+                return self.error_message_and_render(
+                    _("That related library does not exist, please select another."),
+                    {"form": form, "post_type_selected": post_type, "slug": slug},
+                )
+            except ValidationError as e:
+                if "slug" in str(e):
+                    form.add_error(
+                        "title",
+                        "A post with this title already exists. Please choose a different title.",
+                    )
+                else:
+                    form.add_error(
+                        None, "An unexpected error occurred. Please try again."
+                    )
+                    messages.error(
+                        request,
+                        _(
+                            "Something went wrong — your draft is saved, so give it another try."
+                        ),
+                    )
+                context = self.get_context_data(
+                    form=form,
+                    post_type_selected=post_type,
+                    related_libraries=post_data.getlist("related_libraries"),
+                )
+                return self.render_to_response(context)
+
+            messages.success(
+                request,
+                _(
+                    "Your post has been submitted. It'll be reviewed before it goes live, you will receive updates via email."
+                ),
+            )
+            return redirect(index_page.url)
+
+        context = self.get_context_data(form=form, post_type_selected=post_type)
+        return self.render_to_response(context)
+
+
+class V3DeletePostView(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        """
+        v3 mixin doesn't work for this view, since it has no template. Temporarily override the
+        view to require v3 access
+        """
+        if flag_is_active(request, "v3"):
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            raise Http404
+
+    def post(self, request, **kwargs):
+        slug = kwargs.get("slug")
+        if not slug:
+            messages.error(request, message=_("No slug was provided to delete"))
+            return redirect(reverse("news"))
+        index_page = PostIndexPage.objects.first()
+        if not index_page:
+            messages.error(
+                request=request,
+                message=_(
+                    "An internal database error has occurred. Please contact an admin."
+                ),
+            )
+            return redirect(reverse("news"))
+        try:
+            page: PostPage = index_page.get_children().get(slug=slug).specific
+        except Page.DoesNotExist:
+            messages.error(
+                request,
+                _("No page with slug %(slug)s exists…") % {"slug": slug},
+            )
+            return redirect(reverse("news"))
+
+        if not page.user_can_delete(request.user):
+            messages.error(request=request, message=_("You do not own this page."))
+            return redirect(page.url)
+
+        workflow_state = page.current_workflow_state
+        if workflow_state:
+            workflow_state.cancel(user=request.user)
+
+        page.unpublish(user=request.user)
+        messages.success(
+            request=request, message=_("This page has been successfully removed.")
+        )
+        return redirect(reverse("news"))
 
 
 @login_required

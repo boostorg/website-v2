@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Create Post{% endblock %}
+{% block title %}{{title}}{% endblock %}
 
 {% block css %}
   {{ block.super }}
@@ -22,16 +22,16 @@
     html:not(.js) .create-post-page__description-field { display: none; }
     html:not(.js) .field--file .field__control { cursor: pointer; }
 
-    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
+    html:not(.js) form:has(select[name="post_type"] option[value="blogpost"]:checked) .create-post-page__content-field,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: flex; }
 
-    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__description-section,
+    html:not(.js) form:has(select[name="post_type"] option[value="blogpost"]:checked) .create-post-page__description-section,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__description-section { display: flex; }
 
     html:not(.js) form:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__description-field,
     html:not(.js) form:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__description-field { display: flex; }
 
-    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__link-fields,
+    html:not(.js) form:has(select[name="post_type"] option[value="blogpost"]:checked) .create-post-page__link-fields,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__link-fields { display: none; }
   </style>
   <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
@@ -45,14 +45,14 @@
         enctype="multipart/form-data"
         method="post"
         :novalidate="true"
-        action="{% url 'v3-news-create' %}"
+        action=""
         @submit="prepareSubmit"
         data-create-post-form
       >
         {% csrf_token %}
 
         <div class="create-post-page__header">
-          <h1 class="create-post-page__title">Create Post</h1>
+          <h1 class="create-post-page__title">{{title}}</h1>
           <p class="create-post-page__subtitle">
             Posts will be reviewed by the moderation team before they appear in the feed.
           </p>
@@ -60,7 +60,7 @@
 
         <div class="create-post-page__card">
           {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
-          {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True selected=post_type_selected alpine_error="errors.post_type" %}
+          {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True selected=post_type_selected alpine_error="errors.post_type" disabled=edit %}
 
           {% include "v3/includes/_field_text.html" with name="title" label="Post title *" placeholder="Title" value=form.title.value|default_if_none:"" required=True alpine_error="errors.title" error=form.title.errors.0 %}
 
@@ -182,9 +182,9 @@
             <p class="field__error" id="field-link-description-error" role="alert" x-show="isLink && linkError" x-text="linkError" x-cloak aria-live="polite"></p>
           </div>
 
-          {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no larger than 5MB" extra_class="field--file-narrow create-post-page__field-image" %}
+          {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no larger than 5MB" extra_class="field--file-narrow create-post-page__field-image" preview_url=current_image %}
 
-          {% include "v3/includes/_field_multiselect.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" selected=form.data.related_libraries %}
+          {% include "v3/includes/_field_multiselect.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" selected_values=related_libraries %}
 
           {% include "v3/includes/_field_datetime.html" with name="publish_at" label="Publish Date *" value=form.publish_at.value|default:publish_at_initial %}
 
@@ -229,7 +229,7 @@
           image:        '{{ form.image.errors.0|default:""|escapejs }}',
         },
 
-        get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
+        get isWriteUp() { return this.postType === 'blogpost' || this.postType === 'news'; },
         get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
         get isLink() { return this.postType === 'link'; },
         // Auto-Generate fetches and summarizes the linked page, so enable it
@@ -256,11 +256,13 @@
           // Restore saved Title / Link URL / Content / Description / Link-Description
           // drafts for the current post type. On a fresh load with no draft this
           // leaves the field untouched.
-          this.restoreTitleDraft();
-          this.restoreExternalUrlDraft();
-          this.restoreContentDraft();
-          this.restoreDescriptionDraft();
-          this.restoreLinkDescriptionDraft();
+          {% if not edit %}
+            this.restoreTitleDraft();
+            this.restoreExternalUrlDraft();
+            this.restoreContentDraft();
+            this.restoreDescriptionDraft();
+            this.restoreLinkDescriptionDraft();
+          {% endif %}
         },
 
         handleFieldChange(e) {

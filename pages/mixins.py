@@ -1,5 +1,4 @@
 from django.db import models
-from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import ItemBase
 from taggit.models import TagBase
@@ -26,25 +25,13 @@ class TaggedContent(ItemBase):
         on_delete=models.CASCADE,
     )
     content_object = ParentalKey(
-        to="wagtailcore.Page",
+        to="pages.PostPage",
         on_delete=models.CASCADE,
         related_name="tagged_items",
     )
 
 
-class TaggableMixin(Page):
-    tags = ClusterTaggableManager(
-        through="pages.TaggedContent",
-        blank=True,
-    )
-
-    content_panels = Page.content_panels + ["tags"]
-
-    class Meta:
-        abstract = True
-
-
-class BasePage(V3Mixin, TaggableMixin, Page):
+class BasePage(V3Mixin, Page):
     """
     Abstract Base Page for all our new Pages to inherit from
     """
