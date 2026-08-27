@@ -100,3 +100,24 @@ def test_refresh_button_posts_with_csrf_token(client, super_user, linked_user, d
     assert f'action="{_refresh_url(linked_user)}"' in html
     assert "csrfmiddlewaretoken" in html
     assert f'href="{_refresh_url(linked_user)}"' not in html
+    # The button sits in the submit row and reaches the form by id, so the
+    # form itself can stay outside the admin form.
+    assert 'form="refresh-github-activity"' in html
+
+
+def test_refresh_form_is_not_nested_inside_the_admin_form(
+    client, super_user, linked_user, db
+):
+    """HTML forbids nested forms: the browser drops the inner one, so the
+    button would submit the change form, saving unsaved edits and queueing
+    nothing. Our form must therefore sit before the admin form opens."""
+    client.force_login(super_user)
+
+    html = client.get(
+        reverse("admin:users_user_change", args=[linked_user.pk])
+    ).content.decode()
+
+    refresh_form = html.index(f'action="{_refresh_url(linked_user)}"')
+    admin_form = html.index('id="user_form"')
+
+    assert refresh_form < admin_form
