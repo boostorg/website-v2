@@ -6,6 +6,11 @@ figure.mermaid-diagram {
     margin: 0;
     text-align: center;
     overflow-x: auto;
+    /* mermaid sizes each label box to the width it measured the text at, so a
+       host that sets `overflow-wrap: anywhere` on its prose - the markdown card
+       does - splits a word across two lines inside the box. */
+    overflow-wrap: normal;
+    word-break: normal;
 }
 
 figure.mermaid-diagram svg {
