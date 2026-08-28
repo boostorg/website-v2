@@ -1,9 +1,14 @@
 from structlog import get_logger
+from wagtail.admin.panels import FieldPanel
+from wagtail.models import PageManager
+from wagtail.url_routing import RouteResult
 from wagtail.fields import RichTextField, StreamField
 from wagtail.search import index
 
 from django.conf import settings
 from django.core.paginator import Paginator
+from django.db.models import ExpressionWrapper, FloatField, F, Func, Value
+from django.db.models.functions import Coalesce, Greatest, Now, Power
 from django.db import models
 from django.urls import reverse_lazy
 from django.utils.functional import cached_property
@@ -12,6 +17,8 @@ from django.utils.text import slugify
 from django.utils.timezone import localtime, now
 
 from modelcluster.contrib.taggit import ClusterTaggableManager
+
+from waffle import flag_is_active
 
 
 from libraries.utils import library_filter_options
@@ -69,6 +76,40 @@ class PostIndexPage(BasePage):
 
     PAGE_SIZE = 10
     RELATED_POSTS_LIMIT = 3
+
+    def route(self, request, path_components):
+        """Act as an umbrella handler for both Wagtail posts and legacy entries.
+
+        `path_components` is the remainder of the path below this page, so for
+        `/news/some-post/` it is `["some-post"]`. With the flag off an entry
+        that has no `PostPage` counterpart would 404 here, so we route it to
+        this page and let `serve()` hand it to the legacy detail view.
+        """
+        from news.models import Entry
+
+        if (
+            len(path_components) == 1
+            and not flag_is_active(request, "v3")
+            and not self.get_children().filter(slug=path_components[0]).exists()
+        ):
+            if entry := Entry.objects.filter(slug=path_components[0]).first():
+                return RouteResult(self, kwargs={"pk": entry.pk})
+        return super().route(request, path_components)
+
+    def serve(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            # Rather than return a 404 on non v3 views, we allow Legacy
+            # and wagtail to live at the same endpoint by serving the Legacy view
+            from news.views import EntryListView
+
+            if pk := kwargs.get("pk"):
+                from news.views import EntryDetailView
+
+                return EntryDetailView.as_view()(request, pk=pk)
+
+            return EntryListView.as_view()(request)
+
+        return super().serve(request, *args, **kwargs)
 
     def _filtered_queryset(self, filters) -> models.QuerySet["PostPage"]:
         posts = (
@@ -158,10 +199,37 @@ class PostIndexPage(BasePage):
         return ctx
 
 
+class ExtractEpoch(Func):
+    function = "EXTRACT"
+    template = "%(function)s(EPOCH FROM %(expressions)s)"
+    output_field = FloatField()
+
+
+class PostPageManager(PageManager):
+    def ranked(self):
+        gravity = float(getattr(settings, "POSTS_RANKING_GRAVITY", 2.0))
+        # `first_published_at` is nullable; without the Coalesce its NULL score
+        # would sort ahead of every real post under Postgres' DESC NULLS FIRST.
+        published_at = Coalesce("first_published_at", "last_published_at", Now())
+        age_in_hours = ExpressionWrapper(
+            Greatest(ExtractEpoch(Now() - published_at), Value(0.0)) / Value(3600.0),
+            output_field=FloatField(),
+        )
+        score = ExpressionWrapper(
+            F("page_views") / Power(age_in_hours + Value(2.0), Value(gravity)),
+            output_field=FloatField(),
+        )
+        return (
+            self.get_queryset().annotate(ranking_score=score).order_by("-ranking_score")
+        )
+
+
 class PostPage(BasePage):
     """
     News items, inheriting from base Page and having their content defined by a stream field named content
     """
+
+    objects = PostPageManager()
 
     parent_page_types = ["pages.PostIndexPage"]
     subpage_types = []
@@ -186,6 +254,17 @@ class PostPage(BasePage):
         blank=True, default="", help_text="AI generated summary. Delete to regenerate."
     )
     tags = ClusterTaggableManager(through="pages.TaggedContent", blank=True)
+    page_views = models.PositiveIntegerField(default=0)
+
+    def serve(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            # Rather than return a 404 on non v3 views, we allow Legacy
+            # and wagtail to live at the same endpoint by serving the Legacy view
+            from news.views import EntryDetailView
+
+            return EntryDetailView.as_view()(request, slug=self.slug)
+
+        return super().serve(request, *args, **kwargs)
 
     def get_content(self):
         if self.post_content_type in ["News", "Blogpost"]:
@@ -242,6 +321,29 @@ class PostPage(BasePage):
 
     def delete_url(self):
         return reverse_lazy("v3-news-delete", kwargs={"slug": self.slug})
+
+    def to_v3_post_card_dict(self, author_role=None):
+        """Dict shape consumed by `v3/includes/_post_card.html` items."""
+        from news.models import POST_CARD_TAG_LABELS
+
+        category = ""
+
+        if self.tag:
+            tag_key = str(self.tag).lower()
+            category = POST_CARD_TAG_LABELS.get(tag_key, self.tag.name.capitalize())
+
+        return {
+            "title": self.title,
+            "url": self.get_absolute_url(),
+            "date": self.date or self.publish_at,
+            "category": category,
+            "tag": "",
+            "author": (
+                self.author.to_v3_profile_dict(role=author_role)
+                if self.author
+                else None
+            ),
+        }
 
     @cached_property
     def use_summary(self):
@@ -380,6 +482,7 @@ class PostPage(BasePage):
         "image",
         "summary",
         "video_thumbnail",
+        FieldPanel("page_views", read_only=True),
     ]
 
     # `title` is already indexed by Page.search_fields, so it is not repeated

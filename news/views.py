@@ -47,6 +47,12 @@ from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin
 from pages.blocks import NEWS_BLOCK, BLOG_BLOCK, LINK_BLOCK, VIDEO_BLOCK
 from pages.models import PostPage, PostIndexPage
+from pages.routing import (
+    get_post_index_page,
+    post_detail_url,
+    post_index_url,
+    v3_posts_active,
+)
 from pages.mixins import ContentTag
 from .acl import can_approve
 from .constants import (
@@ -190,35 +196,22 @@ class EntryListView(V3Mixin, ListView):
         context.update(self.index_page.feed_context(self.request))
         return context
 
-    def _canonical_feed_redirect(self):
-        """Where a v3 visitor on one of the per-type lists belongs, if anywhere.
-
-        Under v3 there is one feed and the post type is a filter on it, so
-        /news/video/ forwards to the feed already filtered rather than becoming
-        a second URL rendering the same thing. Returns None for the feed's own
-        URL, which would otherwise redirect to itself.
-        """
-        feed_url = reverse("news")
-        if self.request.path == feed_url:
-            return None
-        if self.filter_value and self.filter_value != "all":
-            return f"{feed_url}?type={self.filter_value}"
-        return feed_url
-
     def dispatch(self, request, *args, **kwargs):
-        if flag_is_active(request, "v3"):
+        # Under V3 the Wagtail post index owns this page. `PostIndexPage.serve()`
+        # only calls back into this view when the flag is off, so this redirect
+        # cannot loop. It is deliberately temporary (302): a permanent redirect
+        # would be cached by browsers and would outlive turning the flag off.
+        if v3_posts_active(request):
             # The v3 feed reads the PostPage tree, which hangs off a single
             # PostIndexPage that has to be created by hand in the CMS per
             # environment. Where that page does not exist there is nothing to
-            # list, so the legacy feed stays rather than an empty v3 one.
-            self.index_page = PostIndexPage.objects.live().first()
+            # redirect to, so the legacy feed stays rather than an empty v3 one.
+            self.index_page = get_post_index_page(request)
             if self.index_page is None:
                 # What V3Mixin.dispatch reads to pick between the templates.
                 self.v3_template_name = None
-            # Temporary (302), never permanent: the flag can be switched back
-            # off, and a cached 301 would strand v2 visitors on the wrong list.
-            elif redirect_url := self._canonical_feed_redirect():
-                return redirect(redirect_url)
+            else:
+                return redirect(post_index_url(request, post_type=self.filter_value))
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -280,6 +273,22 @@ class EntryDetailView(V3Mixin, DetailView):
         "author__profile_routing_keys",
     )
 
+    def dispatch(self, request, *args, **kwargs):
+        """Under V3 a post is served by its Wagtail page, not by this view.
+
+        Entries without a live Wagtail counterpart (conversion not run yet,
+        or an unpublished entry a moderator is previewing) keep their legacy
+        URL, so `post_detail_url` returns this same path and no redirect
+        happens. `PostPage.serve()` only calls back into this view when the
+        flag is off, so this cannot loop.
+        """
+        slug = kwargs.get("slug")
+        if slug and v3_posts_active(request):
+            target = post_detail_url(request, slug)
+            if target != request.path:
+                return redirect(target)
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         qs = super().get_queryset()
         if getattr(self, "_v3_active", False):
@@ -336,12 +345,11 @@ class EntryDetailView(V3Mixin, DetailView):
         context.update(v3_context)
         return context
 
-    @classmethod
-    def _post_card_item(cls, entry):
+    def _post_card_item(self, entry):
         return {
             "title": entry.title,
             "description": entry.summary or "",
-            "url": reverse("news-detail", args=[entry.slug]),
+            "url": post_detail_url(self.request, entry.slug),
             "date": entry.publish_at,
             "category": news_type_label(entry.tag),
             "author": entry.author.to_v3_profile_dict(),
@@ -561,6 +569,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
     def get_v3_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(self._v3_create_context())
+        context["cancel_url"] = post_index_url(self.request)
         return context
 
     def error_message_and_render(self, message: str, extra_context: dict | None = None):

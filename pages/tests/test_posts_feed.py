@@ -2,7 +2,6 @@ import re
 
 import pytest
 import waffle.testutils
-from django.urls import reverse
 from model_bakery import baker
 
 from pages.feed import PostFeedFilters
@@ -20,12 +19,13 @@ def v3_flag():
 
 @pytest.fixture
 def feed_url(post_index_page, wagtail_site):
-    """The feed's URL is the legacy news route, not the index page's own.
+    """The feed's URL is the index page's own route.
 
-    The index page is still what the feed lists, and the site is still what
-    resolves each card's link, so both have to exist for the page to render.
+    Under v3 the Wagtail index page owns the posts URL and the legacy news
+    route redirects here, so the site has to exist for the page to resolve to
+    a URL at all.
     """
-    return reverse("news")
+    return post_index_page.get_url()
 
 
 @pytest.fixture
@@ -456,9 +456,11 @@ class TestFlagSwitch:
     the site swaps its template."""
 
     def test_flag_on_renders_the_v3_feed(self, tp, feed_url):
+        """Wagtail serves the page itself, so it names one template rather
+        than the candidate list a Django ListView builds."""
         response = get_feed(tp, feed_url)
 
-        assert response.template_name == ["v3/posts_list.html"]
+        assert response.template_name == "v3/posts_list.html"
 
     def test_flag_off_renders_the_legacy_list(self, tp, feed_url):
         with waffle.testutils.override_flag("v3", active=False):

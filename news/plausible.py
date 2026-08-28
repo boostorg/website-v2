@@ -7,7 +7,33 @@ from reports.constants import WEB_ANALYTICS_API_URL_V2, WEB_ANALYTICS_DOMAIN
 
 logger = structlog.get_logger(__name__)
 
-NEWS_ENTRY_PREFIX = "/news/entry/"
+LEGACY_NEWS_ENTRY_PREFIX = "/news/entry/"
+NEWS_ENTRY_PREFIX = "/news/"
+
+# Routes that live under /news/ but are not posts. Without this every hit on
+# e.g. /news/add/ would be recorded as views for a post slugged "add".
+RESERVED_NEWS_SEGMENTS = frozenset(
+    {"entry", "add", "moderate", "blogpost", "link", "news", "poll", "video"}
+)
+
+
+def slug_from_path(path: str) -> str | None:
+    """Post slug for a Plausible page path, or None if it is not a post.
+
+    Handles both the legacy `/news/entry/<slug>/` and the V3 `/news/<slug>/`
+    shapes, so view counts survive the switch-over.
+    """
+    if path.startswith(LEGACY_NEWS_ENTRY_PREFIX):
+        remainder = path[len(LEGACY_NEWS_ENTRY_PREFIX) :]
+    elif path.startswith(NEWS_ENTRY_PREFIX):
+        remainder = path[len(NEWS_ENTRY_PREFIX) :]
+    else:
+        return None
+
+    slug = remainder.strip("/")
+    if not slug or "/" in slug or slug in RESERVED_NEWS_SEGMENTS:
+        return None
+    return slug
 
 
 def fetch_post_views() -> dict[str, int]:
@@ -50,12 +76,12 @@ def fetch_post_views() -> dict[str, int]:
 
     slug_views: dict[str, int] = {}
     for result in data["results"]:
-        path = result["dimensions"][0]
-        if not path.startswith(NEWS_ENTRY_PREFIX):
+        slug = slug_from_path(result["dimensions"][0])
+        if not slug:
             continue
-        slug = path[len(NEWS_ENTRY_PREFIX) :].rstrip("/")
-        if slug:
-            slug_views[slug] = int(result["metrics"][0])
+        # A post can be hit under both its legacy and its V3 path; those are
+        # the same post, so their view counts add up rather than overwrite.
+        slug_views[slug] = slug_views.get(slug, 0) + int(result["metrics"][0])
 
     return slug_views
 
@@ -79,3 +105,23 @@ def update_page_views(slug_views: dict[str, int], entries: list | None = None) -
 
     Entry.objects.bulk_update(entries, ["page_views"])
     return len(entries)
+
+
+def update_post_page_views(slug_views: dict[str, int]) -> int:
+    """Bulk-update PostPage.page_views from the same slug-to-count mapping.
+
+    `PostPage.objects.ranked()` orders the V3 homepage posts card, so the
+    Wagtail pages need the same view counts the legacy entries get; otherwise
+    the ranking freezes at whatever the conversion command copied over.
+    """
+    if not slug_views:
+        return 0
+
+    from pages.models import PostPage
+
+    pages = list(PostPage.objects.filter(slug__in=slug_views.keys()))
+    for page in pages:
+        page.page_views = slug_views[page.slug]
+
+    PostPage.objects.bulk_update(pages, ["page_views"])
+    return len(pages)

@@ -6,11 +6,11 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Case, ExpressionWrapper, FloatField, F, Func, Value, When
 from django.db.models.functions import Greatest, Now, Power
-from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 
 from core.validators import (
     attachment_validator,

@@ -33,7 +33,7 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from waffle import flag_is_active
 
-from badges.display import active_badges_prefetch
+from news.services import get_latest_post_cards
 from core.templatetags.custom_static import large_static
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -101,8 +101,7 @@ from .tasks import (
 
 
 from libraries.models import Category, Library, LibraryVersion, Tier
-from news.models import Entry
-from news.services import get_latest_post_cards
+from pages.routing import post_index_url
 from libraries.utils import (
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
@@ -146,18 +145,7 @@ class BoostDevelopmentView(CalendarView):
 
 def build_recent_community_posts():
     """The four recent post cards, with their authors' active badges loaded."""
-    entries = (
-        Entry.objects.published()
-        .filter(deleted_at__isnull=True)
-        .select_related("author", "author__displayed_profile_role_library")
-        .prefetch_related(
-            active_badges_prefetch("author__badges"),
-            # Each card links its author's profile, which reads their routing keys.
-            "author__profile_routing_keys",
-        )
-        .order_by("-publish_at")[:4]
-    )
-    return [entry.to_v3_post_card_dict() for entry in entries]
+    return get_latest_post_cards(limit=4)
 
 
 class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
@@ -325,8 +313,8 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
                 },
             )
         )
-        ctx["posts"] = build_recent_community_posts()
-        ctx["news_url"] = self.request.build_absolute_uri(reverse("news"))
+        ctx["posts"] = get_latest_post_cards(limit=4, request=self.request)
+        ctx["news_url"] = self.request.build_absolute_uri(post_index_url(self.request))
         ctx["contribute_url"] = self.request.build_absolute_uri(
             "/doc/contributor-guide/contributors-faq.html"
         )
@@ -616,9 +604,9 @@ class LearnPageView(MailingListCardMixin, V3Mixin, TemplateView):
 
         ctx["post_cards_data"] = {
             "heading": "Posts from the Boost community",
-            "view_all_url": reverse("news"),
+            "view_all_url": post_index_url(self.request),
             "view_all_label": "View all posts",
-            "posts": get_latest_post_cards(limit=4),
+            "posts": get_latest_post_cards(limit=4, request=self.request),
         }
         ctx["boost_community_data"] = {
             "heading": "The Boost community",
@@ -1856,7 +1844,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "description": "Blog posts, announcements, and community news from the Boost project.",
                 "icon_name": "device-tv",
                 "cta_label": "Read news",
-                "cta_href": reverse("news"),
+                "cta_href": post_index_url(self.request),
             },
             {
                 "title": "Getting started",
