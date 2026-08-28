@@ -311,7 +311,9 @@ class TestEmptyState:
 
         response = get_feed(tp, feed_url, q="zzzznomatch")
 
-        assert b"post-empty-state" in response.content
+        assert b"empty-state" in response.content
+        assert b"No results, please search again..." in response.content
+        assert b"Try a shorter keyword, or check the spelling." in response.content
 
     def test_related_posts_keep_library_and_type(
         self, tp, feed_url, make_post_page, beast
@@ -351,7 +353,8 @@ class TestEmptyState:
     def test_renders_for_an_empty_feed(self, tp, feed_url):
         response = get_feed(tp, feed_url)
 
-        assert b"post-empty-state" in response.content
+        assert b"empty-state" in response.content
+        assert b"No results, please search again..." in response.content
         assert "related_posts" not in response.context
 
 

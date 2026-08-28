@@ -12,7 +12,10 @@
       - type_label      (string, optional)  — post type as worded for a reader, e.g. "Blog"
       - tag             (string, optional)  — e.g. "beast"
       - author          (object, optional)  — passed to _user_profile.html (see that template for fields)
-    empty_message       (string, optional)  — message rendered by the empty state when items is empty
+  When `items` is empty the card renders the shared text-based empty state
+  instead of the list. Its copy is fixed by the design and does not vary with
+  the active filters.
+
   Usage:
     {% include "v3/includes/_post_list_card.html" with heading="Posts" items=posts %}
 {% endcomment %}
@@ -57,6 +60,6 @@
       {% endfor %}
     </ul>
   {% else %}
-    {% include "v3/includes/_post_empty_state.html" with message=empty_message only %}
+    {% include "v3/includes/_empty_state.html" with title="No results, please search again..." description="Try a shorter keyword, or check the spelling." variant="inset" only %}
   {% endif %}
 {% endblock %}

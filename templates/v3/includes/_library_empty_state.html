@@ -1,14 +1,8 @@
-{% load custom_static %}
 {% comment %}
 Inner markup for the library page empty state. The wrapping element
 (<li> for list view, <div> elsewhere) is owned by the caller and must
 carry id="library-empty-state" and the `hidden` attribute. The x-text
-binding reads from the libraryFilter() Alpine component.
+bindings read from the libraryFilter() Alpine component; the text below
+them is the server-rendered fallback for when Alpine is unavailable.
 {% endcomment %}
-<img alt="Illustration of a beaver and a moose searching a bookshelf" class="library-page__empty-state-image library-page__empty-state-image--light"
-     src="{% large_static 'img/v3/library-page/empty-library-light.png' %}"
-     loading="lazy" decoding="async" />
-<img alt="Illustration of a beaver and a moose searching a bookshelf" class="library-page__empty-state-image library-page__empty-state-image--dark"
-     src="{% large_static 'img/v3/library-page/empty-library-dark.png' %}"
-     loading="lazy" decoding="async" />
-<p class="library-page__empty-state-message" x-text="emptyStateMessage()"></p>
+{% include "v3/includes/_empty_state.html" with title="No libraries match your search." description="Try a shorter keyword, or check the spelling." title_x_text="emptyStateTitle()" description_x_text="emptyStateHint()" only %}

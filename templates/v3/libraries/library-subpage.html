@@ -11,7 +11,7 @@
 {% block content %}
 
 {% if library_version_missing %}
-  {% include "v3/includes/_library_version_unavailable.html" %}
+  {% include "v3/includes/_empty_state.html" with title="No library records available for this version." description=library_version_missing_description title_is_heading=True variant="page" cta_label=library_version_missing_cta_label cta_url=library_version_missing_cta_url only %}
 {% else %}
   {% with cpp_ver=library_version.get_cpp_standard_minimum_display|default:"C++03" %}
       {% if is_flagship_lib %}

@@ -1,0 +1,33 @@
+{% comment %}
+  V3 text-based empty state: a centred headline, an optional hint line and an
+  optional call to action. Used wherever a search, filter or page has nothing
+  to show.
+
+  Variables:
+    title              (string, required) - headline saying why there is no content
+    description        (string, optional) - hint line suggesting what to try next
+    title_is_heading   (bool, optional)   - render the headline as <h1>; use only when the
+                                            empty state replaces the whole page content
+    title_x_text       (string, optional) - Alpine expression overriding the headline at runtime
+    description_x_text (string, optional) - Alpine expression overriding the hint line at runtime
+    variant            (string, optional) - "inset" (padded, inside a card) or
+                                            "page" (full-page, larger headline)
+    cta_label          (string, optional) - call-to-action label
+    cta_url            (string, optional) - call-to-action destination, built in the view
+
+  Usage:
+    {% include "v3/includes/_empty_state.html" with title="No results, please search again..." description="Try a shorter keyword, or check the spelling." variant="inset" only %}
+{% endcomment %}
+<div class="empty-state{% if variant %} empty-state--{{ variant }}{% endif %}">
+  {% if title_is_heading %}
+    <h1 class="empty-state__title">{{ title }}</h1>
+  {% else %}
+    <p class="empty-state__title"{% if title_x_text %} x-text="{{ title_x_text }}"{% endif %}>{{ title }}</p>
+  {% endif %}
+  {% if description or description_x_text %}
+    <p class="empty-state__description"{% if description_x_text %} x-text="{{ description_x_text }}"{% endif %}>{{ description }}</p>
+  {% endif %}
+  {% if cta_url and cta_label %}
+    {% include "v3/includes/_button.html" with label=cta_label url=cta_url style="primary" icon_name="arrow-right" icon_size=16 extra_classes="btn-hero" only %}
+  {% endif %}
+</div>

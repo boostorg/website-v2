@@ -362,20 +362,38 @@ Inputs:
           if (el) el.hidden = this.visibleCount !== 0;
         },
 
-        emptyStateMessage() {
+        emptyStateKind() {
           const hasSearch = this.query.trim().length > 0;
           const hasFilters =
             this.grading !== this.defaults.grading ||
             this.minCpp !== this.defaults.min_cpp ||
             this.maxCpp !== this.defaults.max_cpp ||
             this.categories.length > 0;
-          if (hasSearch && hasFilters) {
-            return 'No libraries match your search and filters. Try adjusting your criteria.';
+          if (hasSearch && hasFilters) return 'both';
+          if (hasSearch) return 'search';
+          return 'filters';
+        },
+
+        emptyStateTitle() {
+          switch (this.emptyStateKind()) {
+            case 'both':
+              return 'No libraries match your search and filters.';
+            case 'search':
+              return 'No libraries match your search.';
+            default:
+              return 'No libraries match the selected filters.';
           }
-          if (hasSearch) {
-            return 'No libraries match your search. Try a different keyword.';
+        },
+
+        emptyStateHint() {
+          switch (this.emptyStateKind()) {
+            case 'both':
+              return 'Try a shorter keyword, or clear some filters.';
+            case 'search':
+              return 'Try a shorter keyword, or check the spelling.';
+            default:
+              return 'Try clearing some filters to widen your search.';
           }
-          return 'No libraries match the selected filters. Try adjusting your filters.';
         },
       };
     };
@@ -413,12 +431,12 @@ Inputs:
         {% endfor %}
         <li id="library-empty-state"
             class="library-page__empty-state library-page__empty-state--in-list"
-            hidden>
+            {% if object_list %}hidden{% endif %}>
           {% include 'v3/includes/_library_empty_state.html' %}
         </li>
       </ul>
     {% elif library_view_str == 'grid' %}
-      <div id="library-empty-state" class="library-page__empty-state" hidden>
+      <div id="library-empty-state" class="library-page__empty-state" {% if object_list %}hidden{% endif %}>
         {% include 'v3/includes/_library_empty_state.html' %}
       </div>
       <div class="library-item-card-grid" x-cloak>
@@ -437,7 +455,7 @@ Inputs:
         </ul>
       </section>
       {% endfor %}
-      <div id="library-empty-state" class="library-page__empty-state" hidden>
+      <div id="library-empty-state" class="library-page__empty-state" {% if object_list %}hidden{% endif %}>
         {% include 'v3/includes/_library_empty_state.html' %}
       </div>
     {% endif %}

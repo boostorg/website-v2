@@ -379,6 +379,33 @@ def test_library_detail_missing_version_v3_develop_branch_of_departed_library(
     )
 
 
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_missing_version_v3_renders_text_empty_state(
+    tp, library, library_version, old_version
+):
+    """The v3 subpage renders the text-based empty state plus a latest CTA."""
+    url = tp.reverse("library-detail", old_version.display_name, library.slug)
+    content = tp.get_check_200(url).content.decode("utf-8")
+    assert 'class="empty-state empty-state--page"' in content
+    assert "No library records available for this version." in content
+    assert (
+        f"There is no version of the {library.display_name} library for Boost "
+        f"{old_version.display_name}." in content
+    )
+    assert f"Switch to latest ({library_version.version.display_name})" in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_missing_version_v3_without_latest_cta(
+    tp, library, old_version, version
+):
+    """No CTA when the library has no records in the latest release either."""
+    url = tp.reverse("library-detail", old_version.display_name, library.slug)
+    content = tp.get_check_200(url).content.decode("utf-8")
+    assert "No library records available for this version." in content
+    assert "Switch to latest" not in content
+
+
 def test_library_docs_redirect(tp, library, library_version):
     """
     GET /libs/{library_slug}/
