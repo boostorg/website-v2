@@ -94,9 +94,56 @@ class RenderedContentAdmin(admin.ModelAdmin):
         return super().changelist_view(request, extra_context=extra_context)
 
 
+def _synchronize_commit_author_preview(_request, _value):
+    """Static warning for the destructive part of author synchronization."""
+    return {
+        "title": "Synchronize commit authors and members",
+        "summary": (
+            "This binds commit authors to the members who wrote the commits, so "
+            "that commit and documentation achievements can be attributed. Run it "
+            "after Update Commits and before Backfill achievements."
+        ),
+        "rows": (
+            {
+                "label": "Duplicate commit authors",
+                "detail": (
+                    "Authors sharing a GitHub profile are merged. Their commits "
+                    "and email addresses move to the surviving row and the "
+                    "duplicate is deleted; a review naming the deleted author as "
+                    "a submitter loses that link, so import reviews afterwards."
+                ),
+                "warning": True,
+            },
+            {
+                "label": "Member records",
+                "detail": (
+                    "Members with no GitHub username stored get one from the "
+                    "matched author's profile. This writes to the member, not "
+                    "only to the commit author."
+                ),
+                "warning": True,
+            },
+            {
+                "label": "Author to member links",
+                "detail": (
+                    "Every unlinked author whose email matches a member is bound "
+                    "to that member. Nothing already linked is changed."
+                ),
+                "warning": False,
+            },
+        ),
+        "warning": (
+            "Continue only if the commit import has finished; authors it has not "
+            "created yet cannot be bound."
+        ),
+        "can_apply": True,
+    }
+
+
 def get_buttons():
-    from badges.tasks import backfill_achievements_task
-    from badges.admin import SOURCE_CHOICES
+    from dataclasses import replace
+
+    from badges.admin import BACKFILL_BUTTON
 
     from pages.tasks import convert_news_entries_task, update_index_task
 
@@ -124,7 +171,7 @@ def get_buttons():
         pass_actor=False,
         description=(
             "Update the Index in order to allow for Wagtail searching. Should be run after "
-            "all pages are succesfully converted."
+            "all pages are successfully converted."
         ),
     )
 
@@ -136,9 +183,10 @@ def get_buttons():
         busy_message="An update is already queued or running; not starting another one.",
         pass_actor=False,
         description=(
-            "Imports any commits the site is missing before granting achievements and "
-            "badges. It only ever adds or refreshes commits, so it is safe to run at "
-            "any time; nothing is deleted."
+            "Run first, before Synchronize Commit Authors. Imports any commits "
+            "the site is missing, which is what the commit and documentation "
+            "achievements are counted from. It only ever adds or refreshes "
+            "commits, so it is safe to run at any time; nothing is deleted."
         ),
     )
 
@@ -148,26 +196,30 @@ def get_buttons():
         task=synchronize_commit_author_user_data,
         success_message="Authors are being synchronized in the background.",
         busy_message="A synchronization is already queued or running; not starting another one.",
+        permission="libraries.delete_commitauthor",
         pass_actor=False,
-        description=("Synchronizes commit authors and user data."),
+        confirm=_synchronize_commit_author_preview,
+        description=(
+            "Run after Update Commits and before Backfill achievements. This is "
+            "what binds a commit author to the member who wrote the commits, by "
+            "matching their email addresses, and every commit and documentation "
+            "achievement is attributed through that link - skip it and the "
+            "backfill grants almost none of them. It also merges commit authors "
+            "sharing a GitHub profile, and fills in the GitHub username on the "
+            "members it matches."
+        ),
     )
 
-    BACKFILL_BUTTON = TaskButton(
-        name="backfill",
-        label="Backfill achievements",
-        task=backfill_achievements_task,
-        success_message="Achievements are being backfilled in the background.",
-        busy_message="A backfill is already queued or running; not starting another one.",
-        argument="slug",
-        choice_label="Source",
-        choices=SOURCE_CHOICES,
-        all_label="All sources",
-        pass_actor=True,
+    # Re-worded for the checklist, but the same button the badges changelist
+    # offers: one definition of the task, its sources and its permissions.
+    CHECKLIST_BACKFILL_BUTTON = replace(
+        BACKFILL_BUTTON,
         description=(
-            "Grants the automatic achievements the sources support and this site is "
-            "missing, then awards any badge that reaches its threshold. It only ever "
-            "adds, so it is safe to run at any time; this is what runs itself after "
-            "each release. Use Reconcile instead if an achievement needs removing."
+            "Run last. Grants the automatic achievements the sources support and "
+            "this site is missing, then awards any badge that reaches its "
+            "threshold. It only ever adds, so it is safe to run at any time and "
+            "safe to run again once the earlier steps have finished. Use "
+            "Reconcile instead if an achievement needs removing."
         ),
     )
 
@@ -183,12 +235,19 @@ def get_buttons():
         ),
     )
 
+    # Order is the checklist: commits are imported, their authors are bound to
+    # members, and only then does the backfill read both.
+    #
+    # A review import belongs between the two last steps - nothing schedules it,
+    # and the merge in the synchronize step can drop the link between a review and
+    # its submitter - but the task and button it would use arrive with the review
+    # source, which is not merged yet.
     return [
         CONVERT_NEW_ENTRIES_BUTTON,
         UPDATE_INDEX_BUTTON,
         UPDATE_COMMITS_BUTTON,
         SYNCHRONIZE_COMMIT_AUTHOR_BUTTON,
-        BACKFILL_BUTTON,
+        CHECKLIST_BACKFILL_BUTTON,
         UPDATE_DISPLAYED_ROLES_BUTTON,
     ]
 
