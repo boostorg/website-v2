@@ -2,13 +2,14 @@
 
 from django.urls import reverse
 
+from badges.display import active_badges_prefetch
 from core.constants import SLACK_MEMBER_COUNT
 from core.models import HomepageSettings
 from core.templatetags.custom_static import large_static
 from libraries.models import FEATURED_LIBRARY_TIERS, Library, LibraryVersion
 from libraries.utils import build_library_intro_context, get_documentation_url
 from versions.models import Version
-from news.services import get_latest_post_cards
+from pages.models import PostPage
 
 # Hero illustration for the V3 homepage.
 HERO_LEGACY_IMAGE_URL_LIGHT = large_static("img/v3/home-page/heros.png")
@@ -104,7 +105,17 @@ def build_community_posts(limit=5, request=None):
     (heading, CTA, variant, theme) lives in the template. Uses
     `Entry.ranked()` (popularity-ordered), not chronological.
     """
-    return get_latest_post_cards(limit=limit, request=request)
+    popular_entries = (
+        PostPage.objects.ranked()
+        .select_related("owner", "owner__displayed_profile_role_library")
+        # Badges per card, and the author's routing keys for the profile link.
+        .prefetch_related(
+            active_badges_prefetch("owner__badges"),
+            "owner__profile_routing_keys",
+        )
+        .live()[:limit]
+    )
+    return [entry.to_v3_post_card_dict() for entry in popular_entries]
 
 
 def build_join_developers_links():

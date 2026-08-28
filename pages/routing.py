@@ -25,13 +25,7 @@ _INDEX_PAGE_CACHE_ATTR = "_v3_post_index_page"
 
 def v3_posts_active(request) -> bool:
     """True when posts should be sourced from and linked to Wagtail."""
-    from pages.models import PostIndexPage
-
-    return (
-        request is not None
-        and flag_is_active(request, "v3")
-        and PostIndexPage.objects.exists()
-    )
+    return request is not None and flag_is_active(request, "v3")
 
 
 def get_post_index_page(request=None):

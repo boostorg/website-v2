@@ -423,6 +423,7 @@ def test_community_recent_post_badge_query_is_constant(plain_user):
     assert {card["author"]["badge_label"] for card in four_cards} == {"Library Author"}
 
 
+@waffle.testutils.override_flag("v3", active=True)
 def test_homepage_ranked_post_badge_query_is_constant(plain_user, make_post_page):
     """The V3 homepage loads ranked-post author badges in one query.
 
