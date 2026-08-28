@@ -1,0 +1,94 @@
+/* Styling for documentation pages in the admin, rendered from markdown
+   source (e.g. docs/badges-admin.md on /admin/badges/) via a templatetag.
+
+   Any admin page that renders a <div class="admin-docs"> gets the layout
+   fixes below: the dashboard's narrow column and the 300px sidebar margin
+   are dropped because the docs wrapper does not use the sidebar.
+*/
+
+body.dashboard:has(.admin-docs) #content {
+    width: 100%;
+}
+
+body:has(.admin-docs) #content.colMS {
+    margin-right: 0;
+}
+
+.admin-docs h2 {
+    margin: 0 0 8px;
+    padding: 8px 16px;
+    background: var(--darkened-bg);
+    color: var(--body-fg);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.admin-docs h2:not(:first-child) {
+    margin-top: 20px;
+}
+
+.admin-docs h3 {
+    margin: 0 16px 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.admin-docs p {
+    margin: 0 16px 12px;
+    max-width: 90ch;
+    line-height: 1.5;
+}
+
+.admin-docs ol,
+.admin-docs ul {
+    margin: 0 16px 12px;
+    max-width: 90ch;
+}
+
+.admin-docs li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.admin-docs table {
+    width: 100%;
+    margin: 0 0 12px;
+}
+
+/* The dashboard styles keep cells at a single line; a reference table cannot. */
+.admin-docs th {
+    width: auto;
+}
+
+.admin-docs td {
+    white-space: normal;
+    vertical-align: top;
+    line-height: 1.5;
+}
+
+.admin-docs td:first-child {
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.admin-docs code {
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: var(--darkened-bg);
+    font-size: 0.8125rem;
+}
+
+.admin-docs blockquote {
+    margin: 0 16px 12px;
+    padding: 8px 12px;
+    max-width: 90ch;
+    border-left: 3px solid var(--border-color);
+    background: var(--darkened-bg);
+    line-height: 1.5;
+}
+
+.admin-docs blockquote p {
+    margin: 0;
+}
