@@ -27,9 +27,12 @@
   text-decoration-line: underline;
   text-decoration-style: solid;
   text-decoration-skip-ink: none;
-  text-decoration-thickness: auto;
-  text-underline-offset: auto;
-  text-underline-position: from-font;
+}
+
+/* Matches .learn-card__link:hover and .content-detail-icon__cta:hover. The link
+   is underlined at rest, so colour is the only affordance left to change. */
+.join-card__start-here:hover {
+  color: var(--color-text-link-accent);
 }
 
 .join-card__title-block {
