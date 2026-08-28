@@ -101,7 +101,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         ctx["why_boost_cards"] = WHY_BOOST_CARDS
 
         # Posts Card
-        ctx["community_posts"] = build_community_posts()
+        ctx["community_posts"] = build_community_posts(request=self.request)
         ctx["posts_url"] = post_index_url(self.request)
 
         # Join Card

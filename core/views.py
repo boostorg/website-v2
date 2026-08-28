@@ -33,6 +33,7 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from waffle import flag_is_active
 
+from news.services import get_latest_post_cards
 from core.templatetags.custom_static import large_static
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -101,7 +102,6 @@ from .tasks import (
 
 from libraries.models import Category, Library, LibraryVersion, Tier
 from pages.routing import post_index_url
-from news.services import get_latest_post_cards
 from libraries.utils import (
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
@@ -141,6 +141,11 @@ class CalendarView(V3Mixin, TemplateView):
 
 class BoostDevelopmentView(CalendarView):
     template_name = "boost_development.html"
+
+
+def build_recent_community_posts():
+    """The four recent post cards, with their authors' active badges loaded."""
+    return get_latest_post_cards(limit=4)
 
 
 class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):

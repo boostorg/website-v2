@@ -2,6 +2,7 @@ from badges.display import active_badges_prefetch
 from pages.models import PostPage
 from pages.routing import v3_posts_active
 
+
 from .models import Entry
 
 # Display labels for a post's type "chip" (the small category label on post
