@@ -10,8 +10,6 @@
 
 .post-content-container {
     margin-top: var(--space-xl);
-    padding-left: var(--space-large);
-    padding-right: var(--space-large);
     min-height: 80vh;
 }
 

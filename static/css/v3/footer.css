@@ -1,6 +1,8 @@
 .footer {
   --footer-text: var(--color-text-primary);
-  padding: var(--space-large) var(--space-large);
+  /* Cancels the shell's gutter so .footer__inner lines up with .header. */
+  margin-inline: calc(-1 * var(--v3-shell-gutter));
+  padding: var(--space-large) 0;
   color: var(--footer-text);
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
@@ -8,6 +10,18 @@
   font-weight: 400;
   line-height: 120%;
   letter-spacing: -0.12px;
+}
+
+/* Full-bleed divider while the footer box stays at shell width: left/right 0
+   resolve against the viewport because no page shell is positioned, and top comes
+   from the static position — hence the negative margin. No vw units, so the
+   scrollbar can't push the page sideways. */
+.footer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-top: calc(-1 * var(--space-large));
   border-top: 1px solid var(--color-border);
 }
 
@@ -24,8 +38,9 @@
 }
 
 .footer__inner {
-  max-width: 80rem;
+  max-width: 1440px;
   margin: 0 auto;
+  padding: 0 var(--space-large);
   display: flex;
   flex-direction: column;
   align-items: stretch;

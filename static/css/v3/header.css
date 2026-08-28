@@ -7,7 +7,7 @@
 /* ── Root & resets ──────────────────────────────── */
 
 .header {
-  --header-height: 48px;
+  --header-height: var(--v3-header-height);
   --header-border: 1px solid var(--color-stroke-weak);
   --header-radius: var(--border-radius-xl);
   --header-bg: var(--color-surface-weak);
@@ -33,7 +33,7 @@ body.v3 .header {
 
 body.v3 .v3-container > .w-full,
 body.v3 .docs-iframe-page > .w-full {
-  padding-top: calc(var(--header-height, 48px) + 2 * var(--space-medium));
+  padding-top: var(--v3-header-footprint);
 }
 
 /* Full-width docs pages (templates/docsiframe.html) replace .v3-container, so

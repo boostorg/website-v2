@@ -1,11 +1,27 @@
 .banner {
+    --banner-fg: var(--color-text-on-accent);
+    /* Anchors the hidden dismiss checkbox. */
+    position: relative;
     width: 100%;
     display: flex;
-    padding: var(--space-default);
+    padding: var(--space-default) var(--space-large);
     align-items: center;
     gap: var(--space-large);
     border-radius: var(--border-radius-l);
     background: var(--color-surface-brand-accent-default);
+}
+
+/* The strong green primitive, not --color-syntax-green: that one flips to the pale
+   green in dark mode, and the success banner is meant to look the same in both.
+   The foreground token has to be theme-stable for the same reason. */
+.banner--success {
+    --banner-fg: var(--color-text-reversed-on-accent);
+    background: var(--color-syntax-strong-green);
+}
+
+.banner--error {
+    --banner-fg: var(--color-text-reversed-on-accent);
+    background: var(--color-icon-error);
 }
 
 .banner__body {
@@ -17,13 +33,29 @@
     min-width: 0;
 }
 
+@media (max-width: 767px) {
+    .banner__body {
+        justify-content: flex-start;
+    }
+}
+
 .banner__message {
-    color: var(--color-text-on-accent);
+    color: var(--banner-fg);
     font-family: var(--font-sans);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-tight);
     letter-spacing: var(--letter-spacing-tight);
+}
+
+/* A \n in a message is an optional break: normal collapses it to a space, so it
+   only takes effect on mobile, where the banner is narrowest. Keep message
+   strings on one logical line (implicit concatenation) — any stray newline from
+   wrapping source code would break here too. */
+@media (max-width: 767px) {
+    .banner__message {
+        white-space: pre-line;
+    }
 }
 
 .banner__message a {
@@ -39,7 +71,7 @@
     height: 16px;
     flex-shrink: 0;
     aspect-ratio: 1/1;
-    fill: var(--color-text-on-accent);
+    fill: var(--banner-fg);
 }
 
 .banner__close {
@@ -52,10 +84,99 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    color: var(--color-text-on-accent);
+    color: var(--banner-fg);
     border-radius: var(--border-radius-s);
 }
 
 .banner__close:hover {
     opacity: 0.7;
+}
+
+/* Centres the button against the message instead of on the form's baseline. */
+.banner__action-form {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+/* Matches the message's line-height; a button's default adds leading that reads
+   as stray padding. */
+.banner__action {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    font-family: var(--font-sans);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
+    color: var(--banner-fg);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.banner__action:hover {
+    opacity: 0.85;
+}
+
+/* CSS-only dismiss, so banners that never fade can be closed without JS. The
+   checkbox stays focusable, so the focus ring is forwarded to the label. */
+.banner:has(> .banner__dismiss:checked) {
+    display: none;
+}
+
+/* Out of flow: as a flex child it would still collect a gap and shift the ✕. */
+.banner__dismiss {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.banner__dismiss:focus-visible + .banner__close {
+    outline: 2px solid var(--banner-fg);
+    outline-offset: 2px;
+}
+
+/* Notification stack (v3/includes/_messages.html). */
+.banner-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+}
+
+/* Containing block for the stack: cancelling the shell gutter matches .header's box.
+   width: auto because a fixed width shifts the box instead of widening it. */
+body.v3 .w-full:has(> .banner-stack) {
+    position: relative;
+    width: auto;
+    margin-inline: calc(-1 * var(--v3-shell-gutter));
+}
+
+/* Tracks .header's horizontal padding, so the banner matches the navbar's width. */
+body.v3 {
+    --banner-slot-inset: var(--space-large);
+}
+
+/* z-index: over the hero alert (2), under .header (10). */
+body.v3 .banner-stack {
+    position: absolute;
+    z-index: 3;
+    top: var(--v3-header-footprint);
+    left: var(--banner-slot-inset);
+    right: var(--banner-slot-inset);
+    max-width: calc(1440px - 2 * var(--banner-slot-inset));
+    margin-inline: auto;
+}
+
+/* Tracks .header's padding switch at this width (header.css). */
+@media (max-width: 990px) {
+    body.v3 {
+        --banner-slot-inset: var(--space-medium);
+    }
 }

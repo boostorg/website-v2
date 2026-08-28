@@ -1,0 +1,37 @@
+{% comment %}
+  V3 notification slot — renders queued Django messages, the scheduled-deletion
+  notice and the version alert as banners under the navbar. Replaces
+  partials/messages.html on the v3 path (see base.html's messages block).
+
+  Order: standing notices first (deletion, then version alert), flash messages
+  after, newest last. Positioning lives in banner.css, keyed off .banner-stack.
+
+  Success and info fade after 6s and announce politely; warning and error stay
+  until dismissed, so they carry a dismiss_id for the CSS-only close button.
+
+  Variables:
+    messages                  (required) — from django.contrib.messages.
+    profile_cancel_delete_url (required) — from the core context processor.
+    version_alert*            (optional) — see v3/includes/_version_alert.html.
+{% endcomment %}
+{% if messages or request.user.delete_permanently_at or version_alert %}
+  <div class="banner-stack">
+    {% if request.user.delete_permanently_at %}
+      {% with deletion_date=request.user.delete_permanently_at|date:'N j, Y, P e' %}
+        {% include "v3/includes/_banner.html" with banner_message="Your account is scheduled for deletion on "|add:deletion_date icon_name="warning-box" variant="error" role="region" aria_label="Account deletion notice" dismiss_id="deletion" action_url=profile_cancel_delete_url action_label="Cancel deletion" %}
+      {% endwith %}
+    {% endif %}
+    {% include "v3/includes/_version_alert.html" %}
+    {% for message in messages %}
+      {% if message.level_tag == "success" %}
+        {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" variant="success" role="status" fade_time=6000 %}
+      {% elif message.level_tag == "error" %}
+        {% include "v3/includes/_banner.html" with banner_message=message icon_name="warning-box" variant="error" dismiss_id=forloop.counter %}
+      {% elif message.level_tag == "warning" %}
+        {% include "v3/includes/_banner.html" with banner_message=message icon_name="alert" dismiss_id=forloop.counter %}
+      {% else %}
+        {% include "v3/includes/_banner.html" with banner_message=message icon_name="checkbox" role="status" fade_time=6000 %}
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}

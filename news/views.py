@@ -43,7 +43,7 @@ from wagtail.images.models import Image
 from wagtail.models import Page
 from waffle import flag_is_active
 
-
+from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin
 from pages.blocks import NEWS_BLOCK, BLOG_BLOCK, LINK_BLOCK, VIDEO_BLOCK
 from pages.models import PostPage, PostIndexPage
@@ -482,6 +482,9 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
                 messages.warning(
                     request, f"Please add {' and '.join(missing_data)} first."
                 )
+                # V3 sends them to the Edit User Profile page, where the missing field is.
+                if flag_is_active(request, "v3"):
+                    return redirect(edit_profile_url())
                 return redirect("profile-account")
 
         return super().dispatch(request, *args, **kwargs)
@@ -518,13 +521,6 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         "link": V3LinkForm,
         "video": V3VideoForm,
     }
-
-    def dispatch(self, request, *args, **kwargs):
-        # Run AllTypesCreateView's profile-completeness guard before V3Mixin takes over.
-        response = AllTypesCreateView.dispatch(self, request, *args, **kwargs)
-        if response.status_code != 200:
-            return response
-        return super().dispatch(request, *args, **kwargs)
 
     def _v3_create_context(self):
         """Shared context variables needed by the v3 create-post template."""

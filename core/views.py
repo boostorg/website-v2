@@ -1951,6 +1951,27 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
             "banner_message": "This is an older version of Boost and was released in 2017. The <a href='https://www.example.com'>current version</a> is 1.90.0.",
         }
 
+        context["banner_variants"] = [
+            {
+                "label": "Default — version alerts, warnings and info messages",
+                "variant": "",
+                "icon_name": "alert",
+                "banner_message": "This is a beta version of Boost. The <a href='https://www.example.com'>current version</a> is 1.90.0.",
+            },
+            {
+                "label": "Success",
+                "variant": "success",
+                "icon_name": "checkbox",
+                "banner_message": "Your profile was successfully updated.",
+            },
+            {
+                "label": "Error (note: this message has an inline newline break that is only applied in mobile screensize)",
+                "variant": "error",
+                "icon_name": "warning-box",
+                "banner_message": "Couldn't save changes.\n Check your connection and try again.",
+            },
+        ]
+
         context["account_connections_mixed"] = [
             {
                 "platform": "github",

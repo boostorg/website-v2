@@ -1,4 +1,6 @@
 .v3-examples-section {
+  box-sizing: border-box;
+  width: 100%;
   max-width: 80rem;
   margin-left: auto;
   margin-right: auto;

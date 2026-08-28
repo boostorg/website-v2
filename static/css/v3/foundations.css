@@ -10,6 +10,22 @@ body.v3 {
 
 body.v3 {
   background: var(--color-surface-page);
+
+  /* Gutter the page shell puts around its children — 0 for the full-bleed shells.
+     Overlays that line up with .header cancel it. */
+  --v3-shell-gutter: 0px;
+
+  /* .header's height, and the space it occupies with its padding. Read these
+     rather than var(--header-height), the legacy 41px outside .header. */
+  --v3-header-height: 48px;
+  --v3-header-footprint: calc(var(--v3-header-height) + 2 * var(--space-default));
+}
+
+/* .header swaps to all-round --space-medium padding at this width (header.css). */
+@media (max-width: 990px) {
+  body.v3 {
+    --v3-header-footprint: calc(var(--v3-header-height) + 2 * var(--space-medium));
+  }
 }
 
 html.v3,
@@ -164,12 +180,19 @@ html.v3 code {
 
 /* Container for v3 content */
 .v3-container {
+  --v3-shell-gutter: var(--space-large);
   width: 100%;
   max-width: 1440px;
   margin-left: auto;
   margin-right: auto;
-  padding-left:var(--space-medium);
-  padding-right:var(--space-medium);
+  padding-left: var(--v3-shell-gutter);
+  padding-right: var(--v3-shell-gutter);
+}
+
+@media (max-width: 767px) {
+  .v3-container {
+    --v3-shell-gutter: var(--space-medium);
+  }
 }
 
 /* ==========================================================================

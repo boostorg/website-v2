@@ -92,11 +92,17 @@ def _hero_html(**extra):
     return render_to_string("v3/includes/_hero_library.html", context)
 
 
-def test_hero_forwards_version_alert_message_to_banner():
-    """The hero's `only` include must forward version_alert_message or the
-    version-alert banner renders empty (regressed once when the message moved
-    from the template into VersionAlertMixin)."""
-    html = _hero_html(
+def _slot_html(**extra):
+    context = {"selected_version": Version(slug="boost-1-70-0")}
+    context.update(extra)
+    return render_to_string("v3/includes/_messages.html", context)
+
+
+def test_slot_renders_version_alert_message():
+    """The slot must receive version_alert_message or the banner renders empty
+    (regressed once when the message moved from the template into
+    VersionAlertMixin)."""
+    html = _slot_html(
         version_alert=True,
         version_alert_message="This is an older version of Boost.",
     )
@@ -104,6 +110,15 @@ def test_hero_forwards_version_alert_message_to_banner():
     assert "banner__message" in html
 
 
-def test_hero_omits_banner_without_message():
-    html = _hero_html(version_alert=True)
+def test_slot_omits_banner_without_message():
+    assert "banner__message" not in _slot_html(version_alert=True)
+
+
+def test_hero_no_longer_renders_the_version_alert():
+    """The alert belongs to base.html's notification slot now, so it stacks with
+    flash messages instead of overlapping them."""
+    html = _hero_html(
+        version_alert=True,
+        version_alert_message="This is an older version of Boost.",
+    )
     assert "banner__message" not in html

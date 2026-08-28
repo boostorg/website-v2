@@ -377,11 +377,6 @@
         class="h-screen {% flag "v3" %}v3{% else %}bg-gray-200 dark:bg-black{% endflag %}{% if DEBUG %} DEBUG{% endif %}" {% block body_id %}{% endblock %}>
          <div class="modal-overlay" id="modalOverlay"><div class="modal-content"><iframe id="modalFrame" class="w-full h-full rounded-xl m-0 p-0"></iframe><div class="modal-close" id="modalClose" onclick="closeModal()"><i class="fa-solid fa-xmark fa-lg"></i></div></div></div>
       {% flag "v3" %}
-        {% if request.user.is_authenticated and request.user.delete_permanently_at %}
-          {% include "v3/includes/_account_deletion_banner.html" %}
-        {% endif %}
-      {% endflag %}
-      {% flag "v3" %}
       <div class="bg-slate text-white text-center py-2 font-semibold">v3 flag enabled</div>
       {% endflag %}
       {% block main_content_wrapper %}
@@ -400,7 +395,13 @@
       {% endblock %}
 
       <div class="w-full">
-        {% block messages %}{% include "partials/messages.html" %}{% endblock messages %}
+        {% block messages %}
+          {% flag "v3" %}
+            {% include "v3/includes/_messages.html" %}
+          {% else %}
+            {% include "partials/messages.html" %}
+          {% endflag %}
+        {% endblock messages %}
       </div>
       {% flag "v3" %}{% else %}
       {% if request.user.is_authenticated and request.user.delete_permanently_at %}
@@ -493,6 +494,9 @@
 
       const hideMessage = async () => {
         const message = document.getElementById('messages');
+        if (!message) {
+          return;
+        }
         message.classList.add('opacity-0');
         await delay(opacityTransitionTime * 1000);
         const messageButton = message.querySelector('button');

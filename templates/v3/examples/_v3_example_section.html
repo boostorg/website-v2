@@ -545,9 +545,13 @@
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
-        <div class="mb-default">
-          {% include "v3/includes/_banner.html" with icon_name=banner_data.icon_name banner_message=banner_data.banner_message %}
-        </div>
+        {% for banner in banner_variants %}
+          <h4 class="py-large">{{ banner.label }}</h4>
+          <div class="mb-default">
+            {% include "v3/includes/_banner.html" with icon_name=banner.icon_name banner_message=banner.banner_message variant=banner.variant %}
+          </div>
+        {% endfor %}
+        <h4 class="py-large">Auto-fade after 5s</h4>
         {% include "v3/includes/_banner.html" with icon_name=banner_data.icon_name banner_message=banner_data.banner_message fade_time=5000 %}
       </div>
     </div>

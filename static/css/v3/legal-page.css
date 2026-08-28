@@ -9,11 +9,6 @@ body:has(.legal-page) .v3-container {
   padding: 0;
 }
 
-body:has(.legal-page) .v3-container > .min-vh-110 {
-  flex: 1;
-  min-height: 0;
-}
-
 .legal-page {
   box-sizing: border-box;
   display: flex;
