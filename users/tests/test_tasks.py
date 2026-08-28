@@ -4,9 +4,12 @@ from unittest.mock import patch
 
 from model_bakery import baker
 from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialAccount
 
+from ..models import GithubActivity, User
 from ..tasks import (
     UserMissingGithubUsername,
+    refresh_github_activity,
     update_user_github_photo,
     remove_unverified_users,
 )
@@ -286,3 +289,71 @@ def test_remove_unverified_users_exception_handling(mock_logger):
         mock_logger.exception.assert_called_once_with(
             "Error occurred processing unverified users for removal: Test exception"
         )
+
+
+"""refresh_github_activity Tests"""
+
+
+def _connect_github(user, login="testuser"):
+    return baker.make(
+        "socialaccount.SocialAccount",
+        user=user,
+        provider="github",
+        extra_data={"login": login, "name": user.display_name},
+    )
+
+
+def test_refresh_github_activity_stores_data(user, db):
+    _connect_github(user)
+    user.refresh_from_db()
+
+    with patch("core.githubhelper.boost_activity", return_value={"total_commits": 5}):
+        refresh_github_activity(user.pk)
+
+    activity = GithubActivity.objects.get(user=user)
+    assert activity.data == {"total_commits": 5}
+
+
+def test_refresh_github_activity_aborts_if_disconnected_mid_fetch(user, db):
+    """A disconnect during the fetch must not resurrect the deleted row."""
+    account = _connect_github(user)
+    user.refresh_from_db()
+
+    def disconnect_then_return(login):
+        # Stands in for the user unlinking while the GitHub call is in flight.
+        SocialAccount.objects.filter(pk=account.pk).delete()
+        return {"total_commits": 5}
+
+    with patch("core.githubhelper.boost_activity", side_effect=disconnect_then_return):
+        refresh_github_activity(user.pk)
+
+    assert not GithubActivity.objects.filter(user=user).exists()
+
+
+def test_refresh_github_activity_aborts_if_handle_changed_mid_fetch(user, db):
+    """Data fetched for one handle must not be stored against another."""
+    _connect_github(user, login="testuser")
+    user.refresh_from_db()
+
+    def change_handle_then_return(login):
+        User.objects.filter(pk=user.pk).update(github_username="someone-else")
+        return {"total_commits": 5}
+
+    with patch(
+        "core.githubhelper.boost_activity", side_effect=change_handle_then_return
+    ):
+        refresh_github_activity(user.pk)
+
+    assert not GithubActivity.objects.filter(user=user).exists()
+
+
+def test_refresh_github_activity_keeps_snapshot_on_api_error(user, db):
+    _connect_github(user)
+    user.refresh_from_db()
+    GithubActivity.upsert_for_user(user, {"total_commits": 9})
+
+    with patch("core.githubhelper.boost_activity", side_effect=ValueError("boom")):
+        with pytest.raises(ValueError):
+            refresh_github_activity(user.pk)
+
+    assert GithubActivity.objects.get(user=user).data == {"total_commits": 9}

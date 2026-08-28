@@ -65,6 +65,7 @@ from news.views import (
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
+    GithubActivityFragmentView,
     CustomEmailVerificationSentView,
     CustomLoginView,
     CustomSignupView,
@@ -153,6 +154,11 @@ urlpatterns = (
         ),
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
+        path(
+            "users/me/github-activity/",
+            GithubActivityFragmentView.as_view(),
+            name="profile-github-activity",
+        ),
         path("users/me/delete/", DeleteUserView.as_view(), name="profile-delete"),
         path(
             "users/me/disconnect-social/<str:platform>/",

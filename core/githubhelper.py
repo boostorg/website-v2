@@ -1,7 +1,7 @@
 import base64
 import re
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone as dt_timezone, timedelta
 from socket import gaierror
 import time
 from urllib.error import URLError
@@ -23,6 +23,34 @@ from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
 logger = structlog.get_logger()
+
+_CONTRIBUTIONS_QUERY = """
+query BoostActivity($login: String!, $orgId: ID!, $from: DateTime!, $to: DateTime!) {
+  user(login: $login) {
+    contributionsCollection(organizationID: $orgId, from: $from, to: $to) {
+      totalCommitContributions
+      totalRepositoriesWithContributedCommits
+      totalPullRequestContributions
+      totalRepositoriesWithContributedPullRequests
+      totalPullRequestReviewContributions
+      totalRepositoriesWithContributedPullRequestReviews
+      repositoryContributions(first: 1) {
+        totalCount
+      }
+      pullRequestContributions(first: 50) {
+        nodes {
+          pullRequest {
+            title
+            url
+            repository { nameWithOwner }
+            comments { totalCount }
+          }
+        }
+      }
+    }
+  }
+}
+"""
 
 
 class GithubAPIClient:
@@ -574,6 +602,23 @@ class GithubAPIClient:
         with myzip.open(myzip.filelist[0]) as f:
             return f.read().decode()
 
+    def graphql(self, query: str, variables: dict) -> dict:
+        """Execute a GitHub GraphQL query using the app-level PAT."""
+        response = requests.post(
+            "https://api.github.com/graphql",
+            json={"query": query, "variables": variables},
+            headers={
+                "Authorization": f"Bearer {self.token}",
+                "Content-Type": "application/json",
+            },
+            timeout=30,
+        )
+        response.raise_for_status()
+        data = response.json()
+        if "errors" in data:
+            raise ValueError(f"GitHub GraphQL errors: {data['errors']}")
+        return data["data"]
+
 
 class GithubDataParser:
     def get_commits_per_month(self, commits: list[dict]):
@@ -712,3 +757,55 @@ class GithubDataParser:
             val = val.replace(email.group(), "")
 
         return val.strip()
+
+
+def boost_activity(login: str) -> dict:
+    """Fetch boostorg contribution totals for a GitHub user (trailing 12 months).
+
+    Scoped to the ``boostorg`` org only. Raises on any API or GraphQL error, and
+    on an unknown login, so the caller can keep the last good snapshot rather
+    than overwrite it with zeros.
+
+    Returns a dict with keys:
+        total_commits, commit_repo_count, repos_created,
+        prs_opened, pr_repo_count, prs_reviewed, review_repo_count,
+        featured_pr (dict or None)
+    """
+    now = datetime.now(dt_timezone.utc)
+    data = GithubAPIClient().graphql(
+        _CONTRIBUTIONS_QUERY,
+        {
+            "login": login,
+            "orgId": settings.BOOST_GITHUB_ORG_NODE_ID,
+            "from": (
+                now - timedelta(days=settings.BOOST_ACTIVITY_WINDOW_DAYS)
+            ).isoformat(),
+            "to": now.isoformat(),
+        },
+    )
+
+    user_node = data.get("user")
+    if not user_node:
+        raise ValueError(f"GitHub user not found: {login}")
+
+    coll = user_node["contributionsCollection"]
+    prs = [
+        {
+            "title": node["pullRequest"]["title"],
+            "url": node["pullRequest"]["url"],
+            "repo": node["pullRequest"]["repository"]["nameWithOwner"],
+            "comment_count": node["pullRequest"]["comments"]["totalCount"],
+        }
+        for node in coll["pullRequestContributions"]["nodes"]
+    ]
+
+    return {
+        "total_commits": coll["totalCommitContributions"],
+        "commit_repo_count": coll["totalRepositoriesWithContributedCommits"],
+        "repos_created": coll["repositoryContributions"]["totalCount"],
+        "prs_opened": coll["totalPullRequestContributions"],
+        "pr_repo_count": coll["totalRepositoriesWithContributedPullRequests"],
+        "prs_reviewed": coll["totalPullRequestReviewContributions"],
+        "review_repo_count": coll["totalRepositoriesWithContributedPullRequestReviews"],
+        "featured_pr": max(prs, key=lambda p: p["comment_count"]) if prs else None,
+    }
