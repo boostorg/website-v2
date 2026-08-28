@@ -321,6 +321,7 @@ class PostPage(BasePage):
 
     def delete_url(self):
         return reverse_lazy("v3-news-delete", kwargs={"slug": self.slug})
+
     def to_v3_post_card_dict(self, author_role=None):
         """Dict shape consumed by `v3/includes/_post_card.html` items."""
         from news.models import POST_CARD_TAG_LABELS

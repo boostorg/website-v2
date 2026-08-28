@@ -583,7 +583,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
     def get_v3_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(_v3_create_context())
+        context.update(self._v3_create_context())
         context["cancel_url"] = post_index_url(self.request)
         return context
 
