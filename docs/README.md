@@ -1,6 +1,7 @@
 # Documentation for the Boost Website
 
 - [API Documentation](./api.md) - We don't have many API endpoints, but the ones we do have are documented here
+- [Badges and Achievements Admin](./badges-admin.md) - Roles of the admin pages, the backfill / reconcile / recalculate operations and when to run them; rendered on `/admin/badges/`
 - [Boost Mailing List](./mailing_list.md) -Includes OAuth instructions
 - [Caching and the `RenderedContent` model](./caching_rendered_content.md)
 - [Dependency Management](./dependencies.md)

@@ -111,9 +111,11 @@ def test_entry_list(
     if authenticated:
         tp.login(regular_user)
 
-    # 10 queries if authenticated, less otherwise
+    # 11 queries if authenticated, less otherwise. The 11th prefetches the
+    # authors' profile routing keys, which the cards link to. One query for the
+    # page rather than one per card.
     response = tp.assertGoodView(
-        tp.reverse(url_name), test_query_count=10, verbose=True
+        tp.reverse(url_name), test_query_count=11, verbose=True
     )
 
     expected = [today_news, yesterday_news]

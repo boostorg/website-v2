@@ -36,7 +36,11 @@ class AchievementSlug(StrEnum):
 
 
 class BadgeLabel(models.TextChoices):
-    """The fixed set of badge categories.
+    """The fixed set of badge categories, in the order they are presented.
+
+    Declaration order is important: ``label_order`` below reads
+    it to sort the locked badges in the display-badge picker, so reordering these
+    members reorders that dropdown.
 
     A new category needs a matching ``Badge`` row and tiers, so adding a member
     here is only the first half of the change.
@@ -50,6 +54,14 @@ class BadgeLabel(models.TextChoices):
     DOCUMENTER = "documenter", _("Documenter")
     REGULAR = "regular", _("Regular")
     PUBLISHER = "publisher", _("Publisher")
+
+
+LABEL_ORDER = {label: index for index, label in enumerate(BadgeLabel)}
+
+
+def label_order(label):
+    """Catalogue position of a badge label; unknown labels sort last."""
+    return LABEL_ORDER.get(label, len(LABEL_ORDER))
 
 
 class TierRank(models.TextChoices):

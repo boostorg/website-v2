@@ -6,6 +6,9 @@ import waffle.testutils
 from django.utils import timezone
 from model_bakery import baker
 
+from badges.models import UserBadge
+from users.models import User
+
 pytestmark = pytest.mark.django_db
 
 
@@ -431,3 +434,187 @@ def test_v3_update_email_preferences_preserves_unlisted_news_types(user, tp):
         "link",
         "poll",
     ]
+
+
+@pytest.fixture
+def earned_badge(user):
+    """Give ``user`` one earned maintainer badge and return it."""
+    achievement = baker.make(
+        "badges.Achievement", name="Library Maintenance", slug="library-maintenance"
+    )
+    badge = baker.make("badges.Badge", label="maintainer", achievement=achievement)
+    tier = baker.make("badges.BadgeTier", badge=badge, rank="bronze", threshold=1)
+    # A second rung so there is a locked row to assert on as well as an earned one.
+    baker.make("badges.BadgeTier", badge=badge, rank="silver", threshold=3)
+    baker.make(
+        "badges.UserAchievement",
+        user=user,
+        achievement=achievement,
+        source_type="manual",
+    )
+    return UserBadge.objects.get(user=user, tier=tier)
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_update_profile_saves_display_badge(user, earned_badge, tp):
+    with tp.login(user):
+        response = tp.post(
+            f"{tp.reverse('profile-account')}?edit=true",
+            data={"v3_update_profile": "true", "display_badge": earned_badge.pk},
+        )
+        assert response.status_code == 302
+    user.refresh_from_db()
+    assert user.display_badge == earned_badge
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_update_profile_clears_display_badge_when_omitted(user, earned_badge, tp):
+    """The field is optional, so submitting nothing means "show no badge"."""
+    user.display_badge = earned_badge
+    user.save()
+    with tp.login(user):
+        response = tp.post(
+            f"{tp.reverse('profile-account')}?edit=true",
+            data={"v3_update_profile": "true"},
+        )
+        assert response.status_code == 302
+    user.refresh_from_db()
+    assert user.display_badge is None
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_edit_page_preselects_the_best_badge_when_none_is_chosen(
+    user, earned_badge, tp
+):
+    """The picker opens on a badge without the member having picked one.
+
+    Derived per render: the column stays empty until they save the section.
+    """
+    assert user.display_badge is None
+
+    with tp.login(user):
+        response = tp.get(f"{tp.reverse('profile-account')}?edit=true")
+        tp.response_200(response)
+        field = response.context["user_profile_form"]["display_badge"]
+        assert field.value() == earned_badge.pk
+
+    user.refresh_from_db()
+    assert user.display_badge is None
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_update_profile_rejects_a_revoked_display_badge(user, earned_badge, tp):
+    """The field offers active badges only, so a revoked pk cannot be posted in."""
+    earned_badge.revoked_at = timezone.now()
+    earned_badge.save()
+
+    with tp.login(user):
+        response = tp.post(
+            f"{tp.reverse('profile-account')}?edit=true",
+            data={"v3_update_profile": "true", "display_badge": earned_badge.pk},
+        )
+        # Re-rendered with errors rather than redirected to the saved state.
+        assert response.status_code == 200
+        assert response.context["user_profile_form"].errors["display_badge"]
+
+    user.refresh_from_db()
+    assert user.display_badge is None
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_update_profile_rejects_another_members_badge(user, earned_badge, tp):
+    """A live pk that belongs to somebody else is still refused.
+
+    Filtering the field's queryset to the member's own rows is the whole of the
+    check: nothing downstream re-tests whose badge the posted pk names.
+    """
+    stranger = baker.make("users.User", email="stranger@example.com")
+    baker.make(
+        "badges.UserAchievement",
+        user=stranger,
+        achievement=earned_badge.badge.achievement,
+        source_type="manual",
+    )
+    stranger_badge = UserBadge.objects.get(user=stranger, tier=earned_badge.tier)
+    assert stranger_badge.is_active
+
+    with tp.login(user):
+        response = tp.post(
+            f"{tp.reverse('profile-account')}?edit=true",
+            data={"v3_update_profile": "true", "display_badge": stranger_badge.pk},
+        )
+        assert response.status_code == 200
+        assert response.context["user_profile_form"].errors["display_badge"]
+
+    user.refresh_from_db()
+    assert user.display_badge is None
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_edit_page_drops_a_revoked_display_badge(user, earned_badge, tp):
+    """A revoked selection must not seed the form.
+
+    It is no longer one of the field's choices, so the picker would submit a pk
+    that fails validation - taking the visibility toggles it shares a section
+    with down alongside it.
+    """
+    user.display_badge = earned_badge
+    user.save()
+    earned_badge.revoked_at = timezone.now()
+    earned_badge.save()
+
+    with tp.login(user):
+        response = tp.get(f"{tp.reverse('profile-account')}?edit=true")
+        tp.response_200(response)
+        # What the template hands the picker as its pre-selected value.
+        assert response.context["user_profile_form"]["display_badge"].value() is None
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_update_details_renaming_moves_the_public_url(user, tp):
+    """A rename mints a new key, and the old URL redirects to it."""
+    user.display_name = "Jane Doe"
+    user.save()
+    old_url = user.get_absolute_url()
+
+    with tp.login(user):
+        response = tp.post(
+            f"{tp.reverse('profile-account')}?edit=true",
+            data={
+                "v3_update_details": "true",
+                "username": "Jane Smith",
+                "country": "US",
+            },
+        )
+        assert response.status_code == 302
+
+    user = User.objects.get(pk=user.pk)
+    new_url = user.get_absolute_url()
+    assert new_url != old_url
+    assert new_url.startswith("/users/jane-smith-")
+    assert user.profile_routing_keys.count() == 2
+
+    redirect = tp.get(old_url)
+    assert redirect.status_code == 301
+    assert redirect["Location"] == new_url
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_update_details_keeps_the_url_when_the_name_is_unchanged(user, tp):
+    """Saving country or a toggle must not move a user's public profile URL."""
+    url_before = user.get_absolute_url()
+
+    with tp.login(user):
+        tp.post(
+            f"{tp.reverse('profile-account')}?edit=true",
+            data={
+                "v3_update_details": "true",
+                "username": user.display_name,
+                "country": "FR",
+                "indicate_last_login_method": "on",
+            },
+        )
+
+    user = User.objects.get(pk=user.pk)
+    assert user.get_absolute_url() == url_before
+    assert user.profile_routing_keys.count() == 1

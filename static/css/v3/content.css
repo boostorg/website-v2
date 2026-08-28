@@ -97,13 +97,16 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
   text-decoration-skip-ink: none;
 }
 
-.content-detail-icon__cta:hover {
-  text-decoration: underline;
+a.content-detail-icon__cta:hover {
+  text-decoration-line: underline;
+  /* Match .learn-card__link:hover. Without this the hover was inert, since the
+     link is already underlined at rest. */
+  color: var(--color-text-link-accent);
 }
 .content-detail-icon__cta,
 .content-detail-icon__cta:focus,
 .content-detail-icon__cta:focus-visible {
-  text-decoration: underline;
+  text-decoration-line: underline;
   text-decoration-skip-ink: none;
 }
 

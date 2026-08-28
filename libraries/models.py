@@ -132,14 +132,21 @@ class CommitAuthor(models.Model):
 
         Mirrors `User.to_v3_profile_dict` so the same template can render
         either a registered user or a git-only contributor.
+
+        A contributor who has claimed a Boost account links to that profile;
+        one who has not falls back to their GitHub page, which is all this site
+        knows about them. A deactivated account falls back the same way, since
+        its profile 404s.
         """
+        user_profile_url = self.user.profile_url if self.user else None
         return {
             "name": self.display_name,
-            "profile_url": self.github_profile_url,
+            "profile_url": user_profile_url or self.github_profile_url,
             "role": role,
             "avatar_url": self.avatar_url or "",
             "tenure_stamp": self.user.tenure_stamp if self.user else None,
             "boost_day_stamp": self.user.boost_day_stamp if self.user else None,
+            "badge": None,
             "bio": None,
         }
 
@@ -434,6 +441,10 @@ class Commit(models.Model):
     message = models.TextField(default="")
     committed_at = models.DateTimeField(db_index=True)
     is_merge = models.BooleanField(default=False)
+    # A count rather than a flag, so weighting a commit by how much it documented
+    # stays possible without another import. Zero for merges, which change no
+    # files of their own.
+    docs_files_changed = models.PositiveIntegerField(default=0)
 
     class Meta:
         constraints = [
@@ -833,6 +844,7 @@ class LibraryVersion(models.Model):
         return {
             "name": author.display_name if author else "Unknown",
             "role": "Author",
+            "profile_url": author.profile_url if author else None,
             "avatar_url": author.get_avatar_url() if author else "",
             "badge_url": large_static("img/v3/badges/badge-first-place.png"),
             **(author.profile_stamps if author else {}),

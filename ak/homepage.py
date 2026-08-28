@@ -2,6 +2,7 @@
 
 from django.urls import reverse
 
+from badges.display import active_badges_prefetch
 from core.constants import SLACK_MEMBER_COUNT
 from core.models import HomepageSettings
 from core.templatetags.custom_static import large_static
@@ -107,7 +108,12 @@ def build_community_posts(limit=5):
     popular_entries = (
         Entry.objects.ranked()
         .filter(deleted_at__isnull=True, published=True)
-        .select_related("author", "author__displayed_profile_role_library")[:limit]
+        .select_related("author", "author__displayed_profile_role_library")
+        # Badges per card, and the author's routing keys for the profile link.
+        .prefetch_related(
+            active_badges_prefetch("author__badges"),
+            "author__profile_routing_keys",
+        )[:limit]
     )
     return [entry.to_v3_post_card_dict() for entry in popular_entries]
 

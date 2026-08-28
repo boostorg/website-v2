@@ -9,6 +9,13 @@ This project uses environment variables to configure certain aspects of the appl
 - In **deployed environments**, this should be set to a valid access token associated with the GitHub organization. Edit `kube/boost/values.yaml` (or the environment-specific yaml file) to change this value.
 
 
+## `BOOST_GITHUB_ORG_NODE_ID`
+
+- The GraphQL node ID of the GitHub org whose contributions the profile activity card counts.
+- Optional. Defaults to the `boostorg` org (`O_kgDOADBg4Q`), so neither local nor deployed environments need to set it.
+- Set it only to scope the card at a different org, such as a fork or a test org. To find the value for another org, query GitHub's GraphQL API for that org's `id` and use the `next_global_id` from the deprecation warning — both the REST `node_id` field and GraphQL's `organization.id` still return the older, deprecated ID format.
+
+
 ## `ENVIRONMENT_NAME`
 
 - Used to indicate the name of the environment where the application is running.

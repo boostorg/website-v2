@@ -189,7 +189,7 @@
 }
 
 .btn-card-link:hover {
-  text-decoration: underline;
+  text-decoration-line: underline;
 }
 
 .btn-card-link .btn-icon {

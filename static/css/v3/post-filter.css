@@ -29,7 +29,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-s);
+  padding: calc(var(--space-s) - 1px);
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
@@ -38,7 +38,7 @@
   background: var(--color-surface-weak);
   border: 1px solid var(--color-stroke-weak);
   border-radius: var(--border-radius-s);
-  line-height: normal;
+  line-height: var(--line-height-tight);
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
@@ -58,9 +58,27 @@
   color: var(--color-text-on-accent);
 }
 
+/* ── Disabled (designed but not implemented yet) ──── */
+
+.post-filter__option--disabled,
+.post-filter__option--disabled:hover {
+  cursor: not-allowed;
+  opacity: 0.5;
+  border-color: var(--color-stroke-weak);
+  color: var(--color-text-primary);
+}
+
 /* ── Focus-visible ──── */
 
-.post-filter__input:focus-visible + .post-filter__option {
+/*
+  The second selector is for a consumer that submits on change and puts focus
+  back afterwards. That focus is keyboard focus, but :focus-visible decides
+  from interaction history the new document does not have, so the pill would
+  take focus with nothing on screen to show it. The consumer sets
+  data-focus-restored only when the change came from the keyboard.
+*/
+.post-filter__input:focus-visible + .post-filter__option,
+.post-filter__input[data-focus-restored]:focus + .post-filter__option {
   outline: 2px solid var(--color-text-link-accent);
   outline-offset: -2px;
 }

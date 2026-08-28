@@ -1,0 +1,28 @@
+{% load humanize %}
+{% comment %}
+  Sync status line for the GitHub activity card (Figma node 11713:98663).
+  Sits directly under the card, right-aligned.
+  Inputs:
+    refreshing: bool, required - whether a background refresh is in flight
+    last_synced: datetime, optional - when the stored data was last written
+    poll_exhausted: bool, optional - polling gave up. Ask the user to reload
+{% endcomment %}
+<div class="user-profile__github-status">
+  {% if refreshing and poll_exhausted %}
+    <span class="user-profile__github-status-text">
+      Still fetching GitHub activity &mdash; reload the page to see the latest.
+    </span>
+  {% elif refreshing %}
+    <span class="user-profile__github-status-text">Fetching GitHub activity</span>
+    {% include "includes/icon.html" with icon_name="saving" icon_class="user-profile__save-icon user-profile__save-icon--spin" icon_size=16 %}
+    <noscript>
+      <span class="user-profile__github-status-text">
+        &mdash; reload the page to see the latest.
+      </span>
+    </noscript>
+  {% elif last_synced %}
+    <span class="user-profile__github-status-text">
+      Updated {{ last_synced|naturaltime }}
+    </span>
+  {% endif %}
+</div>

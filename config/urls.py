@@ -65,6 +65,7 @@ from news.views import (
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
+    GithubActivityFragmentView,
     CustomEmailVerificationSentView,
     CustomLoginView,
     CustomSignupView,
@@ -153,6 +154,11 @@ urlpatterns = (
         ),
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
+        path(
+            "users/me/github-activity/",
+            GithubActivityFragmentView.as_view(),
+            name="profile-github-activity",
+        ),
         path("users/me/delete/", DeleteUserView.as_view(), name="profile-delete"),
         path(
             "users/me/disconnect-social/<str:platform>/",
@@ -169,11 +175,15 @@ urlpatterns = (
             DeleteImmediatelyView.as_view(),
             name="profile-delete-immediately",
         ),
-        # Must stay after the "users/me/..." routes above: `int` cannot match
-        # "me" today, but that stops being true if this ever moves to a
-        # username or slug converter.
-        path("users/<int:pk>/", PublicUserProfileView.as_view(), name="profile-user"),
         path("users/avatar/", UserAvatar.as_view(), name="user-avatar"),
+        # Must stay last of the single-segment "users/..." routes: `slug`
+        # matches "me" and "avatar" too, so every literal segment has to be
+        # registered ahead of it.
+        path(
+            "users/<slug:routing_key>/",
+            PublicUserProfileView.as_view(),
+            name="profile-user",
+        ),
         path("api/v1/users/me/", CurrentUserAPIView.as_view(), name="current-user"),
         path(
             "api/v1/import-versions/",

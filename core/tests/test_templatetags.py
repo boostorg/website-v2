@@ -2,6 +2,7 @@ import json
 from datetime import date, timedelta
 
 from ..templatetags.date_filters import years_since
+from ..templatetags.number_filters import k_count
 from ..templatetags.text_helpers import to_json
 
 
@@ -48,3 +49,16 @@ def test_to_json_escapes_html_special_chars():
 def test_to_json_prevents_script_injection():
     raw = to_json([{"value": "x", "label": "</script><script>alert(1)"}])
     assert "</script>" not in raw
+
+
+def test_k_count_pads_single_digits():
+    """The counter keeps one width, so 1..9 are shown as 01..09."""
+    assert [k_count(n) for n in (0, 1, 9)] == ["00", "01", "09"]
+
+
+def test_k_count_leaves_wider_numbers_alone():
+    assert [k_count(n) for n in (10, 99, 999)] == ["10", "99", "999"]
+
+
+def test_k_count_still_uses_the_k_dimension():
+    assert [k_count(n) for n in (1000, 5500, 10000)] == ["1K", "5.5K", "10K"]

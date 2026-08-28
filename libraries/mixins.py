@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
 
+from badges.display import active_badges_prefetch
 from core.models import RenderedContent
 from libraries.constants import (
     LATEST_RELEASE_URL_PATH_STR,
@@ -275,15 +276,16 @@ class ContributorMixin:
 
         Also patches the CommitAuthor onto the user, if a matching email exists.
         """
+        # Their rows link to the profile, which reads the user's routing keys.
         if relation == "maintainers":
-            qs = library_version.maintainers.all()
+            qs = library_version.maintainers.prefetch_related("profile_routing_keys")
         elif relation == "authors":
-            qs = library_version.authors.all()
+            qs = library_version.authors.prefetch_related("profile_routing_keys")
         else:
             raise ValueError("relation must be maintainers or authors.")
         if exclude_ids:
             qs = qs.exclude(id__in=exclude_ids)
-        qs = list(qs)
+        qs = list(qs.prefetch_related(active_badges_prefetch()))
         patch_commit_authors(qs)
         return qs
 
@@ -323,7 +325,12 @@ class ContributorMixin:
         if exclude:
             qs = qs.exclude(id__in=exclude)
         qs = (
-            qs.annotate(count=Count("commit")).select_related("user").order_by("-count")
+            qs.annotate(count=Count("commit"))
+            # A claimed contributor links to their Boost profile, which reads
+            # the user and their routing keys.
+            .select_related("user")
+            .prefetch_related("user__profile_routing_keys")
+            .order_by("-count")
         )
         return qs
 
@@ -338,6 +345,7 @@ class ContributorMixin:
             CommitAuthor.humans.filter(commit__library_version__in=library_versions)
             .annotate(count=Count("commit"))
             .select_related("user")
+            .prefetch_related("user__profile_routing_keys")
             .order_by("-count")
         )
         if exclude:
@@ -381,7 +389,10 @@ class ContributorMixin:
             CommitAuthor.humans.filter(commit__library_version__in=library_versions)
             .exclude(id__in=author_ca_ids + maintainer_ca_ids)
             .annotate(count=Count("commit"))
+            # A claimed contributor links to their Boost profile, which reads
+            # the user and their routing keys.
             .select_related("user")
+            .prefetch_related("user__profile_routing_keys")
             .order_by("-count")
         )
         return (

@@ -18,6 +18,7 @@ from django.utils import dateparse, timezone
 
 from versions.models import Version
 from .constants import CATEGORY_DESCRIPTIONS, CATEGORY_OVERRIDES
+from .doc_paths import count_doc_files
 from .models import (
     Category,
     Commit,
@@ -28,6 +29,7 @@ from .models import (
     LibraryVersion,
     PullRequest,
 )
+from badges.services import discard_source_achievements, relink_source_achievements
 from core.githubhelper import GithubAPIClient, GithubDataParser
 
 from .utils import generate_fake_email, parse_boostdep_artifact, parse_date
@@ -46,6 +48,11 @@ FIRST_OF_CURRENT_MONTH = timezone.make_aware(
 ) - relativedelta(days=1)
 
 
+# ``git log --numstat`` writes one of these per file changed, after the message.
+# Merge commits produce none, so a merge never counts as documentation.
+NUMSTAT_LINE = re.compile(r"^(?:\d+|-)\t(?:\d+|-)\t")
+
+
 @dataclass
 class ParsedCommit:
     email: str
@@ -56,6 +63,7 @@ class ParsedCommit:
     is_merge: bool
     committed_at: timezone.datetime
     avatar_url: str | None = None
+    docs_files_changed: int = 0
 
 
 @dataclass
@@ -77,7 +85,10 @@ def get_commit_data_for_repo_versions(key, min_version=""):
     parser = re.compile(
         r"^commit (?P<sha>\w+)(?:\n(?P<merge>Merge).*)?\nAuthor: (?P<name>[^\<]+)"
         r"\s+\<(?P<email>[^\>]+)\>\nDate:\s+(?P<date>.*)\n(?P<message>(.|\n)+?)"
-        r"(?=(commit|\Z))",
+        # Anchored: the word "commit" is ordinary text in a message body and an
+        # ordinary word in a path, and an unanchored lookahead ends the match at
+        # the first of either - dropping the file stats that follow it.
+        r"(?=^commit |\Z)",
         flags=re.MULTILINE,
     )
     re.compile(
@@ -145,7 +156,16 @@ def get_commit_data_for_repo_versions(key, min_version=""):
             )
 
             log_output = subprocess.run(
-                ["git", "--git-dir", str(git_dir), "log", f"{a}..{b}", "--date", "iso"],
+                [
+                    "git",
+                    "--git-dir",
+                    str(git_dir),
+                    "log",
+                    f"{a}..{b}",
+                    "--date",
+                    "iso",
+                    "--numstat",
+                ],
                 capture_output=True,
             )
             commits = log_output.stdout.decode()
@@ -155,7 +175,15 @@ def get_commit_data_for_repo_versions(key, min_version=""):
                 email = groups["email"].strip()
                 sha = groups["sha"].strip()
                 is_merge = bool(groups.get("merge", False))
-                message = groups["message"].strip("\n")
+                # The message group runs to the next commit header, so the file
+                # stats land at the end of it and have to come back out before
+                # anything is stored. git indents every message line by four
+                # spaces, so an unindented stat line cannot be message text.
+                lines = groups["message"].strip("\n").split("\n")
+                stat_lines = [line for line in lines if NUMSTAT_LINE.match(line)]
+                message = "\n".join(
+                    line for line in lines if not NUMSTAT_LINE.match(line)
+                ).strip("\n")
                 message = "\n".join(
                     [m[4:] if m.startswith("    ") else m for m in message.split("\n")]
                 )
@@ -169,6 +197,7 @@ def get_commit_data_for_repo_versions(key, min_version=""):
                     committed_at=committed_at,
                     is_merge=is_merge,
                     version=b,
+                    docs_files_changed=count_doc_files(stat_lines),
                 )
 
 
@@ -506,6 +535,7 @@ class LibraryUpdater:
                     message=commit.message,
                     committed_at=commit.committed_at,
                     is_merge=commit.is_merge,
+                    docs_files_changed=commit.docs_files_changed,
                 )
 
             except KeyError:
@@ -539,14 +569,49 @@ class LibraryUpdater:
                     assert_never()
 
         with transaction.atomic():
+            doomed_ids = []
             if clean:
-                Commit.objects.filter(library_version__library=library).delete()
+                # Scoped by the same floor that chose the versions to rebuild.
+                # Unscoped, a run with a floor deletes the whole library and
+                # rebuilds only the top of it, and the commits below the floor
+                # are gone from the table until someone runs a full import.
+                doomed = Commit.objects.filter(
+                    library_version__library=library,
+                    library_version__version__name__gte=min_version,
+                )
+                doomed_ids = list(doomed.values_list("pk", flat=True))
+                doomed.delete()
             Commit.objects.bulk_create(
                 commits,
                 update_conflicts=True,
-                update_fields=["author", "message", "committed_at", "is_merge"],
+                update_fields=[
+                    "author",
+                    "message",
+                    "committed_at",
+                    "is_merge",
+                    "docs_files_changed",
+                ],
                 unique_fields=["library_version", "sha"],
             )
+            if clean:
+                # The same commits are back under new ids, and a grant names its
+                # evidence by sha, so the pointers are rebuilt rather than the
+                # grants dropped: dropping them would revoke the badges they
+                # justify and re-earn them dated today on the next sync.
+                relink_source_achievements(
+                    Commit,
+                    dict(
+                        Commit.objects.filter(
+                            library_version__library=library
+                        ).values_list("sha", "pk")
+                    ),
+                )
+                # A grant is stale when no commit carries its sha any more, not
+                # when the particular row it pointed at went away: the same sha
+                # is stored once per library version covering it and once per
+                # library sharing the repository, and this run only rebuilt one
+                # library's worth.
+                discard_source_achievements(Commit, doomed_ids, key_field="sha")
             LibraryVersion.objects.bulk_update(
                 library_version_updates,
                 ["insertions", "deletions", "files_changed"],

@@ -87,6 +87,12 @@
     max-width: 100%;
 }
 
+/* Each card-group draws its own border, so stacked ones would otherwise touch
+   (the empty state followed by Related Posts). */
+.post-content__content_column .card-group + .card-group {
+    margin-top: var(--space-xlarge);
+}
+
 .card-group__item:last-child {
     border-bottom: none;
 }

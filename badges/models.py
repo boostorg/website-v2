@@ -120,6 +120,15 @@ class UserAchievement(models.Model):
     # Big, not plain: the models these grants point at use BigAutoField keys.
     source_object_id = models.PositiveBigIntegerField(null=True, blank=True)
     source = GenericForeignKey("source_content_type", "source_object_id")
+    # The source's own name for the evidence, which a primary key is not: the
+    # commit importer deletes and re-creates rows, and one commit is stored once
+    # per library version covering it. Null for manual grants.
+    dedup_info = models.TextField(
+        _("dedup info"),
+        null=True,
+        blank=True,
+        help_text=_("For automatic grants: the source's stable id for the evidence."),
+    )
 
     granted_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -142,14 +151,9 @@ class UserAchievement(models.Model):
         ordering = ("-created_at",)
         constraints = [
             models.UniqueConstraint(
-                fields=[
-                    "user",
-                    "achievement",
-                    "source_content_type",
-                    "source_object_id",
-                ],
-                condition=models.Q(source_type="automatic"),
-                name="unique_automatic_user_achievement_source",
+                fields=["user", "achievement", "dedup_info"],
+                condition=models.Q(source_type="automatic", dedup_info__isnull=False),
+                name="unique_automatic_user_achievement_dedup",
             )
         ]
 

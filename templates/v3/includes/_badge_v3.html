@@ -7,8 +7,8 @@
     tier-1 = bronze   (entry / 2 years)
     tier-2 = silver   (5 years)
     tier-3 = gold     (10 years)
-    tier-4 = diamond  (15 years)
-    tier-5 = platinum (20+ years / top)
+    tier-4 = platinum (15 years)
+    tier-5 = diamond  (20+ years / top)
 
   Props:
     token       (required) — one of:
@@ -16,6 +16,9 @@
                   "star-tier-1"  | "star-tier-2"  | "star-tier-3"  | "star-tier-4"  | "star-tier-5"
                   "boost-day"
                   "achievement-count"  (requires `count`)
+                  "achievement-based" | "tenure-based"
+                    Clusters standing for a whole kind of recognition rather
+                    than one tier; used by the Badges dialog.
     label       (optional) — hover label text. Defaults:
                   badge-tier-N:       "Tier N badge"
                   star-tier-N:        "Tier N star"
@@ -28,6 +31,9 @@
                   1..999 as-is, 1000+ as compact K (1K, 5.5K, 10K, ...).
     size        (optional) — "small" (16px) | "medium" (24px, default) | "large" (32px).
     extra_class (optional) — extra class on the wrapper.
+    decorative  (optional) — True when the icon sits beside its own name in
+                  visible text. Drops the hover label and the tab stop and
+                  marks the icon aria-hidden, so the name is announced once.
 
   A11y / no-JS:
     - Wrapper carries role="img" + aria-label with the resolved hover label.

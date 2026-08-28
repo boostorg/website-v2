@@ -1,10 +1,12 @@
 from allauth.account.signals import user_logged_in
+from django.db import transaction
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete, post_save
 
 from allauth.socialaccount.models import SocialAccount
 
 from users.constants import LOGIN_METHOD_SESSION_FIELD_NAME
+from users.models import UserProfileRoutingKey
 
 GITHUB = "github"
 GOOGLE = "google"
@@ -25,17 +27,52 @@ def import_social_profile_data(sender, instance, created, **kwargs):
         return
 
     avatar_url = None
+    provider_name = instance.extra_data.get("name")
     if instance.provider == GITHUB:
         instance.user.github_username = instance.extra_data.get("login")
         avatar_url = instance.extra_data.get("avatar_url")
+        # A GitHub name is optional, so fall back to the handle rather than
+        # leaving a new user with no display name at all.
+        provider_name = provider_name or instance.extra_data.get("login")
     elif instance.provider == GOOGLE:
         avatar_url = instance.extra_data.get("picture")
 
     if avatar_url and not instance.user.image_uploaded:
         instance.user.save_image_from_provider(avatar_url)
 
-    instance.user.display_name = instance.extra_data.get("name")
+    # Only fill a blank display name. Connecting an account must not overwrite
+    # a name the user chose themselves.
+    if not instance.user.display_name:
+        instance.user.display_name = provider_name
+
     instance.save()
+    # This is the one point where a social signup gets a name, and most users
+    # never open the edit form, so without this their public URL keeps the
+    # placeholder key minted back when they had no name at all.
+    UserProfileRoutingKey.objects.sync_for(instance.user)
+
+    if instance.provider == GITHUB:
+        # Deferred to on_commit so the worker sees the github_username that the
+        # instance.save() above persists via this receiver's created=False pass.
+        from . import tasks
+
+        user_pk = instance.user.pk
+        transaction.on_commit(lambda: tasks.refresh_github_activity.delay(user_pk))
+
+
+@receiver(post_delete, sender=SocialAccount)
+def delete_github_activity(sender, instance, **kwargs):
+    """Drop stored GitHub activity when a user disconnects their account."""
+    if instance.provider != GITHUB:
+        return
+
+    from .models import GithubActivity, User
+
+    # Locking the user row serialises this against refresh_github_activity, so
+    # an in-flight refresh cannot write the row back after we delete it.
+    with transaction.atomic():
+        User.objects.select_for_update().filter(pk=instance.user_id).first()
+        GithubActivity.objects.filter(user_id=instance.user_id).delete()
 
 
 @receiver(user_logged_in)

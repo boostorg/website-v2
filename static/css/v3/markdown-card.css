@@ -41,7 +41,6 @@
     color: var(--color-text-link-accent);
     text-decoration: underline;
     text-decoration-skip-ink: none;
-    text-underline-position: from-font;
 }
 
 .markdown-card__body {

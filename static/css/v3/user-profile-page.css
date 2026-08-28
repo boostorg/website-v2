@@ -143,24 +143,6 @@
     display: contents;
 }
 
-.user-profile__badge-select {
-    padding: 6px;
-    display: flex;
-    gap: var(--space-s);
-    align-items: center;
-    height: fit-content;
-    color: var(--color-text-tertiary);
-    font-family: var(--font-sans);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-tight);
-    letter-spacing: var(--letter-spacing-tight);
-}
-
-.user-profile__badge-select.disabled {
-    opacity: 0.45;
-}
-
 .user-profile__commit-email-form {
     width: 100%;
     display: grid;
@@ -307,6 +289,20 @@
 
 .user-profile__save-icon--spin {
     animation: create-post-spin 0.8s linear infinite;
+}
+
+.user-profile__github-status {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-s);
+    min-height: 16px;
+    margin-top: var(--space-default);
+}
+
+.user-profile__github-status-text {
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-xs);
 }
 
 @keyframes create-post-spin {

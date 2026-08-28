@@ -226,6 +226,34 @@ def test_discarding_a_source_row_recalculates_once_per_pair():
     assert batched.call_count == 1
 
 
+def test_discarding_more_rows_than_one_batch_still_recalculates_once():
+    """A member whose grants straddle two chunks is still one answer to reach.
+
+    The pairs are collected across every chunk and recalculated after the last
+    one. Collecting them per chunk instead would undo the batching this module
+    exists to hold in place, once per chunk the member appears in.
+    """
+    member, _ = _member_with_commits("straddling@example.com", 5)
+    call_command("backfill_achievements", "--source", SOURCE)
+    commits = list(
+        UserAchievement.objects.filter(user=member).values_list(
+            "source_object_id", flat=True
+        )
+    )
+    assert len(commits) == 5
+    from libraries.models import Commit
+
+    with patch.object(services, "SYNC_BATCH_SIZE", 2):
+        with _spy_on("badges.signals") as from_signal, _spy_on(
+            "badges.services"
+        ) as batched:
+            services.discard_source_achievements(Commit, commits)
+
+    assert not UserAchievement.objects.filter(user=member).exists()
+    assert from_signal.call_count == 0
+    assert batched.call_count == 1
+
+
 def test_a_tier_the_member_no_longer_qualifies_for_is_still_revoked():
     """The end-to-end promise, independent of who does the recalculating.
 

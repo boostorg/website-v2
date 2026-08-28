@@ -3,6 +3,9 @@
 
   Variables:
     username        (string, required)  - Display name shown on the card
+    profile_url     (string, optional)  - Links the avatar and username to the user's public
+                                          profile. Omit to render both plain, as the profile
+                                          page itself does.
     avatar_url      (string, optional)  - Avatar image URL. Falls back to initials from username.
     avatar_variant  (string, optional)  - Avatar color variant (yellow|green|teal). Default "yellow".
     badge_name      (string, optional)  - Featured achievement label text, e.g. "Bug Catcher"
@@ -49,7 +52,13 @@
 
   {# Avatar with flag overlay #}
   <div class="user-card__avatar-wrapper">
-    {% include "v3/includes/_avatar_v3.html" with src=avatar_url name=username variant=avatar_variant|default:"yellow" size="md" %}
+    {% if profile_url %}
+      <a href="{{ profile_url }}" class="user-card__avatar-link">
+        {% include "v3/includes/_avatar_v3.html" with src=avatar_url name=username variant=avatar_variant|default:"yellow" size="md" %}
+      </a>
+    {% else %}
+      {% include "v3/includes/_avatar_v3.html" with src=avatar_url name=username variant=avatar_variant|default:"yellow" size="md" %}
+    {% endif %}
     {% if flag_emoji %}
       <span class="user-card__flag" aria-hidden="true">{{ flag_emoji }}</span>
     {% endif %}
@@ -58,7 +67,11 @@
   {# User info #}
   <div class="user-card__info">
     <span class="user-card__name-group">
-      <span class="user-card__username">{{ username }}</span>
+      {% if profile_url %}
+        <a href="{{ profile_url }}" class="user-card__username">{{ username }}</a>
+      {% else %}
+        <span class="user-card__username">{{ username }}</span>
+      {% endif %}
       {% if tenure_stamp or boost_day_stamp %}
         <span class="user-card__stamps">
           {% if tenure_stamp %}

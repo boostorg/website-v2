@@ -8,7 +8,12 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import (
+    HttpResponsePermanentRedirect,
+    HttpResponseRedirect,
+    JsonResponse,
+)
+from django.shortcuts import get_object_or_404
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, FormView, View
@@ -35,6 +40,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from waffle import flag_is_active
 
+from badges import display as badge_display
 from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin, V3AuthContextMixin
 from libraries.constants import (
@@ -54,9 +60,15 @@ from .forms import (
     SLACK_PROFILE_URL_PREFIX,
 )
 from .mixins import V3UserProfileContextMixin
-from .models import NO_PUBLIC_ROLE_OPTION, User, encode_role_option
+from .models import (
+    NO_PUBLIC_ROLE_OPTION,
+    User,
+    UserProfileRoutingKey,
+    encode_role_option,
+)
 from .password_rules import build_password_rules
 from .permissions import CustomUserPermissions
+from .profile_cards import github_activity_card_context
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
 from . import tasks
 
@@ -104,24 +116,59 @@ class CurrentUserAPIView(generics.RetrieveUpdateAPIView):
 
 
 class PublicUserProfileView(V3UserProfileContextMixin, V3Mixin, DetailView):
-    """Another user's profile page, at /users/<pk>/.
+    """Another user's profile page, at /users/<routing-key>/.
 
     V3-only: with no `template_name`, `V3Mixin` 404s the route while the v3
     flag is off. Deactivated accounts (which is what account deletion leaves
-    behind) are excluded from the queryset rather than staying publicly
-    reachable."""
+    behind) 404 rather than staying publicly reachable."""
 
     model = User
-    queryset = User.objects.filter(is_active=True)
     v3_template_name = "v3/user_profile_page.html"
     # Not the default "user": that would shadow the request user the site
     # chrome (header avatar, nav) renders from.
     context_object_name = "profile_user"
 
+    def get(self, request, *args, **kwargs):
+        self.requested_key = get_object_or_404(
+            UserProfileRoutingKey.objects.select_related("user"),
+            routing_key=kwargs["routing_key"],
+            user__is_active=True,
+        )
+        # Superseded keys are kept rather than deleted, so one still resolves to
+        # its owner. Redirect it instead of serving the same profile at two
+        # URLs, which is also what makes a shared link survive a rename.
+        canonical = self.requested_key.user.profile_routing_key
+        if canonical is not None and canonical.pk != self.requested_key.pk:
+            return HttpResponsePermanentRedirect(
+                self.requested_key.user.get_absolute_url()
+            )
+        return super().get(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return self.requested_key.user
+
     def get_v3_context_data(self, **kwargs):
         context = super().get_v3_context_data(**kwargs)
         context.update(self.get_v3_public_context(self.object))
         return context
+
+
+class GithubActivityFragmentView(LoginRequiredMixin, TemplateView):
+    """Re-render just the GitHub activity card.
+
+    Polled by the card itself while a background refresh runs, so the numbers
+    appear without the user reloading. Read-only: it renders whatever is stored
+    and never waits on GitHub.
+    """
+
+    template_name = "v3/includes/_github_activity_card.html"
+
+    def get_context_data(self, **kwargs):
+        try:
+            attempt = int(self.request.GET.get("attempt", 0))
+        except ValueError:
+            attempt = 0
+        return github_activity_card_context(self.request.user, attempt=attempt)
 
 
 class CurrentUserProfileView(
@@ -158,7 +205,13 @@ class CurrentUserProfileView(
             self._v3_role_options = self.request.user.get_role_options()
         return self._v3_role_options
 
-    def get_v3_edit_initial(self):
+    def get_v3_edit_initial(self, badge_options=None):
+        """Current values for the v3 edit form.
+
+        ``badge_options`` lets the display-badge field fall back to the best badge
+        the member holds when their stored choice is gone or they never made one.
+        Only the page render passes it; the POST path has no picker to seed.
+        """
         user = self.request.user
         # Preselect the stored role only if it's still an offered option:
         # `encoded_displayed_role` resolves via the `resolved_profile_role`
@@ -174,6 +227,16 @@ class CurrentUserProfileView(
             # The form offers the opt-out only when the user holds roles.
             offered.add(NO_PUBLIC_ROLE_OPTION)
         encoded_role = user.encoded_displayed_role
+        # A revoked badge is no longer one of the field's choices, so seeding it
+        # would fail validation and block the whole section from saving.
+        display_badge = user.display_badge
+        if display_badge is not None and not display_badge.is_active:
+            display_badge = None
+        display_badge_id = display_badge and display_badge.pk
+        if badge_options is not None:
+            display_badge_id = badge_display.resolve_selection(
+                badge_options, display_badge_id
+            )
         return {
             "avatar": user.avatar_url,
             "username": user.display_name,
@@ -187,6 +250,7 @@ class CurrentUserProfileView(
             "hide_github": user.hide_github_activity,
             "hide_ml": user.hide_mailing_list_activity,
             "hide_ach": user.hide_badges,
+            "display_badge": display_badge_id,
             "allow_notification_own_news_approved": (
                 user.preferences.allow_notification_own_news_approved
             ),
@@ -225,12 +289,13 @@ class CurrentUserProfileView(
         """Context for the v3 edit-profile template. `form` is a bound form
         (with errors) when re-rendering after a failed POST; otherwise a
         fresh form seeded from the user's current data is built."""
+        badge_options = badge_display.badge_options(self.request.user)
         if form is None:
             form = V3UserProfileForm(
                 user=self.request.user,
                 user_links=self.request.user.profile_links,
                 role_options=self.get_v3_role_options(),
-                initial=self.get_v3_edit_initial(),
+                initial=self.get_v3_edit_initial(badge_options),
             )
         saved_section = self.request.GET.get("saved")
         user = self.request.user
@@ -276,6 +341,7 @@ class CurrentUserProfileView(
             "SLACK_PROFILE_URL_PREFIX": SLACK_PROFILE_URL_PREFIX,
             "biography_max_length": User.BIOGRAPHY_MAX_LENGTH,
             "country_options": form.fields["country"].choices,
+            "badge_options": badge_options,
             "profile_account_edit_url": self.get_v3_edit_url(),
             "saved_sections": {
                 key: key == saved_section for key in self.V3_EDIT_SECTIONS
@@ -294,13 +360,6 @@ class CurrentUserProfileView(
                 if self.request.GET.get("ce_alert")
                 else ""
             ),
-            "badge_tiers": [
-                {"tier": "1", "name": "Bronze"},
-                {"tier": "2", "name": "Silver"},
-                {"tier": "3", "name": "Gold"},
-                {"tier": "4", "name": "Platinum"},
-                {"tier": "5", "name": "Diamond"},
-            ],
             "account_connections": [],
         }
         # Delete-account card: the modal schedules deletion, and once
@@ -331,7 +390,13 @@ class CurrentUserProfileView(
     def get_v3_context_data(self, **kwargs):
         if self.request.GET.get("edit", "").lower() == "true":
             return self.get_v3_edit_context()
-        return self.get_v3_public_context(self.request.user)
+        ctx = self.get_v3_public_context(self.request.user)
+        # Counted here rather than in the shared context so only the owner's own
+        # page can produce real tallies.
+        ctx["achievement_dialog_items"] = badge_display.achievement_dialog_rows(
+            self.request.user
+        )
+        return ctx
 
     def get_template_names(self):
         if (
@@ -427,7 +492,7 @@ class CurrentUserProfileView(
     # chains keyed on the same button names.
     V3_EDIT_SECTIONS = {
         "v3_update_profile": (
-            ["hide_github", "hide_ml", "hide_ach"],
+            ["display_badge", "hide_github", "hide_ml", "hide_ach"],
             "_save_v3_visibility_section",
         ),
         "v3_update_details": (
@@ -527,6 +592,7 @@ class CurrentUserProfileView(
         user.hide_github_activity = form.cleaned_data["hide_github"]
         user.hide_mailing_list_activity = form.cleaned_data["hide_ml"]
         user.hide_badges = form.cleaned_data["hide_ach"]
+        user.display_badge = form.cleaned_data["display_badge"]
         user.save()
 
     def _save_v3_details_section(self, user, form):
@@ -539,6 +605,9 @@ class CurrentUserProfileView(
             "override_commit_author_name"
         ]
         user.save()
+        # Only mints when the name actually changed; this handler also runs for
+        # country and the toggles, and every mint moves the user's public URL.
+        UserProfileRoutingKey.objects.sync_for(user)
 
     def _save_v3_email_preferences_section(self, user, form):
         """Save the v3 page's email-preference checkboxes. The v3 page only
@@ -604,7 +673,11 @@ class CurrentUserProfileView(
     def update_profile(self, form, request):
         """Update the profile of the user."""
         if form.is_valid():
-            form.save()
+            user = form.save()
+            # This form carries display_name too, so a rename here has to mint a
+            # key just as the v3 handler does. Without it, anyone renaming while
+            # the v3 flag is off keeps a profile URL built from their old name.
+            UserProfileRoutingKey.objects.sync_for(user)
             messages.success(request, "Your profile was successfully updated.")
         else:
             for error in form.errors.values():

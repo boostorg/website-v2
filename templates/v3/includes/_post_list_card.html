@@ -9,9 +9,13 @@
       - title           (string, optional)  — post title
       - url             (string, optional)  — link URL
       - date            (date/string, optional) — publish date
-      - category        (string, optional)  — e.g. "Issues", "Releases"
+      - type_label      (string, optional)  — post type as worded for a reader, e.g. "Blog"
       - tag             (string, optional)  — e.g. "beast"
       - author          (object, optional)  — passed to _user_profile.html (see that template for fields)
+  When `items` is empty the card renders the shared text-based empty state
+  instead of the list. Its copy is fixed by the design and does not vary with
+  the active filters.
+
   Usage:
     {% include "v3/includes/_post_list_card.html" with heading="Posts" items=posts %}
 {% endcomment %}
@@ -30,7 +34,7 @@
                       {% endif %}
                       <div class="post-card__meta">
                         <time datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:"d/m/Y" }}</time>
-                        {% if item.determined_news_type %}<span>{{ item.determined_news_type|capfirst }}</span>{% endif %}
+                        {% if item.type_label %}<span>{{ item.type_label }}</span>{% endif %}
                         {% if item.tag %}<span>#{{ item.tag }}</span>{% endif %}
                       </div>
                     </div>
@@ -55,5 +59,7 @@
         </li>
       {% endfor %}
     </ul>
+  {% else %}
+    {% include "v3/includes/_empty_state.html" with title="No results, please search again..." description="Try a shorter keyword, or check the spelling." variant="inset" only %}
   {% endif %}
 {% endblock %}

@@ -1,6 +1,8 @@
 from urllib.parse import urlparse
 
+from badges import display as badge_display
 from core.context_processors import edit_profile_url
+from users.profile_cards import github_activity_card_context
 
 
 class V3UserProfileContextMixin:
@@ -8,9 +10,9 @@ class V3UserProfileContextMixin:
     the logged-in user's own (non-editable) view of their profile.
 
     Both pages render `v3/user_profile_page.html` from the same data. They
-    differ only in the header button trailing the profile links: visitors get
-    Share Profile, the profile's owner gets Edit Profile (see
-    `get_trailing_button()`), and only the owner's view carries the account
+    differ only in the buttons trailing the profile links: everyone gets Share
+    Profile, the profile's owner also gets Edit Profile ahead of it (see
+    `get_trailing_buttons()`), and only the owner's view carries the account
     connections card.
     """
 
@@ -41,28 +43,40 @@ class V3UserProfileContextMixin:
             return f"https://{value}"
         return None
 
-    def get_trailing_button(self, user):
-        """The header button that follows the profile links.
+    def get_trailing_buttons(self, user):
+        """The header buttons that follow the profile links.
 
-        Owners get Edit Profile in place of Share Profile, on both
-        `/users/me/` and their own `/users/<pk>/` page, so the affordance
-        follows who is looking rather than which route was used. Share
-        Profile is therefore only ever reachable on someone else's public
-        profile."""
+        Everyone can share a profile, so Share Profile comes last for owner and
+        visitor alike. Owners additionally get Edit Profile ahead of it, on both
+        `/users/me/` and their own `/users/<routing-key>/` page, so the
+        affordance follows who is looking rather than which route was used."""
+        buttons = []
         if user == self.request.user:
-            return {
-                "label": "Edit Profile",
-                "url": edit_profile_url(),
-                "icon": "pixel-pencil",
+            buttons.append(
+                {
+                    "label": "Edit Profile",
+                    "url": edit_profile_url(),
+                    "icon": "pixel-pencil",
+                }
+            )
+        # A real href rather than "#": share-profile.js copies it to the
+        # clipboard, and with JS off the button still leads somewhere sensible.
+        buttons.append(
+            {
+                "label": "Share Profile",
+                "url": user.get_absolute_url(),
+                "icon": "pixel-share",
+                "extra_classes": "js-copy-profile-url",
             }
-        return {"label": "Share Profile", "url": "#", "icon": "pixel-share"}
+        )
+        return buttons
 
     def get_v3_profile_link_buttons(self, user):
         """Header buttons for the public profile links the user has set.
 
         Links with no (or an unsafe) value are omitted, since only populated
         links are shown publicly. The list always ends with the trailing
-        button."""
+        buttons."""
         links = user.profile_links or {}
         buttons = []
         for key, label, icon in self.V3_PROFILE_LINK_BUTTONS:
@@ -76,17 +90,18 @@ class V3UserProfileContextMixin:
                 if url is None:
                     continue
             buttons.append({"label": label, "url": url, "icon": icon})
-        buttons.append(self.get_trailing_button(user))
+        buttons.extend(self.get_trailing_buttons(user))
         return buttons
 
     def get_v3_public_context(self, user):
         """Context for the read-only v3 profile view.
 
         Renders real user data. Sections with no underlying data (GitHub
-        activity, mailing list activity, posts, achievements, badges) are
-        left out of the context so the template omits them entirely. The
-        bio section is always rendered, falling back to an empty state."""
-        return {
+        activity, mailing list activity, posts, achievements) are left out
+        of the context so the template omits them entirely. The bio section
+        is always rendered, falling back to an empty state."""
+        is_owner = user == self.request.user
+        context = {
             "user_info": {
                 "user_name": user.display_name,
                 "avatar_url": user.get_avatar_url(),
@@ -95,10 +110,21 @@ class V3UserProfileContextMixin:
                 # only ever right on the owner's own view of their page.
                 # Serving it to a visitor would publish the very role the
                 # opt-out exists to withhold; they get `role`, which honours it.
-                "role": (user.public_role if user == self.request.user else user.role),
+                "role": (user.public_role if is_owner else user.role),
                 "flag_emoji": user.flag_emoji,
                 **user.profile_stamps,
+                # include_hidden only for the owner, for the same reason as
+                # `role`: a member who hid their badges still sees them on
+                # their own page, and a visitor never does.
+                "featured_badge": badge_display.featured_badge(
+                    user, include_hidden=is_owner
+                ),
             },
+            "profile_badges": badge_display.badge_cards(user, include_hidden=is_owner),
+            # The recognition cards render on the owner's own page even when
+            # empty, because their empty states are the way in to the badge and
+            # achievement dialogs. A visitor sees them only with real data.
+            "profile_is_owner": is_owner,
             # Library contributions grouped by role, rendered as the
             # contributions section of the bio card. An empty dict means no
             # contributions, and the card omits the section.
@@ -109,3 +135,13 @@ class V3UserProfileContextMixin:
             "bio": user.biography or None,
             "top_links": self.get_v3_profile_link_buttons(user),
         }
+        # Owner-only: the card kicks a background refresh, and publishing it on
+        # a public profile would expose data that `hide_github_activity` is
+        # meant to withhold, an opt-out not yet wired up to rendering.
+        # Omitted entirely without a linked account, so a profile with no data
+        # stays the bio card alone.
+        if is_owner:
+            activity = github_activity_card_context(user)
+            if activity["data"]["linked"]:
+                context["github_activity"] = activity
+        return context

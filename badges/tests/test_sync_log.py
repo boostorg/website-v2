@@ -196,7 +196,7 @@ def test_a_run_that_dies_part_way_is_recorded_as_failed(plain_user):
     commit = _commit(plain_user)
 
     def half_a_walk():
-        yield plain_user, commit
+        yield plain_user, commit, commit.sha
         raise RuntimeError("the source went away")
 
     with patch.dict(sources.BACKFILL_ITERATORS, {SOURCE: half_a_walk}):

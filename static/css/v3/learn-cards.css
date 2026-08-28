@@ -87,10 +87,6 @@
     letter-spacing: -0.14px;
     text-decoration-line: underline;
     text-decoration-style: solid;
-    text-decoration-skip-ink: auto;
-    text-decoration-thickness: 7.5%;
-    text-underline-offset: 15.2%;
-    text-underline-position: auto;
     color: var(--color-text-primary);
 }
 

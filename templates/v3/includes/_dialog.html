@@ -9,8 +9,13 @@
     dialog_id       (required): Unique ID for this dialog instance.
     title           (required): Title displayed in the dialog header.
     description     (optional): Descriptive text below the title.
-    primary_label   (required): Label for the primary action button.
-    secondary_label (required): Label for the secondary action button.
+    content_template(optional): Path to a partial rendered in a scrollable body
+                                region between the description and the buttons.
+                                It is rendered with this include's context, so
+                                any extra variables passed here reach it.
+    primary_label   (optional): Label for the primary action button.
+    secondary_label (optional): Label for the secondary action button.
+                                The button row is omitted when neither is given.
     primary_style   (optional): Button style for primary action.  Default "secondary-grey".
     secondary_style (optional): Button style for secondary action. Default "primary".
     submit          (optional): Renders primary button as a "submit", to allow dialog to be part of a form
@@ -47,6 +52,12 @@
       <p>{{ description }}</p>
     </div>
     {% endif %}
+    {% if content_template %}
+    <div class="dialog-modal__content">
+      {% include content_template %}
+    </div>
+    {% endif %}
+    {% if primary_label or secondary_label %}
     <div class="dialog-modal__buttons">
       {% if submit %}
         {% include "v3/includes/_button.html" with label=primary_label style=primary_style|default:"primary" type="submit" url=primary_url extra_classes="btn-flex" %}
@@ -55,5 +66,6 @@
       {% endif %}
       {% include "v3/includes/_button.html" with label=secondary_label url=secondary_url|default:"#_" style=secondary_style|default:"secondary" extra_classes="btn-flex" %}
     </div>
+    {% endif %}
   </div>
 </div>

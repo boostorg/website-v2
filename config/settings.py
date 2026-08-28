@@ -429,6 +429,15 @@ AUTHENTICATION_BACKENDS = (
 # GitHub settings
 
 GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
+
+# Org scope for the profile GitHub activity card. The node ID is pinned so
+# boost_activity() never spends a REST call resolving it. Use the modern global
+# ID form. REST node_id and GraphQL organization.id both still return the
+# deprecated token form.
+BOOST_GITHUB_ORG = "boostorg"
+BOOST_GITHUB_ORG_NODE_ID = env("BOOST_GITHUB_ORG_NODE_ID", default="O_kgDOADBg4Q")
+# contributionsCollection is capped at one year by GitHub.
+BOOST_ACTIVITY_WINDOW_DAYS = 365
 JDOODLE_API_CLIENT_ID = env("JDOODLE_API_CLIENT_ID", "")
 JDOODLE_API_CLIENT_SECRET = env("JDOODLE_API_CLIENT_SECRET", "")
 

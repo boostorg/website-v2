@@ -362,11 +362,6 @@
   border-bottom-color: var(--color-stroke-weak);
 }
 
-.dropdown--has-value .dropdown__trigger,
-.dropdown--has-value .dropdown__trigger:hover {
-  border-color: var(--color-stroke-link-accent);
-}
-
 .dropdown__panel {
   position: absolute;
   top: 100%;
@@ -800,7 +795,7 @@
 .field__select {
   width: 100%;
   height: 40px;
-  padding: 0 var(--space-large, 16px);
+  padding: 0 40px 0 var(--space-large, 16px);
   background-color: var(--color-surface-weak, #fff);
   border: 1px solid var(--color-stroke-weak, #0508161a);
   border-radius: var(--border-radius-xl, 12px);
@@ -905,4 +900,96 @@
 
 .field__checklist-item--fail .icon {
   color: var(--color-text-error);
+}
+
+/* ========== Badge select (display-badge picker) ========== */
+
+/* Columns are icon, name, detail, lock. Rows span them as a subgrid so the name
+   track is sized across every row and the details line up. Rows are left to size
+   themselves, so a wrapped detail makes its own row taller; the scroll cap is the
+   shared .dropdown__list max-height. */
+.badge-select .dropdown__list {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  column-gap: var(--space-default);
+}
+
+.badge-select .dropdown__empty {
+  grid-column: 1 / -1;
+}
+
+.badge-select__row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  height: auto;
+  padding-block: var(--space-medium);
+  align-items: start;
+  border-bottom: none;
+}
+
+.badge-select__name {
+  color: var(--color-text-secondary);
+}
+
+/* min-width: 0 so the track can shrink below its longest word and wrap there. */
+.badge-select__detail {
+  min-width: 0;
+  color: var(--color-text-tertiary);
+}
+
+.badge-select .dropdown__trigger {
+  box-sizing: border-box;
+  height: auto;
+  min-height: 40px;
+  padding-block: var(--space-default);
+}
+
+
+.badge-select .dropdown__trigger-text {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  align-content: flex-start;
+}
+
+.badge-select__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-default);
+}
+
+.badge-select__trigger-icon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.badge-select__trigger-label {
+  min-width: 0;
+}
+
+.badge-select__lock {
+  display: flex;
+  align-items: center;
+  color: var(--color-icon-secondary);
+}
+
+/* Drops .dropdown__item--disabled's opacity, which would fade the badge icon with
+   everything else; the text is dimmed on its own below. :hover/:focus are restated
+   because the base rule clears the background on both. */
+.badge-select__row.dropdown__item--disabled,
+.badge-select__row.dropdown__item--disabled:hover,
+.badge-select__row.dropdown__item--disabled:focus {
+  opacity: 1;
+  background-color: var(--color-surface-mid);
+}
+
+.badge-select__row.dropdown__item--disabled .badge-select__name {
+  color: var(--color-text-tertiary);
+}
+
+/* visibility: hidden still generates a box, and the tooltip sits below its icon,
+   so on the last row it adds scroll height the list renders as empty space. */
+.badge-select .badge-v3__label {
+  display: none;
 }

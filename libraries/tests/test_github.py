@@ -388,3 +388,449 @@ def test_parse_boostdep_artifact(
         library__key="numeric/conversion", version__name="boost-1.85.0"
     )
     assert lv.dependencies.count() == 1
+
+
+GIT_LOG_WITH_NUMSTAT = """commit abc123
+Author: Peter Dimov <pdimov@example.com>
+Date:   2024-01-02 10:00:00 +0000
+
+    Document the list algorithms
+
+    With a second paragraph.
+
+12\t3\tdoc/index.adoc
+-\t-\tdoc/img/diagram.png
+40\t0\tinclude/boost/mp11/list.hpp
+
+commit def456
+Merge: 111 222
+Author: Someone Else <else@example.com>
+Date:   2024-01-03 10:00:00 +0000
+
+    Merge pull request #1
+
+commit fff999
+Author: Peter Dimov <pdimov@example.com>
+Date:   2024-01-04 10:00:00 +0000
+
+    Fix a typo in the header
+
+40\t0\tinclude/boost/mp11/list.hpp
+
+commit eee888
+Author: Peter Dimov <pdimov@example.com>
+Date:   2024-01-05 10:00:00 +0000
+
+    Rework the guide
+
+    This commit rewrites doc/commit.adoc and the tutorial.
+
+3\t1\tdoc/commit.adoc
+7\t0\tdoc/tutorial.adoc
+2\t2\tsrc/commit_log.cpp
+"""
+
+
+@pytest.fixture
+def fake_git(monkeypatch):
+    """Answer the importer's git calls without a clone."""
+
+    def run(args, **kwargs):
+        completed = MagicMock()
+        completed.args = args
+        completed.stdout = b""
+        completed.stderr = b""
+        if args[1] == "clone":
+            completed.stderr = b"Cloning into bare repository"
+        elif "log" in args:
+            completed.stdout = GIT_LOG_WITH_NUMSTAT.encode()
+        elif "diff" in args:
+            completed.stdout = b" 3 files changed, 52 insertions(+), 3 deletions(-)"
+        return completed
+
+    monkeypatch.setattr("libraries.github.subprocess.run", run)
+
+
+@pytest.mark.django_db
+def test_commit_parse_counts_doc_files(fake_git):
+    """Per-file stats are read, and the message is not polluted by them."""
+    from libraries.github import ParsedCommit, get_commit_data_for_repo_versions
+
+    baker.make(Library, key="mp11", github_url="https://github.com/boostorg/mp11")
+
+    commits = [
+        item
+        for item in get_commit_data_for_repo_versions("mp11")
+        if isinstance(item, ParsedCommit)
+    ]
+
+    assert [(c.sha, c.docs_files_changed) for c in commits] == [
+        ("abc123", 2),
+        ("def456", 0),
+        ("fff999", 0),
+        ("eee888", 2),
+    ]
+    assert commits[0].message == (
+        "Document the list algorithms\n\nWith a second paragraph."
+    )
+    assert commits[1].is_merge is True
+    # "commit" as a word in the body and in a path: both used to end the match
+    # early, taking the file stats with them and reading as no documentation.
+    assert commits[3].message == (
+        "Rework the guide\n\nThis commit rewrites doc/commit.adoc and the tutorial."
+    )
+
+
+@pytest.mark.django_db
+def test_reimport_heals_the_doc_count_without_moving_the_row(fake_git):
+    """The non-destructive path updates matched rows in place.
+
+    Which is what lets commits imported before the field existed gain a count
+    without any grant pointing at them being disturbed.
+    """
+    from libraries.models import Commit
+
+    library = baker.make(
+        Library, key="mp11", github_url="https://github.com/boostorg/mp11"
+    )
+    version = baker.make(LibraryVersion, library=library)
+    version.version.name = "master"
+    version.version.save()
+    stale = baker.make(
+        Commit, library_version=version, sha="abc123", docs_files_changed=0
+    )
+
+    LibraryUpdater().update_commits(library)
+
+    stale.refresh_from_db()
+    assert stale.docs_files_changed == 2
+
+
+def _library_with_granted_commit(django_user_model, sha):
+    """A member holding a code-commits grant for one commit of one library."""
+    from badges.models import Achievement
+    from badges.services import recalculate_badges
+    from badges.tests.fixtures import grant_from_source
+    from libraries.models import Commit
+
+    user = django_user_model.objects.create_user(
+        email="committer@example.com", password="x"
+    )
+    library = baker.make(
+        Library, key="mp11", github_url="https://github.com/boostorg/mp11"
+    )
+    version = baker.make(LibraryVersion, library=library)
+    version.version.name = "master"
+    version.version.save()
+    commit = baker.make(Commit, library_version=version, sha=sha)
+    achievement = Achievement.objects.get(slug="code-commits")
+    grant_from_source(user, achievement, commit, dedup_info=sha)
+    recalculate_badges(user.pk, achievement.pk)
+    return library, commit
+
+
+@pytest.mark.django_db
+def test_clean_reimport_keeps_the_badges_it_would_have_revoked(
+    fake_git, catalogue, django_user_model
+):
+    """Evidence that comes back keeps its grant, so no badge moves.
+
+    The grant is re-pointed at the new row instead of deleted. Deleting it would
+    cascade-revoke the badge it justifies, record that revocation permanently, and
+    re-earn it dated today once the next sync put the grant back - rewriting
+    history for a re-import in which nothing actually changed.
+    """
+    from badges.models import UserAchievement, UserBadge
+    from libraries.models import Commit
+
+    library, commit = _library_with_granted_commit(django_user_model, "abc123")
+    badges = set(UserBadge.objects.values_list("pk", "awarded_at", "revoked_at"))
+    assert badges, "nothing was awarded, so the assertion below proves nothing"
+
+    LibraryUpdater().update_commits(library, clean=True)
+
+    grant = UserAchievement.objects.get(dedup_info="abc123")
+    assert grant.source_object_id == Commit.objects.get(sha="abc123").pk
+    assert grant.source_object_id != commit.pk
+    assert (
+        set(UserBadge.objects.values_list("pk", "awarded_at", "revoked_at")) == badges
+    )
+
+
+@pytest.mark.django_db
+def test_clean_reimport_discards_grants_for_commits_that_do_not_return(
+    fake_git, catalogue, django_user_model
+):
+    """A wiped commit the repository no longer reports takes its grants with it.
+
+    Left behind they count toward a threshold forever, and nothing else in the
+    pipeline removes them: the release step runs ``backfill_achievements``, which
+    only adds. A reconcile would drop them, but no automatic caller runs one, and
+    the admin's clean re-import runs no sweep at all.
+
+    No other commit carries this sha, which is what makes the grant stale rather
+    than merely re-pointed - see
+    ``test_a_clean_import_spares_a_grant_whose_sha_survives_elsewhere``.
+    """
+    from badges.models import UserAchievement
+
+    library, commit = _library_with_granted_commit(django_user_model, "deadbeef")
+
+    LibraryUpdater().update_commits(library, clean=True)
+
+    assert not UserAchievement.objects.filter(dedup_info="deadbeef").exists()
+    assert not UserAchievement.objects.filter(source_object_id=commit.pk).exists()
+
+
+@pytest.mark.django_db
+def test_a_clean_import_spares_a_grant_whose_sha_survives_elsewhere(
+    fake_git, catalogue, django_user_model
+):
+    """One sha, two libraries, one of them re-imported without it.
+
+    A grant is identified by its sha and points at whichever copy the sweep
+    happened to see first, so the copy going away says nothing about whether the
+    work did. Discarding the grant here would revoke a badge the surviving row
+    still justifies.
+    """
+    from badges.models import UserAchievement, UserBadge
+    from libraries.models import Commit
+
+    library, commit = _library_with_granted_commit(django_user_model, "deadbeef")
+    elsewhere = baker.make(
+        Library, key="core", github_url="https://github.com/boostorg/core"
+    )
+    other_version = baker.make(LibraryVersion, library=elsewhere)
+    survivor = baker.make(
+        Commit, library_version=other_version, sha="deadbeef", author=commit.author
+    )
+    badges = set(UserBadge.objects.values_list("pk", "revoked_at"))
+    assert badges, "nothing was awarded, so the assertion below proves nothing"
+
+    LibraryUpdater().update_commits(library, clean=True)
+
+    assert UserAchievement.objects.filter(dedup_info="deadbeef").exists()
+    assert Commit.objects.filter(pk=survivor.pk).exists()
+    assert set(UserBadge.objects.values_list("pk", "revoked_at")) == badges
+
+
+@pytest.mark.django_db
+def test_a_clean_import_with_a_floor_keeps_the_commits_below_it(
+    fake_git, catalogue, django_user_model
+):
+    """The floor chooses which versions are rebuilt, so it has to scope the delete.
+
+    Unscoped, a run with a floor empties the library and rebuilds only the top of
+    it, and the commits below the floor are gone from the table - so the grants
+    they support cannot be re-pointed and cannot be earned again either, because
+    no backfill can see evidence that no longer exists.
+    """
+    from badges.models import UserAchievement, UserBadge
+    from libraries.models import Commit
+
+    library, _ = _library_with_granted_commit(django_user_model, "deadbeef")
+    old_version = baker.make(
+        LibraryVersion,
+        library=library,
+        version=baker.make("versions.Version", name="boost-1.80.0"),
+    )
+    baker.make(
+        LibraryVersion,
+        library=library,
+        version=baker.make("versions.Version", name="boost-1.88.0"),
+    )
+    Commit.objects.filter(sha="deadbeef").update(library_version=old_version)
+    badges = set(UserBadge.objects.values_list("pk", "revoked_at"))
+    assert badges, "nothing was awarded, so the assertion below proves nothing"
+
+    LibraryUpdater().update_commits(library, clean=True, min_version="boost-1.88.0")
+
+    assert Commit.objects.filter(sha="deadbeef").exists()
+    assert UserAchievement.objects.filter(dedup_info="deadbeef").exists()
+    assert set(UserBadge.objects.values_list("pk", "revoked_at")) == badges
+
+
+def _parse_log(monkeypatch, log):
+    """Run the importer's parser over ``log`` without cloning anything.
+
+    Separate from ``fake_git`` so a test can supply the log shape it is about,
+    rather than adding to a fixture every other test also reads.
+    """
+
+    def run(args, **kwargs):
+        completed = MagicMock()
+        completed.args = args
+        completed.stdout = b""
+        completed.stderr = b""
+        if args[1] == "clone":
+            completed.stderr = b"Cloning into bare repository"
+        elif "log" in args:
+            completed.stdout = log.encode()
+        elif "diff" in args:
+            completed.stdout = b" 1 file changed, 1 insertion(+)"
+        return completed
+
+    monkeypatch.setattr("libraries.github.subprocess.run", run)
+    from libraries.github import ParsedCommit, get_commit_data_for_repo_versions
+
+    baker.make(Library, key="mp11", github_url="https://github.com/boostorg/mp11")
+    return [
+        item
+        for item in get_commit_data_for_repo_versions("mp11")
+        if isinstance(item, ParsedCommit)
+    ]
+
+
+def _log_entry(body, stats):
+    """One commit as ``git log --numstat`` writes it, message body already indented."""
+    return (
+        "commit abc123\n"
+        "Author: Peter Dimov <pdimov@example.com>\n"
+        "Date:   2024-01-02 10:00:00 +0000\n"
+        "\n" + body + "\n" + stats
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("body", "stats", "doc_files", "message"),
+    [
+        pytest.param("", "1\t0\tdoc/a.adoc\n", 1, "", id="no-message-at-all"),
+        pytest.param(
+            "    commit abc1234 was reverted\n",
+            "1\t0\tdoc/a.adoc\n",
+            1,
+            "commit abc1234 was reverted",
+            id="body-line-that-reads-like-a-header",
+        ),
+        pytest.param(
+            "    Move the guide\n",
+            "2\t2\tdoc/{old => new}/guide.adoc\n",
+            1,
+            "Move the guide",
+            id="rename-inside-a-shared-prefix",
+        ),
+        pytest.param(
+            "    Rename it\n",
+            "1\t1\told.adoc => doc/new.adoc\n",
+            1,
+            "Rename it",
+            id="rename-with-no-shared-prefix",
+        ),
+        pytest.param(
+            "    Add a diagram\n",
+            "-\t-\tdoc/img/a.png\n",
+            1,
+            "Add a diagram",
+            id="binary-file-reports-dashes",
+        ),
+        pytest.param(
+            "    Fix the title\n",
+            "1\t0\tdoc/my guide.adoc\n",
+            1,
+            "Fix the title",
+            id="path-containing-a-space",
+        ),
+        pytest.param(
+            "    Drop the old build\n",
+            "0\t80\tdoc/html/index.html\n0\t4\tdoc/Jamfile.v2\n",
+            0,
+            "Drop the old build",
+            id="generated-output-and-build-files-do-not-count",
+        ),
+    ],
+)
+def test_the_parser_survives_awkward_log_shapes(
+    monkeypatch, body, stats, doc_files, message
+):
+    """The message and the file stats share one region and must not bleed.
+
+    The indented-header case is the one that matters most: the lookahead ending a
+    commit is anchored to column zero precisely because git indents every message
+    line by four spaces, so a body can say the word and still be a body.
+    """
+    commits = _parse_log(monkeypatch, _log_entry(body, stats))
+
+    assert len(commits) == 1
+    assert commits[0].docs_files_changed == doc_files
+    assert commits[0].message == message
+
+
+@pytest.mark.django_db
+def test_a_commit_touching_thousands_of_files_is_counted_in_full(monkeypatch):
+    """The stats are read line by line, so a huge commit has no special case."""
+    stats = "".join(f"1\t0\tdoc/page{n}.adoc\n" for n in range(1_200))
+
+    commits = _parse_log(monkeypatch, _log_entry("    Import the manual\n", stats))
+
+    assert commits[0].docs_files_changed == 1_200
+    assert commits[0].message == "Import the manual"
+
+
+@pytest.mark.django_db
+def test_a_second_non_destructive_import_changes_nothing(fake_git):
+    """The nightly task re-walks ranges it has already imported, every night."""
+    from libraries.models import Commit
+
+    library = baker.make(
+        Library, key="mp11", github_url="https://github.com/boostorg/mp11"
+    )
+    version = baker.make(LibraryVersion, library=library)
+    version.version.name = "master"
+    version.version.save()
+
+    LibraryUpdater().update_commits(library)
+    first = set(
+        Commit.objects.values_list("pk", "sha", "message", "docs_files_changed")
+    )
+    assert first, "nothing was imported, so the assertion below proves nothing"
+
+    LibraryUpdater().update_commits(library)
+
+    assert (
+        set(Commit.objects.values_list("pk", "sha", "message", "docs_files_changed"))
+        == first
+    )
+
+
+@pytest.mark.django_db
+def test_two_destructive_imports_in_a_row_leave_the_badges_alone(
+    fake_git, catalogue, django_user_model
+):
+    """Once is not enough: the second run re-points grants the first one moved."""
+    from badges.models import UserAchievement, UserBadge
+
+    library, _ = _library_with_granted_commit(django_user_model, "abc123")
+    badges = set(UserBadge.objects.values_list("pk", "awarded_at", "revoked_at"))
+    assert badges, "nothing was awarded, so the assertion below proves nothing"
+
+    for _ in range(2):
+        LibraryUpdater().update_commits(library, clean=True)
+
+    assert UserAchievement.objects.filter(dedup_info="abc123").count() == 1
+    assert (
+        set(UserBadge.objects.values_list("pk", "awarded_at", "revoked_at")) == badges
+    )
+
+
+@pytest.mark.django_db
+def test_the_stored_message_is_no_longer_cut_short_at_the_word_commit(fake_git):
+    """The parser fix changes a field the site renders, so it is pinned here.
+
+    Every message in the database was truncated at the first lowercase "commit"
+    before this, which is why none of them contained the word.
+    """
+    from libraries.models import Commit
+
+    library = baker.make(
+        Library, key="mp11", github_url="https://github.com/boostorg/mp11"
+    )
+    version = baker.make(LibraryVersion, library=library)
+    version.version.name = "master"
+    version.version.save()
+
+    LibraryUpdater().update_commits(library)
+
+    assert Commit.objects.get(sha="eee888").message == (
+        "Rework the guide\n\nThis commit rewrites doc/commit.adoc and the tutorial."
+    )

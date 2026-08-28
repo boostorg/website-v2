@@ -8,6 +8,7 @@
 {% block extra_head %}
   {{ block.super }}
   <link href="{% static 'css/v3/user-profile-page.css' %}" rel="stylesheet" />
+  <script src="{% static 'js/v3/share-profile.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -19,11 +20,11 @@
   <div class="user-profile__container">
     <div class="user-profile__profile-card-row">
       {% with user_info as user %}
-      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url tenure_stamp=user.tenure_stamp boost_day_stamp=user.boost_day_stamp member_since=user.member_since role=user.role flag_emoji=user.flag_emoji compact=True %}
+      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url badge_name=user.featured_badge.name badge=user.featured_badge.icon tenure_stamp=user.tenure_stamp boost_day_stamp=user.boost_day_stamp member_since=user.member_since role=user.role flag_emoji=user.flag_emoji compact=True %}
       {% endwith %}
       <div class="user-profile__button-group">
         {% for link in top_links %}
-        {% include "v3/includes/_button.html" with label=link.label url=link.url icon_name=link.icon icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
+        {% include "v3/includes/_button.html" with label=link.label url=link.url icon_name=link.icon icon_position="right" style="secondary" extra_classes=link.extra_classes icon_viewbox="0 0 16 16" only %}
         {% endfor %}
       </div>
     </div>
@@ -32,11 +33,9 @@
         <div class="user-profile__bio">
           {% include 'v3/includes/_user_profile_bio_card.html' with title='Bio' markdown=bio contributor_data=contributor_data only %}
         </div>
-        {% if github_activity_card_data %}
+        {% if github_activity %}
         <div class="user-profile__github">
-          {% with data=github_activity_card_data %}
-            {% include 'v3/includes/_markdown_card.html' with title=data.title markdown=data.markdown_text button_url=data.button_url button_label=data.button_label %}
-          {% endwith %}
+          {% include 'v3/includes/_github_activity_card.html' with data=github_activity.data attempt=github_activity.attempt next_attempt=github_activity.next_attempt poll_exhausted=github_activity.poll_exhausted poll_url=github_activity.poll_url poll_interval=github_activity.poll_interval only %}
         </div>
         {% endif %}
         {% if mailing_list_activity_card_data %}
@@ -52,17 +51,22 @@
         grid has a single child for `.user-profile__col:only-child` to widen.
         An empty column would otherwise leave the bio at half width beside a
         blank gap.
+
+        Both recognition cards render on the member's own page even with
+        nothing in them: their empty states carry the only CTAs that open the
+        badge and achievement dialogs, so suppressing them would leave no way
+        in. A visitor sees each card only once it has real data.
       {% endcomment %}
-      {% if achievements_data.achievements or badges or posts or account_connections_none_connected %}
+      {% if profile_is_owner or achievements_data.achievements or profile_badges or posts or account_connections_none_connected %}
       <div class="user-profile__col">
-        {% if achievements_data.achievements %}
+        {% if profile_is_owner or achievements_data.achievements %}
         <div class="user-profile__achievements">
-          {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements %}
+          {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements primary_button_url="#achievements-modal" %}
         </div>
         {% endif %}
-        {% if badges %}
+        {% if profile_is_owner or profile_badges %}
         <div class="user-profile__badges">
-          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" badges=badges %}
+          {% include "v3/includes/_badges_card.html" with cta_url="#badges-modal" cta_label="Explore available badges and how to earn them" badges=profile_badges %}
         </div>
         {% endif %}
         {% if posts %}
@@ -79,4 +83,12 @@
       {% endif %}
     </div>
   </div>
+
+  {% comment %}
+    Outside .user-profile__container so the fixed-position overlay is not
+    contained by an ancestor, matching how the demo page places its dialogs.
+    Opened by the cards' CTAs above via :target.
+  {% endcomment %}
+  {% include "v3/includes/_achievements_modal.html" with items=achievement_dialog_items %}
+  {% include "v3/includes/_badges_modal.html" %}
 {% endblock %}

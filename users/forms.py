@@ -8,6 +8,8 @@ from django import forms
 from allauth.account.forms import ResetPasswordKeyForm, SignupForm
 from django_countries import countries
 
+from badges.models import UserBadge
+
 from .models import (
     NO_PUBLIC_ROLE_LABEL,
     NO_PUBLIC_ROLE_OPTION,
@@ -33,6 +35,31 @@ V3_EMAIL_PREFERENCE_CHOICES = [
 ]
 
 
+# Signup and the v3 edit page both write User.display_name, so both validate it
+# the same way. They used to disagree in max num of characters which let a signup save a name the edit
+# page then refused, leaving the whole Account details section unsaveable until the user renamed.
+DISPLAY_NAME_MAX_LENGTH = 80
+
+
+def validate_display_name_available(display_name, *, exclude_pk=None):
+    """Return `display_name`, or raise if a real account already holds it.
+
+    Scoped to claimed, active accounts on purpose: the library importer creates
+    unclaimed stubs carrying imported names, and those should not stop someone
+    signing up under the same name.
+    """
+    if not display_name:
+        return display_name
+    taken = User.objects.filter(
+        display_name__iexact=display_name, is_active=True, claimed=True
+    )
+    if exclude_pk is not None:
+        taken = taken.exclude(pk=exclude_pk)
+    if taken.exists():
+        raise forms.ValidationError("This username is already taken")
+    return display_name
+
+
 class CustomResetPasswordFromKeyForm(ResetPasswordKeyForm):
     def save(self, **kwargs):
         """Override default reset password form so we can mark unclaimed
@@ -44,7 +71,13 @@ class CustomResetPasswordFromKeyForm(ResetPasswordKeyForm):
 
 class CustomSignUpForm(SignupForm):
     accept_terms_of_use = forms.BooleanField(required=True)
-    username = forms.CharField(max_length=255, required=True)
+    # Named display_name rather than username on purpose.
+    display_name = forms.CharField(
+        max_length=DISPLAY_NAME_MAX_LENGTH, required=True, label="Username"
+    )
+
+    def clean_display_name(self):
+        return validate_display_name_available(self.cleaned_data["display_name"])
 
     def clean_email(self):
         email = super().clean_email()
@@ -265,6 +298,10 @@ class V3UserProfileForm(forms.Form):
                 "placeholder"
             ] = "Contribute to a library to unlock a role"
 
+        if self._user is not None:
+            self.fields["display_badge"].queryset = UserBadge.objects.active().filter(
+                user=self._user
+            )
         if links:
             self.link_formset = V3ProfileLinkFormset(
                 initial=[
@@ -287,15 +324,10 @@ class V3UserProfileForm(forms.Form):
             form.fields["value"].widget.attrs["placeholder"] = placeholder
 
     def clean_username(self):
-        username = self.cleaned_data["username"]
-        if not username:
-            return username
-        existing = User.objects.filter(display_name__iexact=username)
-        if self._user is not None:
-            existing = existing.exclude(pk=self._user.pk)
-        if existing.exists():
-            raise forms.ValidationError("This username is already taken")
-        return username
+        return validate_display_name_available(
+            self.cleaned_data["username"],
+            exclude_pk=self._user.pk if self._user is not None else None,
+        )
 
     # Left Column Fields
     tagline = forms.CharField(
@@ -316,11 +348,10 @@ class V3UserProfileForm(forms.Form):
     delete_avatar = forms.BooleanField(required=False)
 
     role = forms.ChoiceField(choices=[], required=False, label="Your Role")
-    select_title = forms.ChoiceField(
-        choices=[],
-        disabled=True,
-        widget=forms.Select(attrs={"placeholder": "Unlock a badge to pick a title"}),
-        label="Select Title",
+    display_badge = forms.ModelChoiceField(
+        queryset=UserBadge.objects.none(),
+        required=False,
+        label="Display Badge",
     )
     hide_github = forms.BooleanField(
         label="Hide your GitHub activity from your profile",
@@ -337,7 +368,8 @@ class V3UserProfileForm(forms.Form):
 
     # Top Right Column
     username = forms.CharField(
-        max_length=80, widget=forms.TextInput(attrs={"placeholder": "Placeholder"})
+        max_length=DISPLAY_NAME_MAX_LENGTH,
+        widget=forms.TextInput(attrs={"placeholder": "Placeholder"}),
     )
     email = forms.EmailField(
         max_length=80,

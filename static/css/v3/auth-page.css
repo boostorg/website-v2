@@ -144,8 +144,6 @@ body.v3 .auth-page .min-vh-110 {
   letter-spacing: -0.12px;
   color: var(--color-text-primary);
   text-decoration: underline;
-  text-decoration-skip-ink: auto;
-  text-underline-offset: auto;
   width: fit-content;
 }
 

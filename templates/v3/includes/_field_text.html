@@ -22,6 +22,8 @@
     dispatch_field_change   (optional) —  when truthy (requires submit_icon), dispatches a debounced
                                           `field-change` event (`{ name, value }`) on each keystroke, matching the
                                           dropdown/combo pattern so parent filter components can react live.
+    debounce_ms             (optional) —  quiet period before that event fires, default 150. Raise it for a
+                                          consumer that answers with a round trip rather than in the page.
     required                (optional) —  if truthy, adds required attribute
     disabled                (optional) —  if truthy, adds disabled attribute
     extra_class             (optional) —  additional classes on the wrapper
@@ -114,7 +116,7 @@
            {% elif help_text %}
            aria-describedby="field-{{ name }}-help"
            {% endif %}
-           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q" {% if dispatch_field_change %}@input.debounce.150ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% elif max_chars %}x-model="value"{% endif %}>
+           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q" {% if dispatch_field_change %}@input.debounce.{{ debounce_ms|default:150 }}ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% elif max_chars %}x-model="value"{% endif %}>
     {% if disabled %}
       <span class="field__icon" aria-hidden="true">
         {% include "includes/icon.html" with icon_name="lock" icon_class="field__icon" icon_size=16 icon_viewbox="0 0 16 16" %}
