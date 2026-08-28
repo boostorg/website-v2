@@ -566,7 +566,10 @@ const TOOLBAR_PRESETS = {
     left: [
       "heading", "bold", "italic", "underline", "strike", "separator",
       "bulletList", "orderedList", "taskList", "separator",
-      "link", "image", "blockquote", "horizontalRule", "table", "separator",
+      // "image" is registered but deliberately left out: an inserted image
+      // renders broken once the post is published, so the button is withheld
+      // until that is fixed. Listing the key here again is all it takes back.
+      "link", "blockquote", "horizontalRule", "table", "separator",
       "code", "codeBlock", "langSelect", "separator", "markdown",
     ],
     right: ["preview", "undo", "redo"],
@@ -669,14 +672,6 @@ const buildToolbar = (editor, toolbarEl, preset = "full") => {
     image: () => createToolbarButton(editor, {
       label: "Image", title: "Insert image", html: ICONS.image,
       onClick: async () => {
-        /*
-        Uploading is deliberately not offered here. A stored upload renders
-        broken once the post is published, so the affordance is withheld
-        rather than left to fail after the writing is done. `uploadEditorImage`
-        and the endpoint behind it are kept: the fix is a separate piece of
-        work, and re-adding the field with its submit branch is the whole of
-        turning this back on.
-        */
         const result = await openDialog({
           title: "Insert Image",
           fields: [
