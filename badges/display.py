@@ -22,7 +22,7 @@ from django.db.models import Prefetch
 from django.utils import timezone
 
 from badges.enums import BadgeLabel, TierRank, label_order, rank_order
-from badges.models import UserBadge
+from badges.models import Achievement, UserBadge
 from badges.summary import user_badge_summary
 from core.constants import BadgeToken
 
@@ -325,3 +325,102 @@ def badge_card(user_badge):
 def _rank_key(user_badge):
     """Sort key placing the highest rank first, threshold breaking ties."""
     return rank_order(user_badge.tier.rank), user_badge.tier.threshold
+
+
+# The recognition dialogs explain the whole scheme rather than one member's
+# standing, so their rows take no user.
+#
+# The Achievements dialog names each achievement type, which is catalogue data.
+# The Badges dialog names the two kinds of badge instead, and neither is a
+# ``Badge`` row: one stands for the whole catalogue, the other for tenure stars,
+# which are not badges.
+#
+# Boost Day is design-owned for a different reason: it and the tenure stars are
+# applied automatically from a date rather than accumulated from grants, so they
+# are display states rather than earned records and no ``Achievement`` exists.
+BOOST_DAY_ROW = {
+    "token": BadgeToken.BOOST_DAY,
+    "name": "Boost day celebration",
+    "description": (
+        "A celebration of the day you joined Boost. Awarded annually to mark "
+        "another year as part of the community."
+    ),
+}
+
+ACHIEVEMENT_BASED_ROW = {
+    "token": BadgeToken.ACHIEVEMENT_BASED,
+    "size": "large",
+    "name": "Achievement-based",
+    "description": (
+        "Reflects the depth of your contributions. Accumulate achievements to "
+        "unlock five tiers; Bronze, Silver, Gold, Platinum and Diamond."
+    ),
+}
+
+TENURE_ROW = {
+    "token": BadgeToken.TENURE_BASED,
+    "size": "large",
+    "name": "Tenure-based",
+    "description": (
+        "Awarded in recognition of your time on the platform. The longer you've "
+        "been part of the Boost community, the higher the tier you unlock."
+    ),
+}
+
+ACHIEVEMENTS_DIALOG_DESCRIPTION = (
+    "Achievements capture your contributions to Boost — automatically tracked "
+    "where possible, manually verified for high-value activities."
+)
+
+BADGES_DIALOG_DESCRIPTION = (
+    "Badges recognize your journey on Boost — from the contributions you make "
+    "to the time you've invested and the milestones you've reached along the way."
+)
+
+
+PLACEHOLDER_ACHIEVEMENT_COUNT = 1
+
+
+def achievement_dialog_rows(user=None):
+    """Every achievement type as a dialog row, Boost Day last.
+
+    Each row carries a counter, which is what the design asks for: the tally is
+    the point, the artwork being the same for every achievement type.
+
+    Given a member, the counters are that member's own valid grants, zero
+    included. Without one they carry a placeholder. Only the owner's own profile
+    passes a user, another member's tallies not being this dialog's to show.
+
+    Ordered by name, ``Achievement`` being an admin-editable registry with no
+    catalogue ordering of its own.
+    """
+    counts = {} if user is None else _valid_grant_counts(user)
+    default = PLACEHOLDER_ACHIEVEMENT_COUNT if user is None else 0
+    rows = [
+        {
+            "token": BadgeToken.ACHIEVEMENT_COUNT,
+            "count": counts.get(achievement.pk, default),
+            "name": achievement.name,
+            "description": achievement.description,
+        }
+        for achievement in Achievement.objects.all()
+    ]
+    return rows + [BOOST_DAY_ROW]
+
+
+def _valid_grant_counts(user):
+    """How many valid grants the member holds of each achievement, by pk.
+
+    Read through ``user_badge_summary`` so "a valid grant" keeps one definition
+    across the app. It counts ``is_valid`` rows and leaves invalidated ones out.
+    """
+    return {row.achievement.pk: row.valid_grants for row in user_badge_summary(user)}
+
+
+def badge_dialog_rows():
+    """The two kinds of badge, as dialog rows.
+
+    Fixed copy rather than catalogue rows: "Achievement-based" covers the whole
+    catalogue at once, and tenure stars are not badges at all.
+    """
+    return [ACHIEVEMENT_BASED_ROW, TENURE_ROW]

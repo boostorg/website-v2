@@ -25,6 +25,9 @@ class BadgeToken(StrEnum):
     STAR_TIER_5 = "star-tier-5"
     BOOST_DAY = "boost-day"
     ACHIEVEMENT_COUNT = "achievement-count"
+    # Clusters standing for a whole kind of recognition rather than one tier.
+    ACHIEVEMENT_BASED = "achievement-based"
+    TENURE_BASED = "tenure-based"
 
 
 SLACK_URL = "https://cpplang.slack.com"
