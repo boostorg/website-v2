@@ -16,12 +16,17 @@ def routing_key_queries(queries):
     ]
 
 
-def test_community_posts_fetch_routing_keys_in_one_query(make_entry):
+def test_community_posts_fetch_routing_keys_in_one_query(make_post_page):
     """Each card links its author's profile, which reads that author's routing
-    keys. Those are prefetched, so more posts must not mean more queries."""
+    keys. Those are prefetched, so more posts must not mean more queries.
+
+    The ranked feed reads the Wagtail post tree, so the cards are built from
+    `PostPage.owner` rather than from legacy entries.
+    """
     for i in range(3):
-        make_entry(
-            author=baker.make("users.User", display_name=f"User {i}", image=None)
+        make_post_page(
+            title=f"Post {i}",
+            owner=baker.make("users.User", display_name=f"User {i}", image=None),
         )
 
     with CaptureQueriesContext(connection) as queries:

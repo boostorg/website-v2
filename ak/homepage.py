@@ -108,8 +108,11 @@ def build_community_posts(limit=5):
     popular_entries = (
         PostPage.objects.ranked()
         .select_related("owner", "owner__displayed_profile_role_library")
-        # The author's routing keys for the profile link on each card.
-        .prefetch_related("owner__profile_routing_keys")
+        # Badges per card, and the author's routing keys for the profile link.
+        .prefetch_related(
+            active_badges_prefetch("owner__badges"),
+            "owner__profile_routing_keys",
+        )
         .live()[:limit]
     )
     return [entry.to_v3_post_card_dict() for entry in popular_entries]

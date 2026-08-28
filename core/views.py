@@ -33,7 +33,6 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from waffle import flag_is_active
 
-from badges.display import active_badges_prefetch
 from core.templatetags.custom_static import large_static
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -142,22 +141,6 @@ class CalendarView(V3Mixin, TemplateView):
 
 class BoostDevelopmentView(CalendarView):
     template_name = "boost_development.html"
-
-
-def build_recent_community_posts():
-    """The four recent post cards, with their authors' active badges loaded."""
-    entries = (
-        Entry.objects.published()
-        .filter(deleted_at__isnull=True)
-        .select_related("author", "author__displayed_profile_role_library")
-        .prefetch_related(
-            active_badges_prefetch("author__badges"),
-            # Each card links its author's profile, which reads their routing keys.
-            "author__profile_routing_keys",
-        )
-        .order_by("-publish_at")[:4]
-    )
-    return [entry.to_v3_post_card_dict() for entry in entries]
 
 
 class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):

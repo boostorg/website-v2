@@ -395,19 +395,27 @@ def test_news_author_prefetch_covers_the_whole_card(
 
 
 def test_community_recent_post_badge_query_is_constant(plain_user):
-    """The community page loads author badges once, not once per post card."""
-    from core.views import build_recent_community_posts
+    """The community page loads author badges once, not once per post card.
+
+    The cards come from `get_latest_post_cards`, which reads legacy entries
+    while the `v3` flag is off and Wagtail posts while it is on. Both arms
+    prefetch the same way; this covers the entry arm the fixtures build.
+    """
+    from news.services import get_latest_post_cards
 
     plain_user = _feature(plain_user, "library-authoring")
     _published_entry(plain_user, 0)
 
-    one_card, one_badge_query = _badge_queries(build_recent_community_posts)
+    def recent_community_posts():
+        return get_latest_post_cards(limit=4)
+
+    one_card, one_badge_query = _badge_queries(recent_community_posts)
 
     for index in range(1, 4):
         author = baker.make("users.User", email=f"community-{index}@example.com")
         _feature(author, "library-authoring")
         _published_entry(author, index)
-    four_cards, four_badge_queries = _badge_queries(build_recent_community_posts)
+    four_cards, four_badge_queries = _badge_queries(recent_community_posts)
 
     assert one_badge_query == four_badge_queries == 1
     assert len(one_card) == 1
@@ -415,19 +423,23 @@ def test_community_recent_post_badge_query_is_constant(plain_user):
     assert {card["author"]["badge_label"] for card in four_cards} == {"Library Author"}
 
 
-def test_homepage_ranked_post_badge_query_is_constant(plain_user):
-    """The V3 homepage loads ranked-post author badges in one query."""
+def test_homepage_ranked_post_badge_query_is_constant(plain_user, make_post_page):
+    """The V3 homepage loads ranked-post author badges in one query.
+
+    The ranked feed reads the Wagtail post tree rather than legacy entries,
+    so the cards are built from `PostPage.owner`.
+    """
     from ak.homepage import build_community_posts
 
     plain_user = _feature(plain_user, "library-authoring")
-    _published_entry(plain_user, 0)
+    make_post_page(title="Post 0", owner=plain_user)
 
     one_card, one_badge_query = _badge_queries(build_community_posts)
 
     for index in range(1, 4):
         author = baker.make("users.User", email=f"homepage-{index}@example.com")
         _feature(author, "library-authoring")
-        _published_entry(author, index)
+        make_post_page(title=f"Post {index}", owner=author)
     four_cards, four_badge_queries = _badge_queries(build_community_posts)
 
     assert one_badge_query == four_badge_queries == 1
@@ -524,7 +536,7 @@ def test_v3_profile_dict_carries_the_badge_label(plain_user):
 
 @waffle.testutils.override_flag("v3", active=True)
 def test_v3_news_list_renders_a_real_badge_for_the_sidebar_user(
-    plain_user, tp, post_index_page
+    plain_user, tp, post_index_page, wagtail_site
 ):
     """The sidebar card showed a hardcoded "Bug Catcher" label for everyone.
 
@@ -535,7 +547,7 @@ def test_v3_news_list_renders_a_real_badge_for_the_sidebar_user(
     plain_user = _feature(plain_user, "library-authoring")
     tp.client.force_login(plain_user)
 
-    response = tp.get(tp.reverse("news"))
+    response = tp.get(post_index_page.get_url())
 
     tp.response_200(response)
     body = response.content.decode()
@@ -544,11 +556,13 @@ def test_v3_news_list_renders_a_real_badge_for_the_sidebar_user(
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_v3_news_list_renders_no_badge_without_one(plain_user, tp, post_index_page):
+def test_v3_news_list_renders_no_badge_without_one(
+    plain_user, tp, post_index_page, wagtail_site
+):
     """A badgeless user gets no badge chip rather than a placeholder label."""
     tp.client.force_login(plain_user)
 
-    response = tp.get(tp.reverse("news"))
+    response = tp.get(post_index_page.get_url())
 
     tp.response_200(response)
     assert "user-card__badge" not in response.content.decode()

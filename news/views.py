@@ -196,21 +196,6 @@ class EntryListView(V3Mixin, ListView):
         context.update(self.index_page.feed_context(self.request))
         return context
 
-    def _canonical_feed_redirect(self):
-        """Where a v3 visitor on one of the per-type lists belongs, if anywhere.
-
-        Under v3 there is one feed and the post type is a filter on it, so
-        /news/video/ forwards to the feed already filtered rather than becoming
-        a second URL rendering the same thing. Returns None for the feed's own
-        URL, which would otherwise redirect to itself.
-        """
-        feed_url = reverse("news")
-        if self.request.path == feed_url:
-            return None
-        if self.filter_value and self.filter_value != "all":
-            return f"{feed_url}?type={self.filter_value}"
-        return feed_url
-
     def dispatch(self, request, *args, **kwargs):
         # Under V3 the Wagtail post index owns this page. `PostIndexPage.serve()`
         # only calls back into this view when the flag is off, so this redirect

@@ -1,3 +1,4 @@
+from badges.display import active_badges_prefetch
 from pages.models import PostPage
 from pages.routing import v3_posts_active
 
@@ -29,16 +30,24 @@ def _latest_posts(limit: int, request):
         return (
             PostPage.objects.live()
             .select_related("owner", "owner__displayed_profile_role_library")
-            # The card links the author's profile, which reads their routing keys.
-            .prefetch_related("owner__profile_routing_keys")
+            # Badges per card, and the author's routing keys for the profile
+            # link: one query for the page rather than one per card.
+            .prefetch_related(
+                active_badges_prefetch("owner__badges"),
+                "owner__profile_routing_keys",
+            )
             .order_by("-first_published_at")[:limit]
         )
     return (
         Entry.objects.published()
         .filter(deleted_at__isnull=True)
         .select_related("author", "author__displayed_profile_role_library")
-        # The card links the author's profile, which reads their routing keys.
-        .prefetch_related("author__profile_routing_keys")
+        # Badges per card, and the author's routing keys for the profile link:
+        # one query for the page rather than one per card.
+        .prefetch_related(
+            active_badges_prefetch("author__badges"),
+            "author__profile_routing_keys",
+        )
         .order_by("-publish_at")[:limit]
     )
 
