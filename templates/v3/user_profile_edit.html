@@ -141,18 +141,8 @@
               <span class="field__help">This should be a PNG or JPEG format and no larger than 5MB</span>
             </div>
             <div class="user-profile__default-space-col">
-              <div class="field__label">Pick Badge</div>
-              <div>
-                {% for tier in badge_tiers %}
-                  <div class="user-profile__badge-select disabled">
-                    {% include 'v3/includes/_badge_v3.html' with token='badge-tier-'|add:tier.tier label=tier.name|add:' Badge' size='large' %}
-                    <span>{{ tier.name }} Badge</span>
-                    {% include 'includes/icon.html' with icon_name='lock' icon_size=16 icon_viewbox='0 0 16 16' %}
-                  </div>
-                {% endfor %}
-              </div>
+              {% include 'v3/includes/_field_badge_select.html' with name=user_profile_form.display_badge.name label='Display Badge' placeholder='Unlock a badge to display on profile' options=badge_options selected=user_profile_form.display_badge.value error=user_profile_form.display_badge.errors.0 only %}
             </div>
-            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.select_title only %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">

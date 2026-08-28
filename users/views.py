@@ -35,6 +35,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from waffle import flag_is_active
 
+from badges import display as badge_display
 from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin, V3AuthContextMixin
 from libraries.constants import (
@@ -158,7 +159,13 @@ class CurrentUserProfileView(
             self._v3_role_options = self.request.user.get_role_options()
         return self._v3_role_options
 
-    def get_v3_edit_initial(self):
+    def get_v3_edit_initial(self, badge_options=None):
+        """Current values for the v3 edit form.
+
+        ``badge_options`` lets the display-badge field fall back to the best badge
+        the member holds when their stored choice is gone or they never made one.
+        Only the page render passes it; the POST path has no picker to seed.
+        """
         user = self.request.user
         # Preselect the stored role only if it's still an offered option:
         # `encoded_displayed_role` resolves via the `resolved_profile_role`
@@ -174,6 +181,16 @@ class CurrentUserProfileView(
             # The form offers the opt-out only when the user holds roles.
             offered.add(NO_PUBLIC_ROLE_OPTION)
         encoded_role = user.encoded_displayed_role
+        # A revoked badge is no longer one of the field's choices, so seeding it
+        # would fail validation and block the whole section from saving.
+        display_badge = user.display_badge
+        if display_badge is not None and not display_badge.is_active:
+            display_badge = None
+        display_badge_id = display_badge and display_badge.pk
+        if badge_options is not None:
+            display_badge_id = badge_display.resolve_selection(
+                badge_options, display_badge_id
+            )
         return {
             "avatar": user.avatar_url,
             "username": user.display_name,
@@ -187,6 +204,7 @@ class CurrentUserProfileView(
             "hide_github": user.hide_github_activity,
             "hide_ml": user.hide_mailing_list_activity,
             "hide_ach": user.hide_badges,
+            "display_badge": display_badge_id,
             "allow_notification_own_news_approved": (
                 user.preferences.allow_notification_own_news_approved
             ),
@@ -225,12 +243,13 @@ class CurrentUserProfileView(
         """Context for the v3 edit-profile template. `form` is a bound form
         (with errors) when re-rendering after a failed POST; otherwise a
         fresh form seeded from the user's current data is built."""
+        badge_options = badge_display.badge_options(self.request.user)
         if form is None:
             form = V3UserProfileForm(
                 user=self.request.user,
                 user_links=self.request.user.profile_links,
                 role_options=self.get_v3_role_options(),
-                initial=self.get_v3_edit_initial(),
+                initial=self.get_v3_edit_initial(badge_options),
             )
         saved_section = self.request.GET.get("saved")
         user = self.request.user
@@ -276,6 +295,7 @@ class CurrentUserProfileView(
             "SLACK_PROFILE_URL_PREFIX": SLACK_PROFILE_URL_PREFIX,
             "biography_max_length": User.BIOGRAPHY_MAX_LENGTH,
             "country_options": form.fields["country"].choices,
+            "badge_options": badge_options,
             "profile_account_edit_url": self.get_v3_edit_url(),
             "saved_sections": {
                 key: key == saved_section for key in self.V3_EDIT_SECTIONS
@@ -294,13 +314,6 @@ class CurrentUserProfileView(
                 if self.request.GET.get("ce_alert")
                 else ""
             ),
-            "badge_tiers": [
-                {"tier": "1", "name": "Bronze"},
-                {"tier": "2", "name": "Silver"},
-                {"tier": "3", "name": "Gold"},
-                {"tier": "4", "name": "Platinum"},
-                {"tier": "5", "name": "Diamond"},
-            ],
             "account_connections": [],
         }
         # Delete-account card: the modal schedules deletion, and once
@@ -427,7 +440,7 @@ class CurrentUserProfileView(
     # chains keyed on the same button names.
     V3_EDIT_SECTIONS = {
         "v3_update_profile": (
-            ["hide_github", "hide_ml", "hide_ach"],
+            ["display_badge", "hide_github", "hide_ml", "hide_ach"],
             "_save_v3_visibility_section",
         ),
         "v3_update_details": (
@@ -527,6 +540,7 @@ class CurrentUserProfileView(
         user.hide_github_activity = form.cleaned_data["hide_github"]
         user.hide_mailing_list_activity = form.cleaned_data["hide_ml"]
         user.hide_badges = form.cleaned_data["hide_ach"]
+        user.display_badge = form.cleaned_data["display_badge"]
         user.save()
 
     def _save_v3_details_section(self, user, form):

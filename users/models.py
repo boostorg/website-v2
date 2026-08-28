@@ -469,6 +469,17 @@ class User(BaseUser):
         default=False,
         help_text="Hide badges from the public profile.",
     )
+    display_badge = models.ForeignKey(
+        "badges.UserBadge",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text=(
+            "The awarded tier the member features on their profile. Revocation is "
+            "soft, so readers must check the badge is still active."
+        ),
+    )
     profile_links = models.JSONField(
         default=dict,
         blank=True,

@@ -52,6 +52,11 @@
   width: 200px;
 }
 
+.library-filter .dropdown--has-value .dropdown__trigger,
+.library-filter .dropdown--has-value .dropdown__trigger:hover {
+  border-color: var(--color-stroke-link-accent);
+}
+
 /* -- Button for js less submit ----------- */
 .library-filter .btn-primary {
   height: 40px;

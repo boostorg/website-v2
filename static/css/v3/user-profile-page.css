@@ -143,24 +143,6 @@
     display: contents;
 }
 
-.user-profile__badge-select {
-    padding: 6px;
-    display: flex;
-    gap: var(--space-s);
-    align-items: center;
-    height: fit-content;
-    color: var(--color-text-tertiary);
-    font-family: var(--font-sans);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-tight);
-    letter-spacing: var(--letter-spacing-tight);
-}
-
-.user-profile__badge-select.disabled {
-    opacity: 0.45;
-}
-
 .user-profile__commit-email-form {
     width: 100%;
     display: grid;
