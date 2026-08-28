@@ -523,8 +523,15 @@ def test_v3_profile_dict_carries_the_badge_label(plain_user):
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_v3_news_list_renders_a_real_badge_for_the_sidebar_user(plain_user, tp):
-    """The sidebar card showed a hardcoded "Bug Catcher" label for everyone."""
+def test_v3_news_list_renders_a_real_badge_for_the_sidebar_user(
+    plain_user, tp, post_index_page
+):
+    """The sidebar card showed a hardcoded "Bug Catcher" label for everyone.
+
+    `post_index_page` because the v3 feed is served by the index page that owns
+    the posts; without one /news/ falls back to the legacy list, which has no
+    sidebar card at all and would pass the "Bug Catcher" half of this vacuously.
+    """
     plain_user = _feature(plain_user, "library-authoring")
     tp.client.force_login(plain_user)
 
@@ -537,7 +544,7 @@ def test_v3_news_list_renders_a_real_badge_for_the_sidebar_user(plain_user, tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_v3_news_list_renders_no_badge_without_one(plain_user, tp):
+def test_v3_news_list_renders_no_badge_without_one(plain_user, tp, post_index_page):
     """A badgeless user gets no badge chip rather than a placeholder label."""
     tp.client.force_login(plain_user)
 
