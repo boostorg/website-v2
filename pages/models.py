@@ -330,7 +330,7 @@ class PostPage(BasePage):
 
         if self.tag:
             tag_key = str(self.tag).lower()
-            category = POST_CARD_TAG_LABELS.get(tag_key, self.tag.capitalize())
+            category = POST_CARD_TAG_LABELS.get(tag_key, self.tag.name.capitalize())
 
         return {
             "title": self.title,
