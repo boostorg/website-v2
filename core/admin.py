@@ -151,6 +151,8 @@ def get_buttons():
 
     from users.tasks import recompute_displayed_profile_roles
 
+    from versions.admin import IMPORT_REVIEWS_BUTTON
+
     CONVERT_NEW_ENTRIES_BUTTON = TaskButton(
         name="convert_news_entries",
         label="Convert News Entries",
@@ -210,6 +212,21 @@ def get_buttons():
         ),
     )
 
+    # Same button the versions changelist offers, including its confirmation
+    # screen and permission; only the wording is checklist-specific.
+    CHECKLIST_IMPORT_REVIEWS_BUTTON = replace(
+        IMPORT_REVIEWS_BUTTON,
+        description=(
+            "Run after Synchronize Commit Authors and before Backfill "
+            "achievements. Re-scrapes the formal-review results published on "
+            "boost.org, which are the only source of the Reviewer achievement. "
+            "It must follow the synchronize step: that step merges commit authors "
+            "sharing a GitHub profile, and a review naming a merged-away author as "
+            "its submitter loses that link. Nothing schedules this, so the "
+            "Reviewer achievement is only as current as the last time it was run."
+        ),
+    )
+
     # Re-worded for the checklist, but the same button the badges changelist
     # offers: one definition of the task, its sources and its permissions.
     CHECKLIST_BACKFILL_BUTTON = replace(
@@ -236,17 +253,14 @@ def get_buttons():
     )
 
     # Order is the checklist: commits are imported, their authors are bound to
-    # members, and only then does the backfill read both.
-    #
-    # A review import belongs between the two last steps - nothing schedules it,
-    # and the merge in the synchronize step can drop the link between a review and
-    # its submitter - but the task and button it would use arrive with the review
-    # source, which is not merged yet.
+    # members, reviews are re-scraped against those authors, and only then does
+    # the backfill read all of it.
     return [
         CONVERT_NEW_ENTRIES_BUTTON,
         UPDATE_INDEX_BUTTON,
         UPDATE_COMMITS_BUTTON,
         SYNCHRONIZE_COMMIT_AUTHOR_BUTTON,
+        CHECKLIST_IMPORT_REVIEWS_BUTTON,
         CHECKLIST_BACKFILL_BUTTON,
         UPDATE_DISPLAYED_ROLES_BUTTON,
     ]
