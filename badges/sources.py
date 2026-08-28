@@ -81,11 +81,19 @@ def _iter_library_versioning():
     """Yield (user, library_version) for every authorship of a parent's release.
 
     Only parent libraries count: see the module docstring.
+
+    ``develop`` and ``master`` are branches rather than releases, and each carries
+    a ``LibraryVersion`` for every library, so counting them would credit two
+    releases to anyone who has authored a single library. They are dropped by the
+    same flag pair the rest of the site excludes them by - see
+    ``versions.managers`` - which leaves a genuine beta counted and takes out only
+    the development branches.
     """
     from libraries.models import LibraryVersion
 
     versions = (
         LibraryVersion.objects.exclude(library__key__in=SUB_LIBRARIES)
+        .exclude(version__full_release=False, version__beta=False)
         .select_related("library", "version")
         .prefetch_related("authors")
     )
