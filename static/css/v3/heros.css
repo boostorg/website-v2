@@ -167,16 +167,7 @@
     background-color: #5AB8EC;
   }
 }
-}
 
-/* Release: the mobile illustration is a portrait scene carrying its own sky
-   (768x1182) rather than the shared 8:7 crop, so the frame follows the art.
-   Remove when on-spec art ships (spec section 2, foreground mobile 768x672). */
-@media (max-width: 767px) {
-  .hero--release {
-    --hero-fg-aspect: 768 / 1182;
-  }
-}
 @media (max-width: 767px) {
   :root {
     /* Mobile */
