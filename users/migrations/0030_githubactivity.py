@@ -6,7 +6,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("users", "0028_user_displayed_profile_role_and_more"),
+        ("users", "0029_user_display_badge"),
     ]
 
     operations = [
