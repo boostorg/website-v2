@@ -139,6 +139,21 @@
   color: var(--color-text-on-accent);
 }
 
+/* Dark mode takes white type instead. --color-primary-white is the primitive, so
+   it does not flip; --color-text-reversed would, and the wrong way.
+   DELIBERATE, and it fails contrast: this scene stays bright in both themes, so
+   white here measures 1.7 to 2.0:1 against the sky at every width, under the
+   3.0:1 large-text minimum (the near-black above measures 10 to 11.5:1). Chosen
+   knowingly. The real fix is a dark treatment for the scene itself, so that dark
+   mode is not a bright block in a dark page; then white type earns its contrast.
+   Do not swap this back to a token without darkening the artwork first. */
+.dark .hero--release.hero--with-bg-and-image .hero__title,
+.dark .hero--release.hero--with-bg-and-image .hero__description,
+[data-theme="dark"] .hero--release.hero--with-bg-and-image .hero__title,
+[data-theme="dark"] .hero--release.hero--with-bg-and-image .hero__description {
+  color: var(--color-primary-white);
+}
+
 /* Release, mobile: the portrait scene is opaque and bleeds off its own top edge
    just as the desktop art does, so stacking it below the text put that cropped
    edge in view. Same answer as the wide breakpoints: let the scene fill the block
