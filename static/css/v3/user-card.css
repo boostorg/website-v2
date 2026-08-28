@@ -68,6 +68,20 @@
   min-width: 0;
 }
 
+.user-card__name-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-default);
+  min-width: 0;
+}
+
+/* The star and the Boost Day icon sit flush against each other. */
+.user-card__stamps {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .user-card__username {
   white-space: nowrap;
   color: var(--color-text-primary);

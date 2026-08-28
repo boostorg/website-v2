@@ -112,6 +112,7 @@ class V3UserProfileContextMixin:
                 # opt-out exists to withhold; they get `role`, which honours it.
                 "role": (user.public_role if is_owner else user.role),
                 "flag_emoji": user.flag_emoji,
+                **user.profile_stamps,
                 # include_hidden only for the owner, for the same reason as
                 # `role`: a member who hid their badges still sees them on
                 # their own page, and a visitor never does.

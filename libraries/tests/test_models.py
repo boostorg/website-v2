@@ -217,6 +217,26 @@ def test_merge_author_reassigns_emaildata():
     assert EmailData.objects.all().aggregate(total=Sum("count"))["total"] == 1000
 
 
+def test_author_details_carries_stamps(library_version, user):
+    """Library authors on the Libraries page get their tenure stamp."""
+    user.date_joined = datetime.datetime(1990, 1, 1, tzinfo=datetime.timezone.utc)
+    user.save(update_fields=["date_joined"])
+    library_version.authors.add(user)
+
+    details = library_version.author_details
+
+    assert details["tenure_stamp"]["token"] == "star-tier-5"
+    assert details["boost_day_stamp"] is None
+
+
+def test_author_details_without_author(library_version):
+    """No author means no stamp keys to render."""
+    details = library_version.author_details
+
+    assert details["name"] == "Unknown"
+    assert "tenure_stamp" not in details
+
+
 def test_author_details_links_the_author_profile(library_version):
     author = baker.make("users.User", display_name="Jane Doe", image=None)
     library_version.authors.add(author)

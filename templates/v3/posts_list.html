@@ -152,7 +152,7 @@
         {% if request.user.is_authenticated %}
           {% with u=request.user %}
             {% url 'v3-news-create' as create_url %}
-            {% include 'v3/includes/_user_card.html' with username=u.display_name profile_url=u.profile_url avatar_url=u.avatar_url badge_name=u.featured_badge.name badge=u.featured_badge.icon member_since=u.year_joined role=u.role flag_emoji=u.flag_emoji cta_url=create_url cta_label='Create Post' only %}
+            {% include 'v3/includes/_user_card.html' with username=u.display_name profile_url=u.profile_url avatar_url=u.avatar_url badge_name=u.featured_badge.name badge=u.featured_badge.icon tenure_stamp=u.tenure_stamp boost_day_stamp=u.boost_day_stamp member_since=u.year_joined role=u.role flag_emoji=u.flag_emoji cta_url=create_url cta_label='Create Post' only %}
           {% endwith %}
         {% else %}
           {% url 'account_signup' as signup_url %}

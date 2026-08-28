@@ -1,5 +1,5 @@
 {% comment %}
-  User Profile – displays avatar, name, role, badge, and optional bio.
+  User Profile – displays avatar, name, role, stamps, and optional bio.
     Variables: "author" object with:
     - name       (string) — display name
     - profile_url (string) — URL to user profile
@@ -7,7 +7,18 @@
                                        passed as a mark_safe'd HTML string (testimonial cards
                                        use this to embed a hyperlink in the role).
     - avatar_url (string) — URL to avatar image
-    - badge              (string, optional) — Badge component token, e.g. "badge-tier-3", "star-tier-1", "boost-day"
+    - tenure_stamp       (dict, optional)   — {"token", "label"}; tenure star.
+    - boost_day_stamp    (dict, optional)   — {"token", "label"}; Boost Day icon.
+                                              Both render beside the name, star first, per
+                                              Figma node 6994:38640. The key names match the
+                                              User properties of the same name, so a raw User
+                                              instance works as `author` too. Do not collapse
+                                              them into `badges`, which collides with the
+                                              User.badges m2m.
+    - badge              (string, optional) — Legacy single badge token, e.g. "badge-tier-3",
+                                              "star-tier-1". Used only when the matching slot
+                                              above is empty: `star-*` renders beside the name,
+                                              anything else beside the role.
     - badge_label        (string, optional) — Hover label for badge; defaults to tier + type
     - achievement_count  (int, optional)    — If set, renders the achievement counter
     - achievement_label  (string, optional) — Hover label for achievement counter
@@ -38,7 +49,16 @@
             <span class="user-profile__name">{{ author.name }}</span>
           {% endif %}
         {% endif %}
-        {% if author.badge|slice:":5" == "star-" %}
+        {% if author.tenure_stamp or author.boost_day_stamp %}
+          <span class="user-profile__stamps">
+            {% if author.tenure_stamp %}
+              {% include "v3/includes/_badge_v3.html" with token=author.tenure_stamp.token label=author.tenure_stamp.label size="small" only %}
+            {% endif %}
+            {% if author.boost_day_stamp %}
+              {% include "v3/includes/_badge_v3.html" with token=author.boost_day_stamp.token label=author.boost_day_stamp.label size="small" only %}
+            {% endif %}
+          </span>
+        {% elif author.badge|slice:":5" == "star-" %}
           {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size="small" only %}
         {% endif %}
       </span>

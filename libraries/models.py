@@ -144,6 +144,8 @@ class CommitAuthor(models.Model):
             "profile_url": user_profile_url or self.github_profile_url,
             "role": role,
             "avatar_url": self.avatar_url or "",
+            "tenure_stamp": self.user.tenure_stamp if self.user else None,
+            "boost_day_stamp": self.user.boost_day_stamp if self.user else None,
             "badge": None,
             "bio": None,
         }
@@ -845,6 +847,7 @@ class LibraryVersion(models.Model):
             "profile_url": author.profile_url if author else None,
             "avatar_url": author.get_avatar_url() if author else "",
             "badge_url": large_static("img/v3/badges/badge-first-place.png"),
+            **(author.profile_stamps if author else {}),
         }
 
     def get_cpp_standard_minimum_display(self):

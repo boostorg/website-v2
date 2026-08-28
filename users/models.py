@@ -38,6 +38,8 @@ from users.utils import (
     routing_key_base,
 )
 
+from . import stamps
+
 logger = logging.getLogger(__name__)
 
 
@@ -613,6 +615,7 @@ class User(BaseUser):
             "profile_url": self.profile_url,
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
+            **self.profile_stamps,
             "badge": featured["icon"] if featured else None,
             "badge_label": featured["name"] if featured else "",
             "bio": None,
@@ -727,6 +730,28 @@ class User(BaseUser):
         if self.resolved_profile_role:
             return self.resolved_profile_role, None
         return None, None
+
+    @cached_property
+    def profile_stamps(self):
+        """Tenure star and Boost Day stamp dicts, keyed by template slot.
+
+        Unclaimed and deactivated accounts show no stamps. Both carry a
+        `date_joined`, but it records when we created the row rather than a
+        real membership, so displaying tenure off it would be misleading.
+        """
+        if not (self.claimed and self.is_active):
+            return stamps.profile_stamps(None)
+        return stamps.profile_stamps(self.date_joined)
+
+    @property
+    def tenure_stamp(self):
+        """Tenure star stamp dict, or None for members under 2 years."""
+        return self.profile_stamps["tenure_stamp"]
+
+    @property
+    def boost_day_stamp(self):
+        """Boost Day stamp dict, or None outside the member's anniversary."""
+        return self.profile_stamps["boost_day_stamp"]
 
     @cached_property
     def role(self):

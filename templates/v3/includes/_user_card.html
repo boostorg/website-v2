@@ -1,5 +1,5 @@
 {% comment %}
-  User Card component — profile summary with avatar, badge, role, and optional CTA.
+  User Card component — profile summary with avatar, stamps, role, and optional CTA.
 
   Variables:
     username        (string, required)  - Display name shown on the card
@@ -8,8 +8,12 @@
                                           page itself does.
     avatar_url      (string, optional)  - Avatar image URL. Falls back to initials from username.
     avatar_variant  (string, optional)  - Avatar color variant (yellow|green|teal). Default "yellow".
-    badge_name      (string, optional)  - Badge label text, e.g. "Bug Catcher"
-    badge           (string, optional)  - Badge component token, e.g. "badge-tier-3", "star-tier-1", "boost-day"
+    badge_name      (string, optional)  - Featured achievement label text, e.g. "Bug Catcher"
+    badge           (string, optional)  - Featured achievement token, e.g. "badge-tier-3", "star-tier-1", "boost-day"
+    tenure_stamp     (dict, optional)   - {"token", "label"}; tenure star.
+    boost_day_stamp  (dict, optional)   - {"token", "label"}; Boost Day icon.
+                                          Both render beside the username, star first. They mirror the User properties of the
+                                          same name and the placement used by _user_profile.html.
     member_since    (string, optional)  - Membership year, e.g. "2008"
     role            (string, optional)  - Role text, e.g. "C++ Alliance Board Member"
     flag_emoji      (string, optional)  - Country flag emoji, e.g. "🇺🇸". Omit to hide flag overlay.
@@ -62,11 +66,23 @@
 
   {# User info #}
   <div class="user-card__info">
-    {% if profile_url %}
-      <a href="{{ profile_url }}" class="user-card__username">{{ username }}</a>
-    {% else %}
-      <span class="user-card__username">{{ username }}</span>
-    {% endif %}
+    <span class="user-card__name-group">
+      {% if profile_url %}
+        <a href="{{ profile_url }}" class="user-card__username">{{ username }}</a>
+      {% else %}
+        <span class="user-card__username">{{ username }}</span>
+      {% endif %}
+      {% if tenure_stamp or boost_day_stamp %}
+        <span class="user-card__stamps">
+          {% if tenure_stamp %}
+            {% include "v3/includes/_badge_v3.html" with token=tenure_stamp.token label=tenure_stamp.label size="large" only %}
+          {% endif %}
+          {% if boost_day_stamp %}
+            {% include "v3/includes/_badge_v3.html" with token=boost_day_stamp.token label=boost_day_stamp.label size="large" only %}
+          {% endif %}
+        </span>
+      {% endif %}
+    </span>
 
     {% if badge_name %}
     <span class="user-card__badge">
