@@ -18,6 +18,8 @@ import { toHtml } from "hast-util-to-html";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { renderDiagram } from "./mermaid-diagram.js";
+// Re-exported so the sanitiser can be driven directly from a test page.
+export { sanitizeSvg } from "./mermaid-diagram.js";
 import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
 
