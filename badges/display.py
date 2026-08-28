@@ -5,11 +5,24 @@ wording rather than something staff tune beside a threshold.
 
 Every row is built from ``badges.summary.user_badge_summary``, so the picker adds
 no queries of its own.
+
+The same module turns a user's awarded badges into what the v3 badge templates
+render. Those templates take a component token and a label, never a model
+instance, so the rank-to-asset mapping belongs here rather than on the user
+model.
+
+Ordering there is by *rank*, not threshold: thresholds are not comparable across
+badges (a reviewer diamond needs 5 achievements, a commits silver needs 12), so
+the raw threshold only breaks ties within a rank.
 """
 
 from typing import NamedTuple
 
+from django.db.models import Prefetch
+from django.utils import timezone
+
 from badges.enums import BadgeLabel, TierRank, label_order, rank_order
+from badges.models import UserBadge
 from badges.summary import user_badge_summary
 from core.constants import BadgeToken
 
@@ -220,3 +233,95 @@ def _detail(phrases, tier, count, is_held, gap):
 def _unit(phrases, count):
     """The badge's unit noun, pluralised for ``count``."""
     return phrases.unit if count == 1 else phrases.plural
+
+
+def active_badges_prefetch(lookup="badges"):
+    """The rows ``held_badges`` reads, prefetched at ``lookup``.
+
+    Callers rendering many users at once (author cards on a news page) need this,
+    or ``held_badges`` queries once per user instead of reading the cache.
+
+    ``lookup`` exists because the path is load-bearing. A queryset that reaches
+    its users through ``select_related`` cannot be handed
+    ``Prefetch("author", queryset=User.objects.prefetch_related(...))``: Django
+    finds the foreign key already cached, skips the prefetch, and silently drops
+    the nested badge prefetch with it. Such a caller asks for the badges through
+    the path instead - ``active_badges_prefetch("author__badges")``.
+    """
+    return Prefetch(
+        lookup,
+        queryset=UserBadge.objects.active().select_related("badge", "tier"),
+    )
+
+
+def held_badges(user, include_hidden=False):
+    """The user's active badges, highest rank first, each rank once.
+
+    Returns an empty list when the user has hidden their badges, unless
+    ``include_hidden`` is set - which only the owner's own views should do.
+
+    Retiring a tier keeps the badges already awarded against it, so a user who
+    also qualifies under its replacement holds the same rank twice. Both rows are
+    real history; only one of them is a badge to show.
+    """
+    if user.hide_badges and not include_hidden:
+        return []
+    if "badges" in getattr(user, "_prefetched_objects_cache", {}):
+        rows = [badge for badge in user.badges.all() if badge.revoked_at is None]
+    else:
+        rows = list(user.badges.active().select_related("badge", "tier"))
+
+    unique = {}
+    for row in sorted(rows, key=_rank_key, reverse=True):
+        unique.setdefault((row.badge_id, row.tier.rank), row)
+    return list(unique.values())
+
+
+def featured_badge(user, include_hidden=False):
+    """The badge the member picked, or ``None``. Never a badge they did not pick.
+
+    There is no default: a member holding badges but choosing none features none.
+    Featuring one for them would publish a choice they never made, and the picker
+    already opens on a suggestion, so the only way here is a deliberate save.
+
+    ``None`` likewise covers a pick that has stopped being displayable - revoked,
+    hidden from the public, or a rank held twice where grandfathering left the row
+    ``held_badges`` folded away.
+
+    ``display_badge_id`` is read rather than ``display_badge`` because a page
+    rendering many users would otherwise cost a query each: the picked row, when
+    the member still holds it, is already among ``held_badges``.
+    """
+    picked = user.display_badge_id
+    if picked is None:
+        return None
+    for row in held_badges(user, include_hidden=include_hidden):
+        if row.pk == picked:
+            return badge_card(row)
+    return None
+
+
+def badge_cards(user, include_hidden=False):
+    """Every active badge as a card dict, highest rank first."""
+    return [
+        badge_card(badge) for badge in held_badges(user, include_hidden=include_hidden)
+    ]
+
+
+def badge_card(user_badge):
+    """One awarded badge as the dict the badge templates read.
+
+    ``awarded_at`` is stored in UTC, so the calendar day has to be taken in the
+    project's timezone rather than off the raw value: an evening award would
+    otherwise be dated to the following day everywhere west of UTC.
+    """
+    return {
+        "name": user_badge.badge.get_label_display(),
+        "icon": TIER_TOKENS[user_badge.tier.rank],
+        "earned_date": timezone.localtime(user_badge.awarded_at).date(),
+    }
+
+
+def _rank_key(user_badge):
+    """Sort key placing the highest rank first, threshold breaking ties."""
+    return rank_order(user_badge.tier.rank), user_badge.tier.threshold

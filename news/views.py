@@ -43,6 +43,7 @@ from wagtail.images.models import Image
 from wagtail.models import Page
 from waffle import flag_is_active
 
+from badges.display import active_badges_prefetch
 from core.context_processors import edit_profile_url
 from core.mixins import V3Mixin
 from pages.blocks import NEWS_BLOCK, BLOG_BLOCK, LINK_BLOCK, VIDEO_BLOCK
@@ -263,7 +264,14 @@ class EntryDetailView(V3Mixin, DetailView):
     template_name = "news/detail.html"
     v3_template_name = "news/v3/detail.html"
 
-    AUTHOR_PREFETCH = ("author__maintainers",)
+    # Each author card reads the author's badges; without the prefetch that is
+    # one extra query per card, and a detail page renders up to five. Asked for
+    # through the path, because these querysets also select_related the author -
+    # see ``badges.display.active_badges_prefetch``.
+    AUTHOR_PREFETCH = (
+        "author__maintainers",
+        active_badges_prefetch("author__badges"),
+    )
 
     def get_queryset(self):
         qs = super().get_queryset()
