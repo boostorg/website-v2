@@ -3,6 +3,7 @@ import logging
 from contextlib import suppress
 
 import requests
+from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -608,6 +609,14 @@ class User(BaseUser):
         if not self.github_username:
             return None
         return f"https://github.com/{self.github_username}"
+
+    @property
+    def is_github_connected(self):
+        return SocialAccount.objects.filter(user=self, provider="github").exists()
+
+    @property
+    def is_google_connected(self):
+        return SocialAccount.objects.filter(user=self, provider="google").exists()
 
     @cached_property
     def name(self):

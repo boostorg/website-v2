@@ -13,14 +13,6 @@
   <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
 {% endblock %}
 
-{% comment %} Section save state is shown on each submit button (see saved_sections)
-instead of the legacy toast; still iterate `messages` so any queued message is
-flushed rather than leaking onto the next page. {% endcomment %}
-{% block messages %}
-  <div id="messages" class="w-full text-center transition-opacity" x-data="{show: true}">
-    {% for message in messages %}{% endfor %}
-  </div>
-{% endblock messages %}
 
 {% block content %}
   <div class="user-profile__container">
@@ -240,7 +232,7 @@ flushed rather than leaking onto the next page. {% endcomment %}
           </form>
         </div>
         <div class="user-profile-edit__connections-card">
-          {% include 'v3/includes/_account_connections_card.html' with connections=account_connections_mixed %}
+          {% include 'v3/includes/_account_connections_card.html' with connections=account_connections %}
         </div>
         <div class="basic-card card user-profile__delete-account">
           <div class="card__header">

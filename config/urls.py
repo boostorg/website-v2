@@ -75,6 +75,7 @@ from users.views import (
     DeleteUserView,
     CancelDeletionView,
     DeleteImmediatelyView,
+    DisconnectSocialAccountView,
 )
 from versions.api import ImportVersionsView, VersionViewSet
 from versions.converters import BoostVersionSlugConverter
@@ -153,6 +154,11 @@ urlpatterns = (
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         path("users/me/delete/", DeleteUserView.as_view(), name="profile-delete"),
+        path(
+            "users/me/disconnect-social/<str:platform>/",
+            DisconnectSocialAccountView.as_view(),
+            name="profile-disconnect-social",
+        ),
         path(
             "users/me/cancel-delete/",
             CancelDeletionView.as_view(),

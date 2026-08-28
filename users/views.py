@@ -1,13 +1,17 @@
 import datetime
 
 from allauth.account import app_settings
+from allauth.socialaccount.adapter import get_adapter, DefaultSocialAccountAdapter
+from allauth.socialaccount.forms import DisconnectForm
+from allauth.socialaccount.models import SocialApp
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect, JsonResponse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse, reverse_lazy
-from django.views.generic import DetailView, FormView
+from django.views.generic import DetailView, FormView, View
 from django.views.generic.base import TemplateView
 from django.utils import timezone
 from django.conf import settings
@@ -230,6 +234,43 @@ class CurrentUserProfileView(
             )
         saved_section = self.request.GET.get("saved")
         user = self.request.user
+        is_gh_conn: bool = user.is_github_connected
+        is_go_conn: bool = user.is_google_connected
+
+        def _get_connection_context_data(platform: str, connected: bool) -> dict | None:
+            adapter: DefaultSocialAccountAdapter = get_adapter(self.request)
+            try:
+                provider = adapter.get_provider(self.request, platform)
+            except SocialApp.DoesNotExist:
+                return None
+            if platform not in ["github", "google"]:
+                return None
+            label = ""
+            if platform == "github":
+                label = "GitHub"
+            else:
+                label = platform.capitalize()
+            return {
+                "platform": platform,
+                "label": label,
+                "status_text": "Connected" if connected else "Not Connected",
+                "action_label": "Manage" if connected else "Connect",
+                "connected": connected,
+                # If not connected, we provide the login url for the chosen platform
+                # else, this points to the name of the disconnect modal associated with this platform
+                "action_url": (
+                    provider.get_login_url(
+                        self.request,
+                        **{auth.REDIRECT_FIELD_NAME: self.request.get_full_path()},
+                        process="connect",
+                    )
+                    if not connected
+                    else f"#disconnect-{platform}"
+                ),
+                "disconnect_text": f"This will remove the link between your Boost account and {label}. You can reconnect at any time.",
+                "disconnect_url": f"{reverse('profile-disconnect-social', kwargs={"platform": platform})}?redirect_url={reverse("profile-account")}?edit=True",
+            }
+
         ctx = {
             "user_profile_form": form,
             "SLACK_PROFILE_URL_PREFIX": SLACK_PROFILE_URL_PREFIX,
@@ -260,24 +301,7 @@ class CurrentUserProfileView(
                 {"tier": "4", "name": "Platinum"},
                 {"tier": "5", "name": "Diamond"},
             ],
-            "account_connections_mixed": [
-                {
-                    "platform": "github",
-                    "label": "GitHub",
-                    "connected": True,
-                    "status_text": "Connected",
-                    "action_label": "Manage",
-                    "action_url": "#",
-                },
-                {
-                    "platform": "google",
-                    "label": "Google",
-                    "connected": False,
-                    "status_text": "Not connected",
-                    "action_label": "Connect",
-                    "action_url": "#",
-                },
-            ],
+            "account_connections": [],
         }
         # Delete-account card: the modal schedules deletion, and once
         # scheduled the card swaps to a single "Cancel deletion" control.
@@ -295,6 +319,13 @@ class CurrentUserProfileView(
         )
         ctx["profile_delete_url"] = reverse("profile-delete")
         ctx["postorius_url"] = settings.POSTORIUS_URL
+
+        gh_conn_data = _get_connection_context_data("github", is_gh_conn)
+        go_conn_data = _get_connection_context_data("google", is_go_conn)
+        if gh_conn_data:
+            ctx["account_connections"].append(gh_conn_data)
+        if go_conn_data:
+            ctx["account_connections"].append(go_conn_data)
         return ctx
 
     def get_v3_context_data(self, **kwargs):
@@ -341,7 +372,10 @@ class CurrentUserProfileView(
     def get_social_accounts(self):
         account_data = []
         for account in SocialAccount.objects.filter(user=self.request.user):
-            provider_account = account.get_provider_account()
+            try:
+                provider_account = account.get_provider_account()
+            except SocialApp.DoesNotExist:
+                continue
             account_data.append(
                 {
                     "id": account.pk,
@@ -890,3 +924,42 @@ class DeleteImmediatelyView(LoginRequiredMixin, SuccessMessageMixin, FormView):
         user.delete_account(extended_scrub=flag_is_active(self.request, "v3"))
         auth.logout(self.request)
         return super().form_valid(form)
+
+
+class DisconnectSocialAccountView(LoginRequiredMixin, View):
+    def post(self, *args, **kwargs):
+        redirect_url = self.request.GET.get("redirect_url", "").strip("'") or reverse(
+            "home"
+        )
+        if not url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
+            messages.error(
+                self.request, "An internal error has occurred. Please contact an admin."
+            )
+            return HttpResponseRedirect(reverse("home"))
+
+        platform = kwargs.get("platform")
+        if not platform:
+            messages.error(self.request, "Platform must be specified.")
+            return HttpResponseRedirect(redirect_url)
+
+        user = self.request.user
+        try:
+            sa = SocialAccount.objects.get(user=user, provider=platform)
+        except SocialAccount.DoesNotExist:
+            messages.error(
+                self.request,
+                "No social account between this user and platform exists on Boost.",
+            )
+            return HttpResponseRedirect(redirect_url)
+
+        form = DisconnectForm(request=self.request, data={"account": sa.pk})
+        if form.is_valid():
+            form.save()
+        else:
+            messages.error(
+                self.request,
+                " ".join(form.non_field_errors())
+                or "An error has occurred while removing your connection. Please try again shortly.",
+            )
+
+        return HttpResponseRedirect(redirect_url)
