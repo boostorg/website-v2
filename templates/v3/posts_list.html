@@ -2,10 +2,16 @@
 {% comment %}
   V3 Implemenation of the News Feed, renamed to posts page
   Inputs:
-    filter_terms -  list, req - list of terms to be passed to _post_filters.html. See that include for more info
-    libraries    -  list, req - List of libraries, used to filter posts
-    header_text  -  str,  req - Text that appears at the top of the central column, determined by filter type
-    entry_list   -  list, req - List of news posts to be displayed in the central column
+    filter_terms    -  list, req - list of terms to be passed to _post_filter.html. See that include for more info
+    filter_value    -  str,  req - Currently selected post type filter
+    library_options -  list, req - (slug, label) pairs for the library filter dropdown
+    library_value   -  str,  req - Currently selected library slug
+    search_value    -  str,  req - Current search term
+    author_value    -  int,  opt - Author pk when the feed is filtered to one author
+    header_text     -  str,  req - Text that appears at the top of the central column, determined by filter type
+    entry_list      -  list, req - List of news posts to be displayed in the central column
+    empty_message   -  str,  req - Message shown by the empty state when there are no posts
+    related_posts   -  list, opt - Suggested posts shown alongside the empty state
 {% endcomment %}
 {% load static %}
 
@@ -20,19 +26,127 @@
     <div class="post-content-layout">
       <p class="subheading">Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, and user-created content.</p>
       <div class="post-content__filter_column">
-        {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' only %}
-        <p class="field__label filter__tags-label">Filter</p>
-        <form>
-        <div class="filter__tags">
-            {% include "v3/includes/_post_filter.html" with options=filter_terms filter_name="post-filter" default=filter_value only %}
-        </div>
-        {% include 'v3/includes/_field_dropdown.html' with name='ex_type' label='Library' options=libraries placeholder='All' only %}
-        {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True extra_classes="filter-submit-button" only %}
+        {# One GET form for every control. The empty action drops the current #}
+        {# querystring, which is what resets pagination on each submit. #}
+        {# Enter is handled here because the search field's own submit button is #}
+        {# disabled while the box is empty, so implicit submission cannot clear a #}
+        {# search. The dropdown is excluded: its trigger and options bind Enter #}
+        {# themselves to open the panel and choose, and submitting on the way #}
+        {# through would close it before it could be used. #}
+        {# Submitting navigates, so the control the user was on is destroyed #}
+        {# along with the document. Its name is parked in sessionStorage and #}
+        {# focused again on the way back in, keeping the keyboard where it #}
+        {# was. Deliberately not a query param: the URL is shared and copied, #}
+        {# and a cold visit to a link should not have focus pulled off the #}
+        {# page heading. #}
+        <form method="get"
+              action=""
+          {# djlint:off #}
+              x-data="{
+                FOCUS_KEY: 'posts-feed-focus',
+                init() {
+                  let stored, name, keyboard;
+                  try {
+                    stored = sessionStorage.getItem(this.FOCUS_KEY);
+                    sessionStorage.removeItem(this.FOCUS_KEY);
+                  } catch (e) { return }
+                  if (!stored) return;
+                  // Anything unreadable is a leftover from an older format.
+                  try { ({ name, keyboard } = JSON.parse(stored)) } catch (e) { return }
+                  if (!name) return;
+                  // $root, not $el: these methods are called from handlers on
+                  // descendants too, and $el is whichever element Alpine is
+                  // evaluating rather than the component the data belongs to.
+                  const form = this.$root;
+                  // Each field initialises after this one, so the dropdown is
+                  // still cloaked and unfocusable until the tick has passed.
+                  this.$nextTick(() => {
+                    const named = [...form.querySelectorAll(`[name='${name}']`)];
+                    // A radio group has one input per option and the checked
+                    // one is where the user left off; a dropdown submits
+                    // through a hidden input, so the thing they operate is the
+                    // trigger beside it.
+                    const target = named.find(el => el.type === 'radio' && el.checked)
+                      ?? named[0]?.closest('.field')?.querySelector('.dropdown__trigger')
+                      ?? named.find(el => el.tagName === 'INPUT');
+                    if (!target) return;
+                    // A pill's ring hangs off :focus-visible, and that heuristic
+                    // starts over in the new document, so a keyboard user would
+                    // get focus back with nothing on screen to show it.
+                    if (keyboard) {
+                      target.dataset.focusRestored = '';
+                      target.addEventListener(
+                        'blur', () => delete target.dataset.focusRestored, { once: true }
+                      );
+                    }
+                    target.focus();
+                    // Caret after the term, so refining a search carries on
+                    // from the end instead of in front of what was typed.
+                    if (target.type === 'text') {
+                      const end = target.value.length;
+                      target.setSelectionRange(end, end);
+                    }
+                  });
+                },
+                remember(name, source) {
+                  if (!name) return;
+                  // Whether the ring has to come back with the focus. Only the
+                  // caller knows: a pill reached by arrow key needs it, the
+                  // same pill clicked with a mouse would just gain an outline
+                  // it never had. Moot for the search box and the dropdown
+                  // trigger, which both style plain :focus. Never let a storage
+                  // failure cost the user their filter.
+                  const keyboard = !!source?.matches(':focus-visible');
+                  try {
+                    sessionStorage.setItem(this.FOCUS_KEY, JSON.stringify({ name, keyboard }));
+                  } catch (e) {}
+                },
+                // The search field's submit button is rendered by the include,
+                // so its click is caught here rather than bound to the button.
+                // Only records: the browser submits the form on its own.
+                rememberSubmitter(el) {
+                  const field = el.closest('.field__submit')?.closest('.field');
+                  const named = field?.querySelector('[name]');
+                  if (named) this.remember(named.name, named);
+                },
+                submitFrom(name, value, source) {
+                  const form = this.$root;
+                  // Only controls that submit through a hidden input pass a
+                  // value. The dropdown dispatches field-change while it sets
+                  // its own `selected`, so that input has not been written yet;
+                  // taking the value off the event beats waiting a tick for
+                  // Alpine to flush, because the flush is scheduled off its
+                  // reactivity queue and a submit parked behind one can sit
+                  // there until the next interaction happens to drain it. The
+                  // filter radios are real form controls and carry their own.
+                  const input = form.querySelector(`input[type='hidden'][name='${name}']`);
+                  if (input) input.value = value ?? '';
+                  this.remember(name, source);
+                  form.requestSubmit();
+                }
+              }"
+              @field-change="submitFrom($event.detail.name, $event.detail.value)"
+              @click="rememberSubmitter($event.target)"
+              @keydown.enter="if (!$event.target.closest('.dropdown')) { $event.preventDefault(); submitFrom($event.target.name, null, $event.target) }">
+          {# djlint:on #}
+          {% if author_value %}<input type="hidden" name="author" value="{{ author_value }}">{% endif %}
+          {% include 'v3/includes/_field_text.html' with label='Search' name='q' value=search_value placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' submit_label='Search' dispatch_field_change=True debounce_ms=500 only %}
+          <p class="field__label filter__tags-label">Filter</p>
+          <div class="filter__tags" @change="submitFrom($event.target.name, null, $event.target)">
+            {% include "v3/includes/_post_filter.html" with options=filter_terms filter_name="type" default=filter_value only %}
+          </div>
+          {% include 'v3/includes/_field_dropdown.html' with name='library' label='Library' options=library_options selected=library_value placeholder='All' deselectable=True only %}
+          {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True extra_classes="filter-submit-button" only %}
         </form>
       </div>
       <div class="post-content__content_column">
-        {% include 'v3/includes/_post_list_card.html' with heading=header_text items=entry_list only %}
-        {% include "v3/includes/_pagination.html" %}
+        {% include 'v3/includes/_post_list_card.html' with heading=header_text items=entry_list empty_message=empty_message only %}
+        {% if related_posts %}
+          {% include 'v3/includes/_post_list_card.html' with heading="Related Posts" items=related_posts only %}
+        {% endif %}
+        {# Nothing to page through on an empty result set, and the paginator #}
+        {# still reports one page there, so it would render a lone "1". #}
+        {% if entry_list %}{% include "v3/includes/_pagination.html" %}{% endif %}
       </div>
       <div class="post-content__user_card_column">
         {% if request.user.is_authenticated %}
@@ -41,36 +155,11 @@
             {% include 'v3/includes/_user_card.html' with username=u.display_name avatar_url=u.avatar_url badge_name=u.featured_badge.name badge=u.featured_badge.icon member_since=u.year_joined role=u.role flag_emoji=u.flag_emoji cta_url=create_url cta_label='Create Post' only %}
           {% endwith %}
         {% else %}
-          {% include 'v3/includes/_user_card.html' with logged_out=True cta_url='#' cta_label='Create Post' only %}
+          {% url 'account_signup' as signup_url %}
+          {# Heading and description come from _user_card.html's own defaults. #}
+          {% include 'v3/includes/_user_card.html' with logged_out=True cta_url=signup_url cta_label='Sign Up Now' only %}
         {% endif %}
       </div>
     </div>
   </div>
 {% endblock %}
-
-{% block footer_js %}
-<script>
-   const inputs = document.querySelectorAll("input[name=post-filter]")
-    inputs.forEach(
-      function(el) {
-        el.addEventListener('change', function (event) {
-          const value = event.target.value
-          const name = event.target.name
-          if (name == 'post-filter') {
-            switch (value) {
-              {% for term in filter_terms %}
-              case '{{term.value}}':
-                window.location.assign("{{term.url}}");
-                break;
-              {% endfor %}
-              default:
-                console.error(`Value ${value} is unknown, please reload the page.`)
-            }
-
-          }
-        })
-      }
-    );
-  </script>
-
-{% endblock footer_js %}

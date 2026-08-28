@@ -1,19 +1,27 @@
-from typing import NamedTuple
 from structlog import get_logger
 from wagtail.fields import RichTextField, StreamField
+from wagtail.search import index
 
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import models
 from django.urls import reverse_lazy
 from django.utils.functional import cached_property
+from django.utils.html import strip_tags
 from django.utils.text import slugify
 from django.utils.timezone import localtime, now
 
 from modelcluster.contrib.taggit import ClusterTaggableManager
 
 
+from libraries.utils import library_filter_options
 from pages.blocks import POST_BLOCKS
+from pages.feed import (
+    CONTENT_TYPES_BY_BLOCK,
+    FEED_FILTER_TERMS,
+    UNKNOWN_CONTENT_TYPE,
+    PostFeedFilters,
+)
 from pages.mixins import BasePage
 
 from news.tasks import summary_dispatcher
@@ -49,58 +57,6 @@ class RoutableHomePage(BasePage):
         return super().route(request, path_components)
 
 
-class _PostContentType(NamedTuple):
-    """
-    Associates content block names with label, icon, and filter name
-    """
-
-    block_name: list = []
-    icon_name: str = ""
-    content_type: str = ""
-    filter_name: str = ""
-
-
-POST_CONTENT_TYPES = (
-    _PostContentType(
-        block_name=[],
-        icon_name="globe",
-        content_type="All",
-        filter_name="",
-    ),
-    _PostContentType(
-        block_name=["rich_text", "blog"],
-        icon_name="comment",
-        content_type="Blogpost",
-        filter_name="blogpost",
-    ),
-    _PostContentType(
-        block_name=["news"],
-        icon_name="newspaper",
-        content_type="News",
-        filter_name="news",
-    ),
-    _PostContentType(
-        block_name=["video"],
-        icon_name="video",
-        content_type="Video",
-        filter_name="video",
-    ),
-    _PostContentType(
-        block_name=["url"],
-        icon_name="link",
-        content_type="Link",
-        filter_name="link",
-    ),
-)
-CONTENT_TYPES_BY_FILTER: dict[str, _PostContentType] = {
-    x.filter_name: x for x in POST_CONTENT_TYPES if x.filter_name
-}
-CONTENT_TYPES_BY_BLOCK: dict[str, _PostContentType] = {}
-for i in POST_CONTENT_TYPES:
-    for bn in i.block_name:
-        CONTENT_TYPES_BY_BLOCK[bn] = i
-
-
 class PostIndexPage(BasePage):
     """
     Parent Index of News items, inheriting by base Page and displaying all content items when visited
@@ -111,84 +67,93 @@ class PostIndexPage(BasePage):
     template = "v3/posts_list.html"
     max_count = 1
 
-    def get_children_by_content_type(
-        self, content_type: str | list[str]
-    ) -> models.QuerySet["PostPage"]:
-        posts = PostPage.objects.child_of(self).live().order_by("-first_published_at")
-        if isinstance(content_type, str):
-            return posts.filter(content__0__type=content_type)
-        elif isinstance(content_type, list):
-            return posts.filter(content__0__type__in=content_type)
-        else:
-            return posts.none()
+    PAGE_SIZE = 10
+    RELATED_POSTS_LIMIT = 3
+
+    def _filtered_queryset(self, filters) -> models.QuerySet["PostPage"]:
+        posts = (
+            PostPage.objects.child_of(self)
+            .live()
+            .select_related("owner")
+            .prefetch_related("tags")
+        )
+        if filters.post_type:
+            posts = posts.filter(content__0__type__in=filters.post_type.block_name)
+        if filters.library:
+            # tagged_items rather than tags: the reverse relation resolves
+            # against the concrete PostPage table under either tag arrangement.
+            posts = posts.filter(tagged_items__tag__slug=filters.library.slug)
+        if filters.author:
+            posts = posts.filter(owner=filters.author)
+        return posts.order_by("-first_published_at")
+
+    def _results(self, filters):
+        """Filtered posts, searched when a term was submitted.
+
+        The search backend rejects StreamField and tag lookups, so the filters
+        are applied first and handed back in through a pk subquery. Anything
+        the result rows need (select_related, prefetch_related) has to be set
+        up before .search(), which returns SearchResults rather than a queryset.
+        """
+        posts = self._filtered_queryset(filters)
+        if not filters.q:
+            return posts
+        return (
+            PostPage.objects.filter(pk__in=posts.order_by().values("pk"))
+            .select_related("owner")
+            .prefetch_related("tags")
+            .search(filters.q)
+        )
+
+    def _related_posts(self, filters):
+        """Fallback shown with the empty state: same library, search dropped.
+
+        Only a library filter produces related posts. Without one the widest
+        fallback would be the whole feed, which reads as "no results, here is
+        everything" rather than as a suggestion.
+        """
+        if not filters.library:
+            return []
+        for fallback in (filters.without("q"), filters.without("q", "post_type")):
+            related = list(
+                self._filtered_queryset(fallback)[: self.RELATED_POSTS_LIMIT]
+            )
+            if related:
+                return related
+        return []
 
     def get_context(self, request, *args, **kwargs):
         ctx = super().get_context(request, *args, **kwargs)
+        ctx.update(self.feed_context(request))
+        return ctx
 
-        content_type = request.GET.get("type", "").lower()
-        if content_value := CONTENT_TYPES_BY_FILTER.get(content_type, None):
-            entry_list = self.get_children_by_content_type(
-                content_value.block_name
-            ).specific()
-        else:
-            entry_list = (
-                self.get_children()
-                .type(PostPage)
-                .live()
-                .order_by("-first_published_at")
-                .specific()
-            )
+    def feed_context(self, request):
+        """Template context for the posts feed.
 
-        pag = Paginator(entry_list, 10)
+        Public because the feed is also served from the legacy news URL, where
+        the v3 flag decides between it and the v2 Entry list. The posts it
+        lists are this page's children either way, so the context is built
+        here rather than duplicated against the same tree.
+        """
+        ctx = {}
+        filters = PostFeedFilters.from_request(request)
+        pag = Paginator(self._results(filters), self.PAGE_SIZE)
+        page_obj = pag.get_page(request.GET.get("page", 1))
+
         ctx["paginator"] = pag
         ctx["is_paginated"] = True
-        ctx["entry_list"] = pag.get_page(request.GET.get("page", 1))
-        ctx["page_obj"] = ctx["entry_list"]
-        ctx["header_text"] = "Latest Posts"
-        # TODO: Once all content types are settled, this should be generated using our CONTENT_TYPES
-        ctx["filter_terms"] = [
-            {
-                "label": "All",
-                "value": "all",
-                "url": self.get_url(),
-            },
-            {
-                "label": "News",
-                "value": "news",
-                "url": self.get_url() + "?type=news",
-            },
-            {
-                "label": "Blogs",
-                "value": "blogpost",
-                "url": self.get_url() + "?type=blogpost",
-            },
-            {
-                "label": "Links",
-                "value": "link",
-                "url": self.get_url() + "?type=link",
-            },
-            {
-                "label": "Videos",
-                "value": "video",
-                "url": self.get_url() + "?type=video",
-            },
-            {
-                "label": "Discussions",
-                "value": "discussions",
-                "url": self.get_url(),
-            },
-            {
-                "label": "Achievements",
-                "value": "achievements",
-                "url": self.get_url(),
-            },
-            {
-                "label": "Issues",
-                "value": "issues",
-                "url": self.get_url(),
-            },
-        ]
-        ctx["filter_value"] = content_type
+        ctx["entry_list"] = page_obj
+        ctx["page_obj"] = page_obj
+        ctx["header_text"] = filters.header_text
+        ctx["filter_terms"] = FEED_FILTER_TERMS
+        ctx["filter_value"] = filters.type_value
+        ctx["library_options"] = library_filter_options()
+        ctx["library_value"] = filters.library_value
+        ctx["search_value"] = filters.q
+        ctx["author_value"] = filters.author_value
+        ctx["empty_message"] = filters.empty_message
+        if not page_obj.object_list and filters.is_active:
+            ctx["related_posts"] = self._related_posts(filters)
         return ctx
 
 
@@ -294,6 +259,25 @@ class PostPage(BasePage):
         return self.workflow_in_progress
 
     @cached_property
+    def search_body(self):
+        """Plain-text body used for search indexing.
+
+        Indexing `content` directly stores the raw block output, which for
+        markdown and rich text is HTML - a search for "p" would then match
+        every post through its `<p>` tags.
+
+        Failures are swallowed on purpose: the indexing task records an error
+        without re-raising, so a raising indexer would quietly make the post
+        unfindable instead of failing loudly.
+        """
+        try:
+            field = self._meta.get_field("content")
+            return strip_tags(" ".join(field.get_searchable_content(self.content)))
+        except Exception:
+            logger.exception("search_body_failed", page_id=self.pk)
+            return ""
+
+    @cached_property
     def stream_content_type(self):
         if not len(self.content):
             return ""
@@ -303,19 +287,19 @@ class PostPage(BasePage):
     @cached_property
     def post_content_type(self):
         return CONTENT_TYPES_BY_BLOCK.get(
-            self.stream_content_type, _PostContentType()
+            self.stream_content_type, UNKNOWN_CONTENT_TYPE
         ).content_type
 
     @cached_property
     def icon_name(self):
         return CONTENT_TYPES_BY_BLOCK.get(
-            self.stream_content_type, _PostContentType()
+            self.stream_content_type, UNKNOWN_CONTENT_TYPE
         ).icon_name
 
     @cached_property
     def filter_name(self):
         return CONTENT_TYPES_BY_BLOCK.get(
-            self.stream_content_type, _PostContentType()
+            self.stream_content_type, UNKNOWN_CONTENT_TYPE
         ).filter_name
 
     @cached_property
@@ -344,8 +328,16 @@ class PostPage(BasePage):
         return self.first_published_at
 
     @cached_property
-    def determined_news_type(self):
-        return self.post_content_type
+    def type_label(self):
+        """How the post's type is worded on a card, e.g. "Blog".
+
+        Deliberately not `post_content_type`. That is the internal name of the
+        type, and for one of them the two differ: a reader is shown "Blog"
+        where the code says "Blogpost".
+        """
+        return CONTENT_TYPES_BY_BLOCK.get(
+            self.stream_content_type, UNKNOWN_CONTENT_TYPE
+        ).header_label
 
     @cached_property
     def tag(self):
@@ -387,6 +379,30 @@ class PostPage(BasePage):
         "image",
         "summary",
         "video_thumbnail",
+    ]
+
+    # `title` is already indexed by Page.search_fields, so it is not repeated
+    # here. Note that filters have to be applied *before* .search(): the search
+    # backend rejects StreamField and tag lookups, and the SearchResults it
+    # returns is not a queryset. See PostIndexPage._results for how the feed
+    # works around that.
+    search_fields = BasePage.search_fields + [
+        index.SearchField("search_body"),
+        index.SearchField("summary"),
+        index.SearchField("post_content_type"),
+        index.RelatedFields(
+            "tags",
+            [
+                index.SearchField("name"),
+                index.SearchField("slug"),
+            ],
+        ),
+        index.RelatedFields(
+            "owner",
+            [
+                index.SearchField("display_name"),
+            ],
+        ),
     ]
 
 

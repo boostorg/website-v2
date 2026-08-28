@@ -87,6 +87,12 @@
     max-width: 100%;
 }
 
+/* Each card-group draws its own border, so stacked ones would otherwise touch
+   (the empty state followed by Related Posts). */
+.post-content__content_column .card-group + .card-group {
+    margin-top: var(--space-xlarge);
+}
+
 .card-group__item:last-child {
     border-bottom: none;
 }
@@ -197,4 +203,50 @@
 
 .filter-submit-button {
     margin: var(--space-large) 0;
+}
+
+
+/*
+##########################
+#      Empty State       #
+##########################
+*/
+
+.post-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-medium);
+    padding: var(--space-large);
+}
+
+.post-empty-state__image {
+    width: 488px;
+    height: auto;
+    aspect-ratio: 488 / 416;
+    max-width: 100%;
+}
+
+.post-empty-state__image--dark {
+    display: none;
+}
+
+html.dark .post-empty-state__image--light {
+    display: none;
+}
+
+html.dark .post-empty-state__image--dark {
+    display: block;
+}
+
+.post-empty-state__message {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-medium);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-default);
+    letter-spacing: var(--letter-spacing-tight);
 }

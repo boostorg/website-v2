@@ -13,6 +13,7 @@ pytest_plugins = [
     "core.tests.fixtures",
     "libraries.tests.fixtures",
     "news.tests.fixtures",
+    "pages.tests.fixtures",
     "users.tests.fixtures",
     "versions.tests.fixtures",
 ]

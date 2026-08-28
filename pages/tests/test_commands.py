@@ -6,27 +6,11 @@ from django.core import management
 from django.core.files.images import ImageFile
 from PIL import Image as PILImage
 from wagtail.images.models import Image as WagtailImage
-from wagtail.models import Collection
-from wagtail.models import Locale
-from wagtail.models import Page
-
 from pages.management.commands.convert_news_entries import basic_conversion
 from pages.management.commands.convert_news_entries import convert_image
 from pages.management.commands.convert_news_entries import convert_text_content
 from pages.management.commands.convert_news_entries import get_or_create_page
-from pages.models import PostIndexPage
 from pages.models import PostPage
-from pages.models import RoutableHomePage
-
-
-@pytest.fixture
-def post_index_page(db):
-    Locale.objects.get_or_create(language_code="en")
-    if not Collection.get_first_root_node():
-        Collection.add_root(name="Root")
-    root = Page.add_root(instance=Page(title="Root", slug="root"))
-    home = root.add_child(instance=RoutableHomePage(title="Home", slug="home"))
-    return home.add_child(instance=PostIndexPage(title="Posts", slug="posts"))
 
 
 def _attach_image(entry, filename="photo.png"):

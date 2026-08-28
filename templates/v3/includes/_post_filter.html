@@ -7,9 +7,12 @@
   <form> or reading the selected value via JS.
 
   Variables:
-    options      (required) — list of dicts: { "label": str, "value": str }
+    options      (required) — list of dicts: { "label": str, "value": str, "disabled": bool }
     filter_name  (required) — name attribute for the radio group (e.g. "category")
     default      (optional) — value to pre-select. Defaults to the first option.
+
+  An option marked disabled still renders, so a designed-but-unimplemented
+  filter reads as unavailable instead of silently selecting nothing.
 
   Usage:
     {% include "v3/includes/_post_filter.html" with options=my_options filter_name="category" default="all" %}
@@ -21,9 +24,11 @@
            name="{{ filter_name }}"
            value="{{ option.value }}"
            class="post-filter__input"
+           {% if option.disabled %}disabled{% endif %}
            {% if option.value == default or not default and forloop.first %}checked{% endif %}>
     <label for="filter-{{ filter_name }}-{{ option.value }}"
-           class="post-filter__option">
+           class="post-filter__option{% if option.disabled %} post-filter__option--disabled{% endif %}"
+           {% if option.disabled %}aria-disabled="true"{% endif %}>
       {{ option.label }}
     </label>
   {% endfor %}

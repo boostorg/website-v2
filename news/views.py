@@ -22,7 +22,6 @@ from django.http import (
 from django.shortcuts import redirect, get_object_or_404
 from django.template.defaultfilters import date as datefilter
 from django.urls import reverse, reverse_lazy
-from django.utils.functional import cached_property
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
@@ -122,54 +121,30 @@ def display_publish_at(publish_at, since=None):
 
 
 class EntryListView(V3Mixin, ListView):
+    """The posts feed.
+
+    Two feeds share this URL. With the flag off it is the legacy Entry list;
+    with it on it is the v3 feed over the Wagtail PostPage tree that create and
+    edit write to. The two do not share a context contract, so the v3 half is
+    built by the index page that owns those posts rather than from `Entry`.
+    """
+
     model = Entry
     template_name = "news/list.html"
     v3_template_name = "v3/posts_list.html"
     ordering = ["-publish_at"]
     paginate_by = 10
     context_object_name = "entry_list"  # Ensure children use the same name
-    header_text = "Latest Posts"
     filter_value = "all"
 
-    @cached_property
-    def libary_values(self):
-        return [(x.slug, x.name) for x in Library.objects.all().order_by("name")]
-
-    def get_v3_context_data(self, **kwargs):
-        return {
-            "filter_terms": [
-                {"label": "All", "value": "all", "url": reverse("news")},
-                {"label": "News", "value": "news", "url": reverse("news-news-list")},
-                {
-                    "label": "Blogs",
-                    "value": "blogpost",
-                    "url": reverse("news-blogpost-list"),
-                },
-                {"label": "Links", "value": "link", "url": reverse("news-link-list")},
-                {
-                    "label": "Videos",
-                    "value": "video",
-                    "url": reverse("news-video-list"),
-                },
-                {
-                    "label": "Discussions",
-                    "value": "discussions",
-                    "url": reverse("news"),
-                },
-                {
-                    "label": "Achievements",
-                    "value": "achievements",
-                    "url": reverse("news"),
-                },
-                {"label": "Issues", "value": "issues", "url": reverse("news")},
-            ],
-            "libraries": self.libary_values,
-            "header_text": self.header_text,
-            "filter_value": self.filter_value,
-            **kwargs,
-        }
+    #: Set in dispatch, and only when the v3 feed is the one being rendered.
+    index_page = None
 
     def get_queryset(self):
+        if getattr(self, "_v3_active", False):
+            # The v3 feed lists PostPages. Nothing renders this queryset, and
+            # the ordering it carries costs a sort over every published Entry.
+            return self.model.objects.none()
         if self.request.GET.get("sort") == "popular":
             result = (
                 self.model.objects.ranked()
@@ -188,6 +163,14 @@ class EntryListView(V3Mixin, ListView):
             entry.display_publish_at = display_publish_at(entry.publish_at, right_now)
         return result
 
+    def get_paginate_by(self, queryset):
+        if getattr(self, "_v3_active", False):
+            # The v3 feed paginates its own results. Paginating the empty
+            # legacy queryset alongside them would 404 every page but the
+            # first, which is where the v3 pagination links point.
+            return None
+        return super().get_paginate_by(queryset)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["is_moderator"] = False
@@ -196,47 +179,63 @@ class EntryListView(V3Mixin, ListView):
             context["is_moderator"] = can_approve(self.request.user)
         return context
 
+    def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
+        context.update(self.index_page.feed_context(self.request))
+        return context
+
+    def _canonical_feed_redirect(self):
+        """Where a v3 visitor on one of the per-type lists belongs, if anywhere.
+
+        Under v3 there is one feed and the post type is a filter on it, so
+        /news/video/ forwards to the feed already filtered rather than becoming
+        a second URL rendering the same thing. Returns None for the feed's own
+        URL, which would otherwise redirect to itself.
+        """
+        feed_url = reverse("news")
+        if self.request.path == feed_url:
+            return None
+        if self.filter_value and self.filter_value != "all":
+            return f"{feed_url}?type={self.filter_value}"
+        return feed_url
+
     def dispatch(self, request, *args, **kwargs):
-        if post_filter := self.request.GET.get("post-filter"):
-            match post_filter:
-                case "all":
-                    return HttpResponseRedirect(reverse_lazy("news"))
-                case "blogpost":
-                    return HttpResponseRedirect(reverse_lazy("news-blogpost-list"))
-                case "video":
-                    return HttpResponseRedirect(reverse_lazy("news-video-list"))
-                case "news":
-                    return HttpResponseRedirect(reverse_lazy("news-news-list"))
-                case "link":
-                    return HttpResponseRedirect(reverse_lazy("news-link-list"))
+        if flag_is_active(request, "v3"):
+            # The v3 feed reads the PostPage tree, which hangs off a single
+            # PostIndexPage that has to be created by hand in the CMS per
+            # environment. Where that page does not exist there is nothing to
+            # list, so the legacy feed stays rather than an empty v3 one.
+            self.index_page = PostIndexPage.objects.live().first()
+            if self.index_page is None:
+                # What V3Mixin.dispatch reads to pick between the templates.
+                self.v3_template_name = None
+            # Temporary (302), never permanent: the flag can be switched back
+            # off, and a cached 301 would strand v2 visitors on the wrong list.
+            elif redirect_url := self._canonical_feed_redirect():
+                return redirect(redirect_url)
         return super().dispatch(request, *args, **kwargs)
 
 
 class BlogPostListView(EntryListView):
-    header_text = "Blogs"
     model = BlogPost
     filter_value = "blogpost"
 
 
 class LinkListView(EntryListView):
-    header_text = "Links"
     model = Link
     filter_value = "link"
 
 
 class NewsListView(EntryListView):
-    header_text = "News"
     model = News
     filter_value = "news"
 
 
 class PollListView(EntryListView):
-    header_text = "Polls"
     model = Poll
 
 
 class VideoListView(EntryListView):
-    header_text = "Videos"
     model = Video
     filter_value = "video"
 
