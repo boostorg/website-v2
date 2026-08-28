@@ -93,6 +93,41 @@ def test_iter_library_versioning_skips_sub_libraries(plain_user):
     assert list(sources._iter_library_versioning()) == []
 
 
+@pytest.mark.parametrize("branch", ["develop", "master"])
+def test_iter_library_versioning_skips_development_branches(plain_user, branch):
+    """A branch is not a release, however many libraries carry a row for it.
+
+    ``develop`` and ``master`` hold a ``LibraryVersion`` per library, so counting
+    them credited two releases to anyone who had authored one library.
+    """
+    library = baker.make("libraries.Library", key="mp11")
+    version = baker.make(
+        "versions.Version", name=branch, full_release=False, beta=False
+    )
+    library_version = baker.make(
+        "libraries.LibraryVersion", library=library, version=version
+    )
+    library_version.authors.add(plain_user)
+
+    assert list(sources._iter_library_versioning()) == []
+
+
+def test_iter_library_versioning_counts_a_beta(plain_user):
+    """A beta is a release that happened, unlike a branch that is still moving."""
+    library = baker.make("libraries.Library", key="mp11")
+    version = baker.make(
+        "versions.Version", name="boost-1.89.0.beta1", full_release=False, beta=True
+    )
+    library_version = baker.make(
+        "libraries.LibraryVersion", library=library, version=version
+    )
+    library_version.authors.add(plain_user)
+
+    assert list(sources._iter_library_versioning()) == [
+        (plain_user, library_version, "mp11@boost-1.89.0.beta1")
+    ]
+
+
 def test_iter_code_commits_skips_unlinked(plain_user):
     """Only commits whose author has a linked user are yielded."""
     linked = baker.make("libraries.CommitAuthor", user=plain_user)
