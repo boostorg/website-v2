@@ -69,6 +69,106 @@
     --hero-bg-community-position-x: 100%;
   }
 }
+/* Release: the artwork is exactly 3:1 and bleeds off its own top edge, so any
+   block that is not 3:1 letterboxes it and puts that cropped edge in the middle
+   of the hero as a hard line. Make the block match the art rather than cropping
+   the art to match the block. The shared 104px top padding is what forced the
+   block taller than the art, so it comes down with it; the content is centred,
+   so it only needs room. Above 1440 the block itself is capped at 1440 wide, so
+   the height caps at 480.
+   Remove when on-spec art ships and the block returns to Figma's 480/400. */
+@media (min-width: 900px) {
+  .hero--release {
+    --hero-block-height: min(33.333vw, 480px);
+  }
+
+  .hero--release .hero__block {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-xlarge);
+  }
+}
+
+/* Below 900 the sums stop working. The header overlays the hero and needs about
+   72px of clearance, and the art's clear zone is only ~311px wide at 768, so the
+   title wraps to two lines above three rows of buttons: 208px of content. A 3:1
+   block would be 256px, which cannot hold both, and forcing it hides the title
+   behind the nav. So the block stays a little taller than the art here and a
+   56px edge remains at 768, shrinking to nothing by 899. */
+@media (min-width: 768px) and (max-width: 899px) {
+  .hero--release {
+    --hero-block-height: 312px;
+  }
+
+  .hero--release .hero__block {
+    padding-top: calc(var(--space-xxl) + var(--space-xlarge));
+    padding-bottom: var(--space-large);
+  }
+}
+
+/* The art frame is absolutely positioned, so it paints over the content unless
+   the content is lifted. Both are flex children of .hero__block, so z-index
+   applies without needing position. Community does the same. Without this the
+   button row disappears wherever the art is opaque behind it, which is the whole
+   mobile scene. */
+.hero--release .hero__content {
+  z-index: 1;
+}
+
+/* Release: at 1280 the title steps up to 64px while the art's content edge
+   barely moves, so the two collide until about 1345. Cap the column so the
+   title wraps instead. Above this it clears by 22px and more. */
+@media (min-width: 1280px) and (max-width: 1365px) {
+  .hero--release .hero__content {
+    max-width: 38vw;
+  }
+}
+
+/* Release: no dark wash over the scene. The shared --with-background-image rule
+   lays a 70% black left-to-right gradient behind the text, which reads as a
+   smudge over this bright sky rather than as a deliberate scrim. */
+.hero--release.hero--with-background-image::before {
+  background: none;
+}
+
+/* With the wash gone, white type sits on a bright sky at 1.84:1, so the title
+   takes the on-accent ink instead. --color-text-on-accent resolves to the same
+   near-black in both themes (unlike --color-text-primary, which flips white),
+   and this scene stays bright in dark mode, so it must not flip. 11.5:1. */
+.hero--release.hero--with-bg-and-image .hero__title,
+.hero--release.hero--with-bg-and-image .hero__description {
+  color: var(--color-text-on-accent);
+}
+
+/* Release, mobile: the portrait scene is opaque and bleeds off its own top edge
+   just as the desktop art does, so stacking it below the text put that cropped
+   edge in view. Same answer as the wide breakpoints: let the scene fill the block
+   and overlay the text, so the edge sits behind the header. The block is 600 and
+   the art is 13:20, which at phone widths is very close to an exact fill.
+   The flat fill stays as the fallback behind it, and has to beat
+   `.dark .hero--with-background-image`, hence the extra selectors. */
+@media (max-width: 767px) {
+  .hero--release .hero-fg {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: 0;
+    margin-top: 0;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .hero--release .hero-fg__img {
+    object-fit: cover;
+  }
+
+  .hero--release.hero--with-background-image,
+  .dark .hero--release.hero--with-background-image,
+  [data-theme="dark"] .hero--release.hero--with-background-image {
+    background-image: none;
+    background-color: #5AB8EC;
+  }
+}
+}
+
 /* Release: the mobile illustration is a portrait scene carrying its own sky
    (768x1182) rather than the shared 8:7 crop, so the frame follows the art.
    Remove when on-spec art ships (spec section 2, foreground mobile 768x672). */
@@ -850,7 +950,7 @@ html.dark .hero__links .btn-icon-library:hover {
    to the home spec, not the library 60%), which at this width is ~40vw. */
 @media (min-width: 768px) and (max-width: 1279px) {
   .hero--release .hero__content {
-    max-width: min(662px, 46vw);
+    max-width: min(662px, 40vw);
   }
 }
 
@@ -869,7 +969,10 @@ html.dark .hero__links .btn-icon-library:hover {
     justify-content: flex-start;
   }
 
+  /* Zero the vertical margin but keep a gutter, or the title's first glyph sits
+     flush against the viewport edge. */
   .hero--release .hero__content {
     margin: 0;
+    padding-inline: var(--space-large);
   }
 }
