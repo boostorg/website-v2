@@ -1,9 +1,14 @@
 from unittest.mock import patch
 
 import pytest
+from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import Permission
-from django.test import Client
+from django.test import Client, RequestFactory
 from django.urls import reverse
+from model_bakery import baker
+
+from users.admin import EmailUserAdmin
+from users.models import User, UserProfileRoutingKey
 
 
 def _refresh_url(user):
@@ -121,3 +126,64 @@ def test_refresh_form_is_not_nested_inside_the_admin_form(
     admin_form = html.index('id="user_form"')
 
     assert refresh_form < admin_form
+
+
+pytestmark = pytest.mark.django_db
+
+
+def save_in_admin(user):
+    """Save `user` the way the admin change form does."""
+    model_admin = EmailUserAdmin(User, AdminSite())
+    request = RequestFactory().post(f"/admin/users/user/{user.pk}/change/")
+    model_admin.save_model(request, user, form=None, change=True)
+
+
+def test_admin_rename_mints_a_new_key():
+    """Editing display_name here bypasses both profile forms, so without this
+    the user's URL would keep their old name."""
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    before = user.profile_routing_keys.get().routing_key
+
+    user.display_name = "Jane Smith"
+    save_in_admin(user)
+
+    keys = list(user.profile_routing_keys.order_by("created"))
+    assert len(keys) == 2
+    assert keys[0].routing_key == before
+    assert keys[1].routing_key.startswith("jane-smith-")
+    assert user.get_absolute_url() == f"/users/{keys[1].routing_key}/"
+
+
+def test_admin_save_without_a_rename_keeps_the_url():
+    """Saving an unrelated field must not move anyone's public URL."""
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    before = user.profile_routing_keys.get().routing_key
+
+    user.valid_email = False
+    save_in_admin(user)
+
+    assert user.profile_routing_keys.count() == 1
+    assert user.profile_routing_keys.get().routing_key == before
+
+
+def test_admin_save_does_not_mint_for_a_deactivated_account():
+    """Account deletion drops the keys on purpose; minting one back from an
+    admin save would undo that."""
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    user.profile_routing_keys.all().delete()
+    user.is_active = False
+
+    save_in_admin(user)
+
+    assert not user.profile_routing_keys.exists()
+
+
+def test_admin_save_mints_for_a_user_with_no_key():
+    """A user created outside the ORM hook (loaddata) gets one on the next
+    admin save."""
+    user = baker.make("users.User", display_name="Jane Doe", image=None)
+    UserProfileRoutingKey.objects.filter(user=user).delete()
+
+    save_in_admin(user)
+
+    assert user.profile_routing_keys.get().routing_key.startswith("jane-doe-")

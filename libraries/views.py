@@ -26,6 +26,7 @@ from core.mixins import V3Mixin
 from mailing_list.mixins import MailingListCardMixin
 from core.mock_data import SharedResources
 from news.services import get_library_post_cards
+from users.models import User
 from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
@@ -43,6 +44,8 @@ from .models import (
 from .utils import (
     address_already_proven_by,
     apply_collective_author_overrides,
+    patch_commit_authors,
+    prefer_boost_profile_links,
     get_view_from_cookie,
     set_view_in_cookie,
     get_prioritized_library_view,
@@ -188,7 +191,18 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
     Boost version, or default to the current version."""
 
     queryset = LibraryVersion.objects.prefetch_related(
-        "authors", "library", "library__categories"
+        # author_details links the author's profile, which reads their routing
+        # keys. The inner queryset is ordered so that its `.first()` call can
+        # slice the prefetch cache: `first()` re-sorts an unordered queryset by
+        # pk, and that clone drops the cache and re-queries once per card.
+        Prefetch(
+            "authors",
+            queryset=User.objects.order_by("pk").prefetch_related(
+                "profile_routing_keys"
+            ),
+        ),
+        "library",
+        "library__categories",
     ).defer("data")
     ordering = "library__name"
     template_name = "libraries/grid_list.html"
@@ -198,6 +212,11 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         queryset = getattr(self, "object_list") or []
         context = super().get_v3_context_data(**kwargs)
         view_str = self.kwargs.get("library_view_str")
+
+        # `author_details` falls back to the author's GitHub page, which is
+        # known only through the CommitAuthor that patch_commit_authors()
+        # attaches.
+        patch_commit_authors([author for lv in queryset for author in lv.authors.all()])
 
         cpp_options = [("all", "All")] + list(
             LibraryVersion.CPP_STANDARD_DISPLAY_NAMES.items()
@@ -629,7 +648,7 @@ class LibraryDetail(
 
         this_release = _build_release_contributors(context)
         context["this_release_contributors"] = (
-            apply_collective_author_overrides(this_release)
+            apply_collective_author_overrides(prefer_boost_profile_links(this_release))
             or SharedResources.library_release_contributors
         )
 
@@ -643,7 +662,7 @@ class LibraryDetail(
             else []
         )
         context["all_time_contributors"] = (
-            apply_collective_author_overrides(all_time)
+            apply_collective_author_overrides(prefer_boost_profile_links(all_time))
             or SharedResources.library_all_contributors
         )
 

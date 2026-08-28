@@ -12,7 +12,7 @@ from django.contrib.auth.models import (
 )
 from django.core.cache import cache
 from django.core.mail import send_mail
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -20,6 +20,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
+from django_extensions.db.models import TimeStampedModel
 from imagekit.exceptions import MissingSource
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
@@ -30,6 +31,12 @@ from core.validators import (
     downscale_image_file_size_validator,
 )
 from users.constants import GITHUB_ACTIVITY_STALE_AFTER
+from users.utils import (
+    ROUTING_KEY_FALLBACK_BASE,
+    ROUTING_KEY_SUFFIX_LENGTH,
+    generate_routing_key,
+    routing_key_base,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -595,11 +602,15 @@ class User(BaseUser):
         return ""
 
     def to_v3_profile_dict(self, role=None):
-        """Dict shape consumed by `v3/includes/_user_profile.html`."""
+        """Dict shape consumed by `v3/includes/_user_profile.html`.
+
+        A deactivated account's profile 404s, so `profile_url` leaves it
+        unlinked.
+        """
         featured = self.featured_badge
         return {
             "name": self.display_name or str(self),
-            "profile_url": None,
+            "profile_url": self.profile_url,
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
             "badge": featured["icon"] if featured else None,
@@ -613,9 +624,26 @@ class User(BaseUser):
             with suppress(AttributeError, MissingSource, FileNotFoundError, OSError):
                 return getattr(self.hq_image_render, "url", None)
 
+    @cached_property
+    def profile_routing_key(self):
+        """The routing key this user's profile URL currently uses, or None.
+
+        Ordered in Python rather than by the database so that prefetching
+        `profile_routing_keys` covers a page linking many profiles without one
+        query per user.
+        """
+        keys = self.profile_routing_keys.all()
+        return max(keys, key=lambda key: (key.created, key.pk), default=None)
+
     def get_absolute_url(self):
         """This user's public profile page."""
-        return reverse("profile-user", kwargs={"pk": self.pk})
+        key = self.profile_routing_key
+        if key is None:
+            # Creation mints one and a migration backfilled the rest, so this
+            # only catches rows inserted around both (loaddata, bulk_create).
+            key = UserProfileRoutingKey.objects.mint_for(self)
+            self.profile_routing_key = key
+        return reverse("profile-user", kwargs={"routing_key": key.routing_key})
 
     @property
     def github_profile_url(self):
@@ -634,6 +662,34 @@ class User(BaseUser):
     @cached_property
     def name(self):
         return self.display_name
+
+    @cached_property
+    def profile_url(self):
+        """Where this user's name and avatar should link.
+
+        Satisfies `v3/includes/_user_profile.html`'s author.profile_url when a
+        User is passed to it directly, as the v3 posts list does with
+        Entry.author.
+
+        Unclaimed accounts are stubs the library importer minted to stand in for
+        historical authors: nobody can log into them and their profile page is an
+        empty shell, so their GitHub page (when known) is the more useful
+        destination. Deactivated accounts stay unlinked entirely. Their profile
+        404s, and an account someone deleted is not one to redirect around.
+        """
+        if not self.is_active:
+            return None
+        if self.claimed:
+            return self.get_absolute_url()
+        # A stub's own github_username is usually empty, but the CommitAuthor
+        # that `patch_commit_authors()` attaches to author and maintainer rows
+        # often knows it. Absent both, there is nowhere to send anyone.
+        commit_author = getattr(self, "commitauthor", None)
+        return (
+            self.github_profile_url
+            or getattr(commit_author, "github_profile_url", "")
+            or None
+        )
 
     @cached_property
     def avatar_url(self):
@@ -845,6 +901,10 @@ class User(BaseUser):
         self.display_name = "John Doe"
         self.email = "deleted-{}@example.com".format(uuid.uuid4())
 
+        # Routing keys are derived from display_name, so they keep the user's
+        # name readable after the rest of their identity is scrubbed.
+        self.profile_routing_keys.all().delete()
+
         # Drop the cached avatar render while its source field is still set.
         self.delete_cached_thumbnail()
         image_fields = ["profile_image"]
@@ -917,6 +977,104 @@ class LastSeen(models.Model):
         self.at = timezone.now()
         if commit:
             self.save()
+
+
+class UserProfileRoutingKeyManager(models.Manager):
+    # The random suffix makes a collision unlikely rather than impossible, so
+    # minting retries instead of failing a profile save.
+    MINT_ATTEMPTS = 5
+
+    def expected_base(self, user):
+        """The base a key minted for `user` right now would carry.
+
+        Mirrors the fallback in generate_routing_key(), so a stored key and a
+        display name can be compared on equal terms.
+        """
+        stem_length = self.model.KEY_MAX_LENGTH - ROUTING_KEY_SUFFIX_LENGTH - 1
+        stem = routing_key_base(user.display_name, stem_length)
+        return stem or ROUTING_KEY_FALLBACK_BASE
+
+    def current_for(self, user):
+        """The key `user`'s profile URL uses today, or None if they have none."""
+        return self.filter(user=user).order_by("-created", "-pk").first()
+
+    def matches_display_name(self, key, user):
+        """Whether `key` was minted from `user`'s current display name."""
+        return key is not None and key.base == self.expected_base(user)
+
+    def sync_for(self, user):
+        """Mint a key for `user` only if their current one no longer fits.
+
+        Callers can fire on saves that left the name alone — linking a second
+        social account, or saving an unrelated profile field — and minting
+        unconditionally there would move a user's public URL for no reason.
+        """
+        current = self.current_for(user)
+        if self.matches_display_name(current, user):
+            return current
+        return self.mint_for(user)
+
+    def mint_for(self, user):
+        """Create and return a new canonical routing key for `user`."""
+        for _attempt in range(self.MINT_ATTEMPTS):
+            key = generate_routing_key(user.display_name, self.model.KEY_MAX_LENGTH)
+            try:
+                # Each attempt gets its own savepoint: an IntegrityError would
+                # otherwise poison the surrounding transaction and make the
+                # retry unusable.
+                with transaction.atomic():
+                    return self.create(routing_key=key, user=user)
+            except IntegrityError:
+                continue
+        raise RuntimeError(
+            f"Could not mint a unique profile routing key for user {user.pk} "
+            f"in {self.MINT_ATTEMPTS} attempts."
+        )
+
+
+class UserProfileRoutingKey(TimeStampedModel):
+    """A public profile URL segment pointing at a user.
+
+    Append-only for as long as the account exists: rows are never updated, so a
+    key that has been shared keeps resolving after the user renames themselves.
+    A user's newest row is the canonical one and older rows redirect to it.
+
+    Account deletion is the one exception and deletes every row.
+
+    TimeStampedModel adds `created` and `modified` fields.
+    """
+
+    KEY_MAX_LENGTH = 64
+
+    routing_key = models.SlugField(
+        max_length=KEY_MAX_LENGTH,
+        unique=True,
+        help_text=_(
+            "Lowercase URL segment for the user's public profile, e.g. "
+            '"jane-doe-k3f9". Never reused.'
+        ),
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="profile_routing_keys",
+        on_delete=models.CASCADE,
+    )
+
+    objects = UserProfileRoutingKeyManager()
+
+    class Meta:
+        # Resolving a user's canonical key means "their newest row", so the
+        # lookup is by user ordered on recency.
+        indexes = [models.Index(fields=["user", "-created"])]
+        get_latest_by = "created"
+
+    @property
+    def base(self):
+        """The stem this key was minted from, without the random suffix."""
+        return self.routing_key.rsplit("-", 1)[0]
+
+    def __str__(self):
+        return self.routing_key
 
 
 def get_empty_notifications():
@@ -1043,3 +1201,16 @@ def create_last_seen_for_user(sender, instance, created, raw, **kwargs):
     if created:
         LastSeen.objects.create(user=instance, at=timezone.now())
         Preferences.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def create_profile_routing_key_for_user(sender, instance, created, raw, **kwargs):
+    """Give every new user a public profile URL.
+
+    get_absolute_url() has no fallback for a user without a key, so one is
+    minted up front rather than on first profile view.
+    """
+    if raw or not created:
+        return
+
+    UserProfileRoutingKey.objects.mint_for(instance)

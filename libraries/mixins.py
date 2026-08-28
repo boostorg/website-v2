@@ -276,10 +276,11 @@ class ContributorMixin:
 
         Also patches the CommitAuthor onto the user, if a matching email exists.
         """
+        # Their rows link to the profile, which reads the user's routing keys.
         if relation == "maintainers":
-            qs = library_version.maintainers.all()
+            qs = library_version.maintainers.prefetch_related("profile_routing_keys")
         elif relation == "authors":
-            qs = library_version.authors.all()
+            qs = library_version.authors.prefetch_related("profile_routing_keys")
         else:
             raise ValueError("relation must be maintainers or authors.")
         if exclude_ids:
@@ -323,7 +324,14 @@ class ContributorMixin:
             )
         if exclude:
             qs = qs.exclude(id__in=exclude)
-        qs = qs.annotate(count=Count("commit")).order_by("-count")
+        qs = (
+            qs.annotate(count=Count("commit"))
+            # A claimed contributor links to their Boost profile, which reads
+            # the user and their routing keys.
+            .select_related("user")
+            .prefetch_related("user__profile_routing_keys")
+            .order_by("-count")
+        )
         return qs
 
     def get_previous_contributors(self, library_version, exclude=None):
@@ -336,6 +344,8 @@ class ContributorMixin:
         qs = (
             CommitAuthor.humans.filter(commit__library_version__in=library_versions)
             .annotate(count=Count("commit"))
+            .select_related("user")
+            .prefetch_related("user__profile_routing_keys")
             .order_by("-count")
         )
         if exclude:
@@ -379,6 +389,10 @@ class ContributorMixin:
             CommitAuthor.humans.filter(commit__library_version__in=library_versions)
             .exclude(id__in=author_ca_ids + maintainer_ca_ids)
             .annotate(count=Count("commit"))
+            # A claimed contributor links to their Boost profile, which reads
+            # the user and their routing keys.
+            .select_related("user")
+            .prefetch_related("user__profile_routing_keys")
             .order_by("-count")
         )
         return (

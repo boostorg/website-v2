@@ -18,6 +18,17 @@
   flex-shrink: 0;
 }
 
+/* Block, so the fixed-size avatar inside doesn't sit on a text baseline and
+   leave a gap under the link. */
+.user-card__avatar-link {
+  display: block;
+  border-radius: var(--border-radius-xl);
+}
+
+.user-card__avatar-link:focus-visible {
+  outline-offset: -2px;
+}
+
 .user-card .avatar {
   width: var(--user-card-avatar);
   height: var(--user-card-avatar);
@@ -64,6 +75,18 @@
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-display-regular);
+}
+
+/* The name is an <a> when the card links a profile: keep it looking like the
+   heading it is, and save the underline for hover. */
+a.user-card__username {
+  text-decoration: none;
+}
+
+a.user-card__username:hover {
+  /* The shorthand would reset text-decoration-thickness, which
+     foundations.css pins for every v3 anchor */
+  text-decoration-line: underline;
 }
 
 .user-card__badge {
@@ -263,5 +286,4 @@ html.dark .user-card--logged-out.card {
   .user-card--logged-out .btn {
     font-size: var(--font-size-small);
   }
-
 }

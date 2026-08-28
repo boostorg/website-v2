@@ -150,7 +150,11 @@ def build_recent_community_posts():
         Entry.objects.published()
         .filter(deleted_at__isnull=True)
         .select_related("author", "author__displayed_profile_role_library")
-        .prefetch_related(active_badges_prefetch("author__badges"))
+        .prefetch_related(
+            active_badges_prefetch("author__badges"),
+            # Each card links its author's profile, which reads their routing keys.
+            "author__profile_routing_keys",
+        )
         .order_by("-publish_at")[:4]
     )
     return [entry.to_v3_post_card_dict() for entry in entries]

@@ -8,6 +8,7 @@
 {% block extra_head %}
   {{ block.super }}
   <link href="{% static 'css/v3/user-profile-page.css' %}" rel="stylesheet" />
+  <script src="{% static 'js/v3/share-profile.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -23,7 +24,7 @@
       {% endwith %}
       <div class="user-profile__button-group">
         {% for link in top_links %}
-        {% include "v3/includes/_button.html" with label=link.label url=link.url icon_name=link.icon icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
+        {% include "v3/includes/_button.html" with label=link.label url=link.url icon_name=link.icon icon_position="right" style="secondary" extra_classes=link.extra_classes icon_viewbox="0 0 16 16" only %}
         {% endfor %}
       </div>
     </div>

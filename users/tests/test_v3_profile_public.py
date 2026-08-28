@@ -1,6 +1,9 @@
 import pytest
 import waffle.testutils
+from django.urls import resolve
 from model_bakery import baker
+
+from users.models import UserProfileRoutingKey
 
 pytestmark = pytest.mark.django_db
 
@@ -75,13 +78,15 @@ def test_public_profile_hides_every_section_with_no_data(user, tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_own_profile_header_buttons_have_edit_but_no_share(user, tp):
-    """Owners get Edit Profile where visitors get Share Profile."""
+def test_own_profile_header_buttons_end_with_edit_then_share(user, tp):
+    """Owners get Edit Profile and Share Profile, in that order, Share last."""
     with tp.login(user):
         response = tp.get("profile-account")
-    buttons = {link["label"]: link["url"] for link in response.context["top_links"]}
-    assert "Share Profile" not in buttons
+    links = response.context["top_links"]
+    buttons = {link["label"]: link["url"] for link in links}
     assert buttons["Edit Profile"] == f"{tp.reverse('profile-account')}?edit=true"
+    assert buttons["Share Profile"] == user.get_absolute_url()
+    assert [link["label"] for link in links[-2:]] == ["Edit Profile", "Share Profile"]
 
 
 @waffle.testutils.override_flag("v3", active=True)
@@ -123,9 +128,11 @@ def test_public_profile_omits_link_with_unsafe_scheme(user, tp):
 
 @waffle.testutils.override_flag("v3", active=True)
 def test_profile_user_route_renders_another_users_profile(other_user, tp):
-    """/users/<pk>/ is readable by anonymous visitors and renders the profile
+    """/users/<routing-key>/ is readable by anonymous visitors and renders the profile
     it addresses, not the request user's."""
-    response = tp.get("profile-user", pk=other_user.pk)
+    response = tp.get(
+        "profile-user", routing_key=other_user.profile_routing_key.routing_key
+    )
     tp.response_200(response)
     assert response.context["profile_user"] == other_user
     assert response.context["user_info"]["user_name"] == other_user.display_name
@@ -136,7 +143,9 @@ def test_profile_user_route_shows_share_to_a_visitor(user, other_user, tp):
     """A visitor -- signed in or not -- gets the Share Profile button, never
     the owner's edit affordance."""
     with tp.login(user):
-        response = tp.get("profile-user", pk=other_user.pk)
+        response = tp.get(
+            "profile-user", routing_key=other_user.profile_routing_key.routing_key
+        )
     labels = [link["label"] for link in response.context["top_links"]]
     assert "Share Profile" in labels
     assert "Edit Profile" not in labels
@@ -145,12 +154,14 @@ def test_profile_user_route_shows_share_to_a_visitor(user, other_user, tp):
 @waffle.testutils.override_flag("v3", active=True)
 def test_profile_user_route_shows_edit_to_the_owner(user, tp):
     """Reaching your own profile by its public URL still offers Edit Profile:
-    the button follows who is looking, not which route was used."""
+    the button follows who is looking, not which route was used. Share Profile
+    is there either way."""
     with tp.login(user):
-        response = tp.get("profile-user", pk=user.pk)
+        response = tp.get(
+            "profile-user", routing_key=user.profile_routing_key.routing_key
+        )
     labels = [link["label"] for link in response.context["top_links"]]
-    assert "Edit Profile" in labels
-    assert "Share Profile" not in labels
+    assert labels[-2:] == ["Edit Profile", "Share Profile"]
 
 
 @waffle.testutils.override_flag("v3", active=True)
@@ -159,14 +170,18 @@ def test_profile_user_route_404s_for_deactivated_account(other_user, tp):
     resolving rather than keep serving their profile."""
     other_user.is_active = False
     other_user.save(update_fields=["is_active"])
-    tp.response_404(tp.get("profile-user", pk=other_user.pk))
+    tp.response_404(
+        tp.get("profile-user", routing_key=other_user.profile_routing_key.routing_key)
+    )
 
 
 @waffle.testutils.override_flag("v3", active=False)
 def test_profile_user_route_404s_when_v3_flag_is_off(other_user, tp):
     """The page exists only in v3; there is no legacy template to fall back
     to."""
-    tp.response_404(tp.get("profile-user", pk=other_user.pk))
+    tp.response_404(
+        tp.get("profile-user", routing_key=other_user.profile_routing_key.routing_key)
+    )
 
 
 @waffle.testutils.override_flag("v3", active=True)
@@ -179,9 +194,99 @@ def test_profile_user_route_honours_the_hide_public_role_opt_out(user, tp):
     user.save(update_fields=["internal_role", "hide_public_role"])
     assert user.public_role, "the opt-out should be hiding a role that exists"
 
-    visitor_view = tp.get("profile-user", pk=user.pk)
+    visitor_view = tp.get(
+        "profile-user", routing_key=user.profile_routing_key.routing_key
+    )
     assert visitor_view.context["user_info"]["role"] == ""
 
     with tp.login(user):
-        own_view = tp.get("profile-user", pk=user.pk)
+        own_view = tp.get(
+            "profile-user", routing_key=user.profile_routing_key.routing_key
+        )
     assert own_view.context["user_info"]["role"] == user.public_role
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_profile_user_route_resolves_the_canonical_key(other_user, tp):
+    """The URL a profile is linked by is the user's newest key."""
+    key = other_user.profile_routing_key.routing_key
+    response = tp.get("profile-user", routing_key=key)
+    tp.response_200(response)
+    assert response.context["profile_user"] == other_user
+    assert other_user.get_absolute_url() == f"/users/{key}/"
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_profile_user_route_redirects_a_superseded_key(other_user, tp):
+    """A shared link keeps working after a rename, pointing at the new URL."""
+    old_key = other_user.profile_routing_key.routing_key
+    other_user.display_name = "Renamed User"
+    other_user.save()
+    new_key = UserProfileRoutingKey.objects.sync_for(other_user).routing_key
+    assert new_key != old_key
+
+    response = tp.get("profile-user", routing_key=old_key)
+    assert response.status_code == 301
+    assert response["Location"] == f"/users/{new_key}/"
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_profile_user_route_404s_for_an_unknown_key(tp):
+    tp.response_404(tp.get("profile-user", routing_key="nobody-0000"))
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_profile_user_route_does_not_shadow_the_literal_users_routes(user, tp):
+    """The slug converter matches "me" and "avatar", so those must resolve to
+    their own views rather than to a profile lookup.
+
+    Asserted by resolving the paths rather than reversing the names: reversing
+    only proves the names still generate these URLs, and would keep passing if
+    the slug route were moved above them and started swallowing requests."""
+    with tp.login(user):
+        tp.response_200(tp.get("profile-account"))
+
+    assert resolve("/users/avatar/").view_name == "user-avatar"
+    assert resolve("/users/me/").view_name == "profile-account"
+    # Anything that isn't a literal segment does reach the profile view.
+    assert resolve("/users/jane-doe-k3f9/").view_name == "profile-user"
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_share_button_carries_the_profile_url(other_user, tp):
+    """Share Profile copies the profile URL client-side, so the href has to be the
+    URL rather than "#" -- which also leaves a working link with JS off."""
+    response = tp.get(
+        "profile-user", routing_key=other_user.profile_routing_key.routing_key
+    )
+    share = [
+        link
+        for link in response.context["top_links"]
+        if link["label"] == "Share Profile"
+    ]
+    assert share, "a visitor should see the Share Profile button"
+    assert share[0]["url"] == other_user.get_absolute_url()
+    assert share[0]["extra_classes"] == "js-copy-profile-url"
+
+    content = response.content.decode()
+    assert f'href="{other_user.get_absolute_url()}"' in content
+    assert "js-copy-profile-url" in content
+    assert "share-profile.js" in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_owner_share_button_copies_the_public_url_not_the_edit_url(user, tp):
+    """The owner's Share Profile sits next to Edit Profile, so it has to copy the
+    profile URL a visitor would use rather than the edit page."""
+    with tp.login(user):
+        response = tp.get(
+            "profile-user", routing_key=user.profile_routing_key.routing_key
+        )
+    share = next(
+        link
+        for link in response.context["top_links"]
+        if link["label"] == "Share Profile"
+    )
+    assert share["url"] == user.get_absolute_url()
+    assert "edit=true" not in share["url"]
+    assert share["extra_classes"] == "js-copy-profile-url"

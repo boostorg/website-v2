@@ -149,6 +149,9 @@ class EntryListView(V3Mixin, ListView):
             result = (
                 self.model.objects.ranked()
                 .select_related("author", "author__displayed_profile_role_library")
+                # Each card links its author's profile, which reads their
+                # routing keys.
+                .prefetch_related("author__profile_routing_keys")
                 .filter(published=True, deleted_at__isnull=True)
             )
         else:
@@ -156,6 +159,9 @@ class EntryListView(V3Mixin, ListView):
                 super()
                 .get_queryset()
                 .select_related("author", "author__displayed_profile_role_library")
+                # Each card links its author's profile, which reads their
+                # routing keys.
+                .prefetch_related("author__profile_routing_keys")
                 .filter(published=True, deleted_at__isnull=True)
             )
         right_now = now()
@@ -266,10 +272,12 @@ class EntryDetailView(V3Mixin, DetailView):
     # Each author card reads the author's badges; without the prefetch that is
     # one extra query per card, and a detail page renders up to five. Asked for
     # through the path, because these querysets also select_related the author -
-    # see ``badges.display.active_badges_prefetch``.
+    # see ``badges.display.active_badges_prefetch``. profile_routing_keys is
+    # here for the same reason: each card links its author's profile.
     AUTHOR_PREFETCH = (
         "author__maintainers",
         active_badges_prefetch("author__badges"),
+        "author__profile_routing_keys",
     )
 
     def get_queryset(self):

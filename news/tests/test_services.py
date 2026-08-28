@@ -1,14 +1,20 @@
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.utils.timezone import now
+from model_bakery import baker
 from wagtail.models import Collection
 from wagtail.models import Locale
 from wagtail.models import Page
 
+from news.services import get_latest_post_cards
 from news.services import get_library_post_cards
 from pages.mixins import ContentTag
 from pages.models import PostIndexPage
 from pages.models import PostPage
 from pages.models import RoutableHomePage
+
+pytestmark = pytest.mark.django_db
 
 
 @pytest.fixture
@@ -94,3 +100,75 @@ class TestGetLibraryPostCards:
         make_post_page("Tagged post", tag_slugs=["multi_array"])
 
         assert get_library_post_cards("") == []
+
+
+def test_post_card_links_the_author_profile(make_entry):
+    author = baker.make("users.User", display_name="Jane Doe", image=None)
+    make_entry(author=author)
+    card = get_latest_post_cards(limit=1)[0]
+    assert card["author"]["profile_url"] == author.get_absolute_url()
+
+
+def test_post_card_does_not_link_a_deactivated_author(make_entry):
+    """A deactivated author's profile 404s, so the card leaves the name plain."""
+    author = baker.make("users.User", display_name="Jane Doe", image=None)
+    make_entry(author=author)
+    author.is_active = False
+    author.save(update_fields=["is_active"])
+
+    card = get_latest_post_cards(limit=1)[0]
+    assert card["author"]["profile_url"] is None
+
+
+def test_post_card_links_an_unclaimed_author_to_github(make_entry):
+    """An unclaimed account is a stub whose profile page is an empty shell, so
+    the card points at the GitHub profile the same way contributor rows do."""
+    author = baker.make(
+        "users.User",
+        display_name="Jane Doe",
+        image=None,
+        claimed=False,
+        github_username="janedoe",
+    )
+    make_entry(author=author)
+
+    card = get_latest_post_cards(limit=1)[0]
+    assert card["author"]["profile_url"] == "https://github.com/janedoe"
+
+
+def test_post_card_leaves_an_unclaimed_author_without_github_unlinked(make_entry):
+    author = baker.make(
+        "users.User",
+        display_name="Jane Doe",
+        image=None,
+        claimed=False,
+        github_username="",
+    )
+    make_entry(author=author)
+
+    card = get_latest_post_cards(limit=1)[0]
+    assert card["author"]["profile_url"] is None
+
+
+def test_post_cards_fetch_routing_keys_in_one_query(make_entry):
+    """Linking each author must not cost a query per card.
+
+    Asserted against the routing-key table specifically rather than a total
+    query count, which this service inflates for unrelated reasons.
+    """
+    for i in range(3):
+        make_entry(
+            author=baker.make("users.User", display_name=f"User {i}", image=None)
+        )
+
+    with CaptureQueriesContext(connection) as queries:
+        cards = get_latest_post_cards(limit=3)
+
+    assert len(cards) == 3
+    assert all(card["author"]["profile_url"] for card in cards)
+    key_queries = [
+        query["sql"]
+        for query in queries.captured_queries
+        if "users_userprofileroutingkey" in query["sql"]
+    ]
+    assert len(key_queries) == 1, key_queries

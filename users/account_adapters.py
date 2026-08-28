@@ -79,6 +79,24 @@ class AccountAdapter(DefaultAccountAdapter):
         # Celery task), in which case there's no request to read the flag from.
         return self.request is not None and flag_is_active(self.request, "v3")
 
+    def save_user(self, request, user, form, commit=True):
+        """Store the signup form's username as the user's display name.
+
+        allauth only copies fields it knows about, and it has no notion of
+        display_name, so the signup page's Username box needs writing
+        by hand.
+
+        Set before the first save, so the routing key minted when the
+        row is created carries the chosen name rather than a placeholder.
+        """
+        user = super().save_user(request, user, form, commit=False)
+        display_name = form.cleaned_data.get("display_name")
+        if display_name:
+            user.display_name = display_name
+        if commit:
+            user.save()
+        return user
+
     def send_mail(self, template_prefix, email, context):
         # The branded base template (emails/base_email.html) builds absolute
         # links from scheme/host.

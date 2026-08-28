@@ -75,7 +75,8 @@ class PostIndexPage(BasePage):
             PostPage.objects.child_of(self)
             .live()
             .select_related("owner")
-            .prefetch_related("tags")
+            # tags per card, and the author's routing keys for the profile link.
+            .prefetch_related("tags", "owner__profile_routing_keys")
         )
         if filters.post_type:
             posts = posts.filter(content__0__type__in=filters.post_type.block_name)
@@ -101,7 +102,7 @@ class PostIndexPage(BasePage):
         return (
             PostPage.objects.filter(pk__in=posts.order_by().values("pk"))
             .select_related("owner")
-            .prefetch_related("tags")
+            .prefetch_related("tags", "owner__profile_routing_keys")
             .search(filters.q)
         )
 

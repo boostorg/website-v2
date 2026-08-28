@@ -109,7 +109,11 @@ def build_community_posts(limit=5):
         Entry.objects.ranked()
         .filter(deleted_at__isnull=True, published=True)
         .select_related("author", "author__displayed_profile_role_library")
-        .prefetch_related(active_badges_prefetch("author__badges"))[:limit]
+        # Badges per card, and the author's routing keys for the profile link.
+        .prefetch_related(
+            active_badges_prefetch("author__badges"),
+            "author__profile_routing_keys",
+        )[:limit]
     )
     return [entry.to_v3_post_card_dict() for entry in popular_entries]
 

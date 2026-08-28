@@ -3,12 +3,14 @@ import datetime
 import pytest
 import waffle.testutils
 
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from model_bakery import baker
 
 from ..constants import README_MISSING
 from ..models import Library
 from ..utils import benchmark_sets, designed_for_html
-from ..views import _build_quick_start_links, _is_boost_url
+from ..views import LibraryListBase, _build_quick_start_links, _is_boost_url
 from versions.models import Version
 
 
@@ -657,3 +659,95 @@ def test_library_removed_dependencies(library_version, old_version, dependency, 
     assert dependency.name not in response.context["dependency_diff"]["added"]
     assert new_dependency.name in response.context["dependency_diff"]["removed"]
     assert "dependencies_not_calculated" not in response.context
+
+
+@pytest.mark.django_db
+def test_library_list_queryset_prefetches_author_profile_data(version):
+    """`author_details` links the author's profile, which reads their routing
+    keys.
+
+    The prefetch has to be an ordered Prefetch queryset: `authors.first()`
+    re-sorts an unordered queryset by pk, and that clone drops the prefetch
+    cache, costing a query per card. Asserted at zero queries rather than a
+    small number, since any per-card query is the bug.
+    """
+    for i in range(4):
+        library = baker.make("libraries.Library", name=f"lib{i}", slug=f"lib{i}")
+        library_version = baker.make(
+            "libraries.LibraryVersion", library=library, version=version
+        )
+        library_version.authors.add(
+            baker.make("users.User", display_name=f"Author {i}", image=None)
+        )
+
+    rows = list(LibraryListBase.queryset.all())
+    assert len(rows) == 4
+
+    with CaptureQueriesContext(connection) as queries:
+        details = [row.author_details for row in rows]
+
+    assert queries.captured_queries == [], [q["sql"] for q in queries.captured_queries]
+    assert sum(1 for detail in details if detail["profile_url"]) == 4
+
+
+@pytest.mark.django_db
+def test_library_grid_falls_back_to_the_authors_github_profile(version, tp):
+    """`author_details` reaches GitHub through the CommitAuthor that
+    patch_commit_authors() attaches, so the grid has to patch its authors or an
+    unclaimed author renders unlinked and without an avatar."""
+    author = baker.make(
+        "users.User",
+        email="grid-author@example.com",
+        display_name="Grid Author",
+        image=None,
+        claimed=False,
+        github_username="",
+    )
+    commit_author = baker.make(
+        "libraries.CommitAuthor",
+        name="Grid Author",
+        github_profile_url="https://github.com/gridauthor",
+        avatar_url="https://avatars.githubusercontent.com/u/1?v=4",
+    )
+    baker.make("libraries.CommitAuthorEmail", author=commit_author, email=author.email)
+    library = baker.make("libraries.Library", name="gridlib", slug="gridlib")
+    library_version = baker.make(
+        "libraries.LibraryVersion", library=library, version=version
+    )
+    library_version.authors.add(author)
+
+    with waffle.testutils.override_flag("v3", active=True):
+        response = tp.get(
+            "libraries-list", version_slug=version.slug, library_view_str="grid"
+        )
+    tp.response_200(response)
+
+    rows = [lv for lv in response.context["object_list"] if lv.pk == library_version.pk]
+    details = rows[0].author_details
+    assert details["profile_url"] == "https://github.com/gridauthor"
+    assert details["avatar_url"]
+
+
+@pytest.mark.django_db
+def test_library_grid_patches_authors_in_one_query(version, tp):
+    """The patch is per page, not per card, so adding libraries must not add
+    queries for it."""
+    for i in range(4):
+        library = baker.make("libraries.Library", name=f"gl{i}", slug=f"gl{i}")
+        library_version = baker.make(
+            "libraries.LibraryVersion", library=library, version=version
+        )
+        library_version.authors.add(
+            baker.make("users.User", display_name=f"Author {i}", image=None)
+        )
+
+    with waffle.testutils.override_flag("v3", active=True):
+        with CaptureQueriesContext(connection) as queries:
+            tp.get("libraries-list", version_slug=version.slug, library_view_str="grid")
+
+    email_queries = [
+        q["sql"]
+        for q in queries.captured_queries
+        if "libraries_commitauthoremail" in q["sql"]
+    ]
+    assert len(email_queries) == 1, email_queries

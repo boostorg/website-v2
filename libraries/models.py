@@ -132,10 +132,16 @@ class CommitAuthor(models.Model):
 
         Mirrors `User.to_v3_profile_dict` so the same template can render
         either a registered user or a git-only contributor.
+
+        A contributor who has claimed a Boost account links to that profile;
+        one who has not falls back to their GitHub page, which is all this site
+        knows about them. A deactivated account falls back the same way, since
+        its profile 404s.
         """
+        user_profile_url = self.user.profile_url if self.user else None
         return {
             "name": self.display_name,
-            "profile_url": self.github_profile_url,
+            "profile_url": user_profile_url or self.github_profile_url,
             "role": role,
             "avatar_url": self.avatar_url or "",
             "badge": None,
@@ -836,6 +842,7 @@ class LibraryVersion(models.Model):
         return {
             "name": author.display_name if author else "Unknown",
             "role": "Author",
+            "profile_url": author.profile_url if author else None,
             "avatar_url": author.get_avatar_url() if author else "",
             "badge_url": large_static("img/v3/badges/badge-first-place.png"),
         }

@@ -524,6 +524,54 @@ def patch_commit_authors(users):
     return users
 
 
+GITHUB_PROFILE_PREFIX = "https://github.com/"
+
+
+def prefer_boost_profile_links(author_dicts):
+    """Repoint a contributor's GitHub link at their Boost profile, if they have one.
+
+    `CommitAuthor.to_v3_profile_dict()` can only consult `CommitAuthor.user`,
+    which `update_commit_authors_users` fills in by matching a commit email to
+    an account email exactly. A contributor who commits under a different
+    address than they signed up with keeps a GitHub link despite having a
+    profile. GitHub username is a second signal for the same identity, and both
+    records usually carry it.
+
+    Resolves the whole list in one query. Mutates each dict in place and returns
+    the same list.
+    """
+    from users.models import User
+
+    by_username = {}
+    for author in author_dicts:
+        url = author.get("profile_url") or ""
+        if not url.startswith(GITHUB_PROFILE_PREFIX):
+            continue
+        username = url.rstrip("/").rsplit("/", 1)[-1].lower()
+        if username:
+            by_username.setdefault(username, []).append(author)
+
+    if not by_username:
+        return author_dicts
+
+    # Only claimed accounts are worth repointing to: an unclaimed stub's
+    # profile_url is its GitHub page anyway, which is already the link here.
+    users = (
+        User.objects.filter(is_active=True, claimed=True)
+        .annotate(github_username_lower=Lower("github_username"))
+        .filter(github_username_lower__in=by_username)
+        .prefetch_related("profile_routing_keys")
+    )
+    for user in users:
+        profile_url = user.profile_url
+        if not profile_url:
+            continue
+        for author in by_username.get(user.github_username.lower(), []):
+            author["profile_url"] = profile_url
+
+    return author_dicts
+
+
 def apply_collective_author_overrides(author_dicts):
     """Normalize collective authors (e.g. "Various Authors") in V3 profile dicts.
 
@@ -600,10 +648,16 @@ def build_library_intro_context(
 
     library = library_version.library
 
-    # Authors first, then maintainers — same order as ContributorMixin
-    authors = list(library_version.authors.all())
+    # Authors first, then maintainers (same order as ContributorMixin). Each row
+    # links a profile, which reads the user's routing keys, so those are
+    # prefetched rather than fetched per card.
+    authors = list(library_version.authors.prefetch_related("profile_routing_keys"))
     author_ids = {a.id for a in authors}
-    maintainers = list(library_version.maintainers.exclude(id__in=author_ids))
+    maintainers = list(
+        library_version.maintainers.exclude(id__in=author_ids).prefetch_related(
+            "profile_routing_keys"
+        )
+    )
 
     combined = (authors + maintainers)[:max_authors]
     if combined:
@@ -629,6 +683,10 @@ def build_library_intro_context(
             CommitAuthor.humans.filter(commit__library_version=library_version)
             .exclude(id__in=exclude_commit_author_ids)
             .annotate(count=Count("commit"))
+            # A claimed contributor links to their Boost profile, which reads the
+            # user and their routing keys.
+            .select_related("user")
+            .prefetch_related("user__profile_routing_keys")
             .order_by("-count")[:remaining]
         )
 
@@ -642,7 +700,7 @@ def build_library_intro_context(
         for contributor in top_contributors
     )
 
-    apply_collective_author_overrides(author_dicts)
+    apply_collective_author_overrides(prefer_boost_profile_links(author_dicts))
 
     return {
         "library_name": library.display_name,

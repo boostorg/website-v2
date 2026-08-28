@@ -7,6 +7,7 @@ from django.utils import timezone
 from model_bakery import baker
 
 from badges.models import UserBadge
+from users.models import User
 
 pytestmark = pytest.mark.django_db
 
@@ -567,3 +568,53 @@ def test_v3_edit_page_drops_a_revoked_display_badge(user, earned_badge, tp):
         tp.response_200(response)
         # What the template hands the picker as its pre-selected value.
         assert response.context["user_profile_form"]["display_badge"].value() is None
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_update_details_renaming_moves_the_public_url(user, tp):
+    """A rename mints a new key, and the old URL redirects to it."""
+    user.display_name = "Jane Doe"
+    user.save()
+    old_url = user.get_absolute_url()
+
+    with tp.login(user):
+        response = tp.post(
+            f"{tp.reverse('profile-account')}?edit=true",
+            data={
+                "v3_update_details": "true",
+                "username": "Jane Smith",
+                "country": "US",
+            },
+        )
+        assert response.status_code == 302
+
+    user = User.objects.get(pk=user.pk)
+    new_url = user.get_absolute_url()
+    assert new_url != old_url
+    assert new_url.startswith("/users/jane-smith-")
+    assert user.profile_routing_keys.count() == 2
+
+    redirect = tp.get(old_url)
+    assert redirect.status_code == 301
+    assert redirect["Location"] == new_url
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_update_details_keeps_the_url_when_the_name_is_unchanged(user, tp):
+    """Saving country or a toggle must not move a user's public profile URL."""
+    url_before = user.get_absolute_url()
+
+    with tp.login(user):
+        tp.post(
+            f"{tp.reverse('profile-account')}?edit=true",
+            data={
+                "v3_update_details": "true",
+                "username": user.display_name,
+                "country": "FR",
+                "indicate_last_login_method": "on",
+            },
+        )
+
+    user = User.objects.get(pk=user.pk)
+    assert user.get_absolute_url() == url_before
+    assert user.profile_routing_keys.count() == 1
