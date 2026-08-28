@@ -498,8 +498,9 @@ def test_the_changelist_flags_an_unwired_source(client, super_user, catalogue):
     rows = _changelist_rows(client)
 
     assert admin_class.source_wired(rows["commits_master"]) is True
-    assert admin_class.source_wired(rows["documenter"]) is False
+    assert admin_class.source_wired(rows["documenter"]) is True
     assert admin_class.source_wired(rows["regular"]) is False
+    assert admin_class.source_wired(rows["publisher"]) is False
 
 
 def test_the_changelist_counts_each_holder_once_and_skips_revocations(

@@ -433,6 +433,10 @@ class Commit(models.Model):
     message = models.TextField(default="")
     committed_at = models.DateTimeField(db_index=True)
     is_merge = models.BooleanField(default=False)
+    # A count rather than a flag, so weighting a commit by how much it documented
+    # stays possible without another import. Zero for merges, which change no
+    # files of their own.
+    docs_files_changed = models.PositiveIntegerField(default=0)
 
     class Meta:
         constraints = [

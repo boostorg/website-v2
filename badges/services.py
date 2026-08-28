@@ -11,8 +11,9 @@ it.
 
 This module also owns the achievement-side writes that feed recalculation:
 ``sync_source``, which makes the stored automatic grants for one source agree with
-that source in both directions, and ``discard_source_achievements``, for source
-rows about to be deleted outright.
+that source in both directions, ``discard_source_achievements``, for source rows
+about to be deleted outright, and ``relink_source_achievements``, for rows about to
+be replaced by the same evidence under new ids.
 
 Both delete in bulk, and both recalculate their own members rather than leaving it
 to the ``post_delete`` signal, which fires per row: see ``owns_recalculation``.
@@ -25,7 +26,7 @@ from typing import NamedTuple
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import DatabaseError, transaction
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.utils import timezone
 
 from badges import sources
@@ -50,7 +51,7 @@ CASCADE_REVOCATION_NOTE = (
     "the {rank} threshold of {threshold}."
 )
 
-# Rows per DELETE ... WHERE pk IN (...) and per bulk_create. The unmatched set can
+# Rows per DELETE ... WHERE pk IN (...) and per bulk_create. The stored key set can
 # be as large as the achievement table.
 SYNC_BATCH_SIZE = 1000
 
@@ -106,12 +107,24 @@ def recalculation_is_owned():
     return _owns_recalculation.get()
 
 
-def discard_source_achievements(model, object_ids):
-    """Delete automatic grants pointing at the given rows and recalculate.
+def discard_source_achievements(model, object_ids, *, key_field=None):
+    """Delete automatic grants whose evidence is going away, and recalculate.
 
     A grant reaches its source through a generic foreign key, which carries no
     referential integrity, so deleting a source row on its own leaves a grant
     still counting toward a threshold. Call this first.
+
+    ``key_field`` names the column holding the source's dedup key, and is what a
+    source whose key can span several rows passes. A grant is identified by its
+    key, not by the row it points at, so "the row I point at is going" only means
+    "my evidence is gone" where a key has exactly one row. A commit is stored once
+    per library version covering it and once per library sharing the repository,
+    so for those the surviving rows have to be consulted before anything is
+    deleted. Left out, every grant pointing into ``object_ids`` is discarded,
+    which is correct for a source storing one row per key.
+
+    The survivors are read excluding ``object_ids``, so it does not matter whether
+    the caller has already deleted them.
 
     Atomic in itself, so the grants and the badges they justify move together
     whether or not the caller has a transaction of its own around the source rows.
@@ -120,22 +133,84 @@ def discard_source_achievements(model, object_ids):
     if not object_ids:
         return
     content_type = ContentType.objects.get_for_model(model)
-    grants = UserAchievement.objects.filter(
-        source_content_type=content_type, source_object_id__in=object_ids
-    )
-    pairs = set(grants.values_list("user_id", "achievement_id"))
+    surviving = None
+    if key_field is not None:
+        # Every id at once rather than per chunk: a key whose only other row sits
+        # in a later chunk is not a survivor, and chunking this would call it one.
+        surviving = model.objects.exclude(pk__in=object_ids).values(key_field)
+
+    def chunk_grants(ids):
+        """The grants this chunk is responsible for."""
+        grants = UserAchievement.objects.filter(
+            source_content_type=content_type, source_object_id__in=ids
+        )
+        if surviving is None:
+            return grants
+        # An unkeyed grant cannot be matched against the source at all, so it
+        # stays in the delete set. Converting an environment written before the
+        # keys existed means emptying the grants and backfilling, not healing
+        # them one import at a time.
+        return grants.filter(Q(dedup_info__isnull=True) | ~Q(dedup_info__in=surviving))
+
     # The pairs are known before the delete, so the per-row signal can only reach
-    # the same answer once per row instead of once per pair.
+    # the same answer once per row instead of once per pair. Accumulated across
+    # every chunk and recalculated after the last one, because a member with
+    # grants in two chunks is still one answer to reach.
     #
     # Atomic here as well as at the caller: deleting a grant without recalculating
     # it in the same transaction leaves a member holding a badge nothing supports,
     # and leaves nothing behind to notice it by. Cheap to guarantee locally rather
     # than depend on every future caller reading the paragraph above.
+    pairs = set()
     with transaction.atomic():
         with owns_recalculation():
-            grants.delete()
+            for start in range(0, len(object_ids), SYNC_BATCH_SIZE):
+                grants = chunk_grants(object_ids[start : start + SYNC_BATCH_SIZE])
+                pairs |= set(grants.values_list("user_id", "achievement_id"))
+                grants.delete()
         for user_id, achievement_id in pairs:
             recalculate_badges(user_id, achievement_id)
+
+
+def relink_source_achievements(model, ids_by_key):
+    """Re-point automatic grants at rows re-created under the same dedup key.
+
+    A caller that deletes and re-inserts the same evidence - the commit importer
+    running destructively - leaves every pointer to it dangling, because a generic
+    foreign key carries no referential integrity. The dedup key is what survives
+    that swap, so the link is rebuilt from it rather than the grant thrown away:
+    discarding a grant revokes the badge it justifies, records that revocation
+    permanently, and re-earns the badge with today's date on the next sync, so a
+    re-import would rewrite history that nothing actually changed.
+
+    No grant appears or disappears, so no count moves and nothing is recalculated.
+
+    Args:
+        model: The model the grants point at.
+        ids_by_key: The new row id for each dedup key, as the source names it.
+
+    Returns:
+        How many grants were re-pointed.
+    """
+    if not ids_by_key:
+        return 0
+    content_type = ContentType.objects.get_for_model(model)
+    grants = UserAchievement.objects.filter(
+        source_content_type=content_type,
+        source_type=SourceType.AUTOMATIC,
+        dedup_info__in=list(ids_by_key),
+    ).only("pk", "dedup_info", "source_object_id")
+    moved = []
+    for grant in grants.iterator(chunk_size=2000):
+        object_id = ids_by_key[grant.dedup_info]
+        if object_id != grant.source_object_id:
+            grant.source_object_id = object_id
+            moved.append(grant)
+    if moved:
+        UserAchievement.objects.bulk_update(
+            moved, ["source_object_id"], batch_size=SYNC_BATCH_SIZE
+        )
+    return len(moved)
 
 
 class SourceSync(NamedTuple):
@@ -355,26 +430,25 @@ def _sync_source(
     if user_ids is not None:
         stored = stored.filter(user_id__in=user_ids)
 
-    # Every stored key, keyed by what the iterator can reconstruct and valued by
-    # the rows carrying it. Whatever survives the walk is stale, and a key the
-    # walk cannot find here is a grant that does not exist yet - so one dict
-    # answers both halves and the walk needs no per-batch lookup of its own.
-    # Bounded by this achievement's row count rather than by the source's, so a
-    # scoped run holds one member's grants in memory and not every commit.
+    # Every stored grant, keyed the way its source names the evidence. Whatever the
+    # walk never yields is stale, and a key it yields but cannot find here is a
+    # grant that does not exist yet, so one dict answers both halves. Bounded by
+    # this achievement's row count rather than by the source's, so a scoped run
+    # holds one member's grants in memory and not every commit.
     #
-    # A list of rows per key, not one: the source pointer is nullable, so several
-    # automatic rows can share ``(user, NULL, NULL)``, and one slot per key would
-    # clear all but the last of them per run. A key with a real pointer can only
-    # ever hold one row - ``unique_automatic_user_achievement_source`` says so.
-    unmatched = {}
-    for pk, user_id, content_type_id, object_id in stored.values_list(
-        "pk", "user_id", "source_content_type_id", "source_object_id"
+    # A list of rows per key, not one: rows written before a source was keyed all
+    # share ``(user, NULL)``. A real key can only ever hold one row -
+    # ``unique_automatic_user_achievement_dedup`` says so.
+    stored_keys = {}
+    for pk, user_id, dedup_info in stored.values_list(
+        "pk", "user_id", "dedup_info"
     ).iterator(chunk_size=2000):
-        unmatched.setdefault((user_id, content_type_id, object_id), []).append(pk)
+        stored_keys.setdefault((user_id, dedup_info), []).append(pk)
 
     scope = None if user_ids is None else set(user_ids)
     yielded = added = 0
     changed = set()
+    seen = set()
     pending = {}
 
     def flush():
@@ -383,40 +457,48 @@ def _sync_source(
         if not pending:
             return
         if not dry_run:
-            # ignore_conflicts because ``unmatched`` is a snapshot: a concurrent
+            # ignore_conflicts because ``stored_keys`` is a snapshot: a concurrent
             # run of this same function may have inserted the row since.
             UserAchievement.objects.bulk_create(
                 list(pending.values()), ignore_conflicts=True
             )
         added += len(pending)
+        # An inserted row is not stale, and a key repeated in a later batch must
+        # not be inserted a second time.
+        for key in pending:
+            stored_keys.setdefault(key, [])
         pending = {}
 
-    for user, source in sources.BACKFILL_ITERATORS[slug]():
+    for user, source, dedup_key in sources.BACKFILL_ITERATORS[slug]():
         yielded += 1
+        if dedup_key is None:
+            # Without a key the engine cannot tell this grant from a new one, so
+            # every sweep would re-add it and every reconcile would remove it.
+            raise ValueError(f"Source '{slug}' yielded no dedup key for {source!r}.")
         # A deactivated account is skipped for every source at once, rather than
         # in each iterator, so a source wired later cannot forget the rule. It
         # sits after ``yielded`` on purpose: the refusal below asks whether the
         # source read empty, and "everyone it named is gone" is not that.
         #
         # Skipping is also what removes the grants such an account already holds,
-        # since its key stays in ``unmatched`` and reads as stale. That matters:
+        # since its key is never yielded and so reads as stale. That matters:
         # deleting an account scrubs its grants, but the libraries and commits
         # they derive from name it still, so without this the next sweep would
         # award them all back.
         if not user.is_active:
             continue
-        # The scope is applied here as well as on ``unmatched``: an out-of-scope
+        # The scope is applied here as well as on ``stored_keys``: an out-of-scope
         # member's key is absent from it, which on the additive side is
         # indistinguishable from a grant that needs creating.
         if scope is not None and user.pk not in scope:
             continue
-        content_type = ContentType.objects.get_for_model(source)
-        key = (user.pk, content_type.pk, source.pk)
-        if unmatched.pop(key, None) is not None:
+        key = (user.pk, dedup_key)
+        seen.add(key)
+        if key in stored_keys:
             continue
-        # ``pending`` is keyed, so an iterator that yields the same pair twice
-        # inside one batch counts it once. Across a flush the unique constraint
-        # is what catches it, and only the count is then optimistic.
+        # ``pending`` is keyed, so an iterator naming the same evidence twice
+        # inside one batch counts it once, and ``flush`` carries the key over so
+        # that holds across batches too.
         if not add or key in pending:
             continue
         changed.add(user.pk)
@@ -424,8 +506,9 @@ def _sync_source(
             user_id=user.pk,
             achievement=achievement,
             source_type=SourceType.AUTOMATIC,
-            source_content_type=content_type,
+            source_content_type=ContentType.objects.get_for_model(source),
             source_object_id=source.pk,
+            dedup_info=dedup_key,
         )
         if len(pending) >= batch_size:
             flush()
@@ -434,11 +517,11 @@ def _sync_source(
     # Paired with the member each row belongs to, so a chunk can recalculate the
     # members it just emptied without going back to the database to ask who they
     # were.
-    stale = (
-        [(pk, user_id) for (user_id, _, _), pks in unmatched.items() for pk in pks]
-        if remove
-        else []
-    )
+    stale = []
+    if remove:
+        for key, pks in stored_keys.items():
+            if key not in seen:
+                stale.extend((pk, key[0]) for pk in pks)
     if stale and not yielded and not allow_empty:
         logger.warning(
             "Refusing to remove %s stale grant(s) for '%s': the source yielded "
@@ -454,7 +537,7 @@ def _sync_source(
         )
 
     if remove:
-        changed.update(user_id for user_id, _, _ in unmatched)
+        changed.update(user_id for _, user_id in stale)
 
     recalculated = set()
     if stale and not dry_run:
