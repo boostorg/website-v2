@@ -667,27 +667,27 @@ const buildToolbar = (editor, toolbarEl, preset = "full") => {
     image: () => createToolbarButton(editor, {
       label: "Image", title: "Insert image", html: ICONS.image,
       onClick: async () => {
+        /*
+        Uploading is deliberately not offered here. A stored upload renders
+        broken once the post is published, so the affordance is withheld
+        rather than left to fail after the writing is done. `uploadEditorImage`
+        and the endpoint behind it are kept: the fix is a separate piece of
+        work, and re-adding the field with its submit branch is the whole of
+        turning this back on.
+        */
         const result = await openDialog({
           title: "Insert Image",
           fields: [
             {
-              name: "file",
-              label: "Upload an image",
-              type: "file",
-              accept: IMAGE_UPLOAD_ACCEPT,
-              help: "JPEG or PNG, up to 5 MB.",
-            },
-            {
               name: "url",
-              label: "Or link to one",
+              label: "Image URL",
               type: "url",
               placeholder: "https://example.com/image.png",
             },
             { name: "alt", label: "Alt text", type: "text", placeholder: "Image description" },
           ],
-          onSubmit: async ({ file, url, alt }) => {
-            if (file) return { src: await uploadEditorImage(file, wrapper), alt };
-            if (!url) throw new Error("Choose an image to upload, or paste its URL.");
+          onSubmit: async ({ url, alt }) => {
+            if (!url) throw new Error("Paste the URL of the image to insert.");
             if (!isSafeUrl(url)) throw new Error("Only http and https image URLs are allowed.");
             return { src: url, alt };
           },
