@@ -20,6 +20,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from waffle import flag_is_active
 
+from core.hero import release_hero_context
 from core.mixins import V3Mixin
 from mailing_list.mixins import MailingListCardMixin
 from core.models import RenderedContent
@@ -225,6 +226,8 @@ class VersionDetail(
                 ),
             }
         )
+
+        ctx.update(release_hero_context())
 
         release_notes_html = self.get_release_notes(obj)
         if release_notes_html:

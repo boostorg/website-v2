@@ -83,6 +83,23 @@ def test_get_v3_context_data_hides_whats_new_until_approved(version):
     ]
 
 
+@pytest.mark.django_db
+def test_get_v3_context_data_sets_downloads_hero_images(version):
+    """The downloads hero needs all three URLs. The template threads them into
+    `_hero_library.html` through an `only` include, so a missing one degrades
+    silently: no background, or a foreground that falls back to the desktop crop
+    on phones."""
+    view = VersionDetail()
+    view.object = version
+    view.extra_context = {"current_version": version}
+
+    ctx = view.get_v3_context_data()
+
+    assert "releases-page/release-foreground.png" in ctx["hero_image_url"]
+    assert "releases-page/release-foreground-mobile.png" in ctx["hero_image_url_mobile"]
+    assert "releases-page/release-background.png" in ctx["hero_background_image_url"]
+
+
 def _hero_html(**extra):
     context = {
         "title": "Boost 1.70.0",
@@ -122,3 +139,29 @@ def test_hero_no_longer_renders_the_version_alert():
         version_alert_message="This is an older version of Boost.",
     )
     assert "banner__message" not in html
+
+
+def test_hero_uses_fullbleed_frame_for_the_release_scene():
+    """The release art is a full-scene illustration composed to the block, so it
+    needs the shared `.hero-fg` frame rather than the small-box `.hero__image`.
+    Dropping `fullbleed_fg` renders it in a 488x416 box instead."""
+    html = _hero_html(hero_image_url="/x/release-foreground.png", fullbleed_fg=True)
+    assert "hero-fg__img" in html
+    assert "hero__img" not in html
+
+
+def test_hero_emits_the_mobile_source_when_a_mobile_crop_is_given():
+    """Guards the <picture> art-direction: without the <source> the desktop crop
+    is used at every width, which is what blanks the scene on phones."""
+    html = _hero_html(
+        hero_image_url="/x/release-foreground.png",
+        hero_image_url_mobile="/x/release-foreground-mobile.png",
+        fullbleed_fg=True,
+    )
+    assert 'media="(max-width: 767px)"' in html
+    assert "release-foreground-mobile.png" in html
+
+
+def test_hero_omits_the_mobile_source_without_a_mobile_crop():
+    html = _hero_html(hero_image_url="/x/release-foreground.png", fullbleed_fg=True)
+    assert "<source" not in html
