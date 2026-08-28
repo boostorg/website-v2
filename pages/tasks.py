@@ -17,7 +17,7 @@ def convert_news_entries_task():
     """
     Run the `convert_news_entries` management command as a one-off request.
 
-    Fundamentally indopetent, this command can be run several times without causing a problem
+    Fundamentally idempotent, this command can be run several times without causing a problem
     so long as entries are still the source of truth (aka post launch)
     """
     call_command("convert_news_entries")
