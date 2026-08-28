@@ -100,7 +100,7 @@ def get_buttons():
 
     from pages.tasks import convert_news_entries_task, update_index_task
 
-    from libraries.tasks import import_commits
+    from libraries.tasks import import_commits, synchronize_commit_author_user_data
 
     from users.tasks import recompute_displayed_profile_roles
 
@@ -141,6 +141,16 @@ def get_buttons():
         permission="libraries.delete_commit",
     )
 
+    SYNCHRONIZE_COMMIT_AUTHOR_BUTTON = TaskButton(
+        name="synchronize_commit_author",
+        label="Synchronize Commit Authors",
+        task=synchronize_commit_author_user_data,
+        success_message="Authors are being synchronized in the background.",
+        busy_message="A synchronization is already queued or running; not starting another one.",
+        pass_actor=False,
+        description=("Synchronizes commit authors and user data."),
+    )
+
     BACKFILL_BUTTON = TaskButton(
         name="backfill",
         label="Backfill achievements",
@@ -176,6 +186,7 @@ def get_buttons():
         CONVERT_NEW_ENTRIES_BUTTON,
         UPDATE_INDEX_BUTTON,
         IMPORT_COMMITS_BUTTON,
+        SYNCHRONIZE_COMMIT_AUTHOR_BUTTON,
         BACKFILL_BUTTON,
         UPDATE_DISPLAYED_ROLES_BUTTON,
     ]
