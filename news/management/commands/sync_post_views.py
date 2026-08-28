@@ -1,7 +1,11 @@
 import djclick as click
 import requests
 
-from news.plausible import fetch_post_views, update_page_views
+from news.plausible import (
+    fetch_post_views,
+    update_page_views,
+    update_post_page_views,
+)
 from news.models import Entry
 
 
@@ -12,7 +16,11 @@ from news.models import Entry
     help="Show what would be updated without writing to the database",
 )
 def command(dry_run):
-    """Sync per-post page view counts from Plausible into Entry.page_views."""
+    """Sync per-post page view counts from Plausible.
+
+    Writes to both `Entry.page_views` and `PostPage.page_views` so the legacy
+    and V3 popularity rankings stay in step regardless of the flag.
+    """
 
     try:
         slug_views = fetch_post_views()
@@ -34,3 +42,6 @@ def command(dry_run):
 
     updated = update_page_views(slug_views, entries=entries)
     click.echo(f"Updated page_views for {updated} entries.")
+
+    updated_pages = update_post_page_views(slug_views)
+    click.echo(f"Updated page_views for {updated_pages} Wagtail post pages.")

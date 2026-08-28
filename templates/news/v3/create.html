@@ -189,7 +189,7 @@
           {% include "v3/includes/_field_datetime.html" with name="publish_at" label="Publish Date *" value=form.publish_at.value|default:publish_at_initial %}
 
           <div class="create-post-page__actions">
-            <a href="{% url 'news' %}" class="btn btn-secondary">Cancel</a>
+            <a href="{{ cancel_url }}" class="btn btn-secondary">Cancel</a>
             <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </div>

@@ -111,8 +111,8 @@ def test_entry_list(
     if authenticated:
         tp.login(regular_user)
 
-    # 11 queries if authenticated, less otherwise. The 11th prefetches the
-    # authors' profile routing keys, which the cards link to. One query for the
+    # 11 queries if authenticated, less otherwise. One of them prefetches the
+    # authors' profile routing keys, which the cards link to: one query for the
     # page rather than one per card.
     response = tp.assertGoodView(
         tp.reverse(url_name), test_query_count=11, verbose=True

@@ -8,8 +8,8 @@ from core.models import HomepageSettings
 from core.templatetags.custom_static import large_static
 from libraries.models import FEATURED_LIBRARY_TIERS, Library, LibraryVersion
 from libraries.utils import build_library_intro_context, get_documentation_url
-from news.models import Entry
 from versions.models import Version
+from pages.models import PostPage
 
 # Hero illustration for the V3 homepage.
 HERO_LEGACY_IMAGE_URL_LIGHT = large_static("img/v3/home-page/heros.png")
@@ -98,7 +98,7 @@ WHY_BOOST_CARDS = [
 ]
 
 
-def build_community_posts(limit=5):
+def build_community_posts(limit=5, request=None):
     """Top-ranked posts shown on the V3 homepage.
 
     Returns just the list of post dicts; the surrounding card chrome
@@ -106,14 +106,14 @@ def build_community_posts(limit=5):
     `Entry.ranked()` (popularity-ordered), not chronological.
     """
     popular_entries = (
-        Entry.objects.ranked()
-        .filter(deleted_at__isnull=True, published=True)
-        .select_related("author", "author__displayed_profile_role_library")
+        PostPage.objects.ranked()
+        .select_related("owner", "owner__displayed_profile_role_library")
         # Badges per card, and the author's routing keys for the profile link.
         .prefetch_related(
-            active_badges_prefetch("author__badges"),
-            "author__profile_routing_keys",
-        )[:limit]
+            active_badges_prefetch("owner__badges"),
+            "owner__profile_routing_keys",
+        )
+        .live()[:limit]
     )
     return [entry.to_v3_post_card_dict() for entry in popular_entries]
 

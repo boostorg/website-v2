@@ -24,8 +24,8 @@ from core.constants import SLACK_JOIN_URL
 from core.githubhelper import GithubAPIClient
 from core.mixins import V3Mixin
 from mailing_list.mixins import MailingListCardMixin
+from news.services import get_latest_post_cards
 from core.mock_data import SharedResources
-from news.services import get_library_post_cards
 from users.models import User
 from versions.exceptions import BoostImportedDataException
 from versions.models import Version
@@ -643,8 +643,7 @@ class LibraryDetail(
             version_str,
         )
 
-        context["library_posts"] = get_library_post_cards(self.object.slug, limit=3)
-        context["library_posts_cta_url"] = reverse("news")
+        context["library_posts"] = get_latest_post_cards(limit=3, request=self.request)
 
         this_release = _build_release_contributors(context)
         context["this_release_contributors"] = (

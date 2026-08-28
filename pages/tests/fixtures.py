@@ -29,7 +29,13 @@ def wagtail_home(db):
 
 @pytest.fixture
 def post_index_page(wagtail_home):
-    return wagtail_home.add_child(instance=PostIndexPage(title="Posts", slug="posts"))
+    """The index page lives at /news/, which is the URL the site routes to it.
+
+    Every other prefix is swallowed by the content-path catch-all in
+    `config.urls` before Wagtail is reached, so the slug is part of the
+    routing rather than a label.
+    """
+    return wagtail_home.add_child(instance=PostIndexPage(title="Posts", slug="news"))
 
 
 @pytest.fixture

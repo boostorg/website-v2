@@ -1,4 +1,7 @@
+from badges.display import active_badges_prefetch
 from pages.models import PostPage
+from pages.routing import v3_posts_active
+
 
 from .models import Entry
 
@@ -15,95 +18,53 @@ def news_type_label(news_type: str) -> str:
     return NEWS_TYPE_LABELS.get(news_type, news_type.capitalize())
 
 
-# The canonical "post card" dict shape consumed by the v3 latest-posts card.
-# Every content source (news Entry models today, Wagtail pages later) must map
-# into this same shape so downstream templates don't have to branch on origin:
-#
-#     {
-#         "title": str,
-#         "url": str,
-#         "date": datetime,          # used to sort across sources
-#         "category": str,
-#         "tag": str,
-#         "author": {
-#             "name": str,
-#             "profile_url": str | None,
-#             "role": str,
-#             "avatar_url": str,
-#             "tenure_stamp": dict | None,
-#             "boost_day_stamp": dict | None,
-#             "badge_url": str | None,
-#         },
-#     }
+# The canonical "post card" dict shape lives on the models themselves:
+# `Entry.to_v3_post_card_dict()` and `PostPage.to_v3_post_card_dict()` both
+# return it, so downstream templates never branch on which one produced it.
 
 
-def _entry_to_post_card(entry: Entry) -> dict:
-    author = entry.author
-    return {
-        "title": entry.title,
-        "url": entry.get_absolute_url(),
-        "date": entry.publish_at,
-        "category": news_type_label(entry.determined_news_type),
-        "tag": "",
-        "author": {
-            "name": getattr(author, "display_name", None) or str(author),
-            # profile_url settles every account state in one place: a claimed
-            # account gets its profile, an unclaimed stub gets GitHub (its
-            # profile page is an empty shell), a deactivated one gets nothing.
-            "profile_url": getattr(author, "profile_url", None),
-            "role": author.role,
-            "avatar_url": (
-                author.get_avatar_url() if hasattr(author, "get_avatar_url") else ""
-            ),
-            "tenure_stamp": getattr(author, "tenure_stamp", None),
-            "boost_day_stamp": getattr(author, "boost_day_stamp", None),
-            "badge_url": None,
-        },
-    }
+def _latest_posts(limit: int, request):
+    """Newest published posts, from whichever model the `v3` flag selects."""
+    if v3_posts_active(request):
+        from pages.models import PostPage
 
-
-def _get_entry_post_cards(limit: int) -> list[dict]:
-    """Latest published news Entry models as post-card dicts."""
-    queryset = (
+        return (
+            PostPage.objects.live()
+            .select_related("owner", "owner__displayed_profile_role_library")
+            # Badges per card, and the author's routing keys for the profile
+            # link: one query for the page rather than one per card.
+            .prefetch_related(
+                active_badges_prefetch("owner__badges"),
+                "owner__profile_routing_keys",
+            )
+            .order_by("-first_published_at")[:limit]
+        )
+    return (
         Entry.objects.published()
         .filter(deleted_at__isnull=True)
-        .select_related("author")
-        # The card links the author's profile, which reads their routing keys.
-        .prefetch_related("author__profile_routing_keys")
+        .select_related("author", "author__displayed_profile_role_library")
+        # Badges per card, and the author's routing keys for the profile link:
+        # one query for the page rather than one per card.
+        .prefetch_related(
+            active_badges_prefetch("author__badges"),
+            "author__profile_routing_keys",
+        )
         .order_by("-publish_at")[:limit]
     )
-    return [_entry_to_post_card(entry) for entry in queryset]
 
 
-def _get_wagtail_post_cards(limit: int) -> list[dict]:
-    """Latest published Wagtail page posts as post-card dicts.
-
-    Stub for the planned migration of post content onto Wagtail pages (per the
-    earlier discussion about authoring posts as pages rather than Entry models).
-    `PostPage` now exists, but the unfiltered surfaces (Learn, community,
-    homepage) still read Entry data only, so this returns nothing until that
-    cutover happens.
-
-    To wire it up, query published `PostPage` rows here and map each one with
-    `_post_page_to_post_card`. Because `get_latest_post_cards` already merges
-    and re-sorts every source by date, that needs no changes at the call sites.
-    """
-    return []
-
-
-def get_latest_post_cards(limit: int = 3) -> list[dict]:
+def get_latest_post_cards(limit: int = 3, request=None) -> list[dict]:
     """Return the most recent published posts as v3 post-card dicts.
 
     Shared by the Learn page, library detail, community page, and any other
-    surface that renders the v3 latest-posts card. Keeps the dict shape
-    consistent so downstream templates don't drift.
+    surface that renders the v3 latest-posts card. Both models implement
+    `to_v3_post_card_dict()`, so the card shape cannot drift between them.
 
-    Aggregates across content sources (news Entry models today, Wagtail pages
-    once that lands), merges them, and returns the newest `limit` overall.
+    The source is picked by the `v3` waffle flag: Wagtail post pages when V3
+    is on, legacy news entries when it is off. The two are never mixed, so
+    turning the flag off puts every surface back on legacy content.
     """
-    cards = _get_entry_post_cards(limit) + _get_wagtail_post_cards(limit)
-    cards.sort(key=lambda card: card["date"], reverse=True)
-    return cards[:limit]
+    return [post.to_v3_post_card_dict() for post in _latest_posts(limit, request)]
 
 
 def _post_page_to_post_card(page: PostPage) -> dict:

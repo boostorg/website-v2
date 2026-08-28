@@ -3,14 +3,14 @@ from news.views import (
     AllTypesCreateView,
     BlogPostCreateView,
     BlogPostListView,
+    EntryListView,
     EntryApproveView,
     EntryDeleteView,
-    EntryDetailView,
-    EntryListView,
     EntryModerationDetailView,
     EntryModerationListView,
     EntryModerationMagicApproveView,
     EntryUpdateView,
+    EntryDetailView,
     LinkCreateView,
     LinkListView,
     NewsCreateView,
@@ -22,7 +22,7 @@ from news.views import (
 )
 
 urlpatterns = [
-    path("", EntryListView.as_view(), name="news"),
+    path("entry/", EntryListView.as_view(), name="news"),
     path("blogpost/", BlogPostListView.as_view(), name="news-blogpost-list"),
     path("link/", LinkListView.as_view(), name="news-link-list"),
     path("news/", NewsListView.as_view(), name="news-news-list"),
@@ -49,7 +49,6 @@ urlpatterns = [
         EntryModerationMagicApproveView.as_view(),
         name="news-magic-approve",
     ),
-    path("entry/<slug:slug>/", EntryDetailView.as_view(), name="news-detail"),
     path(
         "entry/<slug:slug>/approve/",
         EntryApproveView.as_view(),
@@ -64,5 +63,10 @@ urlpatterns = [
         "entry/<slug:slug>/update/",
         EntryUpdateView.as_view(),
         name="news-update",
+    ),
+    path(
+        "entry/<slug:slug>/",
+        EntryDetailView.as_view(),
+        name="news-detail",
     ),
 ]

@@ -463,10 +463,6 @@ urlpatterns = (
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + [
-        path("outreach/", include(wagtail_urls)),
-        path("pages/", include(wagtail_urls)),
-    ]
-    + [
         # Libraries docs, some HTML parts are re-written
         re_path(
             r"^doc/libs/(?P<content_path>.+)/?",
@@ -493,12 +489,13 @@ urlpatterns = (
         ),
         # Static content (exclude Wagtail paths)
         re_path(
-            r"^(?!__debug__|outreach/|testimonials/)(?P<content_path>.+)/?",
+            r"^(?!__debug__|outreach/|testimonials/|news/)(?P<content_path>.+)/?",
             StaticContentTemplateView.as_view(),
             name="static-content-page",
         ),
     ]
     + djdt_urls
+    + [path("", include(wagtail_urls))]
 )
 
 handler404 = "ak.views.custom_404_view"
