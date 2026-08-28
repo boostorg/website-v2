@@ -1,0 +1,109 @@
+{
+  "number": 1602,
+  "title": "Added nix for developer setup (#1379)",
+  "body": "This PR isn't to be merged, I'm posting it just to solicit feedback. \r\n\r\nI've talked with Greg and done a demo, now making it more widely available for feedback before I carry out the rest of the work of consolidating/updating the docs, but this is an important change that should have general buy in before I proceed. \r\n\r\nWhat I'm proposing is `docs/nix_based_setup.md` becomes the `README.md` and the only install documentation we have. I may move content from other documentation to here as I consolidate. General information docs will remain separate. I'm thinking the readme should be setup + an index of other docs. \r\n\r\nFor those who aren't aware, Nix is a package manager which you can consider as similar to brew, but can be declarative like having a `package.json`/`requirements.txt` (see `flake.nix`) and can be limited to a single project, like it is here for website-v2. There's a video linked in `docs/nix_based_setup.md` that covers Nix.\r\n\r\nWhat this will provide is a system that should be much easier to start with, it sets up all dependencies, asciidoctor and the boost gem etc., sets up a virtualenv, compiles all the json out of the gate, and should allow a developer to be up and running with a complete system (as far as I'm aware of it now) for the project quickly.\r\n\r\nThere are bootstrap scripts in docs/scripts already that could be useful but would need updating. Personally I'm wary of running scripts that make wide ranging changes to my system and am of the opinion it's easier/quicker to follow instructions than read the scripts to see if there might be issues or collisions with how I normally do things, or might not have been maintained, but I might be in the minority there, so I'd like feedback on that too.  \r\n\r\nHappy to do another demo if people want to know what it will look like or have questions. \r\n\r\nPlease add anyone else you think may be useful to provide feedback as a reviewer.",
+  "createdAt": "2025-01-16T19:39:31Z",
+  "state": "MERGED",
+  "author": {
+    "databaseId": 2774608,
+    "login": "daveoconnor"
+  },
+  "timelineItems": {
+    "nodes": [
+      {
+        "__typename": "IssueComment",
+        "id": "IC_kwDOGLg2EM6azS_L",
+        "body": "It seems that in both scenarios (nix, not-nix) the developer must install.\r\n\r\n- Docker Desktop\r\n- Just\r\n\r\nNext, it's common to have Python and Git installed anyway. \r\n\r\nThat leaves...   pip, gems, nvm. These might be a convenient advantage of nix. But nix is not the only solution:\r\n\r\n- Python virtual environments are a way to switch between multiple sets of python packages.  \r\n- nvm is a way to switch between multiple versions of node.\r\n\r\nThe reviewers tagged in this issue should weigh in. They will be using this on a regular basis. It's a comparison between \"I am comfortable with the current setup\" versus being enthusiastic about nix. Especially - if Julio, Rob, Chrissy could try this in real life, make an informed decision, and provide feedback/comments.          \r\n\r\nI wonder if both scenarios could continue to be supported (nix, not-nix).    Well, let's see what the feedback is.",
+        "createdAt": "2025-01-16T23:48:50Z",
+        "author": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "__typename": "IssueComment",
+        "id": "IC_kwDOGLg2EM6fec60",
+        "body": "This worked pretty smoothly for me on macOS. I used Docker Desktop.\r\n\r\nIssues I ran into:\r\n1. I got an error on the `libraries` migration `0020_repopulate_slug_20240325_1616`: `psycopg2.errors.UndefinedColumn: column libraries_library.graphic does not exist`. I'm not sure if this is related to nix, it might just be a migration issue that needs to be fixed (I was able to hack my way around it)\r\n2. I got a message like this a few times: `direnv: error /nix-website-v2/.env is blocked. Run 'direnv allow' to approve its content`. Is there a way to avoid it?",
+        "createdAt": "2025-02-21T21:17:59Z",
+        "author": {
+          "databaseId": 447195,
+          "login": "cdw9"
+        }
+      },
+      {
+        "__typename": "IssueComment",
+        "id": "IC_kwDOGLg2EM6gZ-8T",
+        "body": "Testing nix, it seems to have many pros and cons, rather than being definitely a \"yes\" or \"no\". It's an interesting technology.\r\nHere are some points to consider.\r\n\r\n- We should be able to natively support Microsoft Windows. Currently that is possible in powershell or cmd. When working on the installers (in docs/scripts/) I tested both pure WSL, and powershell, and Powershell is overall much easier to use in conjunction with Docker Desktop, and everything works as expected for the end-user. It looks like nix doesn't support a Powershell environment.\r\n\r\n- Imagine 3-5 years from now, a new boost consultant needs to get up-to-speed and solve a Django bug. Their skill-set is perhaps django and frontend Javascript. They don't know nix (yet), but they are comfortable with docker-compose. A developer ought to be allowed to launch a plain docker-compose environment. Quick on-boarding for new staff. Perhaps they can get up to speed with nix later.\r\n\r\n- Most of boost.io is a python app embedded inside docker containers. That's running in docker-compose instead of the local shell. From that perspective, versions of local python or ruby packages are not the top main concern, they may be relevant in certain cases, such as when focusing on boost library doc builds, but the main tasks are inside docker, with python, and so local packages are less of an issue.\r\n\r\n- A new development environment ought to have \"Just\", and \"Docker Desktop\", and even (if that will be used) \"Nix\". There are good reasons to provide installer scripts that go through those steps. At that point, if that automation already exists, it's not much further to have it also install ruby or pip packages.\r\n\r\nThe choice doesn't need to be either/or though. In the same way as we'd like to support MacOS, Linux, and Windows, there could be options about nix or not.\r\n\r\nIn the Justfile, include more commands:\r\n- bootstrap (standard packages)\r\n- boostrap-nix (nix-based packages)\r\n\r\nIn the installer scripts (/docs/scripts/) prompt the user: \"Would you like to run a 'nix' based installation, or a 'standard' (non-nix) install?\"  Much of the script will still be valid in both cases.\r\n",
+        "createdAt": "2025-02-28T17:16:30Z",
+        "author": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "__typename": "IssueComment",
+        "id": "IC_kwDOGLg2EM6gbVLP",
+        "body": "Today I've done active development running from nix. I regularly noticed that some CSS would be missing after refreshing the page. It would usually come back after another refresh or shift+refresh, but eventually that stopped working. I'm curious if anyone else is also seeing this issue.",
+        "createdAt": "2025-02-28T20:47:17Z",
+        "author": {
+          "databaseId": 447195,
+          "login": "cdw9"
+        }
+      },
+      {
+        "__typename": "IssueComment",
+        "id": "IC_kwDOGLg2EM6hDAaS",
+        "body": "note: I've figured out the issue with that migration (not related to nix) and have a fix in another branch.",
+        "createdAt": "2025-03-05T19:51:41Z",
+        "author": {
+          "databaseId": 2774608,
+          "login": "daveoconnor"
+        }
+      },
+      {
+        "__typename": "IssueComment",
+        "id": "IC_kwDOGLg2EM6jbQrx",
+        "body": "Note to self to add the download of prod data to this process.",
+        "createdAt": "2025-03-20T22:49:20Z",
+        "author": {
+          "databaseId": 2774608,
+          "login": "daveoconnor"
+        }
+      },
+      {
+        "__typename": "IssueComment",
+        "id": "IC_kwDOGLg2EM7ZYMoy",
+        "body": "I have gotten pretty far with the install without issue on my Mac. I'm going to switch it up and install on my Windows machine that has no website-v2 anywhere.",
+        "createdAt": "2025-12-12T15:27:38Z",
+        "author": {
+          "databaseId": 3178957,
+          "login": "karimarie67"
+        }
+      },
+      {
+        "__typename": "MergedEvent",
+        "id": "ME_lADOGLg2EM6mg1ZvzwAAAAUXQNQC",
+        "createdAt": "2026-01-05T23:44:11Z",
+        "actor": {
+          "databaseId": 2774608,
+          "login": "daveoconnor"
+        }
+      },
+      {
+        "__typename": "ClosedEvent",
+        "id": "CE_lADOGLg2EM6mg1ZvzwAAAAUXQNQd",
+        "createdAt": "2026-01-05T23:44:11Z",
+        "actor": {
+          "databaseId": 2774608,
+          "login": "daveoconnor"
+        }
+      }
+    ]
+  },
+  "reviews": {
+    "nodes": []
+  },
+  "reviewThreads": {
+    "nodes": []
+  }
+}

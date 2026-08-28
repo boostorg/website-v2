@@ -1,0 +1,190 @@
+{
+  "number": 1188,
+  "title": "webhook \"import new releases\"",
+  "body": "On the admin page https://www.boost.io/admin/versions/version/ there is a button \"import new releases\" that needs to be clicked whenever a new boost release is published, in order to update the website.\r\n\r\nThe button should continue to function as-is.    \r\n\r\nA new additional feature would be to also trigger that from a webhook or api endpoint.\r\n\r\nThe `publish_release.py` script could tell the website to update, effectively pressing the \"import new releases\" button.  \r\n\r\nLeverage any existing REST API or webhook modules (if that is possible) since some are already present in the codebase.   \r\n\r\nFor example, when you visit any doc/ page such as https://www.stage.boost.cppalliance.org/doc/libs/1_71_0/doc/html/array.html  , if a user is logged in, it's retrieving the profile pic and information over an API.    Could that same sort of API code be used for this issue also?   Just an idea.   \r\n\r\nLet me know the URL to contact, to trigger an  \"import new releases\", and what the curl format of the call would be.\r\n",
+  "createdAt": "2024-08-14T16:46:18Z",
+  "state": "CLOSED",
+  "author": {
+    "databaseId": 1257803,
+    "login": "sdarwin"
+  },
+  "timelineItems": {
+    "nodes": [
+      {
+        "__typename": "ClosedEvent",
+        "id": "CE_lADOGLg2EM6TAScLzwAAAANrEmYy",
+        "createdAt": "2024-10-16T13:57:21Z",
+        "actor": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "__typename": "ReopenedEvent",
+        "id": "REE_lADOGLg2EM6TAScLzwAAAANwXIKS",
+        "createdAt": "2024-10-21T19:09:45Z",
+        "actor": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "__typename": "ClosedEvent",
+        "id": "CE_lADOGLg2EM6TAScLzwAAAANzLkvf",
+        "createdAt": "2024-10-23T13:58:34Z",
+        "actor": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      }
+    ]
+  },
+  "comments": {
+    "nodes": [
+      {
+        "id": "IC_kwDOGLg2EM6PhIte",
+        "body": "@sdarwin the target of that button could be used directly for your purposes:\r\n\r\n```curl https://www.boost.io/admin/versions/version/new_version/```",
+        "createdAt": "2024-10-11T17:16:57Z",
+        "author": {
+          "databaseId": 421710,
+          "login": "gavinwahl"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6PhaCT",
+        "body": "That's great!   \r\nDo you think that is the exact syntax of the curl command? Will it need to specify options on the command line (GET, POST) or anything?",
+        "createdAt": "2024-10-11T18:05:44Z",
+        "author": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6Phbos",
+        "body": "That's the exact syntax",
+        "createdAt": "2024-10-11T18:10:25Z",
+        "author": {
+          "databaseId": 421710,
+          "login": "gavinwahl"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6QD2Xm",
+        "body": "Thank you!   I have opened another issue in release-tools where I will add the `curl` command to `publish_release.py`.   Closing.",
+        "createdAt": "2024-10-16T13:57:21Z",
+        "author": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6QsNkD",
+        "body": "Hi @gavinwahl ,\n\nConsider this command: \n\n`curl https://www.boost.io/admin/versions/version/new_version/`\n\nThat URL is in the /admin/ panel.   \n\nA user is running `curl` from the command line.   Does `curl` automatically have access to Django's secure admin panel?  no...  \n\nDoes Django use \"Basic\" HTTP authentication? no...\n\nWhat is the full command that would get `curl` logged in, and then able to request the URL?  Could you provide a script, targeted at https://www.stage.boost.cppalliance.org/ and have it successfully trigger the /new_version/ link on staging?\n",
+        "createdAt": "2024-10-21T19:09:45Z",
+        "author": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6QtpqA",
+        "body": "@sdarwin the url does not require authentication (that may be a bug, but it's how it's implemented currently)",
+        "createdAt": "2024-10-21T22:56:58Z",
+        "author": {
+          "databaseId": 421710,
+          "login": "gavinwahl"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6Qtuch",
+        "body": "If I run the command:\n\n`curl https://www.stage.boost.cppalliance.org/admin/versions/version/new_version/\n`\n\n\nIt quietly returns with no output.   \n(what happened?)   \nAgain with -v for verbose.\n\n`curl -v https://www.stage.boost.cppalliance.org/admin/versions/version/new_version/`\n\nThe -v shows it's a 302 redirect.     Asking the user to log in.\n\n```\n< HTTP/2 302 \n< server: nginx/1.21.6\n< content-type: text/html; charset=utf-8\n< location: /admin/login/?next=/admin/versions/version/new_version/\n```\n\nIt has not received a 200 OK at the url \"/admin/versions/version/new_version/\".\n\nFollowing the 302 redirect leads to \"/admin/login/\".\n",
+        "createdAt": "2024-10-21T23:15:42Z",
+        "author": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6Qtw_r",
+        "body": "@brianjp93 fixed the possible bug this was relying on 2be29b632237a7411d8cb0fafed804b74318459f",
+        "createdAt": "2024-10-21T23:26:31Z",
+        "author": {
+          "databaseId": 421710,
+          "login": "gavinwahl"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6Qt0q5",
+        "body": "> brianjp93 fixed the possible bug\n\ncould it be that before the commit, anonymous access was allowed.    And after that commit, anonymous access is now blocked?\n\nWhich means the current state is.. that it requires auth? (which is probably correct)\n",
+        "createdAt": "2024-10-21T23:42:15Z",
+        "author": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6Q3Vif",
+        "body": "@sdarwin do you want to add a new unauthenticated endpoint to call as a webhook?",
+        "createdAt": "2024-10-22T22:21:20Z",
+        "author": {
+          "databaseId": 421710,
+          "login": "gavinwahl"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6Q3ZXr",
+        "body": "> unauthenticated endpoint \n\nAuthenticated is safer.\n\nOption 1: Imagine the script running `curl` is provided a username and password...   With a multiple calls, login and generate a cookie, and then re-contact the api endpoint.  \n\nGoogle: how to curl an authenticated django app\n\nOption 2:  The script is actually using python. So instead of `curl`, use Kenneth's `requests` module, or another python technique.   A username and password will be provided to the script. (It seems funny to say that!   He was working on this repo.)",
+        "createdAt": "2024-10-22T22:35:07Z",
+        "author": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6Q3ftP",
+        "body": "@sdarwin I need specific requirements for what you want me to implement. If it's http basic auth, where do you want the username and password for the webhook to come from?",
+        "createdAt": "2024-10-22T22:58:50Z",
+        "author": {
+          "databaseId": 421710,
+          "login": "gavinwahl"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6Q3lcL",
+        "body": ">  I need specific requirements\n\nAn administrator, Marshall Clow, will run a python script called `publish_release.py`.   He will manually provide `username` and `password` . Assume those are available, as variables.  \n\nThe api location is: /admin/versions/version/new_version/ \n\nContact that api with a get request.   (Using either python `requests`, or another python technique, or a series of `curl` command.  Any of those.)\n\nThe puzzle to solve, is how to authenticate. \n\n>  If it's http basic auth\n\nI believe django's authentication scheme is not http basic auth.     But it is authentication.  \n\nThe first result of the google search: how to curl an authenticated django app, discusses the topic, at least for `curl`.\n\nThis page has notes about a local docker setup: https://github.com/boostorg/website-v2/blob/develop/docs/development_setup_notes.md  If you're running a copy of the app locally, and can access the /admin/ panel, that ought to work as a valid test environment?  \n\nAttempt to curl any /admin/ page, using an external script. and specifically the /new_version/ page.\n\n",
+        "createdAt": "2024-10-22T23:17:38Z",
+        "author": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6Q3xkV",
+        "body": "@sdarwin here is python to call the endpoint logged in as an existing django staff user:\n````python\nimport requests\n\nBASE_ADMIN = \"http://localhost:8000/admin/\"\nLOGIN = f\"{BASE_ADMIN}login/\"\nNEW_RELEASE = f\"{BASE_ADMIN}versions/version/new_versions/\"\n\nsession = requests.session()\n# do a request just to get a csrftoken\nresponse = session.get(LOGIN)\nresponse.raise_for_status()\nresponse = session.post(LOGIN, data={\n    'csrfmiddlewaretoken': session.cookies['csrftoken'],\n    'username': 'gwahl@fusionbox.com',\n    'password': 'asdfasdf',\n})\nresponse.raise_for_status()\nresponse = session.get(NEW_RELEASE)\nresponse.raise_for_status()\n`````\n\nI'm not sure if that's what you're asking for or if this is a ticket to change how the existing endpoint works, or to add a new endpoint for this purpose that does not uses different authentication.",
+        "createdAt": "2024-10-23T00:10:14Z",
+        "author": {
+          "databaseId": 421710,
+          "login": "gavinwahl"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6Q4Dnl",
+        "body": "@gavinwahl , what you just posted might be the answer!  If that is working as expected, with the username/password included in the script, as shown, above.     \nI will test it.    No, the idea at the moment was not to add a new endpoint, or to change how the existing endpoint works.   To use the current endpoint.\n\n\n\n",
+        "createdAt": "2024-10-23T01:29:33Z",
+        "author": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      },
+      {
+        "id": "IC_kwDOGLg2EM6Q-fa0",
+        "body": "@gavinwahl excellent. That is working.",
+        "createdAt": "2024-10-23T13:58:34Z",
+        "author": {
+          "databaseId": 1257803,
+          "login": "sdarwin"
+        }
+      }
+    ]
+  }
+}

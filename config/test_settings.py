@@ -10,6 +10,9 @@ class DisableMigrations(object):
     def __getitem__(self, item):
         return None
 
+    def setdefault(self, key, default=None):
+        return None
+
 
 # Disable our logging
 logging.disable(logging.CRITICAL)
@@ -17,6 +20,11 @@ logging.disable(logging.CRITICAL)
 CELERY_TASK_ALWAYS_EAGER = True
 
 DEBUG = False
+
+# Disable debug toolbar in tests
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": lambda request: False,
+}
 
 OAUTH2_PROVIDER_APPLICATION_MODEL = "oauth2_provider.Application"
 OAUTH2_PROVIDER_ACCESS_TOKEN_MODEL = "oauth2_provider.AccessToken"
