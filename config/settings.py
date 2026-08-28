@@ -771,11 +771,17 @@ RICH_TEXT_FEATURES = [
 ]
 WAGTAILMARKDOWN = {
     "autodownload_fontawesome": True,
-    "allowed_tags": [],  # optional. a list of HTML tags. e.g. ['div', 'p', 'a']
+    # The V3 WYSIWYG editor serialises its Underline mark as a literal <u>,
+    # which nh3's default allowlist strips.
+    "allowed_tags": ["u"],  # optional. a list of HTML tags. e.g. ['div', 'p', 'a']
     "allowed_styles": [],  # optional. a list of styles
     "allowed_attributes": {},  # optional. a dict with HTML tag as key and a list of attributes as value
     "allowed_settings_mode": "extend",  # optional. Possible values: "extend" or "override". Defaults to "extend".
-    "extensions": [],  # optional. a list of python-markdown supported extensions
+    # Renders a ```mermaid fence as a diagram instead of a code block; see
+    # core.markdown_extensions.
+    "extensions": [
+        "core.markdown_extensions"
+    ],  # optional. a list of python-markdown supported extensions
     "extension_configs": {},  # optional. a dictionary with the extension name as key, and its configuration as value
     "extensions_settings_mode": "extend",  # optional. Possible values: "extend" or "override". Defaults to "extend".
     "tab_length": 4,  # optional. Sets the length of tabs used by python-markdown to render the output. This is the number of spaces used to replace with a tab character. Defaults to 4.

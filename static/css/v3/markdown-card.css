@@ -101,7 +101,7 @@
   padding-left: 14px;
 }
 
-.markdown-content :is(code, tt, pre) {
+.markdown-content :is(code, tt, pre):not(.mermaid-diagram) {
   display: inline;
   font-family: var(--font-code);
   font-size: 0.88em;
@@ -111,4 +111,13 @@
   padding: 0;
   border: none;
   border-radius: 0;
+}
+
+.markdown-content ol {
+  list-style: decimal;
+  padding-left: var(--space-xl);
+}
+
+.markdown-content ol > li {
+  padding-left: var(--space-s);
 }

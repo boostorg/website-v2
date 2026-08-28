@@ -50,8 +50,15 @@
   display: flex !important;
 }
 
+/* For dialogs built at runtime by JS, which have no :target anchor to open
+   against and no toggle to pair with. */
+.dialog-modal--open {
+  display: flex !important;
+}
+
 /* Lock background page scroll while any dialog is open. */
 html:has(.dialog-modal:target),
+html:has(.dialog-modal--open),
 html:has(.dialog-modal__toggle:checked) {
   overflow: hidden;
 }

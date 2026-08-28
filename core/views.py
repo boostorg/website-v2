@@ -17,14 +17,17 @@ from django.conf import settings
 from django.db.models import Exists, OuterRef
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
+from django.contrib.auth.decorators import login_required
 from django.http import (
     Http404,
     HttpResponse,
     HttpResponseNotFound,
     HttpResponseRedirect,
     HttpRequest,
+    JsonResponse,
 )
 from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -33,6 +36,7 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from waffle import flag_is_active
 
+from core.forms import WysiwygImageUploadForm
 from news.services import get_latest_post_cards
 from core.templatetags.custom_static import large_static
 from config.settings import ENABLE_DB_CACHE
@@ -91,7 +95,7 @@ from .htmlhelper import (
     add_canonical_link,
 )
 from .markdown import process_md
-from .models import RenderedContent, SiteSettings
+from .models import RenderedContent, SiteSettings, WysiwygImage
 from .tasks import (
     clear_rendered_content_cache_by_cache_key,
     clear_rendered_content_cache_by_content_type,
@@ -1466,6 +1470,31 @@ class QRCodeView(View):
             redirect_path = f"{redirect_path}?{qs}"
 
         return HttpResponseRedirect(redirect_path)
+
+
+@require_POST
+@login_required
+def wysiwyg_image_upload(request):
+    """Store an image dropped into the V3 WYSIWYG editor and return its URL.
+
+    The response is `{"url": ...}` on success and `{"error": ...}` with a 400 on
+    a rejected file, which is what the Insert Image dialog renders.
+    """
+    if not flag_is_active(request, "v3"):
+        raise Http404
+
+    form = WysiwygImageUploadForm(request.POST, request.FILES)
+    if not form.is_valid():
+        errors = form.errors.get("image") or ["Could not upload that image."]
+        return JsonResponse({"error": errors[0]}, status=400)
+
+    upload = WysiwygImage.objects.create(
+        image=form.cleaned_data["image"],
+        # The submitted name, which clean_image may since have re-encoded away.
+        original_filename=request.FILES["image"].name[:255],
+        uploaded_by=request.user,
+    )
+    return JsonResponse({"url": upload.image.url})
 
 
 class V3ComponentDemoView(V3Mixin, TemplateView):

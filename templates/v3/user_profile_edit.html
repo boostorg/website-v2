@@ -63,7 +63,8 @@
               {{ biography_max_length|intcomma }} left
             </span>
             </div>
-            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=user_profile_form.bio.value preset="bio" maxlength=biography_max_length only %}
+            {% comment %} csrf_token: `only` would cut it off, and image uploads need it. {% endcomment %}
+            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=user_profile_form.bio.value preset="bio" maxlength=biography_max_length csrf_token=csrf_token only %}
             <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
             <p class="field__error" role="alert" x-show="contentLength >= {{ biography_max_length }}" x-cloak aria-live="polite">Character limit reached.</p>
             {% comment %} Content auto-draft-save indicator (no Auto-Generate button — that's Description-only). Hidden when nothing is written; driven by contentSaveStatus. {% endcomment %}

@@ -1,25 +1,26 @@
 {% comment %}
-  V3 WYSIWYG editor component. Renders toolbar + editor placeholder; JS mounts TipTap when [data-wysiwyg="v3"] is present.
+  V3 WYSIWYG editor — toolbar + editor placeholder; JS mounts TipTap when [data-wysiwyg="v3"] is present.
 
-  Required variables:
-    textarea_id   — id for the textarea (e.g. "id_content")
-    textarea_name — name attribute for form submission (e.g. "content")
+  Variables:
+    textarea_id     (string, required)                    — id for the textarea (e.g. "id_content")
+    textarea_name   (string, required)                    — name attribute for form submission (e.g. "content")
+    value           (string, optional, default "")        — initial content, Markdown or HTML
+    disabled_expr   (string, optional, default unset)     — Alpine expression that disables the textarea for form submission
+    help_text       (string, optional, default unset)     — help text rendered under the editor
+    preset          (string, optional, default "full")    — toolbar preset: "full", "minimal" or "bio"
+    maxlength       (int, optional, default unset)        — character limit; input past it is blocked
 
-  Optional variables:
-    label         — label text (default: "Content")
-    disabled_expr — Alpine expression to conditionally disable the textarea for form submission
-    help_text     — Optional help text to explain context
-    preset        — toolbar preset: "full" (default) or "minimal" (fewer tools)
-    maxlength     — optional character limit; when set, input is blocked past it (TipTap CharacterCount)
+  The Insert Image dialog reads its endpoint and CSRF token from the data
+  attributes below, so an `only` include must pass `csrf_token=csrf_token`.
 
   Usage:
     {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_content" textarea_name="content" %}
-    {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_body" textarea_name="body" label="Body" %}
+    {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_body" textarea_name="body" preset="bio" %}
 {% endcomment %}
 {% load static %}
 
 <div class="wysiwyg-v3-container">
-  <div class="wysiwyg-v3" data-wysiwyg="v3" data-wysiwyg-preset="{{ preset|default:'full' }}" {% if maxlength %}data-wysiwyg-maxlength="{{ maxlength }}"{% endif %} x-data="{ jsReady: false }" x-init="
+  <div class="wysiwyg-v3" data-wysiwyg="v3" data-wysiwyg-preset="{{ preset|default:'full' }}" {% if maxlength %}data-wysiwyg-maxlength="{{ maxlength }}"{% endif %} data-wysiwyg-upload-url="{% url 'v3-wysiwyg-image-upload' %}" data-wysiwyg-csrf-token="{{ csrf_token }}" x-data="{ jsReady: false }" x-init="
       $nextTick(() => {
         const mount = () => { window.autoInit('{{textarea_id}}'); jsReady = true; };
         if (window.autoInit) mount();
