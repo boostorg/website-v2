@@ -69,6 +69,14 @@
     --hero-bg-community-position-x: 100%;
   }
 }
+/* Release: the mobile illustration is a portrait scene carrying its own sky
+   (768x1182) rather than the shared 8:7 crop, so the frame follows the art.
+   Remove when on-spec art ships (spec section 2, foreground mobile 768x672). */
+@media (max-width: 767px) {
+  .hero--release {
+    --hero-fg-aspect: 768 / 1182;
+  }
+}
 @media (max-width: 767px) {
   :root {
     /* Mobile */
@@ -742,7 +750,8 @@ html.dark .hero__links .btn-icon-library:hover {
    Modifier classes set by the template via `extra_classes`, so page stylesheets
    no longer reach into hero internals.
      --community  community page: shares the full-bleed .hero-fg foreground (home)
-     --release    release detail: solid surface, taller block, no foreground
+     --release    release detail: taller block, full-bleed foreground over the
+                  release scene (solid surface only when no image is supplied)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Community: background focal point + tuned per-breakpoint sizing (independent of
@@ -832,6 +841,16 @@ html.dark .hero__links .btn-icon-library:hover {
 @media (min-width: 768px) and (max-width: 1279px) {
   .hero--community .hero__content {
     max-width: min(615px, 50vw);
+  }
+}
+
+/* Release: same problem as community in the tablet band, but the release hero
+   carries a five-button link row rather than a sentence, so the cap has to let
+   the row wrap. The art's clear zone is the left 40% of the canvas (it is drawn
+   to the home spec, not the library 60%), which at this width is ~40vw. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .hero--release .hero__content {
+    max-width: min(662px, 46vw);
   }
 }
 

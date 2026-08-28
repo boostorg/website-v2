@@ -42,3 +42,19 @@ def community_hero_context():
             "img/v3/community-page/community-background.png"
         ),
     }
+
+
+def release_hero_context():
+    """Hero image context for the release detail page (the downloads hero)."""
+    return {
+        "hero_image_url": large_static("img/v3/releases-page/release-foreground.png"),
+        # Mobile art-direction: the illustration is redrawn as a portrait scene
+        # for narrow screens rather than cropped, so it carries its own sky and
+        # needs the taller ratio set in heros.css (--hero-fg-aspect).
+        "hero_image_url_mobile": large_static(
+            "img/v3/releases-page/release-foreground-mobile.png"
+        ),
+        "hero_background_image_url": large_static(
+            "img/v3/releases-page/release-background.png"
+        ),
+    }
