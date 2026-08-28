@@ -296,6 +296,44 @@ CATEGORY_OVERRIDES = {
     "Container": "Containers",
 }
 
+# Baseline copy for Category.short_description, shown on the Learn page
+# category carousel. Applied to newly imported categories and backfilled by
+# migration 0045; editors override it per category in Wagtail.
+# key: Category.name
+CATEGORY_DESCRIPTIONS = {
+    "Algorithms": "Ready-made functions to sort, search, and transform your data",
+    "Asynchronous": "Wait on tasks without freezing the rest of your program",
+    "Awaitables": "Building blocks you can 'await' when writing async code",
+    "Concurrent": "Do many things at once: threads, networking, and parallelism",
+    "Containers": "Extra ways to store collections, beyond std::vector and std::map",
+    "Coroutines": "Pause and resume functions so async logic reads top-to-bottom",
+    "Correctness": "Catch bugs early with tests, assertions, and safety checks",
+    "Data": "Flexible value holders like optional, variant, and tuples",
+    "Data structures": "A resizable set of on/off bits you can flip and test",
+    "Domain": "Everyday essentials: dates, time, unique IDs, and checksums",
+    "Emulation": "Use modern C++ features even on older compilers",
+    "Error-handling": "Report and recover from errors, via exceptions or codes",
+    "Function-objects": "Store, pass around, and combine functions like values",
+    "Generic": "Write code once that works with many different types",
+    "Image-processing": "Read, write, and edit images in a type-safe, generic way",
+    "Inter-language": "Connect your C++ code with other languages like Python",
+    "IO": "Move data in and out: files, networks, streams, and JSON",
+    "Iterators": "Walk through collections and build your own iterators",
+    "Math": "Numbers done right: stats, big numbers, matrices, randomness",
+    "Math and numerics": "Precise decimal math without floating-point surprises",
+    "Memory": "Manage memory safely: smart pointers, pools, alignment",
+    "Metaprogramming": "Inspect and compute types at compile time to generate code",
+    "Miscellaneous": "A grab-bag of handy utilities, converters, and helpers",
+    "Parsing": "Turn text into structured data by describing its grammar",
+    "Patterns": "Ready-to-use implementations of common design patterns",
+    "Preprocessor": "Do clever tricks with macros before your code compiles",
+    "Programming": "General-purpose tools and techniques for everyday coding",
+    "State": "Model your program's states and transitions as machines",
+    "String": "Everything for text: formatting, searching, regex, Unicode",
+    "System": "Talk to the OS: files, time, threads, and processes",
+    "Workarounds": "Smooths over compiler quirks so your code stays portable",
+}
+
 
 # This constant is for library-version docs that we know are missing
 LIBRARY_DOCS_MISSING = {

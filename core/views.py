@@ -620,18 +620,21 @@ class LearnPageView(MailingListCardMixin, V3Mixin, TemplateView):
                     "description": "Watch the Boost GitHub org for the latest releases and activity.",
                     "cta_url": "https://github.com/boostorg/boost",
                     "cta_label": "Watch now",
+                    "icon_name": "calendar-multiple-check",
                 },
                 {
                     "title": "Get help",
                     "description": "Chat with thousands of C++ developers on the CPPLang Slack.",
                     "cta_url": "https://cppalliance.org/slack/",
                     "cta_label": "Join now",
+                    "icon_name": "headset",
                 },
                 {
                     "title": "Fix an issue",
                     "description": "Browse open issues and contribute fixes on GitHub.",
                     "cta_url": "https://github.com/boostorg/boost/issues",
                     "cta_label": "Get involved",
+                    "icon_name": "chat",
                 },
             ],
         }

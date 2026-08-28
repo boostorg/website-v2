@@ -17,7 +17,7 @@ from django.db import transaction
 from django.utils import dateparse, timezone
 
 from versions.models import Version
-from .constants import CATEGORY_OVERRIDES
+from .constants import CATEGORY_DESCRIPTIONS, CATEGORY_OVERRIDES
 from .models import (
     Category,
     Commit,
@@ -291,7 +291,10 @@ class LibraryUpdater:
         obj.categories.clear()
         for cat_name in categories:
             cat_name = CATEGORY_OVERRIDES.get(cat_name, cat_name)
-            cat, _ = Category.objects.get_or_create(name=cat_name)
+            cat, _ = Category.objects.get_or_create(
+                name=cat_name,
+                defaults={"short_description": CATEGORY_DESCRIPTIONS.get(cat_name, "")},
+            )
             obj.categories.add(cat)
 
     def update_authors(self, obj: Library | LibraryVersion, authors=None):
