@@ -100,7 +100,7 @@ def get_buttons():
 
     from pages.tasks import convert_news_entries_task, update_index_task
 
-    from libraries.tasks import import_commits, synchronize_commit_author_user_data
+    from libraries.tasks import synchronize_commit_author_user_data, update_commits
 
     from users.tasks import recompute_displayed_profile_roles
 
@@ -128,17 +128,18 @@ def get_buttons():
         ),
     )
 
-    IMPORT_COMMITS_BUTTON = TaskButton(
-        name="import_commits",
-        label="Import Commits",
-        task=import_commits,
-        success_message="Commits are being Reimported in the background.",
-        busy_message="An import is already queued or running; not starting another one.",
+    UPDATE_COMMITS_BUTTON = TaskButton(
+        name="update_commits",
+        label="Update Commits",
+        task=update_commits,
+        success_message="Commits are being updated in the background.",
+        busy_message="An update is already queued or running; not starting another one.",
         pass_actor=False,
         description=(
-            "Cleanly Reimports all commits to reconcile before granting achievements and badges."
+            "Imports any commits the site is missing before granting achievements and "
+            "badges. It only ever adds or refreshes commits, so it is safe to run at "
+            "any time; nothing is deleted."
         ),
-        permission="libraries.delete_commit",
     )
 
     SYNCHRONIZE_COMMIT_AUTHOR_BUTTON = TaskButton(
@@ -185,7 +186,7 @@ def get_buttons():
     return [
         CONVERT_NEW_ENTRIES_BUTTON,
         UPDATE_INDEX_BUTTON,
-        IMPORT_COMMITS_BUTTON,
+        UPDATE_COMMITS_BUTTON,
         SYNCHRONIZE_COMMIT_AUTHOR_BUTTON,
         BACKFILL_BUTTON,
         UPDATE_DISPLAYED_ROLES_BUTTON,
