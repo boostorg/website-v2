@@ -500,6 +500,21 @@ def import_library_versions(version_name, token=None, version_type="tag"):
 
 
 @app.task
+def import_reviews_task(actor_id=None):
+    """Imports Boost formal-review results and milestones from boost.org.
+
+    ``actor_id`` is the admin who started the import, which the sync log records so
+    a Reviewer badge that moves with a re-import can be traced back to it.
+    """
+    call_command("import_reviews")
+    # Reviews are the only source of the library-review achievement, and this is
+    # the only thing that writes them, so it owns keeping the grants in step.
+    call_command(
+        "backfill_achievements", "--source", "library-review", actor_id=actor_id
+    )
+
+
+@app.task
 def import_release_downloads(version_pk):
     logger.info(f"import_release_downloads w/ {version_pk=}")
     version = Version.objects.with_partials().get(pk=version_pk)
