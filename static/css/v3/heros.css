@@ -125,33 +125,14 @@
 
 /* Release: no dark wash over the scene. The shared --with-background-image rule
    lays a 70% black left-to-right gradient behind the text, which reads as a
-   smudge over this bright sky rather than as a deliberate scrim. */
+   smudge over this bright sky rather than as a deliberate scrim.
+   KNOWN AND ACCEPTED: that gradient was what made the shared white title legible.
+   Without it the title sits on the sky at about 1.8:1 in both themes, under the
+   3.0:1 large-text minimum. White was chosen for the look. The fix is to darken
+   the scene rather than to re-colour the type, so do not swap the title colour
+   here; the shared `.hero--with-bg-and-image` rule keeps it white on purpose. */
 .hero--release.hero--with-background-image::before {
   background: none;
-}
-
-/* With the wash gone, white type sits on a bright sky at 1.84:1, so the title
-   takes the on-accent ink instead. --color-text-on-accent resolves to the same
-   near-black in both themes (unlike --color-text-primary, which flips white),
-   and this scene stays bright in dark mode, so it must not flip. 11.5:1. */
-.hero--release.hero--with-bg-and-image .hero__title,
-.hero--release.hero--with-bg-and-image .hero__description {
-  color: var(--color-text-on-accent);
-}
-
-/* Dark mode takes white type instead. --color-primary-white is the primitive, so
-   it does not flip; --color-text-reversed would, and the wrong way.
-   DELIBERATE, and it fails contrast: this scene stays bright in both themes, so
-   white here measures 1.7 to 2.0:1 against the sky at every width, under the
-   3.0:1 large-text minimum (the near-black above measures 10 to 11.5:1). Chosen
-   knowingly. The real fix is a dark treatment for the scene itself, so that dark
-   mode is not a bright block in a dark page; then white type earns its contrast.
-   Do not swap this back to a token without darkening the artwork first. */
-.dark .hero--release.hero--with-bg-and-image .hero__title,
-.dark .hero--release.hero--with-bg-and-image .hero__description,
-[data-theme="dark"] .hero--release.hero--with-bg-and-image .hero__title,
-[data-theme="dark"] .hero--release.hero--with-bg-and-image .hero__description {
-  color: var(--color-primary-white);
 }
 
 /* Release, mobile: the portrait scene is opaque and bleeds off its own top edge
