@@ -199,10 +199,30 @@ def test_social_signup_replaces_the_placeholder_key_with_a_named_one():
     assert user.profile_routing_keys.latest().routing_key.startswith("jane-doe-")
 
 
-def test_social_signup_without_a_name_keeps_the_placeholder_key():
+def test_github_signup_without_a_name_uses_the_handle():
+    """GitHub names are optional, and the signal falls back to the handle, so
+    the key comes from that rather than staying a placeholder."""
     user = baker.make("users.User", display_name=None, image=None)
-    social_account(user, login="janedoe")
+
+    social_account(user, provider="github", login="janedoe")
+
+    user.refresh_from_db()
+    assert user.display_name == "janedoe"
+    assert user.profile_routing_keys.count() == 2
+    assert user.profile_routing_keys.latest().routing_key.startswith("janedoe-")
+
+
+def test_social_signup_with_no_name_at_all_keeps_the_placeholder_key():
+    """Google has no handle to fall back on, so a nameless signup keeps the
+    placeholder URL minted at creation."""
+    user = baker.make("users.User", display_name=None, image=None)
+
+    social_account(user, provider="google")
+
+    user.refresh_from_db()
+    assert not user.display_name
     assert user.profile_routing_keys.count() == 1
+    assert user.profile_routing_keys.get().base == ROUTING_KEY_FALLBACK_BASE
 
 
 def test_linking_a_second_provider_does_not_mint_again():

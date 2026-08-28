@@ -568,6 +568,8 @@ def test_v3_edit_page_drops_a_revoked_display_badge(user, earned_badge, tp):
         tp.response_200(response)
         # What the template hands the picker as its pre-selected value.
         assert response.context["user_profile_form"]["display_badge"].value() is None
+
+
 @waffle.testutils.override_flag("v3", active=True)
 def test_v3_update_details_renaming_moves_the_public_url(user, tp):
     """A rename mints a new key, and the old URL redirects to it."""

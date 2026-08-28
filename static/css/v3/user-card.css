@@ -84,7 +84,9 @@ a.user-card__username {
 }
 
 a.user-card__username:hover {
-  text-decoration: underline;
+  /* The shorthand would reset text-decoration-thickness, which
+     foundations.css pins for every v3 anchor */
+  text-decoration-line: underline;
 }
 
 .user-card__badge {
@@ -284,5 +286,4 @@ html.dark .user-card--logged-out.card {
   .user-card--logged-out .btn {
     font-size: var(--font-size-small);
   }
-
 }
