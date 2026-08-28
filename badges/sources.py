@@ -40,6 +40,30 @@ def _iter_library_authoring():
             yield user, library
 
 
+def _iter_library_maintenance():
+    """Yield (user, library) once per library the user maintains.
+
+    Maintainers are recorded per ``LibraryVersion``, but the badge counts
+    *libraries* maintained (thresholds 1/2/5/...), so pairs are deduplicated
+    across versions and the ``Library`` is the achievement source. Only parent
+    libraries count: see the module docstring.
+    """
+    from libraries.models import LibraryVersion
+
+    seen = set()
+    versions = (
+        LibraryVersion.objects.exclude(library__key__in=SUB_LIBRARIES)
+        .select_related("library")
+        .prefetch_related("maintainers")
+    )
+    for version in versions.iterator(chunk_size=500):
+        for user in version.maintainers.all():
+            key = (user.pk, version.library_id)
+            if key not in seen:
+                seen.add(key)
+                yield user, version.library
+
+
 def _iter_code_commits():
     """Yield (user, commit) for every attributed commit."""
     from libraries.models import Commit
@@ -55,6 +79,7 @@ def _iter_code_commits():
 
 BACKFILL_ITERATORS = {
     AchievementSlug.LIBRARY_AUTHORING: _iter_library_authoring,
+    AchievementSlug.LIBRARY_MAINTENANCE: _iter_library_maintenance,
     AchievementSlug.CODE_COMMITS: _iter_code_commits,
 }
 
