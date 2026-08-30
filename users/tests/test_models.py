@@ -1,3 +1,7 @@
+import io
+from pathlib import Path
+
+from PIL import Image
 import pytest
 
 from django.contrib.auth import get_user_model
@@ -8,6 +12,15 @@ from pytest_django.asserts import assertQuerySetEqual
 from ..models import Preferences
 
 User = get_user_model()
+
+
+def _png_upload(filename):
+    """In-memory PNG, matching the shape the user fixtures upload."""
+    file = io.BytesIO()
+    file.name = filename
+    Image.new("RGBA", size=(100, 100), color=(155, 0, 0)).save(file, "png")
+    file.seek(0)
+    return file
 
 
 def test_regular_user(user):
@@ -73,6 +86,54 @@ def test_user_model_image_file_size(user):
     # This should raise a ValidationError for file size
     with pytest.raises(ValidationError):
         user.full_clean()
+
+
+def test_get_thumbnail_url_returns_url_when_file_exists(user):
+    """The happy path: a stored profile image resolves to a thumbnail URL."""
+    assert user.get_thumbnail_url() == user.image_thumbnail.url
+    assert user.get_avatar_url() == user.image_thumbnail.url
+
+
+def test_get_thumbnail_url_returns_none_when_file_missing(user):
+    """A `profile_image` naming a file absent from storage must not raise.
+
+    `image_thumbnail` is an imagekit `ImageSpecField`; evaluating it for
+    truthiness generates the thumbnail, which opens the source file and
+    raises `FileNotFoundError` when the object is gone from storage.
+    """
+    Path(user.profile_image.path).unlink()
+    user.delete_cached_thumbnail()
+
+    assert user.get_thumbnail_url() is None
+
+
+def test_get_avatar_url_falls_back_when_file_missing(user):
+    """`get_avatar_url` degrades to the empty string that triggers initials."""
+    Path(user.profile_image.path).unlink()
+    user.delete_cached_thumbnail()
+
+    assert user.get_avatar_url() == ""
+
+
+def test_get_hq_image_url_returns_url_when_file_exists(user):
+    """The happy path: a stored high-quality image resolves to a render URL."""
+    user.hq_image.save("hq-user.png", _png_upload("hq-user.png"))
+
+    assert user.get_hq_image_url() == user.hq_image_render.url
+
+
+def test_get_hq_image_url_returns_none_when_file_missing(user):
+    """`hq_image_render` raises from the `if` condition just like the thumbnail.
+
+    `users/templatetags/avatar_tags.py` calls `get_hq_image_url` on the same
+    render paths as `get_thumbnail_url`, so a missing high-quality image has to
+    degrade the same way or the avatar still 500s.
+    """
+    user.hq_image.save("hq-user.png", _png_upload("hq-user.png"))
+    Path(user.hq_image.path).unlink()
+    user.delete_cached_hq_render()
+
+    assert user.get_hq_image_url() is None
 
 
 def test_claim(user):
