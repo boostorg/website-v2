@@ -9,6 +9,8 @@ from django.db import transaction
 from django.db.models import BooleanField, Case, Value, When
 from django.utils import timezone
 
+from core.admin_buttons import TaskButtonAdminMixin, TaskButton
+
 from .constants import HOMEPAGE_POPULAR_TERMS_DISPLAY
 from .models import (
     PopularSearchTerm,
@@ -94,8 +96,181 @@ class RenderedContentAdmin(admin.ModelAdmin):
         return super().changelist_view(request, extra_context=extra_context)
 
 
+def _synchronize_commit_author_preview(_request, _value):
+    """Static warning for the destructive part of author synchronization."""
+    return {
+        "title": "Synchronize commit authors and members",
+        "summary": (
+            "This binds commit authors to the members who wrote the commits, so "
+            "that commit and documentation achievements can be attributed. Run it "
+            "after Update Commits and before Backfill achievements."
+        ),
+        "rows": (
+            {
+                "label": "Duplicate commit authors",
+                "detail": (
+                    "Authors sharing a GitHub profile are merged. Their commits "
+                    "and email addresses move to the surviving row and the "
+                    "duplicate is deleted; a review naming the deleted author as "
+                    "a submitter loses that link, so import reviews afterwards."
+                ),
+                "warning": True,
+            },
+            {
+                "label": "Member records",
+                "detail": (
+                    "Members with no GitHub username stored get one from the "
+                    "matched author's profile. This writes to the member, not "
+                    "only to the commit author."
+                ),
+                "warning": True,
+            },
+            {
+                "label": "Author to member links",
+                "detail": (
+                    "Every unlinked author whose email matches a member is bound "
+                    "to that member. Nothing already linked is changed."
+                ),
+                "warning": False,
+            },
+        ),
+        "warning": (
+            "Continue only if the commit import has finished; authors it has not "
+            "created yet cannot be bound."
+        ),
+        "can_apply": True,
+    }
+
+
+def get_buttons():
+    from dataclasses import replace
+
+    from badges.admin import BACKFILL_BUTTON
+
+    from pages.tasks import convert_news_entries_task, update_index_task
+
+    from libraries.tasks import synchronize_commit_author_user_data, update_commits
+
+    from users.tasks import recompute_displayed_profile_roles
+
+    from versions.admin import IMPORT_REVIEWS_BUTTON
+
+    CONVERT_NEW_ENTRIES_BUTTON = TaskButton(
+        name="convert_news_entries",
+        label="Convert News Entries",
+        task=convert_news_entries_task,
+        success_message="Entries are being converted in the background.",
+        busy_message="A conversion is already queued or running; not starting another one.",
+        argument="slug",
+        pass_actor=False,
+        description=("Converts legacy Entry models into Wagtail Post Pages."),
+    )
+
+    UPDATE_INDEX_BUTTON = TaskButton(
+        name="update_index",
+        label="Update Index",
+        task=update_index_task,
+        success_message="The index is being updated in the background.",
+        busy_message="An index update is already queued or running; not starting another one.",
+        pass_actor=False,
+        description=(
+            "Update the Index in order to allow for Wagtail searching. Should be run after "
+            "all pages are successfully converted."
+        ),
+    )
+
+    UPDATE_COMMITS_BUTTON = TaskButton(
+        name="update_commits",
+        label="Update Commits",
+        task=update_commits,
+        success_message="Commits are being updated in the background.",
+        busy_message="An update is already queued or running; not starting another one.",
+        pass_actor=False,
+        description=(
+            "Run first, before Synchronize Commit Authors. Imports any commits "
+            "the site is missing, which is what the commit and documentation "
+            "achievements are counted from. It only ever adds or refreshes "
+            "commits, so it is safe to run at any time; nothing is deleted."
+        ),
+    )
+
+    SYNCHRONIZE_COMMIT_AUTHOR_BUTTON = TaskButton(
+        name="synchronize_commit_author",
+        label="Synchronize Commit Authors",
+        task=synchronize_commit_author_user_data,
+        success_message="Authors are being synchronized in the background.",
+        busy_message="A synchronization is already queued or running; not starting another one.",
+        permission="libraries.delete_commitauthor",
+        pass_actor=False,
+        confirm=_synchronize_commit_author_preview,
+        description=(
+            "Run after Update Commits and before Backfill achievements. This is "
+            "what binds a commit author to the member who wrote the commits, by "
+            "matching their email addresses, and every commit and documentation "
+            "achievement is attributed through that link - skip it and the "
+            "backfill grants almost none of them. It also merges commit authors "
+            "sharing a GitHub profile, and fills in the GitHub username on the "
+            "members it matches."
+        ),
+    )
+
+    # Same button the versions changelist offers, including its confirmation
+    # screen and permission; only the wording is checklist-specific.
+    CHECKLIST_IMPORT_REVIEWS_BUTTON = replace(
+        IMPORT_REVIEWS_BUTTON,
+        description=(
+            "Run after Synchronize Commit Authors and before Backfill "
+            "achievements. Re-scrapes the formal-review results published on "
+            "boost.org, which are the only source of the Reviewer achievement. "
+            "It must follow the synchronize step: that step merges commit authors "
+            "sharing a GitHub profile, and a review naming a merged-away author as "
+            "its submitter loses that link. Nothing schedules this, so the "
+            "Reviewer achievement is only as current as the last time it was run."
+        ),
+    )
+
+    # Re-worded for the checklist, but the same button the badges changelist
+    # offers: one definition of the task, its sources and its permissions.
+    CHECKLIST_BACKFILL_BUTTON = replace(
+        BACKFILL_BUTTON,
+        description=(
+            "Run last. Grants the automatic achievements the sources support and "
+            "this site is missing, then awards any badge that reaches its "
+            "threshold. It only ever adds, so it is safe to run at any time and "
+            "safe to run again once the earlier steps have finished. Use "
+            "Reconcile instead if an achievement needs removing."
+        ),
+    )
+
+    UPDATE_DISPLAYED_ROLES_BUTTON = TaskButton(
+        name="update_roles",
+        label="Update Roles",
+        task=recompute_displayed_profile_roles,
+        success_message="Roles are being updated in the background.",
+        busy_message="A role update is already queued or running; not starting another one.",
+        pass_actor=False,
+        description=(
+            "Updates available user roles based on their contributions to boost."
+        ),
+    )
+
+    # Order is the checklist: commits are imported, their authors are bound to
+    # members, reviews are re-scraped against those authors, and only then does
+    # the backfill read all of it.
+    return [
+        CONVERT_NEW_ENTRIES_BUTTON,
+        UPDATE_INDEX_BUTTON,
+        UPDATE_COMMITS_BUTTON,
+        SYNCHRONIZE_COMMIT_AUTHOR_BUTTON,
+        CHECKLIST_IMPORT_REVIEWS_BUTTON,
+        CHECKLIST_BACKFILL_BUTTON,
+        UPDATE_DISPLAYED_ROLES_BUTTON,
+    ]
+
+
 @admin.register(SiteSettings)
-class SiteSettingsAdmin(admin.ModelAdmin):
+class SiteSettingsAdmin(TaskButtonAdminMixin, admin.ModelAdmin):
+    task_buttons = get_buttons()
     list_display = ("id", "wordcloud_ignore", "rendered_content_replacement_start")
     readonly_fields = ("rendered_content_replacement_start",)
     filter_horizontal = ("pinned_community_libraries",)
