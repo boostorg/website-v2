@@ -609,6 +609,20 @@
   min-height: var(--hero-block-height-no-image);
 }
 
+/* Tablet, no illustration: the tablet page frame starts the cards 18px above the
+   hero component's own bottom edge, so the band reads looser than the design.
+   Trim only the block's bottom padding — the content above it does not move, the
+   hero's bottom edge just comes up to meet the cards. 32px rather than Figma's
+   literal 30px: 30 is not on the spacing scale, and 32 is what the mobile block
+   already uses, so the gap steps 48 -> 32 -> 32 across the breakpoints. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  :root { --hero-block-height-no-image: 350px; }
+
+  .hero--no-image .hero__block {
+    padding-bottom: 32px;
+  }
+}
+
 .hero__content {
   display: flex;
   flex-direction: column;
