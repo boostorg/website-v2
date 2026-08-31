@@ -105,6 +105,17 @@
   }
 }
 
+/* Release: the scene is right-aligned by design. */
+@media (min-width: 900px) {
+  .hero--release .hero__block {
+    position: static;
+  }
+
+  .hero--release .hero-fg__img {
+    object-position: right bottom;
+  }
+}
+
 /* The art frame is absolutely positioned, so it paints over the content unless
    the content is lifted. Both are flex children of .hero__block, so z-index
    applies without needing position. Community does the same. Without this the
