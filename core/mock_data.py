@@ -387,9 +387,9 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         "button_label": "See license details",
     }
 
-    hero_legacy_image_url_light = ""  # TEMP-2618
+    hero_legacy_image_url_light = large_static("img/v3/home-page/heros.png")
 
-    hero_legacy_image_url_dark = ""  # TEMP-2618
+    hero_legacy_image_url_dark = large_static("img/v3/home-page/heros_light.png")
 
     hero_image_url = large_static("img/v3/home-page/home-page-foreground.png")
     hero_image_url_light = large_static("img/v3/home-page/home-page-foreground.png")

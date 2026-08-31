@@ -28,7 +28,11 @@
   box-sizing: border-box;
 }
 
-body:has(.is_flagship) .library-subpage-container {
+/* The top gap belongs to the illustrated hero, which Figma sets 24px clear of
+   the cards. An unillustrated hero ends flush, so it keeps the 0 top padding
+   above — keyed on the art rather than on flagship status, since a flagship
+   library without art gets the short hero too. */
+body:has(.hero:not(.hero--no-image)) .library-subpage-container {
   padding: var(--space-xlarge) var(--space-large);
 }
 
@@ -154,7 +158,7 @@ body:has(.is_flagship) .library-subpage-container {
     gap: var(--space-large);
   }
 
-  body:has(.is_flagship) .library-subpage-container {
+  body:has(.hero:not(.hero--no-image)) .library-subpage-container {
     padding: var(--space-large) var(--space-default);
   }
 
