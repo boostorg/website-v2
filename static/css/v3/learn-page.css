@@ -87,7 +87,7 @@
   grid-area: e;
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1279px) {
   /* Narrower layouts keep the original grid; the column wrappers dissolve so
      the cards are grid items again. */
   .card-masonry {
@@ -112,7 +112,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .card-row {
     grid-template-columns: repeat(1, 1fr);
   }
@@ -133,5 +133,20 @@
 
   .learn-page-header {
     max-width: none;
+  }
+}
+
+/* Tablet only: the design stacks the three sentences one per line, but the
+   header's 50% cap swings from 361px to 616px across this range, so no font
+   size makes natural wrapping land on the sentence breaks. Force the breaks and
+   step the size down to fit the narrowest column. Desktop and mobile keep their
+   natural wrapping. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .learn-page-header h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .learn-page-header h1 span {
+    display: block;
   }
 }
