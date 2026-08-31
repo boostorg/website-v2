@@ -195,7 +195,7 @@ def summary_dispatcher(pk: int, model_name: str = "Entry"):
             "link": set_summary_for_link_page,
             "video": set_summary_for_video_page,
             "poll": set_summary_for_poll_page,
-        }[entry.determined_news_type.lower()]
+        }[entry.filter_name.lower()]
     logger.info(f"Dispatching summary task for {pk=} to {handler.__name__=}")
     handler.delay(pk)
 
