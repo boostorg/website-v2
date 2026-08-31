@@ -51,12 +51,17 @@
 
   /* Block height — layout, not art (Figma 480/400/600). Stays after override removal. */
   --hero-block-height: 480px;
+
+  /* Floor for a hero with no illustration (Figma 368/368/natural). */
+  --hero-block-height-no-image: 368px;
 }
 @media (max-width: 1279px) {
   :root { --hero-block-height: 400px; }
 }
 @media (max-width: 767px) {
   :root { --hero-block-height: 600px; }
+  /* 0 so the mobile block is sized purely by its content, per spec. */
+  :root { --hero-block-height-no-image: 0px; }
 }
 
 /* ── B) CURRENT-ART OVERRIDES — remove when on-spec art ships ──────────────── */
@@ -593,8 +598,14 @@
   padding-top: var(--space-hero-padding-top);
 }
 
+/* No illustration means no art frame to hold open, so drop the 480/400 block
+   height to the fallback floor. `auto` + `min-height` rather than a fixed height
+   so a wrapped tag or link row grows the hero instead of spilling into the
+   content below. */
 .hero--no-image .hero__block {
   align-items: center;
+  height: auto;
+  min-height: var(--hero-block-height-no-image);
 }
 
 .hero__content {
