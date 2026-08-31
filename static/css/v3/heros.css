@@ -394,10 +394,11 @@
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
-   Foreground frame — SHARED by the home hero and the community hero (full-bleed,
-   bottom-anchored, baked-in-position art). Applied via class `hero-fg` in both
-   _hero_home.html and _hero_library.html (the latter gated by `fullbleed_fg`).
-   Library-detail keeps its own small-box `.hero__image` below.
+   Foreground frame — SHARED by the home, community and flagship-library heroes
+   (full-bleed, bottom-anchored, baked-in-position art). Applied via class
+   `hero-fg` in both _hero_home.html and _hero_library.html (the latter gated by
+   `fullbleed_fg`). The small-box `.hero__image` below still serves the heroes that
+   pass no `fullbleed_fg` (library empty state, example gallery).
    ─────────────────────────────────────────────────────────────────────────── */
 .hero-fg {
   position: absolute;
@@ -615,6 +616,9 @@
   margin-left: var(--space-large);
   max-width: 662px;
   flex: 1;
+  /* The foreground frame is absolutely positioned, so it paints over in-flow
+     content unless the content is lifted. */
+  z-index: 1;
 }
 
 .hero__meta {
@@ -862,6 +866,16 @@ html.dark .hero__links .btn-icon-library:hover {
      --release    release detail: taller block, full-bleed foreground over the
                   release scene (solid surface only when no image is supplied)
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Flagship library: Figma draws the illustration as a 1440x480 layer filling the
+   hero, animals right-anchored (x=321), with the text laid over it. The shipped
+   art is a 488x416 crop of just the animals, so `contain` scales it to the block's
+   full height and `right bottom` pins it to the corner the design anchors it to.
+   Height now comes from the block, so the art can no longer overhang the hero
+   background the way the old fixed 488x416 box did in the tablet band. */
+.hero--library .hero-fg__img {
+  object-position: right bottom;
+}
 
 /* Community: background focal point + tuned per-breakpoint sizing (independent of
    other library heroes, which keep the base `cover`). */
