@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import signing
 from django.core.cache import cache
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, transaction
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -148,22 +148,25 @@ def _send_confirmation_email(
             lists.append(entry)
         else:
             lists.append({"name": lid, "address": lid, "description": None})
-    message = render_to_string(
-        "v3/mailing_list/email/confirm_subscription.txt",
-        {
-            "email": email,
-            "lists": lists,
-            "confirm_url": confirm_url,
-            "expiry_label": _format_duration(_CONFIRM_MAX_AGE),
-        },
-    )
-    send_mail(
-        subject="Confirm your Boost mailing list subscription",
-        message=message,
+    context = {
+        "email": email,
+        "lists": lists,
+        # The branded base template drives its CTA and fallback URL off
+        # action_url, and resolves images and the logo link from scheme/host.
+        "action_url": confirm_url,
+        "expiry_label": _format_duration(_CONFIRM_MAX_AGE),
+        "scheme": request.scheme,
+        "host": request.get_host(),
+    }
+    prefix = "v3/mailing_list/email/confirm_subscription"
+    msg = EmailMultiAlternatives(
+        subject=render_to_string(f"{prefix}_subject.txt", context).strip(),
+        body=render_to_string(f"{prefix}.txt", context),
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[email],
-        fail_silently=False,
+        to=[email],
     )
+    msg.attach_alternative(render_to_string(f"{prefix}.html", context), "text/html")
+    msg.send(fail_silently=False)
 
 
 """

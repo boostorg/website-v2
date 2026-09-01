@@ -1,5 +1,9 @@
 import pytest
 import waffle.testutils
+from allauth.account.models import EmailConfirmationHMAC
+from django.contrib.sites.models import Site
+from django.core import mail
+from django.urls import reverse
 from model_bakery import baker
 
 from users.forms import (
@@ -19,6 +23,12 @@ SIGNUP_DATA = {
     "display_name": "Signup Tester",
     "accept_terms_of_use": "on",
 }
+
+
+@pytest.fixture(autouse=True)
+def _disable_account_rate_limits(settings):
+    """Avoid 429s from allauth's per-email rate limit across test runs."""
+    settings.ACCOUNT_RATE_LIMITS = False
 
 
 @waffle.testutils.override_flag("v3", active=True)
@@ -134,3 +144,29 @@ def test_a_name_accepted_at_signup_can_be_saved_on_the_edit_form(tp):
 
     user.refresh_from_db()
     assert str(user.country) == "US"
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_signup_sends_the_branded_confirmation_email(tp):
+    """Signing up has to send the V3 confirmation template, not allauth's
+    default one, with a link the recipient can actually click."""
+    tp.post("account_signup", data=SIGNUP_DATA)
+
+    assert len(mail.outbox) == 1
+    msg = mail.outbox[0]
+    site_name = Site.objects.get_current().name
+    assert msg.subject == f"[{site_name}] Confirm your email"
+    assert msg.recipients() == [SIGNUP_DATA["email"]]
+
+    html_body = next(
+        alt.content for alt in msg.alternatives if alt.mimetype == "text/html"
+    )
+    assert "Welcome to Boost" in html_body
+    assert f"Hi {SIGNUP_DATA['display_name']}," in html_body
+    user = User.objects.get(email=SIGNUP_DATA["email"])
+    confirmation = EmailConfirmationHMAC(user.emailaddress_set.get())
+    activate_path = reverse("account_confirm_email", args=[confirmation.key]).rsplit(
+        "/", 2
+    )[0]
+    assert activate_path in msg.body
+    assert activate_path in html_body

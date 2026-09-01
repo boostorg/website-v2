@@ -1,7 +1,8 @@
 from datetime import date, timedelta
+from urllib.parse import urlsplit
 
 from celery import shared_task, chain
-from django.core.mail import EmailMultiAlternatives, send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.core.management import call_command
 import structlog
@@ -578,22 +579,26 @@ def send_commit_author_email_verify_mail(
         # unlike the legacy log line below, no address (PII) or url (which
         # embeds the claim token) may end up in the logs
         logger.info("Sending commit email verification message")
-        message = render_to_string(
-            "v3/libraries/email/verify_commit_email.txt",
-            {
-                "email": commit_author_email,
-                "requester": requester,
-                "confirm_url": url,
-                "expiry_label": format_duration(COMMIT_EMAIL_CLAIM_MAX_AGE),
-            },
-        )
-        send_mail(
-            subject="Confirm your commit email address",
-            message=message,
+        # The task has no request; the claim URL is already absolute, so the
+        # branded template's scheme/host come from it.
+        parts = urlsplit(url)
+        context = {
+            "email": commit_author_email,
+            "requester": requester,
+            "action_url": url,
+            "expiry_label": format_duration(COMMIT_EMAIL_CLAIM_MAX_AGE),
+            "scheme": parts.scheme,
+            "host": parts.netloc,
+        }
+        prefix = "v3/libraries/email/verify_commit_email"
+        msg = EmailMultiAlternatives(
+            subject=render_to_string(f"{prefix}_subject.txt", context).strip(),
+            body=render_to_string(f"{prefix}.txt", context),
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[commit_author_email],
-            fail_silently=False,
+            to=[commit_author_email],
         )
+        msg.attach_alternative(render_to_string(f"{prefix}.html", context), "text/html")
+        msg.send(fail_silently=False)
     else:
         # pre-v3 email, preserved verbatim
         logger.info(f"Sending verification email to {commit_author_email} with {url=}")

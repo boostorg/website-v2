@@ -1,0 +1,18 @@
+{% comment %}
+  Quoted preview of a news entry, for the notification emails. Include with
+  `entry`; the excerpt is capped so a long post does not fill the inbox.
+{% endcomment %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0 0 0;background-color:#f7fdfe;border-left:3px solid #ffa000;">
+  <tr>
+    <td style="padding:16px;">
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.3;letter-spacing:-0.16px;color:#050816;">
+        {{ entry.title }}
+      </div>
+      {% if entry.content %}
+        <div style="font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:14px;line-height:1.45;color:#71737b;margin:8px 0 0 0;">
+          {{ entry.content|striptags|truncatewords:50 }}
+        </div>
+      {% endif %}
+    </td>
+  </tr>
+</table>

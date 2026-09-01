@@ -30,7 +30,8 @@ that provider has verified.
 
 import re
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
 from email.message import EmailMessage as PyEmailMessage
 from email.mime.image import MIMEImage
 
@@ -43,33 +44,137 @@ from django.template.loader import render_to_string
 
 from users.utils import humanize_link_lifetime
 
-# Available templates: key -> subject / text / html templates + a sample link.
+SAMPLE_ENTRY = SimpleNamespace(
+    title="Boost 1.90.0 has been released",
+    content=(
+        "This release adds two new libraries and includes fixes across the "
+        "collection. See the release notes for the full list of changes, "
+        "acknowledgements and known issues."
+    ),
+    tag="news",
+    slug="boost-1-90-0-has-been-released",
+    created_at=datetime(2026, 8, 12, tzinfo=timezone.utc),
+    author=SimpleNamespace(display_name="Vinnie Falco", email="vinnie@example.com"),
+)
+
+SAMPLE_LISTS = [
+    {
+        "name": "Boost Users",
+        "address": "boost-users@lists.boost.org",
+        "description": "Questions and discussion about using the Boost libraries.",
+    },
+    {
+        "name": "Boost Developers",
+        "address": "boost@lists.boost.org",
+        "description": "Development of the Boost libraries themselves.",
+    },
+]
+
+# Available templates: key -> template prefix, a sample CTA link and any
+# context the template needs beyond the shared base below.
 TEMPLATES = {
     "confirm": {
-        "subject": "emails/confirm_email_subject.txt",
-        "text": "emails/confirm_email.txt",
-        "html": "emails/confirm_email.html",
+        "prefix": "emails/confirm_email",
         "action_url": "https://www.boost.org/auth/confirm?token=test-confirm-token-abc123",
     },
     "password_reset": {
-        "subject": "emails/password_reset_subject.txt",
-        "text": "emails/password_reset.txt",
-        "html": "emails/password_reset.html",
+        "prefix": "emails/password_reset",
         "action_url": "https://www.boost.org/auth/reset?token=test-reset-token-xyz789",
     },
     "unknown_account": {
-        "subject": "emails/unknown_account_subject.txt",
-        "text": "emails/unknown_account.txt",
-        "html": "emails/unknown_account.html",
+        "prefix": "emails/unknown_account",
         "action_url": "https://www.boost.org/v3/accounts/signup/",
     },
     "account_deletion_scheduled": {
-        "subject": "emails/account_deletion_scheduled_subject.txt",
-        "text": "emails/account_deletion_scheduled.txt",
-        "html": "emails/account_deletion_scheduled.html",
+        "prefix": "emails/account_deletion_scheduled",
         "action_url": "https://www.boost.org/accounts/login/",
     },
+    "news_needs_moderation": {
+        "prefix": "news/emails/needs_moderation",
+        "action_url": "https://www.boost.org/news/magic-approve/test-token-abc123/",
+        "context": {
+            "entry": SAMPLE_ENTRY,
+            "approval_magic_link": (
+                "https://www.boost.org/news/magic-approve/test-token-abc123/"
+            ),
+            "detail_url": (
+                "https://www.boost.org/news/boost-1-90-0-has-been-released/"
+            ),
+            "moderate_url": "https://www.boost.org/news/moderate/",
+            "expiration_hours": 24,
+            "with_preferences": True,
+        },
+    },
+    "news_approved": {
+        "prefix": "news/emails/approved",
+        "action_url": "https://www.boost.org/news/boost-1-90-0-has-been-released/",
+        "context": {"entry": SAMPLE_ENTRY, "with_preferences": True},
+    },
+    "news_posted": {
+        "prefix": "news/emails/posted",
+        "action_url": "https://www.boost.org/news/boost-1-90-0-has-been-released/",
+        "context": {"entry": SAMPLE_ENTRY, "with_preferences": True},
+    },
+    "mailing_list_confirm": {
+        "prefix": "v3/mailing_list/email/confirm_subscription",
+        "action_url": "https://www.boost.org/mailing-list/confirm/test-token-abc123/",
+        "context": {"lists": SAMPLE_LISTS, "expiry_label": "7\u00a0days"},
+    },
+    "verify_commit_email": {
+        "prefix": "v3/libraries/email/verify_commit_email",
+        "action_url": "https://www.boost.org/libraries/commit-email/confirm/test-token/",
+        "context": {"requester": "Vinnie Falco", "expiry_label": "7\u00a0days"},
+    },
 }
+
+
+def build_context(key, base_url, first_name="Vinnie", email="you@example.com"):
+    """Sample context for one template, matching what the real flow passes."""
+    scheme, _, host = base_url.partition("://")
+    if not host:  # base_url given without a scheme
+        scheme, host = "https", base_url
+
+    spec = TEMPLATES[key]
+    extra = dict(spec.get("context", {}))
+    # Only the notification emails carry the footer's preferences link; the
+    # base template omits that sentence without it.
+    preferences_url = (
+        f"{base_url}/users/me/" if extra.pop("with_preferences", False) else ""
+    )
+    return {
+        "scheme": scheme,
+        "host": host,
+        "first_name": first_name,
+        "user_email": email,
+        "email": email,
+        "action_url": spec["action_url"],
+        "preferences_url": preferences_url,
+        # Account-deletion-scheduled email context.
+        "grace_days": settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS,
+        "postorius_url": settings.POSTORIUS_URL,
+        # Link lifetimes shown in the email bodies, sourced from the same
+        # settings the real flows enforce (allauth email confirmation in days,
+        # Django's password reset token timeout in seconds).
+        "confirmation_link_lifetime": humanize_link_lifetime(
+            timedelta(days=allauth_account_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS)
+        ),
+        "password_reset_link_lifetime": humanize_link_lifetime(
+            timedelta(seconds=settings.PASSWORD_RESET_TIMEOUT)
+        ),
+        **extra,
+    }
+
+
+def render_template(key, base_url="https://www.boost.org", **kwargs):
+    """Render one template's subject, text and HTML bodies."""
+    context = build_context(key, base_url, **kwargs)
+    prefix = TEMPLATES[key]["prefix"]
+    return (
+        render_to_string(f"{prefix}_subject.txt", context).strip(),
+        render_to_string(f"{prefix}.txt", context),
+        render_to_string(f"{prefix}.html", context),
+    )
+
 
 # Matches the URL of any email image, e.g. src="/static/static-large/img/emails/x.png"
 # (local dev) or the absolute S3 URL (prod) -- both end in "img/emails/<file>".
@@ -212,10 +317,6 @@ def command(
     delay,
 ):
     """Render and send the transactional email templates."""
-    scheme, _, host = base_url.partition("://")
-    if not host:  # base_url given without a scheme
-        scheme, host = "https", base_url
-
     # Use the project's configured email backend -- the same one the real
     # transactional emails go through (local maildev SMTP, or the deployed
     # email service provider).
@@ -233,32 +334,12 @@ def command(
     for index, key in enumerate(keys):
         if index and delay:
             time.sleep(delay)
-        spec = TEMPLATES[key]
-        context = {
-            "scheme": scheme,
-            "host": host,
-            "first_name": first_name,
-            "user_email": user_email or recipient,
-            "email": user_email or recipient,
-            "action_url": spec["action_url"],
-            "preferences_url": f"{base_url}/account/preferences",
-            "unsubscribe_url": f"{base_url}/account/unsubscribe",
-            # Account-deletion-scheduled email context.
-            "grace_days": settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS,
-            "postorius_url": settings.POSTORIUS_URL,
-            # Link lifetimes shown in the email bodies, sourced from the same
-            # settings the real flows enforce (allauth email confirmation in
-            # days, Django's password reset token timeout in seconds).
-            "confirmation_link_lifetime": humanize_link_lifetime(
-                timedelta(days=allauth_account_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS)
-            ),
-            "password_reset_link_lifetime": humanize_link_lifetime(
-                timedelta(seconds=settings.PASSWORD_RESET_TIMEOUT)
-            ),
-        }
-        subject = render_to_string(spec["subject"], context).strip()
-        text_body = render_to_string(spec["text"], context)
-        html_body = render_to_string(spec["html"], context)
+        subject, text_body, html_body = render_template(
+            key,
+            base_url=base_url,
+            first_name=first_name,
+            email=user_email or recipient,
+        )
 
         if inline_images:
             _send_inline(

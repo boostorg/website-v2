@@ -1,3 +1,4 @@
+import re
 from datetime import date
 
 import pytest
@@ -224,3 +225,45 @@ def test_send_email_news_posted_many_users(rf, tp, make_entry, make_user, model_
         # do not share all emails among all recipients
         assert msg.to == [f"u{usr_num}@example.com"]
         assert msg.recipients() == [f"u{usr_num}@example.com"]
+
+
+def _html_of(msg):
+    return next(alt.content for alt in msg.alternatives if alt.mimetype == "text/html")
+
+
+@pytest.mark.parametrize(
+    "sender,marker",
+    [
+        (send_email_news_approved, "Your post was approved"),
+        (send_email_news_posted, "New on Boost"),
+        (send_email_news_needs_moderation, "A post needs moderation"),
+    ],
+)
+def test_notification_emails_are_branded_multipart(
+    rf, tp, make_entry, sender, marker, make_user
+):
+    """Every news notification goes out as text + the branded HTML alternative,
+    with the entry link and the preferences footer resolving absolutely."""
+    entry = make_entry(NEWS_MODELS[0], approved=True)
+    if sender is send_email_news_needs_moderation:
+        make_user(is_staff=True, is_superuser=True)
+    elif sender is send_email_news_posted:
+        make_user(
+            email="subscriber@example.com",
+            allow_notification_others_news_posted=[entry.tag],
+        )
+
+    request = rf.get("")
+    sender(request, entry)
+
+    assert mail.outbox
+    msg = mail.outbox[0]
+    html_body = _html_of(msg)
+    assert marker in html_body
+    assert entry.title in msg.body
+
+    # The footer's opt-out link, and every other link, must be clickable from
+    # an inbox that has no page to resolve a relative path against.
+    for href in re.findall(r'href="([^"]*)"', html_body):
+        assert href.startswith(("http://", "https://", "mailto:")), href
+    assert request.build_absolute_uri(reverse("profile-account")) in html_body
