@@ -29,11 +29,25 @@
     </button>
   {% endif %}
 
-  {% comment %} Auth (Login or Avatar) {% endcomment %}
-  {% if request.user.is_authenticated %}
-    <span class="header__user">{% include "v3/includes/header/_header_avatar.html" with avatar_id=avatar_id %}</span>
+  {% comment %}
+    Auth (Login or Avatar).
+
+    Pages whose HTML is served from a shared HTTP cache cannot carry a per-user
+    auth state, so they set defer_auth_state and the slot is filled from the
+    always-uncached v3-header-auth endpoint instead. The placeholder is swapped
+    whole (outerHTML), so the resulting DOM matches the inline branch exactly.
+  {% endcomment %}
+  {% if defer_auth_state %}
+    <span class="header__auth-placeholder"
+          aria-busy="true"
+          hx-get="{{ auth_state_url }}?avatar_id={{ avatar_id }}"
+          hx-trigger="load"
+          hx-swap="outerHTML">
+      <noscript>
+        {% include "v3/includes/header/_header_auth.html" with avatar_id=avatar_id %}
+      </noscript>
+    </span>
   {% else %}
-    <a href="{% url 'account_login' %}"
-       class="header__nav-btn">Log In</a>
+    {% include "v3/includes/header/_header_auth.html" with avatar_id=avatar_id %}
   {% endif %}
 </div>
