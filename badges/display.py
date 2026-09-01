@@ -319,7 +319,7 @@ def badge_cards(user, include_hidden=False):
     return [badge_card(badge) for badge in unique.values()]
 
 
-def achievement_cards(user, rows=None):
+def achievement_cards(user, rows=None, include_hidden=False):
     """The member's earned achievements, as the dicts the achievement card reads.
 
     Only achievements with a valid grant: the card records what the member did,
@@ -330,10 +330,17 @@ def achievement_cards(user, rows=None):
     Highest tally first, name breaking ties - the registry orders by name alone,
     which buries the tallies the card is built around.
 
+    ``hide_badges`` covers achievements as well as badges: it is one control over
+    the recognition column, not two. Same shape as ``held_badges`` - nothing for a
+    member who hid them, unless ``include_hidden`` is set, which only the owner's
+    own views should do.
+
     ``rows`` takes summary rows already read for this member. The owner's own
     profile needs both these cards and the dialog's counts, and the read behind
     them is the same one; passing it in is what keeps it to one.
     """
+    if user.hide_badges and not include_hidden:
+        return []
     if rows is None:
         rows = user_badge_summary(user)
     cards = {}

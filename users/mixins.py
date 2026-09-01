@@ -106,7 +106,11 @@ class V3UserProfileContextMixin:
         # Read once and used twice below: the achievements card and the
         # dialog's counters are the same query. Both readers live here so that
         # every route to a page gets the same answer for the same cost.
-        summary_rows = user_badge_summary(user)
+        #
+        # `hide_badges` covers achievements too, so a visitor to a profile that
+        # hid them has nothing to read the summary for.
+        show_recognition = is_owner or not user.hide_badges
+        summary_rows = user_badge_summary(user) if show_recognition else None
         context = {
             "user_info": {
                 "user_name": user.display_name,
@@ -128,10 +132,13 @@ class V3UserProfileContextMixin:
             },
             "profile_badges": badge_display.badge_cards(user, include_hidden=is_owner),
             # Dict-wrapped to match the shape the v3 component gallery feeds
-            # the same card. Empty for a member who has earned nothing, and the
-            # card is then left out rather than shown as an example.
+            # the same card. Empty for a member who has earned nothing - or hid
+            # them - and the card is then left out rather than shown as an
+            # example.
             "achievements_data": {
-                "achievements": badge_display.achievement_cards(user, rows=summary_rows)
+                "achievements": badge_display.achievement_cards(
+                    user, rows=summary_rows, include_hidden=is_owner
+                )
             },
             # The recognition cards render on the owner's own page even when
             # empty, because their empty states are the way in to the badge and

@@ -182,6 +182,59 @@ def test_a_visitor_gets_no_dialog_rows_of_the_members_own(plain_user, tp):
     assert "achievement_dialog_items" not in response.context
 
 
+def test_hide_badges_hides_achievements_too(plain_user):
+    """One control over the recognition column, not one per card.
+
+    The checkbox reads "Hide badges and achievements on your profile", so a
+    member who ticks it publishes neither.
+    """
+    _grant(plain_user, "library-review", count=3)
+    plain_user.hide_badges = True
+    plain_user.save(update_fields=["hide_badges"])
+
+    assert display.achievement_cards(plain_user) == []
+
+
+def test_the_owner_still_sees_achievements_they_hid(plain_user):
+    """Same bypass as the badges card: hidden from visitors, not from you."""
+    achievement = _grant(plain_user, "library-review", count=3)
+    plain_user.hide_badges = True
+    plain_user.save(update_fields=["hide_badges"])
+
+    (card,) = display.achievement_cards(plain_user, include_hidden=True)
+
+    assert card["title"] == achievement.name
+
+
+def test_hiding_costs_a_visitor_no_summary_read(plain_user, django_assert_num_queries):
+    """Nothing to read once the answer is "show none of it"."""
+    _grant(plain_user, "library-review", count=3)
+    plain_user.hide_badges = True
+    plain_user.save(update_fields=["hide_badges"])
+
+    with django_assert_num_queries(0):
+        assert display.achievement_cards(plain_user) == []
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_a_visitor_sees_no_hidden_achievements_card(plain_user, tp):
+    """End to end: the card is gone from the page, not merely emptied.
+
+    Only the card. The dialog behind it still names every achievement type,
+    because that is the catalogue explaining how they work - the same list on
+    every profile, carrying nobody's tallies.
+    """
+    _grant(plain_user, "library-review", count=3)
+    plain_user.hide_badges = True
+    plain_user.save(update_fields=["hide_badges"])
+
+    response = tp.get(plain_user.get_absolute_url())
+
+    tp.response_200(response)
+    assert "user-profile__achievements" not in response.content.decode()
+    assert "achievement_dialog_items" not in response.context
+
+
 @waffle.testutils.override_flag("v3", active=True)
 def test_public_profile_renders_the_earned_achievements(plain_user, tp):
     """The reported bug: a member's real achievements never reached the page.
