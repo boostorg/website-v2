@@ -73,6 +73,7 @@ from users.views import (
     PublicUserProfileView,
     UserViewSet,
     UserAvatar,
+    V3HeaderAuth,
     DeleteUserView,
     CancelDeletionView,
     DeleteImmediatelyView,
@@ -176,6 +177,11 @@ urlpatterns = (
             name="profile-delete-immediately",
         ),
         path("users/avatar/", UserAvatar.as_view(), name="user-avatar"),
+        path(
+            "users/header-auth/",
+            V3HeaderAuth.as_view(),
+            name="v3-header-auth",
+        ),
         # Must stay last of the single-segment "users/..." routes: `slug`
         # matches "me" and "avatar" too, so every literal segment has to be
         # registered ahead of it.
