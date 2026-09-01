@@ -8,15 +8,18 @@
     scheme            "https" (request.scheme)
     host              "www.boost.org" (request.get_host)
     action_url        the CTA + fallback URL (confirmation or reset link)
-    preferences_url   manage-email-preferences URL (optional, defaults to #)
-    unsubscribe_url   unsubscribe URL (optional, defaults to #)
+    preferences_url   notification-preferences URL; the footer sentence
+                      offering it is omitted when this is absent, so
+                      one-off transactional emails render without it
 
   Body copy uses the platform UI font stack (Segoe UI on Windows, San Francisco
   on Apple, Roboto on Android) at a light 300 weight; the title, button and
   footer use Arial.
 
   Child templates override the blocks: preheader, hero, card_title,
-  card_body, cta_label and after_card.
+  card_body, cta_label and after_card. Emails that need more than one CTA, or
+  none, override cta instead of cta_label and compose the _cta_button.html /
+  _fallback_url.html partials themselves.
 {% endcomment %}<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
@@ -84,19 +87,18 @@
                       <div style="font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:14px;line-height:1.45;color:#050816;">
                         {% block card_body %}{% endblock %}
                       </div>
-                      <!-- CTA button -->
-                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0 0 0;">
-                        <tr>
-                          <td bgcolor="#ffa000" align="center" style="border-radius:4px;">
-                            <a href="{{ action_url|default:'#' }}" style="display:block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:bold;line-height:1.5;letter-spacing:-0.24px;color:#050816;text-decoration:none;border-radius:4px;">{% block cta_label %}{% endblock %}</a>
-                          </td>
-                        </tr>
-                      </table>
-                      <!-- Fallback URL -->
-                      <div style="font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:12px;line-height:1.45;color:#71737b;margin:16px 0 0 0;">
-                        Or copy and paste this URL into your browser:<br>
-                        <a href="{{ action_url|default:'#' }}" style="color:#71737b;text-decoration:underline;word-break:break-all;">{{ action_url|default:'#' }}</a>
-                      </div>
+                      {% block cta %}
+                        <!-- CTA button -->
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0 0 0;">
+                          <tr>
+                            <td bgcolor="#ffa000" align="center" style="border-radius:4px;">
+                              <a href="{{ action_url }}" style="display:block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:bold;line-height:1.5;letter-spacing:-0.24px;color:#050816;text-decoration:none;border-radius:4px;">{% block cta_label %}{% endblock %}</a>
+                            </td>
+                          </tr>
+                        </table>
+                        <!-- Fallback URL -->
+                        {% include "emails/_fallback_url.html" with url=action_url %}
+                      {% endblock %}
                     </td>
                   </tr>
                 </table>
@@ -129,9 +131,11 @@
                 <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;letter-spacing:0.14px;color:#050816;">
                   <a href="https://www.boost.org/" style="color:#050816;text-decoration:underline;">Boost.org</a> is supported by grants from <a href="https://cppalliance.org/" style="color:#050816;text-decoration:underline;">The C++ Alliance.</a>
                   {% block footer_links %}
-                    <br><br>
-                    Want to change how you receive these emails?<br>
-                    You can <a href="{{ preferences_url|default:'#' }}" style="color:#050816;text-decoration:underline;">update your preferences</a> or <a href="{{ unsubscribe_url|default:'#' }}" style="color:#050816;text-decoration:underline;">unsubscribe from this list</a>.
+                    {% if preferences_url %}
+                      <br><br>
+                      Want to change how you receive these emails?<br>
+                      You can <a href="{{ preferences_url }}" style="color:#050816;text-decoration:underline;">update your notification preferences</a>.
+                    {% endif %}
                   {% endblock %}
                 </div>
               </td>

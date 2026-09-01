@@ -1,0 +1,30 @@
+{% extends "emails/base_email.html" %}
+
+{% comment %}
+  Sent to everyone who opted in to notifications for newly posted entries.
+  Context: entry, action_url (the entry's public URL), preferences_url,
+  scheme, host.
+{% endcomment %}
+
+{% block title %}New on Boost{% endblock %}
+
+{% block preheader %}{{ entry.title }} was just posted on Boost.{% endblock %}
+
+{% block card_title %}New on Boost{% endblock %}
+
+{% block card_body %}
+  <p style="margin:0;">A new {{ entry.tag }} entry was just posted.</p>
+  {% include "news/emails/_entry_preview.html" %}
+{% endblock %}
+
+{% block cta_label %}Read the post{% endblock %}
+
+{% block after_card %}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td style="padding:24px 0 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:12px;line-height:1.45;color:#71737b;text-align:center;">
+        Thank you, the Boost news team.
+      </td>
+    </tr>
+  </table>
+{% endblock %}

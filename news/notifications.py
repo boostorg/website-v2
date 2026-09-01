@@ -1,15 +1,8 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.mail import (
-    EmailMessage,
-    get_connection,
-    send_mail,
-    EmailMultiAlternatives,
-)
-from django.template import Template, Context
+from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.safestring import mark_safe
 from itsdangerous.url_safe import URLSafeTimedSerializer
 
 from .acl import moderators
@@ -18,32 +11,44 @@ from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
 User = get_user_model()
 
 
+def _base_context(request):
+    """Context every news notification email needs.
+
+    scheme/host resolve the branded template's images and logo link;
+    preferences_url drives the footer's opt-out sentence, which the base
+    template omits when it is absent.
+    """
+    return {
+        "scheme": request.scheme,
+        "host": request.get_host(),
+        "preferences_url": request.build_absolute_uri(reverse("profile-account")),
+    }
+
+
+def _render_message(name, context, to):
+    subject = render_to_string(f"news/emails/{name}_subject.txt", context).strip()
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=render_to_string(f"news/emails/{name}.txt", context),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=to,
+    )
+    msg.attach_alternative(
+        render_to_string(f"news/emails/{name}.html", context), "text/html"
+    )
+    return msg
+
+
 def send_email_news_approved(request, entry):
     if entry.tag not in entry.author.preferences.allow_notification_own_news_approved:
         return False
 
-    template = Template(
-        'Congratulations! The news entry "{{ title }}" that you submitted on '
-        '{{ entry.created_at|date:"M jS, Y" }} was approved.\n'
-        "You can view this news at {{ url }}.\n\n"
-        "Thank you, the Boost moderator team."
-    )
-    body = template.render(
-        Context(
-            {
-                "entry": entry,
-                "url": request.build_absolute_uri(entry.get_absolute_url()),
-                "title": mark_safe(entry.title),  # Mark the title as safe
-            }
-        )
-    )
-    subject = "Boost.org: News entry approved"
-    return send_mail(
-        subject=subject,
-        message=body,
-        from_email=None,
-        recipient_list=[entry.author.email],
-    )
+    context = {
+        **_base_context(request),
+        "entry": entry,
+        "action_url": request.build_absolute_uri(entry.get_absolute_url()),
+    }
+    return _render_message("approved", context, [entry.author.email]).send()
 
 
 def generate_magic_approval_link(entry_slug: str, moderator_id: int):
@@ -67,30 +72,22 @@ def send_email_news_needs_moderation(request, entry):
         return False
 
     context = {
+        **_base_context(request),
         "entry": entry,
         "detail_url": request.build_absolute_uri(entry.get_absolute_url()),
         "moderate_url": request.build_absolute_uri(reverse("news-moderate")),
         "expiration_hours": int(MAGIC_LINK_EXPIRATION / 3600),
-        "scheme": request.scheme,
-        "host": request.get_host(),
     }
 
-    subject = "Boost.org: News entry needs moderation"
-    from_address = settings.DEFAULT_FROM_EMAIL
-    # Send each recipient their own email
+    # Each moderator gets their own message: the approval link is minted per
+    # moderator so an approval is attributable.
     messages = []
     for moderator in recipient_list:
         magic_link_url = generate_magic_approval_link(
             entry_slug=entry.slug, moderator_id=moderator.id
         )
         context["approval_magic_link"] = request.build_absolute_uri(magic_link_url)
-        text_body = render_to_string("news/emails/needs_moderation.txt", context)
-        html_body = render_to_string("news/emails/needs_moderation.html", context)
-        msg = EmailMultiAlternatives(
-            subject, text_body, from_address, [moderator.email]
-        )
-        msg.attach_alternative(html_body, "text/html")
-        messages.append(msg)
+        messages.append(_render_message("needs_moderation", context, [moderator.email]))
     get_connection().send_messages(messages)
     return len(messages)
 
@@ -107,34 +104,13 @@ def send_email_news_posted(request, entry):
     if not recipient_list:
         return False
 
-    template = Template(
-        "Hello! A news entry was just posted:\n\n"
-        "{{ title }}\n\n"
-        "You can view this news at: {{ detail_url }}.\n\n"
-        "If you no longer wish to receive these emails, please review your "
-        "notifications preferences at {{ preferences_url }}.\n\n"
-        "Thank you, the Boost news team."
-    )
-    body = template.render(
-        Context(
-            {
-                "entry": entry,
-                "detail_url": request.build_absolute_uri(entry.get_absolute_url()),
-                "preferences_url": request.build_absolute_uri(
-                    reverse("profile-account")
-                ),
-                "title": mark_safe(entry.title),
-            }
-        )
-    )
-    subject = "Boost.org: News entry posted"
+    context = {
+        **_base_context(request),
+        "entry": entry,
+        "action_url": request.build_absolute_uri(entry.get_absolute_url()),
+    }
     messages = [
-        EmailMessage(
-            subject=subject,
-            body=body,
-            from_email=None,
-            to=[user_email],
-        )
+        _render_message("posted", context, [user_email])
         for user_email in recipient_list
     ]
     return get_connection().send_messages(messages)
