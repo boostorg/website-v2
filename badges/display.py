@@ -312,11 +312,29 @@ def badge_cards(user, include_hidden=False):
     Deduped here rather than in ``held_badges``, which is what ``featured_badge``
     validates a pick against: a member may feature a lower rung, and folding it
     away there would silently override them.
+
+    The badge the member picked leads, whatever its rank, the rest keeping rank
+    order behind it. Picking is how a member says which badge represents them, so
+    burying it mid-list - which is where rank alone put it, since a pick is
+    usually *not* the top rank - reads as the pick having been ignored.
+
+    Matched on the badge rather than the awarded row, so a pick that is a lower
+    rung of a ladder still leads. The card shows one row per badge, the highest
+    rung reached, and that row is the picked badge's row even when the pick names
+    a rung below it.
     """
+    rows = held_badges(user, include_hidden=include_hidden)
     unique = {}
-    for badge in held_badges(user, include_hidden=include_hidden):
+    for badge in rows:
         unique.setdefault(badge.badge_id, badge)
-    return [badge_card(badge) for badge in unique.values()]
+    cards = list(unique.values())
+    picked = next(
+        (row.badge_id for row in rows if row.pk == user.display_badge_id), None
+    )
+    if picked is not None:
+        # Stable, so everything else keeps the rank order it arrived in.
+        cards.sort(key=lambda row: row.badge_id != picked)
+    return [badge_card(badge) for badge in cards]
 
 
 def achievement_cards(user, rows=None, include_hidden=False):

@@ -240,6 +240,53 @@ def test_a_revoked_choice_falls_back_to_the_highest_held(plain_user):
     assert display.featured_badge(plain_user)["icon"] == BadgeToken.TIER_3
 
 
+def test_the_picked_badge_leads_the_card(plain_user):
+    """A pick is how a member says which badge represents them.
+
+    Rank alone buried it: a pick is usually not the member's top rank, so the
+    badge they chose to feature turned up mid-list and looked ignored.
+    """
+    _grant(plain_user, "library-review", count=5)  # reviewer, up to diamond
+    _grant(plain_user, "library-authoring", count=1)  # library author, bronze
+    _pick(plain_user, TierRank.BRONZE, slug="library-authoring")
+    plain_user = _reload(plain_user)
+
+    names = [card["name"] for card in display.badge_cards(plain_user)]
+
+    assert names == ["Library Author", "Reviewer"]
+
+
+def test_the_badges_behind_the_pick_keep_rank_order(plain_user):
+    """Only the picked badge moves; the rest are still ranked."""
+    _grant(plain_user, "library-review", count=5)  # diamond
+    _grant(plain_user, "code-commits", count=12)  # silver
+    _grant(plain_user, "library-authoring", count=1)  # bronze
+    _pick(plain_user, TierRank.BRONZE, slug="library-authoring")
+    plain_user = _reload(plain_user)
+
+    names = [card["name"] for card in display.badge_cards(plain_user)]
+
+    assert names == ["Library Author", "Reviewer", "Commits Master"]
+
+
+def test_a_pick_below_the_top_rung_still_leads(plain_user):
+    """The card shows one row per badge, and that row leads on a pick.
+
+    The picker only offers the rung a member has reached, but a stored pick can
+    fall behind when they climb. It is still the badge they chose.
+    """
+    _grant(plain_user, "library-review", count=5)
+    _grant(plain_user, "code-commits", count=12)
+    _pick(plain_user, TierRank.BRONZE)  # reviewer bronze, three rungs down
+    plain_user = _reload(plain_user)
+
+    cards = display.badge_cards(plain_user)
+
+    assert cards[0]["name"] == "Reviewer"
+    # The row is the rung reached, not the rung picked.
+    assert cards[0]["icon"] == BadgeToken.TIER_5
+
+
 def test_only_the_highest_rung_of_a_badge_gets_a_card(plain_user):
     """Climbing keeps the rungs below, and the card listed every one of them.
 
