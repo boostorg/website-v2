@@ -783,6 +783,10 @@ class BaseStaticContentTemplateView(TemplateView):
                 "content": content,
                 "content_type": content_type,
                 "selected_version": self.get_selected_version(),
+                # These pages are served through a shared HTTP cache, so their
+                # HTML must not bake in one visitor's login state. The header
+                # leaves the auth slot empty and fetches it per request.
+                "defer_auth_state": True,
             }
         )
         logger.info(
@@ -1162,7 +1166,7 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
             # was not generate from Antora builders.
             return content
 
-        context = {"disable_theme_switcher": False}
+        context = {"disable_theme_switcher": False, "defer_auth_state": True}
         # TODO: investigate if this base_html + template can be removed completely,
         #  seems unused
         base_html = render_to_string(
