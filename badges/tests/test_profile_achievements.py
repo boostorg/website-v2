@@ -7,10 +7,13 @@ two answer different questions.
 
 import pytest
 import waffle.testutils
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 from badges import display
 from badges.enums import BadgeLabel
 from badges.models import Achievement, Badge, UserAchievement
+from badges.summary import user_badge_summary
 
 
 @pytest.fixture(autouse=True)
@@ -90,6 +93,51 @@ def test_an_achievement_feeding_two_badges_is_one_card(plain_user):
     (card,) = display.achievement_cards(plain_user)
 
     assert card["points"] == 3
+
+
+def test_supplied_rows_are_read_instead_of_queried(
+    plain_user, django_assert_num_queries
+):
+    """Both readers take the same rows, so the owner's page reads them once.
+
+    The cards and the dialog's counts are the same underlying summary. Each
+    reading it for itself cost the owner's own profile a second copy of every
+    query behind it.
+    """
+    _grant(plain_user, "library-review", count=3)
+    rows = user_badge_summary(plain_user)
+
+    with django_assert_num_queries(0):
+        cards = display.achievement_cards(plain_user, rows=rows)
+    # One, not none: the dialog lists the whole catalogue, which is a read of
+    # its own and nothing to do with this member's grants.
+    with django_assert_num_queries(1):
+        counts = display.achievement_dialog_rows(plain_user, rows=rows)
+
+    assert cards == display.achievement_cards(plain_user)
+    assert counts == display.achievement_dialog_rows(plain_user)
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_the_owners_page_reads_the_summary_once(plain_user, tp):
+    """A regression guard on the page, not just on the functions.
+
+    The owner's page is the only one wanting both the cards and the dialog
+    counts, so it is the only one that could pay twice.
+    """
+    _grant(plain_user, "library-review", count=3)
+    tp.client.force_login(plain_user)
+
+    with CaptureQueriesContext(connection) as queries:
+        response = tp.get(tp.reverse("profile-account"))
+
+    tp.response_200(response)
+    grant_reads = [
+        query
+        for query in queries.captured_queries
+        if "badges_userachievement" in query["sql"]
+    ]
+    assert len(grant_reads) == 1
 
 
 @waffle.testutils.override_flag("v3", active=True)

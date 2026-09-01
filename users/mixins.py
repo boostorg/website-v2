@@ -93,14 +93,19 @@ class V3UserProfileContextMixin:
         buttons.extend(self.get_trailing_buttons(user))
         return buttons
 
-    def get_v3_public_context(self, user):
+    def get_v3_public_context(self, user, summary_rows=None):
         """Context for the read-only v3 profile view.
 
         Renders real user data. Sections with no underlying data (GitHub
         activity, mailing list activity, posts) are left out of the context so
         the template omits them entirely; achievements are present but empty,
         which the template treats the same way. The bio section is always
-        rendered, falling back to an empty state."""
+        rendered, falling back to an empty state.
+
+        `summary_rows` lets a caller that needs the badge summary for something
+        else hand over the rows it already read, rather than paying for a second
+        read of the same thing. `CurrentUserProfileView` does, for the
+        achievements dialog's counts."""
         is_owner = user == self.request.user
         context = {
             "user_info": {
@@ -126,7 +131,7 @@ class V3UserProfileContextMixin:
             # the same card. Empty for a member who has earned nothing, and the
             # card is then left out rather than shown as an example.
             "achievements_data": {
-                "achievements": badge_display.achievement_cards(user)
+                "achievements": badge_display.achievement_cards(user, rows=summary_rows)
             },
             # The recognition cards render on the owner's own page even when
             # empty, because their empty states are the way in to the badge and

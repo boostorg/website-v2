@@ -319,7 +319,7 @@ def badge_cards(user, include_hidden=False):
     return [badge_card(badge) for badge in unique.values()]
 
 
-def achievement_cards(user):
+def achievement_cards(user, rows=None):
     """The member's earned achievements, as the dicts the achievement card reads.
 
     Only achievements with a valid grant: the card records what the member did,
@@ -329,9 +329,15 @@ def achievement_cards(user):
 
     Highest tally first, name breaking ties - the registry orders by name alone,
     which buries the tallies the card is built around.
+
+    ``rows`` takes summary rows already read for this member. The owner's own
+    profile needs both these cards and the dialog's counts, and the read behind
+    them is the same one; passing it in is what keeps it to one.
     """
+    if rows is None:
+        rows = user_badge_summary(user)
     cards = {}
-    for row in user_badge_summary(user):
+    for row in rows:
         if row.valid_grants:
             cards[row.achievement.pk] = {
                 "title": row.achievement.name,
@@ -414,7 +420,7 @@ BADGES_DIALOG_DESCRIPTION = (
 PLACEHOLDER_ACHIEVEMENT_COUNT = 1
 
 
-def achievement_dialog_rows(user=None):
+def achievement_dialog_rows(user=None, rows=None):
     """Every achievement type as a dialog row, Boost Day last.
 
     Each row carries a counter, which is what the design asks for: the tally is
@@ -429,8 +435,11 @@ def achievement_dialog_rows(user=None):
 
     Ordered by name, ``Achievement`` being an admin-editable registry with no
     catalogue ordering of its own.
+
+    ``rows`` takes summary rows already read for this member; see
+    ``achievement_cards``. Ignored without a member, there being nothing to count.
     """
-    counts = {} if user is None else _valid_grant_counts(user)
+    counts = {} if user is None else _valid_grant_counts(user, rows=rows)
     rows = [
         {
             "token": BadgeToken.ACHIEVEMENT_COUNT,
@@ -443,13 +452,15 @@ def achievement_dialog_rows(user=None):
     return rows + [BOOST_DAY_ROW]
 
 
-def _valid_grant_counts(user):
+def _valid_grant_counts(user, rows=None):
     """How many valid grants the member holds of each achievement, by pk.
 
     Read through ``user_badge_summary`` so "a valid grant" keeps one definition
     across the app. It counts ``is_valid`` rows and leaves invalidated ones out.
     """
-    return {row.achievement.pk: row.valid_grants for row in user_badge_summary(user)}
+    if rows is None:
+        rows = user_badge_summary(user)
+    return {row.achievement.pk: row.valid_grants for row in rows}
 
 
 def badge_dialog_rows():
