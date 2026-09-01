@@ -3,7 +3,7 @@ import waffle.testutils
 from django.urls import resolve
 from model_bakery import baker
 
-from users.models import UserProfileRoutingKey
+from users.models import GithubActivity, UserProfileRoutingKey
 
 pytestmark = pytest.mark.django_db
 
@@ -290,3 +290,48 @@ def test_owner_share_button_copies_the_public_url_not_the_edit_url(user, tp):
     assert share["url"] == user.get_absolute_url()
     assert "edit=true" not in share["url"]
     assert share["extra_classes"] == "js-copy-profile-url"
+
+
+def _link_github(user, login="otherdev"):
+    """Give `user` a linked GitHub account, as connecting one would."""
+    return baker.make(
+        "socialaccount.SocialAccount",
+        user=user,
+        provider="github",
+        extra_data={"login": login, "name": user.display_name},
+    )
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_public_profile_shows_the_owners_github_activity(other_user, tp):
+    """The section is the point of #2704: a visitor must see whose profile they
+    are on, not an empty gap."""
+    _link_github(other_user)
+    other_user.github_username = "otherdev"
+    other_user.save()
+    GithubActivity.upsert_for_user(
+        other_user, {"total_commits": 9, "commit_repo_count": 2}
+    )
+
+    response = tp.get(
+        "profile-user", routing_key=other_user.profile_routing_key.routing_key
+    )
+
+    tp.response_200(response)
+    content = response.content.decode()
+    assert "user-profile__github" in content
+    assert "Created 9 Commits" in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_public_profile_omits_github_activity_without_a_linked_account(other_user, tp):
+    """github_username alone is not a linked account: libraries.tasks sets it
+    from commit-author matching, with no GitHub connection involved."""
+    other_user.github_username = "otherdev"
+    other_user.save()
+
+    response = tp.get(
+        "profile-user", routing_key=other_user.profile_routing_key.routing_key
+    )
+
+    assert "user-profile__github" not in response.content.decode()
