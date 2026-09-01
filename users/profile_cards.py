@@ -179,11 +179,17 @@ def github_activity_card_context(user, attempt=0):
     """Context for ``_github_activity_card.html``, shared by the profile page
     and the fragment endpoint it polls."""
     attempt = max(0, attempt)
+    # The poll address is per profile, so a visitor polling gets the numbers of
+    # the profile they are on. An account with no routing key has no such
+    # address. The card then renders once without polling rather than pointing
+    # somewhere that 404s.
+    key = user.profile_routing_key
+    poll_url = reverse("profile-github-activity", args=[key.routing_key]) if key else ""
     return {
         "data": github_activity_card(user),
         "attempt": attempt,
         "next_attempt": attempt + 1,
-        "poll_exhausted": attempt >= GITHUB_ACTIVITY_POLL_MAX_ATTEMPTS,
-        "poll_url": reverse("profile-github-activity"),
+        "poll_exhausted": attempt >= GITHUB_ACTIVITY_POLL_MAX_ATTEMPTS or not poll_url,
+        "poll_url": poll_url,
         "poll_interval": GITHUB_ACTIVITY_POLL_INTERVAL_SECONDS,
     }
