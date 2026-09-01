@@ -148,3 +148,29 @@ def test_fragment_ignores_garbage_attempt(client, user, db):
 
     assert resp.status_code == 200
     assert "hx-get=" in resp.content.decode()
+
+
+def test_fragment_404s_when_activity_is_hidden(client, user, other_user, db):
+    """Otherwise the endpoint is a way around the profile page's own rules."""
+    cache.clear()
+    _connect(other_user)
+    other_user.hide_github_activity = True
+    other_user.save()
+
+    client.force_login(user)
+    assert client.get(_fragment_url(other_user)).status_code == 404
+
+
+def test_fragment_serves_hidden_activity_to_its_owner(client, user, db):
+    cache.clear()
+    _connect(user)
+    user.github_username = "testuser"
+    user.hide_github_activity = True
+    user.save()
+    GithubActivity.upsert_for_user(user, {"total_commits": 5, "commit_repo_count": 1})
+
+    client.force_login(user)
+    resp = client.get(_fragment_url(user))
+
+    assert resp.status_code == 200
+    assert "Created 5 Commits" in resp.content.decode()

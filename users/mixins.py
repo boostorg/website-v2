@@ -135,10 +135,12 @@ class V3UserProfileContextMixin:
             "bio": user.biography or None,
             "top_links": self.get_v3_profile_link_buttons(user),
         }
-        # Rendered on anyone's profile, not just your own. Omitted entirely
-        # without a linked GitHub account, so a profile with no data stays the
-        # bio card alone rather than showing an empty shell.
-        activity = github_activity_card_context(user)
-        if activity["data"]["linked"]:
+        # Rendered on anyone's profile, not just your own, and omitted entirely
+        # without a linked GitHub account so a profile with no data stays the
+        # bio card alone. include_hidden for the owner, for the same reason as
+        # `role` and the badges above: a member who hid their activity still
+        # sees it on their own page, and a visitor never does.
+        activity = github_activity_card_context(user, include_hidden=is_owner)
+        if activity and activity["data"]["linked"]:
             context["github_activity"] = activity
         return context

@@ -175,9 +175,18 @@ def github_activity_card(user):
     return card
 
 
-def github_activity_card_context(user, attempt=0):
+def github_activity_card_context(user, attempt=0, include_hidden=False):
     """Context for ``_github_activity_card.html``, shared by the profile page
-    and the fragment endpoint it polls."""
+    and the fragment endpoint it polls.
+
+    Returns None when the user has hidden their GitHub activity, unless
+    ``include_hidden`` is set.
+    Callers omit the section entirely rather than rendering it empty, the same
+    shape ``badges.display.held_badges`` uses for ``hide_badges``.
+    """
+    if user.hide_github_activity and not include_hidden:
+        return None
+
     attempt = max(0, attempt)
     # The poll address is per profile, so a visitor polling gets the numbers of
     # the profile they are on. An account with no routing key has no such

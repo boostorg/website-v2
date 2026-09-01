@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import (
+    Http404,
     HttpResponsePermanentRedirect,
     HttpResponseRedirect,
     JsonResponse,
@@ -180,7 +181,14 @@ class GithubActivityFragmentView(TemplateView):
             attempt = int(self.request.GET.get("attempt", 0))
         except ValueError:
             attempt = 0
-        return github_activity_card_context(key.user, attempt=attempt)
+        context = github_activity_card_context(
+            key.user, attempt=attempt, include_hidden=key.user == self.request.user
+        )
+        # Hidden activity 404s rather than rendering, so this endpoint cannot
+        # be used to read past the profile page's own visibility rules.
+        if context is None:
+            raise Http404("No GitHub activity for this profile.")
+        return context
 
 
 class CurrentUserProfileView(

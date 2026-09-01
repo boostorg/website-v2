@@ -335,3 +335,38 @@ def test_public_profile_omits_github_activity_without_a_linked_account(other_use
     )
 
     assert "user-profile__github" not in response.content.decode()
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_hidden_github_activity_is_withheld_from_visitors(other_user, tp):
+    """The switch already saved; until now nothing read it back."""
+    _link_github(other_user)
+    other_user.github_username = "otherdev"
+    other_user.hide_github_activity = True
+    other_user.save()
+    GithubActivity.upsert_for_user(other_user, {"total_commits": 9})
+
+    response = tp.get(
+        "profile-user", routing_key=other_user.profile_routing_key.routing_key
+    )
+
+    content = response.content.decode()
+    assert "user-profile__github" not in content
+    assert "Created 9 Commits" not in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_hidden_github_activity_still_shows_to_its_owner(user, tp):
+    """Hiding is about the public profile, not about hiding it from yourself."""
+    _link_github(user, login="me")
+    user.github_username = "me"
+    user.hide_github_activity = True
+    user.save()
+    GithubActivity.upsert_for_user(user, {"total_commits": 9})
+
+    with tp.login(user):
+        response = tp.get("profile-account")
+
+    content = response.content.decode()
+    assert "user-profile__github" in content
+    assert "Created 9 Commits" in content
