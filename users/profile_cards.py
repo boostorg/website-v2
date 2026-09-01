@@ -136,9 +136,10 @@ def github_activity_bullets(data, login):
 def github_activity_card(user):
     """Build the context for the profile's GitHub activity card.
 
-    Never calls GitHub. Returns one of three states: a connect prompt when no
-    GitHub account is linked, an empty state while the first sync runs, or the
-    stored numbers.
+    Never calls GitHub. Returns the stored numbers, or an empty state while the
+    first sync runs. With no linked GitHub account there is nothing to show:
+    `linked` stays False and callers omit the section, so connecting is offered
+    by the account connections card rather than here.
     """
     state = github_activity_state(user)
     card = {
@@ -152,15 +153,10 @@ def github_activity_card(user):
     }
 
     if not state.linked:
-        card["markdown_text"] = (
-            "Connect your GitHub account to see your Boost activity here."
-        )
-        card["button_label"] = "Connect GitHub"
-        card["button_url"] = f"{reverse('github_login')}?process=connect"
         return card
 
     if state.activity is None or not state.activity.data:
-        card["markdown_text"] = "Fetching your Boost GitHub activity…"
+        card["markdown_text"] = "Fetching Boost GitHub activity…"
         return card
 
     # Every bullet is dropped when all counts are zero, which is the common case
