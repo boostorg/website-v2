@@ -208,32 +208,52 @@ def test_featured_badge_honours_the_members_choice(plain_user):
     assert display.featured_badge(plain_user)["icon"] == BadgeToken.TIER_1
 
 
-def test_badges_held_but_none_picked_features_nothing(plain_user):
-    """No pick, no featured badge - even holding several.
+def test_badges_held_but_none_picked_features_the_highest(plain_user):
+    """No pick features the top rank held, per issue #2702.
 
-    Featuring the top rank for a member who never chose would publish a choice
-    they did not make. The cards list is unaffected; only the headline is a pick.
+    This reverses the earlier rule, which featured nothing without a deliberate
+    save. Almost nobody makes that save, so a member with a full card of badges
+    showed none beside their name and it read as a bug.
     """
-    _grant(plain_user, "library-review", count=3)
+    _grant(plain_user, "library-review", count=3)  # bronze, silver and gold
     plain_user = _reload(plain_user)
 
     assert plain_user.display_badge_id is None
-    assert display.held_badges(plain_user) != []
-    assert display.featured_badge(plain_user) is None
-    assert plain_user.featured_badge is None
-    assert plain_user.to_v3_profile_dict()["badge"] is None
-    assert len(display.badge_cards(plain_user)) == 3
+    assert display.featured_badge(plain_user)["icon"] == BadgeToken.TIER_3
+    assert plain_user.featured_badge["icon"] == BadgeToken.TIER_3
+    assert plain_user.to_v3_profile_dict()["badge"] == BadgeToken.TIER_3
+    # One badge climbed three rungs is one card, not three.
+    assert len(display.badge_cards(plain_user)) == 1
 
 
-def test_featured_badge_shows_nothing_when_the_choice_is_revoked(plain_user):
-    """A revoked pick features nothing rather than silently moving to another."""
+def test_a_revoked_choice_falls_back_to_the_highest_held(plain_user):
+    """A revoked pick is no pick, so the default applies rather than nothing.
+
+    A revocation that left the name bare while the badges card stayed full is
+    the same reported bug by another route.
+    """
     _grant(plain_user, "library-review", count=3)
     picked = _pick(plain_user, TierRank.BRONZE)
     UserBadge.objects.filter(pk=picked.pk).update(revoked_at="2026-01-01T00:00:00Z")
     plain_user = _reload(plain_user)
 
-    assert display.held_badges(plain_user) != []
-    assert display.featured_badge(plain_user) is None
+    assert display.featured_badge(plain_user)["icon"] == BadgeToken.TIER_3
+
+
+def test_only_the_highest_rung_of_a_badge_gets_a_card(plain_user):
+    """Climbing keeps the rungs below, and the card listed every one of them.
+
+    Eleven rows for six badges on the profile in issue #2702. The rungs below
+    stay in ``held_badges``, which is history and what a pick is checked against.
+    """
+    _grant(plain_user, "library-review", count=3)
+    _grant(plain_user, "code-commits", count=12)
+    plain_user = _reload(plain_user)
+
+    cards = display.badge_cards(plain_user)
+
+    assert len(display.held_badges(plain_user)) > len(cards)
+    assert [card["name"] for card in cards] == ["Reviewer", "Commits Master"]
 
 
 def test_a_chosen_badge_is_still_hidden_by_hide_badges(plain_user):
