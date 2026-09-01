@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 
 from badges import display as badge_display
+from badges.summary import user_badge_summary
 from core.context_processors import edit_profile_url
 from users.profile_cards import github_activity_card_context
 
@@ -93,20 +94,19 @@ class V3UserProfileContextMixin:
         buttons.extend(self.get_trailing_buttons(user))
         return buttons
 
-    def get_v3_public_context(self, user, summary_rows=None):
+    def get_v3_public_context(self, user):
         """Context for the read-only v3 profile view.
 
         Renders real user data. Sections with no underlying data (GitHub
         activity, mailing list activity, posts) are left out of the context so
         the template omits them entirely; achievements are present but empty,
         which the template treats the same way. The bio section is always
-        rendered, falling back to an empty state.
-
-        `summary_rows` lets a caller that needs the badge summary for something
-        else hand over the rows it already read, rather than paying for a second
-        read of the same thing. `CurrentUserProfileView` does, for the
-        achievements dialog's counts."""
+        rendered, falling back to an empty state."""
         is_owner = user == self.request.user
+        # Read once and used twice below: the achievements card and the
+        # dialog's counters are the same query. Both readers live here so that
+        # every route to a page gets the same answer for the same cost.
+        summary_rows = user_badge_summary(user)
         context = {
             "user_info": {
                 "user_name": user.display_name,
@@ -147,6 +147,15 @@ class V3UserProfileContextMixin:
             "bio": user.biography or None,
             "top_links": self.get_v3_profile_link_buttons(user),
         }
+        # Owner-only, and keyed on who is looking rather than which URL was
+        # used: `/users/me/` and your own `/users/<routing-key>/` page are the
+        # same page, so both show your real tallies. A visitor gets no rows at
+        # all and the dialog falls back to the catalogue, another member's
+        # tallies not being this dialog's to show.
+        if is_owner:
+            context["achievement_dialog_items"] = badge_display.achievement_dialog_rows(
+                user, rows=summary_rows
+            )
         # Rendered on anyone's profile, not just your own, and omitted entirely
         # without a linked GitHub account so a profile with no data stays the
         # bio card alone. include_hidden for the owner, for the same reason as

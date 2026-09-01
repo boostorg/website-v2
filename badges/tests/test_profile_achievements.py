@@ -119,17 +119,23 @@ def test_supplied_rows_are_read_instead_of_queried(
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_the_owners_page_reads_the_summary_once(plain_user, tp):
+@pytest.mark.parametrize("route", ["profile-account", "routing-key"])
+def test_the_owners_page_reads_the_summary_once(plain_user, tp, route):
     """A regression guard on the page, not just on the functions.
 
     The owner's page is the only one wanting both the cards and the dialog
-    counts, so it is the only one that could pay twice.
+    counts, so it is the only one that could pay twice - by either route.
     """
     _grant(plain_user, "library-review", count=3)
     tp.client.force_login(plain_user)
+    url = (
+        tp.reverse("profile-account")
+        if route == "profile-account"
+        else plain_user.get_absolute_url()
+    )
 
     with CaptureQueriesContext(connection) as queries:
-        response = tp.get(tp.reverse("profile-account"))
+        response = tp.get(url)
 
     tp.response_200(response)
     grant_reads = [
@@ -138,6 +144,42 @@ def test_the_owners_page_reads_the_summary_once(plain_user, tp):
         if "badges_userachievement" in query["sql"]
     ]
     assert len(grant_reads) == 1
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_both_routes_to_your_own_profile_show_the_same_counts(plain_user, tp):
+    """`/users/me/` and your own routing-key page are the same page.
+
+    The dialog's counts used to be attached by the `/users/me/` view alone, so
+    reaching your own profile by its public URL showed the catalogue's
+    placeholder instead of what you had earned.
+    """
+    achievement = _grant(plain_user, "library-review", count=7)
+    tp.client.force_login(plain_user)
+
+    own = tp.get(tp.reverse("profile-account"))
+    public = tp.get(plain_user.get_absolute_url())
+
+    for response in (own, public):
+        tp.response_200(response)
+        # Boost Day rides along without a counter, so skip the countless rows.
+        counts = {
+            row["name"]: row["count"]
+            for row in response.context["achievement_dialog_items"]
+            if "count" in row
+        }
+        assert counts[achievement.name] == 7
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_a_visitor_gets_no_dialog_rows_of_the_members_own(plain_user, tp):
+    """Another member's tallies are not this dialog's to show."""
+    _grant(plain_user, "library-review", count=7)
+
+    response = tp.get(plain_user.get_absolute_url())
+
+    tp.response_200(response)
+    assert "achievement_dialog_items" not in response.context
 
 
 @waffle.testutils.override_flag("v3", active=True)

@@ -62,8 +62,6 @@ from .forms import (
     CustomSignUpForm,
     SLACK_PROFILE_URL_PREFIX,
 )
-from badges.summary import user_badge_summary
-
 from .mixins import V3UserProfileContextMixin
 from .models import (
     NO_PUBLIC_ROLE_OPTION,
@@ -414,17 +412,7 @@ class CurrentUserProfileView(
     def get_v3_context_data(self, **kwargs):
         if self.request.GET.get("edit", "").lower() == "true":
             return self.get_v3_edit_context()
-        # Read once and handed to both readers below. The cards and the
-        # dialog's counts are the same query, and this page is the only one
-        # that wants both.
-        summary_rows = user_badge_summary(self.request.user)
-        ctx = self.get_v3_public_context(self.request.user, summary_rows=summary_rows)
-        # Counted here rather than in the shared context so only the owner's own
-        # page can produce real tallies.
-        ctx["achievement_dialog_items"] = badge_display.achievement_dialog_rows(
-            self.request.user, rows=summary_rows
-        )
-        return ctx
+        return self.get_v3_public_context(self.request.user)
 
     def get_template_names(self):
         if (
