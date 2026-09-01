@@ -53,14 +53,19 @@
         An empty column would otherwise leave the bio at half width beside a
         blank gap.
 
-        Both recognition cards render on the member's own page even with
-        nothing in them: their empty states carry the only CTAs that open the
-        badge and achievement dialogs, so suppressing them would leave no way
-        in. A visitor sees each card only once it has real data.
+        The badges card renders on the member's own page even with nothing in
+        it: its empty state carries the only CTA that opens the badges dialog,
+        so suppressing it would leave no way in. A visitor sees it only once it
+        has real data.
+
+        Achievements are not treated that way (issue #2702). The card is shown
+        only to a member who has earned something, owner included, rather than
+        offering an example dressed up as their own; its CTA rides on the filled
+        card, which is what keeps the achievements dialog reachable.
       {% endcomment %}
       {% if profile_is_owner or achievements_data.achievements or profile_badges or posts or account_connections_none_connected %}
       <div class="user-profile__col">
-        {% if profile_is_owner or achievements_data.achievements %}
+        {% if achievements_data.achievements %}
         <div class="user-profile__achievements">
           {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements primary_button_url="#achievements-modal" %}
         </div>

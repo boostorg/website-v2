@@ -97,9 +97,10 @@ class V3UserProfileContextMixin:
         """Context for the read-only v3 profile view.
 
         Renders real user data. Sections with no underlying data (GitHub
-        activity, mailing list activity, posts, achievements) are left out
-        of the context so the template omits them entirely. The bio section
-        is always rendered, falling back to an empty state."""
+        activity, mailing list activity, posts) are left out of the context so
+        the template omits them entirely; achievements are present but empty,
+        which the template treats the same way. The bio section is always
+        rendered, falling back to an empty state."""
         is_owner = user == self.request.user
         context = {
             "user_info": {
@@ -121,9 +122,16 @@ class V3UserProfileContextMixin:
                 ),
             },
             "profile_badges": badge_display.badge_cards(user, include_hidden=is_owner),
-            # The recognition cards render on the owner's own page even when
-            # empty, because their empty states are the way in to the badge and
-            # achievement dialogs. A visitor sees them only with real data.
+            # Dict-wrapped to match the shape the v3 component gallery feeds
+            # the same card. Empty for a member who has earned nothing, and the
+            # card is then left out rather than shown as an example.
+            "achievements_data": {
+                "achievements": badge_display.achievement_cards(user)
+            },
+            # The badges card renders on the owner's own page even when empty,
+            # because its empty state is the way in to the badges dialog. A
+            # visitor sees it only with real data. Achievements do not use this:
+            # that card is hidden whenever it is empty, owner or not.
             "profile_is_owner": is_owner,
             # Library contributions grouped by role, rendered as the
             # contributions section of the bio card. An empty dict means no

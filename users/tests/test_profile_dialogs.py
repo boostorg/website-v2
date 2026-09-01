@@ -30,15 +30,28 @@ def profile_body(owner):
     return render_profile(owner)
 
 
+@pytest.fixture
+def decorated_profile_body(owner, grant_achievement):
+    """The page of a member who has earned something.
+
+    The achievements card is hidden while it is empty, so its CTA - the only
+    trigger for the achievements dialog - is only on the page of a member with
+    an achievement to show.
+    """
+    review = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
+    grant_achievement(owner, review)
+    return render_profile(owner)
+
+
 def test_profile_page_renders_both_dialogs(profile_body):
     assert 'id="achievements-modal"' in profile_body
     assert 'id="badges-modal"' in profile_body
 
 
-def test_achievements_cta_opens_its_dialog(profile_body):
+def test_achievements_cta_opens_its_dialog(decorated_profile_body):
     (href,) = re.findall(
         r'<a[^>]*href="([^"]*)"[^>]*>(?:(?!</a>).)*Learn how achievements work',
-        profile_body,
+        decorated_profile_body,
         re.S,
     )
 
@@ -83,3 +96,9 @@ def test_an_untouched_achievement_counts_zero(owner):
     dialog = body[body.index('id="achievements-modal"') :]
 
     assert ">00<" in dialog
+
+
+def test_the_achievements_cta_rides_on_the_filled_card(decorated_profile_body):
+    """The CTA used to be empty-state only, which hid it from every real member."""
+    assert "Learn how achievements work" in decorated_profile_body
+    assert "achievement-card__achivement-example" not in decorated_profile_body

@@ -278,34 +278,67 @@ def held_badges(user, include_hidden=False):
 
 
 def featured_badge(user, include_hidden=False):
-    """The badge the member picked, or ``None``. Never a badge they did not pick.
+    """The badge the member picked, else the highest one they hold, else ``None``.
 
-    There is no default: a member holding badges but choosing none features none.
-    Featuring one for them would publish a choice they never made, and the picker
-    already opens on a suggestion, so the only way here is a deliberate save.
+    A pick always wins, a lower rung included: which badge leads is the point of
+    the picker. Any pick that does not resolve - unset, revoked, or folded away
+    by ``held_badges`` - falls back to the top rank held.
 
-    ``None`` likewise covers a pick that has stopped being displayable - revoked,
-    hidden from the public, or a rank held twice where grandfathering left the row
-    ``held_badges`` folded away.
+    The fallback reverses the earlier rule, which featured nothing without a
+    deliberate save (issue #2702). Almost nobody makes that save, so a member
+    with a full card of badges showed none beside their name. ``hide_badges``
+    still wins, the fallback reaching only what ``held_badges`` allows.
 
     ``display_badge_id`` is read rather than ``display_badge`` because a page
     rendering many users would otherwise cost a query each: the picked row, when
     the member still holds it, is already among ``held_badges``.
     """
+    held = held_badges(user, include_hidden=include_hidden)
     picked = user.display_badge_id
-    if picked is None:
-        return None
-    for row in held_badges(user, include_hidden=include_hidden):
-        if row.pk == picked:
-            return badge_card(row)
-    return None
+    if picked is not None:
+        for row in held:
+            if row.pk == picked:
+                return badge_card(row)
+    return badge_card(held[0]) if held else None
 
 
 def badge_cards(user, include_hidden=False):
-    """Every active badge as a card dict, highest rank first."""
-    return [
-        badge_card(badge) for badge in held_badges(user, include_hidden=include_hidden)
-    ]
+    """Each badge category as one card, its highest rank, highest rank first.
+
+    Climbing keeps the rungs below, so bronze-to-gold in one category listed the
+    same badge three times - eleven rows for six badges in issue #2702. Only the
+    rung reached is a badge to show.
+
+    Deduped here rather than in ``held_badges``, which is what ``featured_badge``
+    validates a pick against: a member may feature a lower rung, and folding it
+    away there would silently override them.
+    """
+    unique = {}
+    for badge in held_badges(user, include_hidden=include_hidden):
+        unique.setdefault(badge.badge_id, badge)
+    return [badge_card(badge) for badge in unique.values()]
+
+
+def achievement_cards(user):
+    """The member's earned achievements, as the dicts the achievement card reads.
+
+    Only achievements with a valid grant: the card records what the member did,
+    so a zero is not a row. Deduped by achievement, ``user_badge_summary``
+    emitting a row per achievement/badge pair while an achievement feeding two
+    badges is still one tally.
+
+    Highest tally first, name breaking ties - the registry orders by name alone,
+    which buries the tallies the card is built around.
+    """
+    cards = {}
+    for row in user_badge_summary(user):
+        if row.valid_grants:
+            cards[row.achievement.pk] = {
+                "title": row.achievement.name,
+                "points": row.valid_grants,
+                "description": row.achievement.description,
+            }
+    return sorted(cards.values(), key=lambda card: (-card["points"], card["title"]))
 
 
 def badge_card(user_badge):
