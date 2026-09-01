@@ -107,17 +107,29 @@ def test_public_profile_renders_the_earned_achievements(plain_user, tp):
     body = response.content.decode()
     assert "user-profile__achievements" in body
     assert achievement.name in body
-    assert "achievement-card__achivement-example" not in body
+    assert "Showcase your contributions" not in body
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_own_profile_hides_the_achievements_card_when_empty(plain_user, tp):
-    """No example achievements dressed up as the owner's own."""
+def test_own_profile_keeps_the_empty_achievements_card(plain_user, tp):
+    """The owner's empty card carries the only way into the achievements dialog.
+
+    The same rule as the badges card beside it, so the two behave alike.
+    """
     tp.client.force_login(plain_user)
 
     response = tp.get(tp.reverse("profile-account"))
 
     tp.response_200(response)
     body = response.content.decode()
-    assert "user-profile__achievements" not in body
-    assert "Patch Wizard" not in body
+    assert "user-profile__achievements" in body
+    assert "Learn how achievements work" in body
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_a_visitor_sees_no_empty_achievements_card(plain_user, tp):
+    """The empty state is the owner's prompt to earn some, not a visitor's."""
+    response = tp.get(plain_user.get_absolute_url())
+
+    tp.response_200(response)
+    assert "user-profile__achievements" not in response.content.decode()

@@ -1,11 +1,10 @@
 {% comment %}
-  This card lists the achievements for a user. If not provided a list of achievements, instead give a demonstration of achievements and link to the about page
+  This card lists the achievements a user has earned. Given none, it shows an
+  empty state instead: a line of copy and a link out to the explainer, matching
+  how _badges_card.html handles the same situation.
     Inputs:
       Achievements - Optional: A list of achievements, each of which has points, a title, and a description
-      primary_button_url - Optional: target for the "Learn how achievements work" button, shown in both states
-
-  The empty state is a demonstration, so the profile page does not use it: it
-  drops the card instead and only the v3 component gallery renders it.
+      primary_button_url - Optional: target for the "Learn how achievements work" button, shown in the empty state only
 {% endcomment %}
 
 <div class="card wide-card">
@@ -14,41 +13,25 @@
   </div>
   <hr class="card__hr" />
   <div class="card__column px-large">
-    <div class="achievement-card__container">
-      {% for ach in achievements %}
-        <div class="achievement-card__achievement">
-          {% include "v3/includes/_count_badge.html" with value=ach.points size="medium" %}
-          <div class="achievement-card__description">
-            <p class="achievement-card__ach-text text-primary">{{ ach.title }}</p>
-            <p class="achievement-card__ach-text text-secondary">{{ ach.description }}</p>
+    {% if achievements %}
+      <div class="achievement-card__container">
+        {% for ach in achievements %}
+          <div class="achievement-card__achievement">
+            {% include "v3/includes/_count_badge.html" with value=ach.points size="medium" %}
+            <div class="achievement-card__description">
+              <p class="achievement-card__ach-text text-primary">{{ ach.title }}</p>
+              <p class="achievement-card__ach-text text-secondary">{{ ach.description }}</p>
+            </div>
           </div>
-        </div>
-      {% empty %}
-        <div class="achievement-card__achievement achievement-card__achivement-example">
-          {% include "v3/includes/_count_badge.html" with value=19 size="medium" %}
-          <div class="achievement-card__description">
-            <p class="achievement-card__ach-text text-primary">Patch Wizard</p>
-            <p class="achievement-card__ach-text text-secondary">Submitted patch that was reviewed and merged</p>
-          </div>
-        </div>
-        <div class="achievement-card__achievement achievement-card__achivement-example">
-          {% include "v3/includes/_count_badge.html" with value=7 size="medium" %}
-          <div class="achievement-card__description">
-            <p class="achievement-card__ach-text text-primary">Consensus Builder</p>
-            <p class="achievement-card__ach-text text-secondary">Guided technical discussion toward agreement</p>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-    {% if not achievements %}
+        {% endfor %}
+      </div>
+    {% else %}
       <span class="achievement-card__bold-text">Showcase your contributions and milestones as you participate in the community.</span>
     {% endif %}
   </div>
-  {% comment %}
-    Unguarded, unlike the two blocks above: it is the only trigger for the
-    achievements dialog, which an empty-state guard would hide from everyone.
-  {% endcomment %}
-  <div class="px-large card__cta_section">
-    {% include 'v3/includes/_button.html' with style=primary_style url=primary_button_url label='Learn how achievements work' only %}
-  </div>
+  {% if not achievements %}
+    <div class="px-large card__cta_section">
+      {% include 'v3/includes/_button.html' with style=primary_style url=primary_button_url label='Learn how achievements work' only %}
+    </div>
+  {% endif %}
 </div>

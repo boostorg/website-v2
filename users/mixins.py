@@ -128,10 +128,9 @@ class V3UserProfileContextMixin:
             "achievements_data": {
                 "achievements": badge_display.achievement_cards(user)
             },
-            # The badges card renders on the owner's own page even when empty,
-            # because its empty state is the way in to the badges dialog. A
-            # visitor sees it only with real data. Achievements do not use this:
-            # that card is hidden whenever it is empty, owner or not.
+            # The recognition cards render on the owner's own page even when
+            # empty, because their empty states are the way in to the badge and
+            # achievement dialogs. A visitor sees them only with real data.
             "profile_is_owner": is_owner,
             # Library contributions grouped by role, rendered as the
             # contributions section of the bio card. An empty dict means no

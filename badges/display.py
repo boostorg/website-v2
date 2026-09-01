@@ -420,19 +420,21 @@ def achievement_dialog_rows(user=None):
     Each row carries a counter, which is what the design asks for: the tally is
     the point, the artwork being the same for every achievement type.
 
-    Given a member, the counters are that member's own valid grants, zero
-    included. Without one they carry a placeholder. Only the owner's own profile
-    passes a user, another member's tallies not being this dialog's to show.
+    Given a member, the counters are that member's own valid grants.
+
+    Nothing earned shows the placeholder rather than a zero, whether or not
+    there is a member to count: the dialog explains how achievements work, and
+    the counter is artwork carrying an example figure. A wall of ``00`` reads as
+    a broken counter instead.
 
     Ordered by name, ``Achievement`` being an admin-editable registry with no
     catalogue ordering of its own.
     """
     counts = {} if user is None else _valid_grant_counts(user)
-    default = PLACEHOLDER_ACHIEVEMENT_COUNT if user is None else 0
     rows = [
         {
             "token": BadgeToken.ACHIEVEMENT_COUNT,
-            "count": counts.get(achievement.pk, default),
+            "count": counts.get(achievement.pk) or PLACEHOLDER_ACHIEVEMENT_COUNT,
             "name": achievement.name,
             "description": achievement.description,
         }

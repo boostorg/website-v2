@@ -34,9 +34,7 @@ def profile_body(owner):
 def decorated_profile_body(owner, grant_achievement):
     """The page of a member who has earned something.
 
-    The achievements card is hidden while it is empty, so its CTA - the only
-    trigger for the achievements dialog - is only on the page of a member with
-    an achievement to show.
+    A filled achievements card, which is the state that drops the CTA.
     """
     review = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
     grant_achievement(owner, review)
@@ -48,10 +46,10 @@ def test_profile_page_renders_both_dialogs(profile_body):
     assert 'id="badges-modal"' in profile_body
 
 
-def test_achievements_cta_opens_its_dialog(decorated_profile_body):
+def test_achievements_cta_opens_its_dialog(profile_body):
     (href,) = re.findall(
         r'<a[^>]*href="([^"]*)"[^>]*>(?:(?!</a>).)*Learn how achievements work',
-        decorated_profile_body,
+        profile_body,
         re.S,
     )
 
@@ -90,15 +88,16 @@ def test_a_single_digit_count_is_padded(owner, grant_achievement):
     assert ">03<" in row
 
 
-def test_an_untouched_achievement_counts_zero(owner):
-    """Zero on the owner's page, where the answer is known."""
+def test_an_untouched_achievement_shows_the_placeholder(owner):
+    """Never ``00`` on the owner's page - the counter is the dialog's artwork."""
     body = render_profile(owner)
     dialog = body[body.index('id="achievements-modal"') :]
 
-    assert ">00<" in dialog
+    assert ">00<" not in dialog
+    assert ">01<" in dialog
 
 
-def test_the_achievements_cta_rides_on_the_filled_card(decorated_profile_body):
-    """The CTA used to be empty-state only, which hid it from every real member."""
-    assert "Learn how achievements work" in decorated_profile_body
-    assert "achievement-card__achivement-example" not in decorated_profile_body
+def test_a_filled_achievements_card_drops_the_cta(decorated_profile_body):
+    """The button is the empty state's, the same way the badges card works."""
+    assert "Showcase your contributions" not in decorated_profile_body
+    assert "Learn how achievements work" not in decorated_profile_body

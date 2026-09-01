@@ -66,9 +66,9 @@ def test_counts_are_the_members_own_valid_grants(
     rows = {row["name"]: row for row in achievement_dialog_rows(plain_user)}
 
     assert rows[review.name]["count"] == 3
-    # Untouched achievements stay at zero rather than borrowing the count.
+    # An untouched achievement shows the placeholder, not this row's count.
     commits = Achievement.objects.get(slug=AchievementSlug.CODE_COMMITS)
-    assert rows[commits.name]["count"] == 0
+    assert rows[commits.name]["count"] == PLACEHOLDER_ACHIEVEMENT_COUNT
 
 
 def test_invalidated_grants_do_not_count(catalogue, plain_user, grant_achievement):
@@ -82,11 +82,15 @@ def test_invalidated_grants_do_not_count(catalogue, plain_user, grant_achievemen
     assert rows[review.name]["count"] == 1
 
 
-def test_a_member_with_no_grants_counts_zero(catalogue, plain_user):
-    """Zero, not the placeholder: the answer for this member is known."""
+def test_a_member_with_no_grants_gets_the_placeholder(catalogue, plain_user):
+    """The placeholder, not a zero, so the dialog reads the same as the demo.
+
+    A member who has earned nothing would otherwise see every row at ``00``,
+    which reads as a broken counter rather than as an explainer.
+    """
     rows = achievement_dialog_rows(plain_user)[:-1]
 
-    assert {row["count"] for row in rows} == {0}
+    assert {row["count"] for row in rows} == {PLACEHOLDER_ACHIEVEMENT_COUNT}
 
 
 def test_without_a_member_the_placeholder_stands(catalogue):
