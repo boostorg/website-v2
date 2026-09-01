@@ -12,38 +12,46 @@
 {% endblock %}
 
 {% block content %}
+  {% comment %} Page-level, not article content: the design puts this row at the
+  full page width with a gutter, right-aligned, above the centred column. {% endcomment %}
+  {% if not is_preview %}
+    {% if user_can_approve or user_can_edit or user_can_delete %}
+      <div class="post-detail__admin-actions">
+        {% if object.needs_approval %}
+          {% if user_can_approve %}
+            <form method="POST" action="{% url 'news-approve' object.slug %}" class="post-detail__approve-form">
+              {% csrf_token %}
+              {% include "v3/includes/_button.html" with label="Approve" type="submit" style="green" %}
+            </form>
+          {% else %}
+            <span class="post-detail__pending-badge">Pending Moderation</span>
+          {% endif %}
+        {% endif %}
+        {% if user_can_edit and not object.deleted_at %}
+          {% if object.edit_window_remaining_display %}
+            <span class="post-detail__edit-timer">
+              {% include "includes/icon.html" with icon_name="clock" icon_class="post-detail__edit-timer-icon" icon_size=14 %}
+              Editable for {{ object.edit_window_remaining_display }}
+            </span>
+          {% endif %}
+          {% include "v3/includes/_button.html" with url=object.edit_url label="Edit" style="primary" %}
+        {% endif %}
+        {% if user_can_delete and not object.deleted_at %}
+          {% include "v3/includes/_button.html" with url='#delete-modal' label="Delete" style="secondary" %}
+          <form action="{{object.delete_url}}" method="POST">
+            {% csrf_token %}
+            {% include 'v3/includes/_dialog.html' with dialog_id="delete-modal" title="Delete Post" primary_label="Delete" submit=True secondary_label="Cancel" primary_style="error" description="Are you sure you want to delete this post? This can't be undone." only %}
+          </form>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endif %}
   <div class="post-detail-page">
     <article class="post-detail">
       {% if object.deleted_at %}
         <div class="post-detail__deleted-notice" role="status">
           Entry deleted on {{ object.deleted_at|date:"m/d/Y" }}{% if object.deleted_by %} by {{ object.deleted_by.display_name }}{% endif %}.
         </div>
-      {% endif %}
-      {% if not is_preview %}
-        {% if user_can_approve or user_can_edit or user_can_delete %}
-          <div class="post-detail__admin-actions">
-            {% if object.needs_approval %}
-              {% if user_can_approve %}
-                <form method="POST" action="{% url 'news-approve' object.slug %}" class="post-detail__approve-form">
-                  {% csrf_token %}
-                  {% include "v3/includes/_button.html" with label="Approve" type="submit" style="green" %}
-                </form>
-              {% else %}
-                <span class="post-detail__pending-badge">Pending Moderation</span>
-              {% endif %}
-            {% endif %}
-            {% if user_can_edit and not object.deleted_at %}
-              {% include "v3/includes/_button.html" with url=object.edit_url label="Edit" style="secondary" %}
-            {% endif %}
-            {% if user_can_delete and not object.deleted_at %}
-              {% include "v3/includes/_button.html" with url='#delete-modal' label="Delete" style="error" %}
-              <form action="{{object.delete_url}}" method="POST">
-                {% csrf_token %}
-                {% include 'v3/includes/_dialog.html' with dialog_id="delete-modal" title="Delete Post" primary_label="Delete" submit=True secondary_label="Cancel" primary_style="error" description="Are you sure you want to delete this post? This can't be undone." only %}
-              </form>
-            {% endif %}
-          </div>
-        {% endif %}
       {% endif %}
       {% include "v3/includes/_post_header.html" with title=object.title publish_date=object.publish_at tag=post_tag author=post_author %}
 
