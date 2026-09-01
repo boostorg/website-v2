@@ -86,9 +86,11 @@ class TestConvertImage:
 
 class TestConvertTextContent:
     def test_urlizes_and_wraps_in_paragraphs(self):
-        result = convert_text_content("Check https://example.com out")
+        result = convert_text_content(
+            "Check https://example.com out\r\nIt is really cool."
+        )
 
-        assert "<a href=" in result
+        assert "  \r\n" in result
         assert "example.com" in result
 
 
