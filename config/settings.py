@@ -131,6 +131,7 @@ INSTALLED_APPS += [
     "patches",
     "pages",
     "asciidoctor_sandbox",
+    "release_tools",
 ]
 
 AUTH_USER_MODEL = "users.User"

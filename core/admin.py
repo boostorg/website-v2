@@ -256,7 +256,8 @@ def get_buttons():
 
     # Order is the checklist: commits are imported, their authors are bound to
     # members, reviews are re-scraped against those authors, and only then does
-    # the backfill read all of it.
+    # the backfill read all of it. The release synchronization is not part of that
+    # sequence - it is the repair for one release, run on its own.
     return [
         CONVERT_NEW_ENTRIES_BUTTON,
         UPDATE_INDEX_BUTTON,

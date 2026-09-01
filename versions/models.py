@@ -177,6 +177,41 @@ class Version(models.Model):
         return self.slug.split("-beta")[0]
 
     @cached_property
+    def base_release_name(self):
+        """Return the release whose per-library artifacts describe this version.
+
+        A point release is tagged on the superproject only: the submodules keep
+        the base release's tag, and no separate docs archive is published for it.
+        Anything asking a library repo or the docs bucket about a point release
+        therefore has to ask about the base release instead.
+
+        Example:
+        - "boost-1.91.0-1" --> "boost-1.91.0"
+        - "boost-1.92.0" --> "boost-1.92.0"
+        - "develop" --> "develop"
+        """
+        match = re.fullmatch(r"(boost-\d+\.\d+\.\d+)-\d+", self.name)
+        return match.group(1) if match else self.name
+
+    @property
+    def is_point_release(self):
+        return self.base_release_name != self.name
+
+    @cached_property
+    def base_release_url_slug(self):
+        """Return `boost_url_slug` for this version's base release.
+
+        Identical to `boost_url_slug` for every version that is not a point
+        release, so it is safe to use wherever the docs bucket is addressed.
+
+        Example:
+        - "boost-1.91.0-1" --> "boost_1_91_0"
+        - "boost-1.92.0" --> "boost_1_92_0"
+        - "develop" --> "develop"
+        """
+        return self.base_release_name.replace("-", "_").replace(".", "_")
+
+    @cached_property
     def boost_url_slug(self):
         """Return the slug for the version that is used in the Boost URL to get to
         the existing Boost docs. The GitHub slug and the Boost slug don't match, so

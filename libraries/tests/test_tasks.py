@@ -164,3 +164,43 @@ def test_update_library_version_website_adoc_no_stable_release():
     with patch("libraries.tasks.store_library_version_website_adoc") as mock_store:
         update_library_version_website_adoc()
     mock_store.assert_not_called()
+
+
+@pytest.mark.django_db
+@patch("core.boostrenderer.get_s3_client")
+def test_point_release_docs_urls_address_the_base_release(
+    mock_get_s3_client, mock_s3_client, tp
+):
+    """A point release publishes no docs archive of its own.
+
+    Both the alphabetical scrape and the LIBRARY_DOCS_EXCEPTIONS fallback have to
+    address the base release, or the generated key fails its S3 validation and the
+    library is left with no documentation URL at all.
+    """
+    from model_bakery import baker
+
+    version = baker.make(
+        "versions.Version", name="boost-1.91.0-1", slug="boost-1-91-0-1"
+    )
+    library = baker.make("libraries.Library", name="Detail", slug="detail")
+    library_version = baker.make(
+        "libraries.LibraryVersion",
+        version=version,
+        library=library,
+        documentation_url="",
+    )
+
+    mock_get_s3_client.return_value = mock_s3_client
+    # No alphabetical listing, so only the exceptions fallback can fill this in.
+    mock_s3_response = {
+        "content": "<h2>Libraries Listed</h2>",
+        "content_type": "text/html",
+    }
+    with patch("core.boostrenderer.get_file_data", return_value=mock_s3_response):
+        get_and_store_library_version_documentation_urls_for_version(version.pk)
+
+    library_version.refresh_from_db()
+    assert "1_91_0_1" not in library_version.documentation_url
+    assert library_version.documentation_url == (
+        "/doc/libs/1_91_0/libs/detail/doc/html/index.html"
+    )

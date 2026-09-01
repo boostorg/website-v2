@@ -198,3 +198,44 @@ def test_get_dependency_stats_propagates_imported_data_exception(version):
     ):
         with pytest.raises(BoostImportedDataException):
             version.get_dependency_stats()
+
+
+@pytest.mark.parametrize(
+    "name,base,is_point",
+    [
+        ("boost-1.91.0-1", "boost-1.91.0", True),
+        ("boost-1.91.0-12", "boost-1.91.0", True),
+        ("boost-1.92.0", "boost-1.92.0", False),
+        ("boost-1.92.0.beta1", "boost-1.92.0.beta1", False),
+        ("develop", "develop", False),
+        ("master", "master", False),
+    ],
+)
+def test_base_release_name_resolves_point_releases(name, base, is_point):
+    """Point releases are tagged on the superproject only.
+
+    Their submodules keep the base release's tag and no docs archive is published
+    for them, so per-library and docs lookups have to resolve to the base release.
+    """
+    version = baker.prepare("versions.Version", name=name, slug=name.replace(".", "-"))
+    assert version.base_release_name == base
+    assert version.is_point_release is is_point
+
+
+@pytest.mark.parametrize(
+    "name,slug,expected",
+    [
+        ("boost-1.91.0-1", "boost-1-91-0-1", "boost_1_91_0"),
+        ("boost-1.92.0", "boost-1-92-0", "boost_1_92_0"),
+        ("boost-1.92.0.beta1", "boost-1-92-0-beta1", "boost_1_92_0_beta1"),
+        ("develop", "develop", "develop"),
+    ],
+)
+def test_base_release_url_slug_matches_boost_url_slug_off_point_releases(
+    name, slug, expected
+):
+    """Safe to substitute for `boost_url_slug`: only point releases differ."""
+    version = baker.prepare("versions.Version", name=name, slug=slug)
+    assert version.base_release_url_slug == expected
+    if not version.is_point_release:
+        assert version.base_release_url_slug == version.boost_url_slug

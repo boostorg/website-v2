@@ -368,10 +368,16 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         logger.info(
             "import_library_versions_version_not_found", version_name=version_name
         )
+        return None
 
     client = GithubAPIClient(token=token)
     updater = LibraryUpdater(client=client)
     parser = GithubDataParser()
+
+    # The submodules of a point release carry the base release's tag, not the
+    # point release's, so every per-library lookup below has to use that one or
+    # it 404s for all of them and the rows land with no authors.
+    metadata_tag = version.base_release_name
 
     # Get the gitmodules file for the version, which contains library data
     # The master and develop branches are not tags, so we retrieve their data
@@ -381,14 +387,14 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         ref = client.get_ref(ref=ref_s)
     except ValueError:
         logger.info(f"import_library_versions_invalid_ref {ref_s=}")
-        return
+        return None
 
     raw_gitmodules = client.get_gitmodules(ref=ref)
     if not raw_gitmodules:
         logger.info(
             "import_library_versions_invalid_gitmodules", version_name=version_name
         )
-        return
+        return None
 
     gitmodules = parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
 
@@ -405,7 +411,7 @@ def import_library_versions(version_name, token=None, version_type="tag"):
 
         try:
             libraries_json = client.get_libraries_json(
-                repo_slug=library_name, tag=version_name
+                repo_slug=library_name, tag=metadata_tag
             )
         except (
             requests.exceptions.JSONDecodeError,
@@ -478,7 +484,7 @@ def import_library_versions(version_name, token=None, version_type="tag"):
                     "cpp_standard_maximum": lib_data.get("cxxstd_max"),
                     "cpp20_module_support": lib_data.get("cpp20_module_support"),
                     "description": lib_data.get("description"),
-                    **fetch_website_adoc_fields(client, library_name, version_name),
+                    **fetch_website_adoc_fields(client, library_name, metadata_tag),
                 },
             )
             if not library.github_url:
@@ -497,6 +503,11 @@ def import_library_versions(version_name, token=None, version_type="tag"):
 
     # Load maintainers for library-versions
     call_command("update_maintainers", "--release", version.name)
+
+    # The keys it managed to read. Falsy means it read nothing at all, which a
+    # caller cannot otherwise tell from a successful run: every failure above
+    # this point is logged and returned from rather than raised.
+    return library_keys
 
 
 @app.task

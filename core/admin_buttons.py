@@ -70,7 +70,12 @@ class TaskButton:
 
     ``choices`` makes the button a scoped run: the pairs become a select beside it
     and the chosen value reaches the task as ``argument``. Choosing nothing runs the
-    task with no arguments.
+    task with no arguments. It may also be a callable returning those pairs, for a
+    button whose options come from the database and so cannot be settled at import.
+
+    ``require_choice`` drops the "all" option and refuses an empty submission, for a
+    job that has no meaningful unscoped run - one whose whole point is that it does
+    not touch everything.
 
     ``permission`` names what authorises the job, for a task doing something the
     model's change permission does not cover - a sweep that deletes rows wants
@@ -97,8 +102,9 @@ class TaskButton:
     busy_message: str
     argument: str = ""
     choice_label: str = ""
-    choices: tuple = ()
+    choices: Any = ()
     all_label: str = "All"
+    require_choice: bool = False
     permission: str = ""
     confirm: Any = None
     description: str = ""
@@ -111,6 +117,19 @@ class TaskButton:
                 f"TaskButton {self.name!r} has choices but no argument to pass "
                 "the chosen value as."
             )
+        if self.require_choice and not self.choices:
+            raise ValueError(
+                f"TaskButton {self.name!r} requires a choice but offers none."
+            )
+
+    def resolved_choices(self):
+        """The select's pairs, resolving ``choices`` if it is a callable.
+
+        Read once per request rather than held on the button, so a database-backed
+        list is current and an import-time query is never made.
+        """
+        choices = self.choices() if callable(self.choices) else self.choices
+        return tuple(choices)
 
 
 def task_status(task_id):
@@ -176,7 +195,8 @@ class TaskButtonAdminMixin:
                 "label": button.label,
                 "argument": button.argument,
                 "choice_label": button.choice_label,
-                "choices": button.choices,
+                "choices": button.resolved_choices(),
+                "require_choice": button.require_choice,
                 "all_label": button.all_label,
                 "description": button.description,
                 "field_id": f"task-button-{button.name}-{button.argument}",
@@ -297,8 +317,16 @@ class TaskButtonAdminMixin:
             if not self._task_button_allows(request, button):
                 raise PermissionDenied
 
-            choices = dict(button.choices)
+            choices = dict(button.resolved_choices())
             value = request.POST.get(button.argument, "") if choices else ""
+            if button.require_choice and not value:
+                self.message_user(
+                    request,
+                    f"Choose {button.choice_label.lower() or 'an option'} first; "
+                    "this job has no unscoped run.",
+                    level=messages.WARNING,
+                )
+                return HttpResponseRedirect(redirect_url)
             # ``call_command`` does not enforce an argument's ``choices``, so an
             # unvetted value would only fail inside the worker, where nobody is
             # looking.
