@@ -22,7 +22,7 @@ def _insert_line_breaks(string: str):
     This fixes examples such as `text`\r\n`text`, which are rendered as
     two separate lines in V2, and a single line in V3.
     """
-    reg = re.compile("[^\s]\\r\\n")
+    reg = re.compile(r"(?<=\S)\r\n")
     return reg.sub(repl="  \r\n", string=string)
 
 
