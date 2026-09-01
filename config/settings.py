@@ -378,6 +378,13 @@ CONTRIBUTOR_DATA_CACHE_TIMEOUT = env.int(
     "CONTRIBUTOR_DATA_CACHE_TIMEOUT", default=60 * 60 * 24
 )
 
+# How long a user's "I have seen the newest post" acknowledgement is kept. Only
+# a reclaim window for users who never come back; an expiry shows the nav dot
+# once more, it never hides a genuinely new post.
+POST_NOTIFICATION_SEEN_TIMEOUT = env.int(
+    "POST_NOTIFICATION_SEEN_TIMEOUT", default=60 * 60 * 24 * 180
+)
+
 # Default interval by which to clear the static content cache
 # New method: "never" clear, just overwrite, so that the id
 # field doesn't expand without bounds.
