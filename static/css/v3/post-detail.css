@@ -75,7 +75,8 @@
 }
 
 /* Copy the body styling to markdown blocks for wagtail styling. */
-.post-detail__body .block-markdown {
+.post-detail__body .block-blog,
+.post-detail__body .block-news {
   display: flex;
   flex-direction: column;
   gap: var(--space-large);
