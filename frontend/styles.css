@@ -133,8 +133,14 @@ html:has(#docsiframe) .header-menu-bar.topnavbar {
   z-index: 1000;
 }
 
-html:has(#docsiframe) .bg-white:has(.version_alert),
-html:has(#docsiframe) .version_alert {
+/* The legacy docs chrome pins the 41px topnavbar and the alert under it, then
+   pays for both with padding on <body>. V3 has no fixed bar: the header is
+   absolutely positioned inside .docs-iframe-page and the space is reserved by
+   .docs-iframe-page > .w-full (static/css/v3/header.css). Applying both leaves
+   a 41px gap above the v3 header and overflows the viewport, so these stay
+   legacy-only. */
+html:not(.v3):has(#docsiframe) .bg-white:has(.version_alert),
+html:not(.v3):has(#docsiframe) .version_alert {
   position: fixed;
   top: var(--header-height, 41px);
   left: 0;
@@ -143,11 +149,11 @@ html:has(#docsiframe) .version_alert {
   width: 100%;
 }
 
-html:has(#docsiframe):has(.version_alert) {
+html:not(.v3):has(#docsiframe):has(.version_alert) {
   --version-alert-height: 32px;
 }
 
-html:has(#docsiframe) body {
+html:not(.v3):has(#docsiframe) body {
   padding-top: calc(var(--header-height, 41px) + var(--version-alert-height, 0px));
 }
 
