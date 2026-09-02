@@ -362,7 +362,7 @@ class V3UserProfileForm(forms.Form):
         required=False,
     )
     hide_ach = forms.BooleanField(
-        label="Hide badges on your profile",
+        label="Hide badges and achievements on your profile",
         required=False,
     )
 

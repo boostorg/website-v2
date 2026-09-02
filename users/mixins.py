@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 
 from badges import display as badge_display
+from badges.summary import user_badge_summary
 from core.context_processors import edit_profile_url
 from users.profile_cards import github_activity_card_context
 
@@ -97,10 +98,19 @@ class V3UserProfileContextMixin:
         """Context for the read-only v3 profile view.
 
         Renders real user data. Sections with no underlying data (GitHub
-        activity, mailing list activity, posts, achievements) are left out
-        of the context so the template omits them entirely. The bio section
-        is always rendered, falling back to an empty state."""
+        activity, mailing list activity, posts) are left out of the context so
+        the template omits them entirely; achievements are present but empty,
+        which the template treats the same way. The bio section is always
+        rendered, falling back to an empty state."""
         is_owner = user == self.request.user
+        # Read once and used twice below: the achievements card and the
+        # dialog's counters are the same query. Both readers live here so that
+        # every route to a page gets the same answer for the same cost.
+        #
+        # `hide_badges` covers achievements too, so a visitor to a profile that
+        # hid them has nothing to read the summary for.
+        show_recognition = is_owner or not user.hide_badges
+        summary_rows = user_badge_summary(user) if show_recognition else None
         context = {
             "user_info": {
                 "user_name": user.display_name,
@@ -121,6 +131,15 @@ class V3UserProfileContextMixin:
                 ),
             },
             "profile_badges": badge_display.badge_cards(user, include_hidden=is_owner),
+            # Dict-wrapped to match the shape the v3 component gallery feeds
+            # the same card. Empty for a member who has earned nothing - or hid
+            # them - and the card is then left out rather than shown as an
+            # example.
+            "achievements_data": {
+                "achievements": badge_display.achievement_cards(
+                    user, rows=summary_rows, include_hidden=is_owner
+                )
+            },
             # The recognition cards render on the owner's own page even when
             # empty, because their empty states are the way in to the badge and
             # achievement dialogs. A visitor sees them only with real data.
@@ -135,6 +154,15 @@ class V3UserProfileContextMixin:
             "bio": user.biography or None,
             "top_links": self.get_v3_profile_link_buttons(user),
         }
+        # Owner-only, and keyed on who is looking rather than which URL was
+        # used: `/users/me/` and your own `/users/<routing-key>/` page are the
+        # same page, so both show your real tallies. A visitor gets no rows at
+        # all and the dialog falls back to the catalogue, another member's
+        # tallies not being this dialog's to show.
+        if is_owner:
+            context["achievement_dialog_items"] = badge_display.achievement_dialog_rows(
+                user, rows=summary_rows
+            )
         # Rendered on anyone's profile, not just your own, and omitted entirely
         # without a linked GitHub account so a profile with no data stays the
         # bio card alone. include_hidden for the owner, for the same reason as

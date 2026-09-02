@@ -30,6 +30,17 @@ def profile_body(owner):
     return render_profile(owner)
 
 
+@pytest.fixture
+def decorated_profile_body(owner, grant_achievement):
+    """The page of a member who has earned something.
+
+    A filled achievements card, which is the state that drops the CTA.
+    """
+    review = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
+    grant_achievement(owner, review)
+    return render_profile(owner)
+
+
 def test_profile_page_renders_both_dialogs(profile_body):
     assert 'id="achievements-modal"' in profile_body
     assert 'id="badges-modal"' in profile_body
@@ -77,9 +88,16 @@ def test_a_single_digit_count_is_padded(owner, grant_achievement):
     assert ">03<" in row
 
 
-def test_an_untouched_achievement_counts_zero(owner):
-    """Zero on the owner's page, where the answer is known."""
+def test_an_untouched_achievement_shows_the_placeholder(owner):
+    """Never ``00`` on the owner's page - the counter is the dialog's artwork."""
     body = render_profile(owner)
     dialog = body[body.index('id="achievements-modal"') :]
 
-    assert ">00<" in dialog
+    assert ">00<" not in dialog
+    assert ">01<" in dialog
+
+
+def test_a_filled_achievements_card_drops_the_cta(decorated_profile_body):
+    """The button is the empty state's, the same way the badges card works."""
+    assert "Showcase your contributions" not in decorated_profile_body
+    assert "Learn how achievements work" not in decorated_profile_body

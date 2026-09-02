@@ -278,34 +278,98 @@ def held_badges(user, include_hidden=False):
 
 
 def featured_badge(user, include_hidden=False):
-    """The badge the member picked, or ``None``. Never a badge they did not pick.
+    """The badge the member picked, else the highest one they hold, else ``None``.
 
-    There is no default: a member holding badges but choosing none features none.
-    Featuring one for them would publish a choice they never made, and the picker
-    already opens on a suggestion, so the only way here is a deliberate save.
+    A pick always wins, a lower rung included: which badge leads is the point of
+    the picker. Any pick that does not resolve - unset, revoked, or folded away
+    by ``held_badges`` - falls back to the top rank held.
 
-    ``None`` likewise covers a pick that has stopped being displayable - revoked,
-    hidden from the public, or a rank held twice where grandfathering left the row
-    ``held_badges`` folded away.
+    The fallback reverses the earlier rule, which featured nothing without a
+    deliberate save (issue #2702). Almost nobody makes that save, so a member
+    with a full card of badges showed none beside their name. ``hide_badges``
+    still wins, the fallback reaching only what ``held_badges`` allows.
 
     ``display_badge_id`` is read rather than ``display_badge`` because a page
     rendering many users would otherwise cost a query each: the picked row, when
     the member still holds it, is already among ``held_badges``.
     """
+    held = held_badges(user, include_hidden=include_hidden)
     picked = user.display_badge_id
-    if picked is None:
-        return None
-    for row in held_badges(user, include_hidden=include_hidden):
-        if row.pk == picked:
-            return badge_card(row)
-    return None
+    if picked is not None:
+        for row in held:
+            if row.pk == picked:
+                return badge_card(row)
+    return badge_card(held[0]) if held else None
 
 
 def badge_cards(user, include_hidden=False):
-    """Every active badge as a card dict, highest rank first."""
-    return [
-        badge_card(badge) for badge in held_badges(user, include_hidden=include_hidden)
-    ]
+    """Each badge category as one card, its highest rank, highest rank first.
+
+    Climbing keeps the rungs below, so bronze-to-gold in one category listed the
+    same badge three times - eleven rows for six badges in issue #2702. Only the
+    rung reached is a badge to show.
+
+    Deduped here rather than in ``held_badges``, which is what ``featured_badge``
+    validates a pick against: a member may feature a lower rung, and folding it
+    away there would silently override them.
+
+    The badge the member picked leads, whatever its rank, the rest keeping rank
+    order behind it. Picking is how a member says which badge represents them, so
+    burying it mid-list - which is where rank alone put it, since a pick is
+    usually *not* the top rank - reads as the pick having been ignored.
+
+    Matched on the badge rather than the awarded row, so a pick that is a lower
+    rung of a ladder still leads. The card shows one row per badge, the highest
+    rung reached, and that row is the picked badge's row even when the pick names
+    a rung below it.
+    """
+    rows = held_badges(user, include_hidden=include_hidden)
+    unique = {}
+    for badge in rows:
+        unique.setdefault(badge.badge_id, badge)
+    cards = list(unique.values())
+    picked = next(
+        (row.badge_id for row in rows if row.pk == user.display_badge_id), None
+    )
+    if picked is not None:
+        # Stable, so everything else keeps the rank order it arrived in.
+        cards.sort(key=lambda row: row.badge_id != picked)
+    return [badge_card(badge) for badge in cards]
+
+
+def achievement_cards(user, rows=None, include_hidden=False):
+    """The member's earned achievements, as the dicts the achievement card reads.
+
+    Only achievements with a valid grant: the card records what the member did,
+    so a zero is not a row. Deduped by achievement, ``user_badge_summary``
+    emitting a row per achievement/badge pair while an achievement feeding two
+    badges is still one tally.
+
+    Highest tally first, name breaking ties - the registry orders by name alone,
+    which buries the tallies the card is built around.
+
+    ``hide_badges`` covers achievements as well as badges: it is one control over
+    the recognition column, not two. Same shape as ``held_badges`` - nothing for a
+    member who hid them, unless ``include_hidden`` is set, which only the owner's
+    own views should do.
+
+    ``rows`` takes summary rows already read for this member. The owner's own
+    profile needs both these cards and the dialog's counts, and the read behind
+    them is the same one; passing it in is what keeps it to one.
+    """
+    if user.hide_badges and not include_hidden:
+        return []
+    if rows is None:
+        rows = user_badge_summary(user)
+    cards = {}
+    for row in rows:
+        if row.valid_grants:
+            cards[row.achievement.pk] = {
+                "title": row.achievement.name,
+                "points": row.valid_grants,
+                "description": row.achievement.description,
+            }
+    return sorted(cards.values(), key=lambda card: (-card["points"], card["title"]))
 
 
 def badge_card(user_badge):
@@ -381,25 +445,30 @@ BADGES_DIALOG_DESCRIPTION = (
 PLACEHOLDER_ACHIEVEMENT_COUNT = 1
 
 
-def achievement_dialog_rows(user=None):
+def achievement_dialog_rows(user=None, rows=None):
     """Every achievement type as a dialog row, Boost Day last.
 
     Each row carries a counter, which is what the design asks for: the tally is
     the point, the artwork being the same for every achievement type.
 
-    Given a member, the counters are that member's own valid grants, zero
-    included. Without one they carry a placeholder. Only the owner's own profile
-    passes a user, another member's tallies not being this dialog's to show.
+    Given a member, the counters are that member's own valid grants.
+
+    Nothing earned shows the placeholder rather than a zero, whether or not
+    there is a member to count: the dialog explains how achievements work, and
+    the counter is artwork carrying an example figure. A wall of ``00`` reads as
+    a broken counter instead.
 
     Ordered by name, ``Achievement`` being an admin-editable registry with no
     catalogue ordering of its own.
+
+    ``rows`` takes summary rows already read for this member; see
+    ``achievement_cards``. Ignored without a member, there being nothing to count.
     """
-    counts = {} if user is None else _valid_grant_counts(user)
-    default = PLACEHOLDER_ACHIEVEMENT_COUNT if user is None else 0
+    counts = {} if user is None else _valid_grant_counts(user, rows=rows)
     rows = [
         {
             "token": BadgeToken.ACHIEVEMENT_COUNT,
-            "count": counts.get(achievement.pk, default),
+            "count": counts.get(achievement.pk) or PLACEHOLDER_ACHIEVEMENT_COUNT,
             "name": achievement.name,
             "description": achievement.description,
         }
@@ -408,13 +477,15 @@ def achievement_dialog_rows(user=None):
     return rows + [BOOST_DAY_ROW]
 
 
-def _valid_grant_counts(user):
+def _valid_grant_counts(user, rows=None):
     """How many valid grants the member holds of each achievement, by pk.
 
     Read through ``user_badge_summary`` so "a valid grant" keeps one definition
     across the app. It counts ``is_valid`` rows and leaves invalidated ones out.
     """
-    return {row.achievement.pk: row.valid_grants for row in user_badge_summary(user)}
+    if rows is None:
+        rows = user_badge_summary(user)
+    return {row.achievement.pk: row.valid_grants for row in rows}
 
 
 def badge_dialog_rows():
