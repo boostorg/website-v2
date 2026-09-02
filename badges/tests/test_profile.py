@@ -570,6 +570,92 @@ def test_library_detail_user_badge_query_is_constant(library_version, plain_user
     assert {card["badge_label"] for card in four_cards} == {"Library Author"}
 
 
+def _commit_author(user=None, **kwargs):
+    """A human commit author, optionally linked to a Boost account."""
+    return baker.make("libraries.CommitAuthor", user=user, is_bot=False, **kwargs)
+
+
+def test_a_commit_author_shows_its_linked_members_badge(plain_user):
+    """Release and library contributor rows are CommitAuthors, not Users, and
+    their card hardcoded no badge even for a linked account (#2708)."""
+    plain_user = _feature(plain_user, "library-authoring")
+    author = _commit_author(user=plain_user)
+
+    profile = author.to_v3_profile_dict("Contributor")
+
+    assert profile["badge"] == BadgeToken.TIER_1
+    assert profile["badge_label"] == "Library Author"
+
+
+def test_a_git_only_contributor_has_no_badge():
+    """Badges are awarded to the account, so an unlinked git identity has none.
+
+    The empty case the template skips, not a placeholder medal.
+    """
+    profile = _commit_author().to_v3_profile_dict("Contributor")
+
+    assert profile["badge"] is None
+    assert profile["badge_label"] == ""
+
+
+def test_a_contributor_matched_by_github_username_keeps_its_badge(plain_user):
+    """`prefer_boost_profile_links` repoints a contributor at their Boost
+    profile off the GitHub username when the commit email never matched. The
+    badge has to travel with the link, or the same member renders as an
+    account beside a badgeless stranger."""
+    from libraries.utils import prefer_boost_profile_links
+
+    plain_user.github_username = "vinniefalco"
+    plain_user.claimed = True
+    plain_user.save(update_fields=["github_username", "claimed"])
+    plain_user = _feature(plain_user, "library-authoring")
+    author = _commit_author(github_profile_url="https://github.com/VinnieFalco")
+
+    profile = author.to_v3_profile_dict("Contributor")
+    assert profile["badge"] is None, "unlinked, so nothing to show yet"
+
+    prefer_boost_profile_links([profile])
+
+    assert profile["profile_url"] == plain_user.profile_url
+    assert profile["badge"] == BadgeToken.TIER_1
+    assert profile["badge_label"] == "Library Author"
+
+
+def test_release_contributor_badge_query_is_constant(plain_user, version):
+    """The downloads page loads contributor badges once, not once per row.
+
+    `user` is select_related on the contributor queryset, so the badges have to
+    be asked for through the path - see `badges.display.active_badges_prefetch`.
+    """
+    from versions.views import VersionDetail
+
+    def add_contributor(user):
+        """One commit against this release, authored by `user`'s git identity."""
+        baker.make(
+            "libraries.Commit",
+            library_version=baker.make("libraries.LibraryVersion", version=version),
+            author=_commit_author(user=user),
+        )
+
+    plain_user = _feature(plain_user, "library-authoring")
+    add_contributor(plain_user)
+
+    def contributors():
+        return VersionDetail().get_v3_contributors(version)
+
+    one_row, one_badge_query = _badge_queries(contributors)
+
+    for index in range(1, 4):
+        user = baker.make("users.User", email=f"release-{index}@example.com")
+        add_contributor(_feature(user, "library-authoring"))
+    four_rows, four_badge_queries = _badge_queries(contributors)
+
+    assert one_badge_query == four_badge_queries == 1
+    assert len(one_row) == 1
+    assert len(four_rows) == 4
+    assert {row["badge_label"] for row in four_rows} == {"Library Author"}
+
+
 @waffle.testutils.override_flag("v3", active=True)
 def test_own_profile_page_shows_hidden_badges(plain_user, tp):
     """The owner's own v3 profile still renders badges they have hidden."""

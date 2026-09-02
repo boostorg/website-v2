@@ -537,9 +537,15 @@ def prefer_boost_profile_links(author_dicts):
     profile. GitHub username is a second signal for the same identity, and both
     records usually carry it.
 
+    The badge travels with the link, for the same reason: a contributor we are
+    confident enough to point at a Boost profile is that member, so showing
+    their profile but not their badge would split one identity across two cards
+    (issue #2708).
+
     Resolves the whole list in one query. Mutates each dict in place and returns
     the same list.
     """
+    from badges.display import active_badges_prefetch
     from users.models import User
 
     by_username = {}
@@ -560,7 +566,7 @@ def prefer_boost_profile_links(author_dicts):
         User.objects.filter(is_active=True, claimed=True)
         .annotate(github_username_lower=Lower("github_username"))
         .filter(github_username_lower__in=by_username)
-        .prefetch_related("profile_routing_keys")
+        .prefetch_related("profile_routing_keys", active_badges_prefetch())
     )
     for user in users:
         profile_url = user.profile_url
@@ -568,6 +574,8 @@ def prefer_boost_profile_links(author_dicts):
             continue
         for author in by_username.get(user.github_username.lower(), []):
             author["profile_url"] = profile_url
+            author["badge"] = user.badge
+            author["badge_label"] = user.badge_label
 
     return author_dicts
 
@@ -644,6 +652,7 @@ def build_library_intro_context(
     slots; set it False to show authors and maintainers only. `max_authors`
     caps the number shown; pass None to show all.
     """
+    from badges.display import active_badges_prefetch
     from libraries.models import CommitAuthor
 
     library = library_version.library
@@ -661,8 +670,6 @@ def build_library_intro_context(
 
     combined = (authors + maintainers)[:max_authors]
     if combined:
-        from badges.display import active_badges_prefetch
-
         prefetch_related_objects(combined, active_badges_prefetch())
     roles = {}
     for user in combined:
@@ -683,10 +690,15 @@ def build_library_intro_context(
             CommitAuthor.humans.filter(commit__library_version=library_version)
             .exclude(id__in=exclude_commit_author_ids)
             .annotate(count=Count("commit"))
-            # A claimed contributor links to their Boost profile, which reads the
-            # user and their routing keys.
+            # A claimed contributor links to their Boost profile and shows
+            # their badge, which reads the user, their routing keys and their
+            # badge rows. Badges are asked for through the path because `user`
+            # is select_related - see `badges.display.active_badges_prefetch`.
             .select_related("user")
-            .prefetch_related("user__profile_routing_keys")
+            .prefetch_related(
+                "user__profile_routing_keys",
+                active_badges_prefetch("user__badges"),
+            )
             .order_by("-count")[:remaining]
         )
 

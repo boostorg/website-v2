@@ -485,8 +485,10 @@ class TestPreferBoostProfileLinks:
                 github_username=f"user{i}",
             )
         rows = [self.author_dict(f"user{i}") for i in range(3)]
-        # One for the users, one for their prefetched routing keys.
-        with django_assert_num_queries(2):
+        # One for the users, one for their prefetched routing keys, one for
+        # their prefetched badges. Three rows and a fixed count: drop any of
+        # the prefetches and this grows with the list rather than staying put.
+        with django_assert_num_queries(3):
             prefer_boost_profile_links(rows)
         assert all(r["profile_url"].startswith("/users/") for r in rows)
 
