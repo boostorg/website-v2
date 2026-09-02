@@ -420,6 +420,56 @@ def test_library_docs_redirect(tp, library, library_version):
     tp.response_302(resp)
 
 
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_v3_latest_posts_are_scoped_to_the_library(
+    tp, library_version, make_post_page, wagtail_site
+):
+    """The posts card shows this library's posts, not the newest ones site-wide."""
+    library = library_version.library
+    make_post_page(title="Tagged post", tags=[library.slug])
+    make_post_page(title="Unrelated post")
+
+    url = tp.reverse("library-detail", "latest", library.slug)
+    tp.response_200(tp.get(url))
+
+    titles = [card["title"] for card in tp.get_context("library_posts")]
+    assert titles == ["Tagged post"]
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_v3_latest_posts_cta_points_at_the_news_index(
+    tp, library_version, make_post_page, post_index_page, wagtail_site
+):
+    """Unset, the card's "View all posts" button renders an empty href.
+
+    It has to resolve to the Wagtail index rather than `reverse("news")`,
+    which is the legacy entry list that v3 no longer links anywhere.
+    """
+    library = library_version.library
+    make_post_page(title="Tagged post", tags=[library.slug])
+
+    url = tp.reverse("library-detail", "latest", library.slug)
+    tp.response_200(tp.get(url))
+
+    cta_url = tp.get_context("library_posts_cta_url")
+    assert cta_url == post_index_page.get_url()
+    assert cta_url != tp.reverse("news")
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_v3_hides_the_posts_card_without_tagged_posts(
+    tp, library_version, make_post_page, wagtail_site
+):
+    """An empty list is what the template checks to drop the card entirely."""
+    library = library_version.library
+    make_post_page(title="Unrelated post")
+
+    url = tp.reverse("library-detail", "latest", library.slug)
+    tp.response_200(tp.get(url))
+
+    assert tp.get_context("library_posts") == []
+
+
 def test_library_detail_context_get_commit_data_(tp, library_version):
     """
     GET /library/latest/{library_slug}/

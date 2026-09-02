@@ -328,21 +328,19 @@ class PostPage(BasePage):
         return reverse_lazy("v3-news-delete", kwargs={"slug": self.slug})
 
     def to_v3_post_card_dict(self, author_role=None):
-        """Dict shape consumed by `v3/includes/_post_card.html` items."""
-        from news.models import POST_CARD_TAG_LABELS
+        """Dict shape consumed by `v3/includes/_post_card.html` items.
 
-        category = ""
-
-        if self.tag:
-            tag_key = str(self.tag).lower()
-            category = POST_CARD_TAG_LABELS.get(tag_key, self.tag.name.capitalize())
-
+        The two meta slots match the post list at /news/: the type of the post
+        ("News", "Video") and the library it is tagged with, rendered as
+        "#beast". `self.tag` is a library `ContentTag`, not a post type, so it
+        belongs in the second slot rather than the first.
+        """
         return {
             "title": self.title,
             "url": self.get_absolute_url(),
             "date": self.date or self.publish_at,
-            "category": category,
-            "tag": "",
+            "category": self.type_label,
+            "tag": str(self.tag) if self.tag else "",
             "author": (
                 self.author.to_v3_profile_dict(role=author_role)
                 if self.author

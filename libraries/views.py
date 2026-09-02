@@ -25,6 +25,7 @@ from core.githubhelper import GithubAPIClient
 from core.mixins import V3Mixin
 from mailing_list.mixins import MailingListCardMixin
 from news.services import get_latest_post_cards
+from pages.routing import post_index_url
 from core.mock_data import SharedResources
 from users.models import User
 from versions.exceptions import BoostImportedDataException
@@ -643,7 +644,10 @@ class LibraryDetail(
             version_str,
         )
 
-        context["library_posts"] = get_latest_post_cards(limit=3, request=self.request)
+        context["library_posts"] = get_latest_post_cards(
+            limit=3, request=self.request, library_slug=self.object.slug
+        )
+        context["library_posts_cta_url"] = post_index_url(self.request)
 
         this_release = _build_release_contributors(context)
         context["this_release_contributors"] = (
