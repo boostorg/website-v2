@@ -2,8 +2,8 @@
 {% comment %}
   Sign Up (Create Account) Page — extends the auth page layout.
   Renders the account creation form with email, password fields,
-  mailing list checkbox, and social login options. Inherits from
-  allauth's SignupView for full registration handling.
+  and social login options. Inherits from allauth's SignupView for
+  full registration handling.
 
   This form triggers client-side validation on all fields, then submits natively if no errors.
 
@@ -52,7 +52,6 @@
     {% if form.non_field_errors %}
       {% for error in form.non_field_errors %}<p class="field__error" role="alert">{{ error }}</p>{% endfor %}
     {% endif %}
-    {% include "v3/includes/_field_checkbox.html" with name="mailing_list" label="Also join the Boost Developers Mailing List" %}
     <label class="checkbox  auth-page_tou-checkbox" for="checkbox-accept_terms_of_use">
         <input
           class="checkbox__input"
