@@ -12,6 +12,8 @@ from news.models import BlogPost
 from news.models import Link
 from news.models import Entry
 
+from django.template.defaultfilters import urlize
+
 # Wagtail caps Page.slug at 255 characters; Entry.slug allows 300.
 WAGTAIL_SLUG_MAX_LENGTH = 255
 
@@ -76,7 +78,9 @@ def get_or_create_page(entry: Entry, index_page: PostIndexPage) -> PostPage:
 
 
 def convert_text_content(content: str):
-    r_content = _insert_line_breaks(content)
+    r_content = content
+    r_content = urlize(r_content)
+    r_content = _insert_line_breaks(r_content)
     return r_content
 
 

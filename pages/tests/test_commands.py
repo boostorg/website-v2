@@ -90,6 +90,7 @@ class TestConvertTextContent:
             "Check https://example.com out\r\nIt is really cool."
         )
 
+        assert "<a href=" in result
         assert "  \r\n" in result
         assert "example.com" in result
 
