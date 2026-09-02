@@ -30,6 +30,7 @@ from pages.feed import (
     PostFeedFilters,
 )
 from pages.mixins import BasePage
+from pages.notifications import mark_post_seen, mark_posts_seen
 
 from news.tasks import summary_dispatcher
 from news.tasks import set_thumbnail_for_video_page
@@ -109,6 +110,9 @@ class PostIndexPage(BasePage):
 
             return EntryListView.as_view()(request)
 
+        # Reaching the feed acknowledges every post, so the nav dot clears
+        # before this very response is rendered.
+        mark_posts_seen(getattr(request, "user", None))
         return super().serve(request, *args, **kwargs)
 
     def _filtered_queryset(self, filters) -> models.QuerySet["PostPage"]:
@@ -264,6 +268,7 @@ class PostPage(BasePage):
 
             return EntryDetailView.as_view()(request, slug=self.slug)
 
+        mark_post_seen(getattr(request, "user", None), self.pk)
         return super().serve(request, *args, **kwargs)
 
     def get_content(self):
