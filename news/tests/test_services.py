@@ -6,6 +6,7 @@ from model_bakery import baker
 from wagtail.models import Collection
 from wagtail.models import Locale
 from wagtail.models import Page
+from waffle.testutils import override_flag
 
 from news.services import get_latest_post_cards
 from news.services import get_library_post_cards
@@ -47,6 +48,77 @@ def make_post_page(post_index_page, make_user):
         return page
 
     return _make_it
+
+
+class TestLatestPostCardsScopedToALibrary:
+    @override_flag("v3", active=True)
+    def test_returns_only_posts_tagged_with_the_library(self, rf, make_post_page):
+        make_post_page("Tagged post", tag_slugs=["multi_array"])
+        make_post_page("Other library post", tag_slugs=["beast"])
+        make_post_page("Untagged post")
+
+        cards = get_latest_post_cards(request=rf.get("/"), library_slug="multi_array")
+
+        assert [card["title"] for card in cards] == ["Tagged post"]
+
+    @override_flag("v3", active=True)
+    def test_omitting_the_slug_still_returns_every_post(self, rf, make_post_page):
+        make_post_page("Tagged post", tag_slugs=["multi_array"])
+        make_post_page("Untagged post")
+
+        cards = get_latest_post_cards(request=rf.get("/"))
+
+        assert len(cards) == 2
+
+    @override_flag("v3", active=True)
+    def test_excludes_unpublished_posts(self, rf, make_post_page):
+        make_post_page("Draft post", tag_slugs=["multi_array"], live=False)
+
+        cards = get_latest_post_cards(request=rf.get("/"), library_slug="multi_array")
+
+        assert cards == []
+
+    @override_flag("v3", active=True)
+    def test_newest_first_and_limited(self, rf, make_post_page):
+        import datetime
+
+        base = now()
+        for index in range(4):
+            make_post_page(
+                f"Post {index}",
+                tag_slugs=["multi_array"],
+                published_at=base - datetime.timedelta(days=index),
+            )
+
+        cards = get_latest_post_cards(
+            limit=3, request=rf.get("/"), library_slug="multi_array"
+        )
+
+        assert [card["title"] for card in cards] == ["Post 0", "Post 1", "Post 2"]
+
+    @override_flag("v3", active=True)
+    def test_no_matching_posts_returns_empty_list(self, rf, make_post_page):
+        make_post_page("Other library post", tag_slugs=["beast"])
+
+        cards = get_latest_post_cards(request=rf.get("/"), library_slug="multi_array")
+
+        assert cards == []
+
+    @override_flag("v3", active=True)
+    def test_blank_slug_returns_empty_list(self, rf, make_post_page):
+        make_post_page("Tagged post", tag_slugs=["multi_array"])
+
+        assert get_latest_post_cards(request=rf.get("/"), library_slug="") == []
+
+    @override_flag("v3", active=False)
+    def test_legacy_entries_are_never_returned_unfiltered(
+        self, rf, make_post_page, make_entry
+    ):
+        make_entry()
+
+        cards = get_latest_post_cards(request=rf.get("/"), library_slug="multi_array")
+
+        assert cards == []
 
 
 class TestGetLibraryPostCards:
