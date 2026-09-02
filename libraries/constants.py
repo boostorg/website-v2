@@ -421,3 +421,9 @@ COMMIT_EMAIL_STALE_ACTION_ERROR = (
 # redirected GET to regenerate its error, so this covers the race where the
 # blocking condition cleared in between and validation now passes.
 COMMIT_EMAIL_ADD_FAILED_ERROR = "That email address could not be added."
+
+# Library descriptions come from the library's own metadata and are unbounded,
+# so a long one grows the detail-page hero until its actions row overlaps the
+# cards beneath it. Capped for layout until a real content solution lands.
+# See https://github.com/boostorg/website-v2/issues/2684.
+LIBRARY_DESCRIPTION_MAX_CHARS = 230

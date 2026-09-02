@@ -15,6 +15,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.text import Truncator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, FormView, TemplateView
@@ -63,7 +64,7 @@ from .utils import (
     designed_for_html,
     benchmark_sets,
 )
-from .constants import LATEST_RELEASE_URL_PATH_STR
+from .constants import LATEST_RELEASE_URL_PATH_STR, LIBRARY_DESCRIPTION_MAX_CHARS
 
 logger = structlog.get_logger()
 
@@ -623,6 +624,17 @@ class LibraryDetail(
             context["website_adoc"].get("benchmarks")
         )
         context["slack_url"] = self.object.slack_url or SLACK_JOIN_URL
+
+        # Mirrors the template's old `library_version.description|default:...`,
+        # capped so the hero cannot grow into the cards below it.
+        description = (
+            getattr(library_version, "description", None) or self.object.description
+        )
+        context["hero_description"] = (
+            Truncator(description).chars(LIBRARY_DESCRIPTION_MAX_CHARS)
+            if description
+            else ""
+        )
 
         context["category_tags_v3"] = [
             {"label": cat.name, "url": cat.get_filter_url(version_str)}
