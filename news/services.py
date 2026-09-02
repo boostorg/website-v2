@@ -1,5 +1,4 @@
 from badges.display import active_badges_prefetch
-from pages.models import PostPage
 from pages.routing import v3_posts_active
 
 
@@ -89,45 +88,3 @@ def get_latest_post_cards(
         post.to_v3_post_card_dict()
         for post in _latest_posts(limit, request, library_slug)
     ]
-
-
-def _post_page_to_post_card(page: PostPage) -> dict:
-    author = page.author
-    return {
-        "title": page.title,
-        "url": page.get_absolute_url(),
-        "date": page.first_published_at,
-        "category": (
-            news_type_label(page.post_content_type) if page.post_content_type else ""
-        ),
-        "tag": "",
-        "author": author.to_v3_profile_dict() if author else None,
-    }
-
-
-def get_library_post_cards(library_slug: str, limit: int = 3) -> list[dict]:
-    """Return the latest posts tagged with `library_slug` as post-card dicts.
-
-    Posts are linked to a library through a `ContentTag` whose slug mirrors the
-    library slug (see the create-post view). Only Wagtail `PostPage` posts carry
-    that link; legacy news `Entry` rows have no library relation, so they are
-    deliberately excluded rather than shown unfiltered.
-
-    The filter goes through `tagged_items` rather than the `tags` manager: the
-    tag's parental key points at `wagtailcore.Page`, so filtering `tags__slug`
-    on a child page model builds a join against a `pages_postpage.id` column
-    that does not exist.
-
-    Returns an empty list when nothing is tagged, which is what hides the card.
-    """
-    if not library_slug:
-        return []
-
-    queryset = (
-        PostPage.objects.live()
-        .public()
-        .filter(tagged_items__tag__slug=library_slug)
-        .select_related("owner", "owner__displayed_profile_role_library")
-        .order_by("-first_published_at")[:limit]
-    )
-    return [_post_page_to_post_card(page) for page in queryset]
