@@ -70,3 +70,24 @@ class TestIndexEntry:
 
         assert "beast" in body
         assert "falco" in body
+
+
+class TestSearchConfig:
+    def test_folds_accents_into_the_indexed_lexemes(self, make_post_page):
+        """The config applies at index time, so the stored vector proves it."""
+        author = baker.make("users.User", display_name="Rubén Pérez")
+        page = make_post_page(owner=author)
+
+        body = index_entry_for(page).body
+
+        assert "perez" in body
+        assert "ruben" in body
+
+    def test_backend_is_configured_for_unaccented_search(self):
+        """Both vectors, not just the full text one."""
+        from modelsearch.backends import get_search_backend
+
+        backend = get_search_backend()
+
+        assert backend.config == "english_unaccent"
+        assert backend.autocomplete_config == "simple_unaccent"

@@ -100,6 +100,31 @@ class TestSearch:
 
         assert titles(get_feed(tp, feed_url, q="Falco")) == {"Authored Post"}
 
+    @pytest.mark.parametrize("term", ["Perez", "Pérez", "perez", "PEREZ"])
+    def test_matches_an_accented_author_name_either_spelling(
+        self, tp, feed_url, make_post_page, term
+    ):
+        """Stock `english` makes "perez" and "pérez" different lexemes."""
+        author = baker.make("users.User", display_name="Rubén Pérez")
+        make_post_page(title="Authored Post", owner=author)
+        make_post_page(title="Orphan Post")
+
+        assert titles(get_feed(tp, feed_url, q=term)) == {"Authored Post"}
+
+    def test_leaves_non_latin_scripts_alone(self, tp, feed_url, make_post_page):
+        """`unaccent` passes through what it cannot fold."""
+        author = baker.make("users.User", display_name="Ольга Иванова")
+        make_post_page(title="Cyrillic Post", owner=author)
+
+        assert titles(get_feed(tp, feed_url, q="Ольга")) == {"Cyrillic Post"}
+
+    def test_returns_nothing_for_a_term_that_matches_neither_way(
+        self, tp, feed_url, make_post_page
+    ):
+        make_post_page(title="A Post", body="asio networking")
+
+        assert titles(get_feed(tp, feed_url, q="xylophone")) == set()
+
     @pytest.mark.parametrize("term", ["beast", "Beast"])
     def test_matches_library_tag(self, tp, feed_url, make_post_page, term):
         make_post_page(title="Tagged Post", tags=[("beast", "Beast")])
