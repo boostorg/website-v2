@@ -423,6 +423,42 @@ def test_an_unclaimed_stub_is_not_bypassed_by_include_hidden(plain_user):
     assert display.badge_cards(plain_user, include_hidden=True) == []
 
 
+def test_a_deactivated_account_shows_no_badges(plain_user):
+    """A legacy account deletion scrubs the name and email but leaves the badge
+    rows behind - only `extended_scrub` drops them. Without this the deleted
+    member keeps a badge on every public card their commits still appear on."""
+    plain_user = _feature(plain_user, "library-authoring")
+    plain_user.delete_account()
+    plain_user = _reload(plain_user)
+
+    assert plain_user.badges.filter(revoked_at=None).exists(), (
+        "legacy delete is expected to leave the rows; this test is about hiding "
+        "them, so it would pass vacuously if they were gone"
+    )
+    assert display.held_badges(plain_user) == []
+    assert display.held_badges(plain_user, include_hidden=True) == []
+    assert display.featured_badge(plain_user) is None
+    assert plain_user.badge is None
+    assert plain_user.badge_label == ""
+    assert plain_user.to_v3_profile_dict()["badge"] is None
+
+
+def test_a_contributor_linked_to_a_deactivated_account_shows_no_badge(plain_user):
+    """Contributor rows resolve their badge through the linked account, and a
+    deleted member's commits stay attributed to them."""
+    plain_user = _feature(plain_user, "library-authoring")
+    author = _commit_author(user=plain_user)
+    assert author.to_v3_profile_dict("Contributor")["badge"] == BadgeToken.TIER_1
+
+    plain_user.delete_account()
+    author.refresh_from_db()
+
+    profile = author.to_v3_profile_dict("Contributor")
+
+    assert profile["badge"] is None
+    assert profile["badge_label"] == ""
+
+
 def test_claiming_the_account_restores_its_badges(plain_user):
     """The badges were never revoked, only withheld while the stub was unowned."""
     plain_user = _feature(plain_user, "library-authoring")
