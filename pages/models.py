@@ -23,6 +23,7 @@ from modelcluster.contrib.taggit import ClusterTaggableManager
 from waffle import flag_is_active
 
 
+from badges.display import active_badges_prefetch
 from libraries.utils import library_filter_options
 from pages.blocks import POST_BLOCKS
 from pages.feed import (
@@ -122,8 +123,15 @@ class PostIndexPage(BasePage):
             PostPage.objects.child_of(self)
             .live()
             .select_related("owner")
-            # tags per card, and the author's routing keys for the profile link.
-            .prefetch_related("tags", "owner__profile_routing_keys")
+            # tags per card, the author's badge rows for the badge beside their
+            # role, and their routing keys for the profile link. The badges are
+            # asked for through the path because `owner` is select_related - see
+            # `badges.display.active_badges_prefetch`.
+            .prefetch_related(
+                "tags",
+                active_badges_prefetch("owner__badges"),
+                "owner__profile_routing_keys",
+            )
         )
         if filters.post_type:
             posts = posts.filter(content__0__type__in=filters.post_type.block_name)
@@ -149,7 +157,11 @@ class PostIndexPage(BasePage):
         return (
             PostPage.objects.filter(pk__in=posts.order_by().values("pk"))
             .select_related("owner")
-            .prefetch_related("tags", "owner__profile_routing_keys")
+            .prefetch_related(
+                "tags",
+                active_badges_prefetch("owner__badges"),
+                "owner__profile_routing_keys",
+            )
             .search(filters.q)
         )
 
@@ -281,7 +293,17 @@ class PostPage(BasePage):
 
     def get_context(self, request, *args, **kwargs):
         ctx = super().get_context(request, *args, **kwargs)
-        pages: models.QuerySet = PostPage.objects.live().order_by("-first_published_at")
+        # Each card renders its author, which reads their badges and routing
+        # keys: one query for the page rather than one per card.
+        pages: models.QuerySet = (
+            PostPage.objects.live()
+            .select_related("owner")
+            .prefetch_related(
+                active_badges_prefetch("owner__badges"),
+                "owner__profile_routing_keys",
+            )
+            .order_by("-first_published_at")
+        )
         if self.first_published_at:
             next_objects = pages.filter(first_published_at__gt=self.first_published_at)
         else:

@@ -386,6 +386,8 @@ def test_hide_badges_suppresses_every_public_accessor(plain_user):
     assert display.featured_badge(plain_user) is None
     assert display.badge_cards(plain_user) == []
     assert plain_user.featured_badge is None
+    assert plain_user.badge is None
+    assert plain_user.badge_label == ""
     assert plain_user.to_v3_profile_dict()["badge"] is None
 
 
@@ -634,6 +636,89 @@ def test_v3_news_list_renders_no_badge_without_one(
 
     tp.response_200(response)
     assert "user-card__badge" not in response.content.decode()
+
+
+def test_a_user_fills_the_profile_component_badge_slots(plain_user):
+    """`_user_profile.html` reads `badge` and `badge_label` off whatever it is
+    handed, and the v3 post cards hand it a User rather than the dict
+    `to_v3_profile_dict` builds. Both shapes have to answer the same (#2708)."""
+    assert plain_user.badge is None
+    assert plain_user.badge_label == ""
+
+    plain_user = _feature(plain_user, "library-authoring")
+    profile = plain_user.to_v3_profile_dict()
+
+    assert plain_user.badge == BadgeToken.TIER_1 == profile["badge"]
+    assert plain_user.badge_label == "Library Author" == profile["badge_label"]
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_news_list_renders_the_author_badge_on_a_post_card(
+    plain_user, tp, post_index_page, wagtail_site, make_post_page
+):
+    """The feed lists PostPages, whose `author` is the owning User.
+
+    Anonymous on purpose: the sidebar card renders the same label for a signed-in
+    member, and would pass this whether or not the author card had a badge.
+    """
+    plain_user.display_name = "Vinnie Falco"
+    plain_user.save(update_fields=["display_name"])
+    plain_user = _feature(plain_user, "library-authoring")
+    make_post_page(title="A Post", owner=plain_user)
+
+    response = tp.get(post_index_page.get_url())
+
+    tp.response_200(response)
+    body = response.content.decode()
+    assert "user-card__badge" not in body, "signed out, so no sidebar card badge"
+    assert 'aria-label="Library Author"' in body
+    assert "badge-v3--tier-1" in body
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_post_detail_renders_the_author_badge(
+    plain_user, tp, wagtail_site, make_post_page
+):
+    """The detail page's own header reads `post_author`, which is the same User."""
+    plain_user.display_name = "Vinnie Falco"
+    plain_user.save(update_fields=["display_name"])
+    plain_user = _feature(plain_user, "library-authoring")
+    post = make_post_page(title="A Post", owner=plain_user)
+
+    response = tp.get(post.get_url())
+
+    tp.response_200(response)
+    body = response.content.decode()
+    assert 'aria-label="Library Author"' in body
+    assert "badge-v3--tier-1" in body
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_feed_author_badge_query_is_constant(
+    plain_user, tp, post_index_page, wagtail_site, make_post_page
+):
+    """The feed loads author badges once, not once per card.
+
+    `owner` is select_related, so the badges have to be asked for through the
+    path - see `badges.display.active_badges_prefetch`.
+    """
+    plain_user = _feature(plain_user, "library-authoring")
+    make_post_page(title="Post 0", owner=plain_user)
+
+    def feed():
+        return tp.get(post_index_page.get_url())
+
+    one_post, one_badge_query = _badge_queries(feed)
+
+    for index in range(1, 4):
+        author = baker.make("users.User", email=f"feed-{index}@example.com")
+        author = _feature(author, "library-authoring")
+        make_post_page(title=f"Post {index}", owner=author)
+    four_posts, four_badge_queries = _badge_queries(feed)
+
+    assert one_badge_query == four_badge_queries == 1
+    assert len(one_post.context["entry_list"]) == 1
+    assert len(four_posts.context["entry_list"]) == 4
 
 
 @waffle.testutils.override_flag("v3", active=True)
