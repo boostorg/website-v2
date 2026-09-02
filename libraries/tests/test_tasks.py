@@ -164,3 +164,56 @@ def test_update_library_version_website_adoc_no_stable_release():
     with patch("libraries.tasks.store_library_version_website_adoc") as mock_store:
         update_library_version_website_adoc()
     mock_store.assert_not_called()
+
+
+@patch("libraries.tasks.call_command")
+def test_update_authors_and_maintainers_backfills_only_library_sources(mock_call):
+    """A blanket backfill here would sweep the commit and review tables too."""
+    from libraries.tasks import update_authors_and_maintainers
+
+    update_authors_and_maintainers()
+
+    backfills = [
+        c for c in mock_call.call_args_list if c.args[0] == "backfill_achievements"
+    ]
+    assert len(backfills) == 1
+    assert set(backfills[0].args[1:]) == {
+        "--source",
+        "library-authoring",
+        "library-maintenance",
+        "library-versioning",
+    }
+
+
+@patch("libraries.tasks.LibraryUpdater")
+@patch("libraries.tasks.call_command")
+def test_update_commits_does_not_backfill(mock_call, _mock_updater, db):
+    """release_tasks sweeps every source once; a call here would double it."""
+    from libraries.tasks import update_commits
+
+    update_commits()
+
+    assert not [
+        c for c in mock_call.call_args_list if c.args[0] == "backfill_achievements"
+    ]
+
+
+@patch("libraries.tasks.call_command")
+def test_release_tasks_delegates_the_backfill_to_the_command(mock_call):
+    """The sweep is an Action inside release_tasks, not a trailing extra call."""
+    from libraries.management.commands.release_tasks import ReleaseTasksManager
+    from libraries.tasks import release_tasks
+
+    release_tasks("https://example.com")
+
+    assert [c.args[0] for c in mock_call.call_args_list] == ["release_tasks"]
+    manager = ReleaseTasksManager(base_uri="https://example.com", user_id=None)
+    sweeps = [
+        task
+        for task in manager.tasks
+        if isinstance(task.handler, list) and task.handler[0] == "backfill_achievements"
+    ]
+    assert [task.description for task in sweeps] == ["Backfilling achievements"]
+    # Tagged, so the sync log can tell the weekly job from a person pressing a
+    # button when support asks what moved a member's count.
+    assert sweeps[0].handler == ["backfill_achievements", "--trigger", "pipeline"]
