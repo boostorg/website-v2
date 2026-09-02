@@ -615,6 +615,54 @@ def test_homepage_ranked_post_badge_query_is_constant(plain_user, make_post_page
     assert {card["author"]["badge_label"] for card in four_cards} == {"Library Author"}
 
 
+def test_library_card_author_shows_their_badge(library_version, plain_user):
+    """The Libraries page builds its own author dict rather than going through
+    `to_v3_profile_dict`, and it set a `badge_url` key nothing reads - so the
+    card showed the tenure star and no badge."""
+    plain_user = _feature(plain_user, "library-authoring")
+    library_version.authors.add(plain_user)
+
+    details = library_version.author_details
+
+    assert details["badge"] == BadgeToken.TIER_1
+    assert details["badge_label"] == "Library Author"
+    assert "badge_url" not in details
+
+
+def test_library_card_without_an_author_has_no_badge(library_version):
+    """The empty case the template skips, not a placeholder medal."""
+    details = library_version.author_details
+
+    assert details["badge"] is None
+    assert details["badge_label"] == ""
+
+
+def test_library_list_author_badge_query_is_constant(library_version, plain_user):
+    """The Libraries page reads one author badge per card, so the list view
+    prefetches them through its `authors` Prefetch."""
+    from libraries.views import LibraryListBase
+
+    plain_user = _feature(plain_user, "library-authoring")
+    library_version.authors.add(plain_user)
+
+    def author_cards():
+        rows = list(LibraryListBase.queryset.all())
+        return [lv.author_details for lv in rows]
+
+    one_card, one_badge_query = _badge_queries(author_cards)
+
+    for index in range(1, 4):
+        author = baker.make("users.User", email=f"lib-list-{index}@example.com")
+        other = baker.make("libraries.LibraryVersion")
+        other.authors.add(_feature(author, "library-authoring"))
+    four_cards, four_badge_queries = _badge_queries(author_cards)
+
+    assert one_badge_query == four_badge_queries == 1
+    assert len(one_card) == 1
+    assert len(four_cards) == 4
+    assert {card["badge_label"] for card in four_cards} == {"Library Author"}
+
+
 def test_library_intro_badge_query_is_constant(library_version, plain_user):
     """The homepage library intro prefetches its User authors and maintainers."""
     from libraries.utils import build_library_intro_context

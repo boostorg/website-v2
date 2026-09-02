@@ -19,7 +19,6 @@ from django.db.models.functions import Upper
 
 from config import settings
 from core.custom_model_fields import NullableFileField
-from core.templatetags.custom_static import large_static
 from core.markdown import process_md
 from core.models import RenderedContent
 from core.asciidoc import convert_adoc_to_html
@@ -851,7 +850,11 @@ class LibraryVersion(models.Model):
             "role": "Author",
             "profile_url": author.profile_url if author else None,
             "avatar_url": author.get_avatar_url() if author else "",
-            "badge_url": large_static("img/v3/badges/badge-first-place.png"),
+            # `badge_url` used to sit here, pointing at a fixed first-place PNG.
+            # Nothing read it: `_user_profile.html` takes `badge` and
+            # `badge_label`, so the card showed the tenure star and no badge.
+            "badge": author.badge if author else None,
+            "badge_label": author.badge_label if author else "",
             **(author.profile_stamps if author else {}),
         }
 
