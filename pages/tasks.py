@@ -26,9 +26,10 @@ def convert_news_entries_task():
 @shared_task
 def update_index_task():
     """
-    Run the 'update_index' management command as a one-off request.
+    Run the `wagtail_update_index` management command as a one-off request.
 
     Needs to be run after the convert_news_entry task is run in order to ensure wagtail indexing
-    is up to date for searching
+    is up to date for searching. Not `update_index`: haystack takes that name
+    and its command is a no-op that exits successfully.
     """
-    call_command("update_index")
+    call_command("wagtail_update_index")
