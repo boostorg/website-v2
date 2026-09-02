@@ -35,6 +35,19 @@ class TestSearchFields:
         assert ("RelatedFields", "tags") in declared
         assert ("RelatedFields", "owner") in declared
 
+    def test_indexes_an_autocomplete_surface(self):
+        """Prefix matching reads a separate vector from SearchField."""
+        declared = {(type(f).__name__, f.field_name) for f in PostPage.search_fields}
+        owner = next(
+            f
+            for f in PostPage.search_fields
+            if type(f).__name__ == "RelatedFields" and f.field_name == "owner"
+        )
+        owner_fields = {(type(f).__name__, f.field_name) for f in owner.fields}
+
+        assert ("AutocompleteField", "title") in declared
+        assert ("AutocompleteField", "display_name") in owner_fields
+
 
 class TestSearchBody:
     def test_strips_markup(self, make_post_page):

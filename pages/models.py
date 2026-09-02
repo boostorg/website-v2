@@ -87,6 +87,8 @@ class PostIndexPage(BasePage):
 
     PAGE_SIZE = 10
     RELATED_POSTS_LIMIT = 3
+    # One or two letters prefix too much of the feed to be worth answering.
+    MIN_PREFIX_SEARCH_LENGTH = 3
 
     def route(self, request, path_components):
         """Act as an umbrella handler for both Wagtail posts and legacy entries.
@@ -161,7 +163,7 @@ class PostIndexPage(BasePage):
         posts = self._filtered_queryset(filters)
         if not filters.q:
             return posts
-        return (
+        searchable = (
             PostPage.objects.filter(pk__in=posts.order_by().values("pk"))
             .select_related("owner")
             .prefetch_related(
@@ -169,8 +171,14 @@ class PostIndexPage(BasePage):
                 active_badges_prefetch("owner__badges"),
                 "owner__profile_routing_keys",
             )
-            .search(filters.q)
         )
+        results = searchable.search(filters.q)
+        if results.count() or len(filters.q) < self.MIN_PREFIX_SEARCH_LENGTH:
+            return results
+        # Full text matches whole stemmed words, so "Rob" misses an author called
+        # Robert. A fallback rather than the primary query, so a term with real
+        # matches keeps full text relevance ranking.
+        return searchable.autocomplete(filters.q)
 
     def _related_posts(self, filters):
         """Fallback shown with the empty state: same library, search dropped.
@@ -564,8 +572,12 @@ class PostPage(BasePage):
             "owner",
             [
                 index.SearchField("display_name"),
+                index.AutocompleteField("display_name"),
             ],
         ),
+        # Prefix matching reads its own vector. Title and author only: prefixes
+        # over body text match far more than a partially typed name should.
+        index.AutocompleteField("title"),
     ]
 
 
