@@ -30,7 +30,7 @@
                     <div class="post-card__title-block">
                       <a href="{{ item.get_absolute_url }}" class="post-card__title">{{ item.title }}</a>
                       {% if item.visible_content %}
-                        <div class="post-card__summary">{{item.visible_content|urlize|url_target_blank:''|linebreaksbr|multi_truncate_middle:30}}</div>
+                        <div class="post-card__summary">{{item.visible_content|url_target_blank:''|linebreaksbr|multi_truncate_middle:30}}</div>
                       {% endif %}
                       <div class="post-card__meta">
                         <time datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:"d/m/Y" }}</time>

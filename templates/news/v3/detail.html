@@ -60,7 +60,7 @@
           </p>
         {% endif %}
         {% with body=object.get_content|default:object.visible_content %}
-          {% if body %}{{ body|markdown|urlize }}{% endif %}
+          {% if body %}{{ body|markdown }}{% endif %}
         {% endwith %}
       </div>
     </article>

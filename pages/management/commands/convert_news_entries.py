@@ -1,3 +1,4 @@
+import re
 import djclick as click
 from wagtail.models import Page
 from wagtail.images.models import Image
@@ -15,6 +16,16 @@ from django.template.defaultfilters import urlize
 
 # Wagtail caps Page.slug at 255 characters; Entry.slug allows 300.
 WAGTAIL_SLUG_MAX_LENGTH = 255
+
+
+def _insert_line_breaks(string: str):
+    """
+    Insert two spaces before each return to guarantee that a linebreak is inserted.
+    This fixes examples such as `text`\r\n`text`, which are rendered as
+    two separate lines in V2, and a single line in V3.
+    """
+    reg = re.compile(r"(?<=\S)\r\n")
+    return reg.sub(repl="  \r\n", string=string)
 
 
 def page_slug_for(
@@ -69,6 +80,7 @@ def get_or_create_page(entry: Entry, index_page: PostIndexPage) -> PostPage:
 def convert_text_content(content: str):
     r_content = content
     r_content = urlize(r_content)
+    r_content = _insert_line_breaks(r_content)
     return r_content
 
 
