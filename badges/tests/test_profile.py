@@ -391,6 +391,67 @@ def test_hide_badges_suppresses_every_public_accessor(plain_user):
     assert plain_user.to_v3_profile_dict()["badge"] is None
 
 
+def test_an_unclaimed_stub_shows_no_badges(plain_user):
+    """Stubs stand in for historical authors and nobody can log into them, so a
+    badge on one credits a placeholder rather than a member."""
+    plain_user = _feature(plain_user, "library-authoring")
+    assert plain_user.featured_badge is not None
+
+    plain_user.claimed = False
+    plain_user.save(update_fields=["claimed"])
+    plain_user = _reload(plain_user)
+
+    assert display.held_badges(plain_user) == []
+    assert display.featured_badge(plain_user) is None
+    assert display.badge_cards(plain_user) == []
+    assert plain_user.featured_badge is None
+    assert plain_user.badge is None
+    assert plain_user.badge_label == ""
+    assert plain_user.to_v3_profile_dict()["badge"] is None
+
+
+def test_an_unclaimed_stub_is_not_bypassed_by_include_hidden(plain_user):
+    """`include_hidden` lets an owner see their own hidden badges. A stub has no
+    owner to be looking, so it is the one case the bypass must not reach."""
+    plain_user = _feature(plain_user, "library-authoring")
+    plain_user.claimed = False
+    plain_user.save(update_fields=["claimed"])
+    plain_user = _reload(plain_user)
+
+    assert display.held_badges(plain_user, include_hidden=True) == []
+    assert display.featured_badge(plain_user, include_hidden=True) is None
+    assert display.badge_cards(plain_user, include_hidden=True) == []
+
+
+def test_claiming_the_account_restores_its_badges(plain_user):
+    """The badges were never revoked, only withheld while the stub was unowned."""
+    plain_user = _feature(plain_user, "library-authoring")
+    plain_user.claimed = False
+    plain_user.save(update_fields=["claimed"])
+    assert _reload(plain_user).featured_badge is None
+
+    _reload(plain_user).claim()
+
+    assert _reload(plain_user).featured_badge["icon"] == BadgeToken.TIER_1
+
+
+def test_a_contributor_linked_to_an_unclaimed_stub_shows_no_badge(plain_user):
+    """The case this filter exists for: contributor rows resolve their badge
+    through the linked account, and some of those accounts are importer stubs."""
+    plain_user = _feature(plain_user, "library-authoring")
+    author = _commit_author(user=plain_user)
+    assert author.to_v3_profile_dict("Contributor")["badge"] == BadgeToken.TIER_1
+
+    plain_user.claimed = False
+    plain_user.save(update_fields=["claimed"])
+    author.refresh_from_db()
+
+    profile = author.to_v3_profile_dict("Contributor")
+
+    assert profile["badge"] is None
+    assert profile["badge_label"] == ""
+
+
 def test_hide_badges_can_be_bypassed_for_the_owner(plain_user):
     """include_hidden lets the owner still see badges they have hidden."""
     plain_user = _feature(plain_user, "library-authoring")

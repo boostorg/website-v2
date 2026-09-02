@@ -260,10 +260,19 @@ def held_badges(user, include_hidden=False):
     Returns an empty list when the user has hidden their badges, unless
     ``include_hidden`` is set - which only the owner's own views should do.
 
+    An unclaimed account shows nothing either way. Those are stubs the library
+    importer minted to stand in for historical authors: nobody can log into one,
+    so a badge on a stub credits a placeholder rather than a member. Unlike
+    ``hide_badges`` this is not something ``include_hidden`` can bypass. That
+    exists so an owner can see their own hidden badges, and a stub has no owner
+    to be looking.
+
     Retiring a tier keeps the badges already awarded against it, so a user who
     also qualifies under its replacement holds the same rank twice. Both rows are
     real history; only one of them is a badge to show.
     """
+    if not user.claimed:
+        return []
     if user.hide_badges and not include_hidden:
         return []
     if "badges" in getattr(user, "_prefetched_objects_cache", {}):
