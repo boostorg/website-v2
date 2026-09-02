@@ -39,10 +39,10 @@
                       <h3 class="post-card__title">{{ item.title }}</h3>
                     {% endif %}
                   {% endif %}
-                  {% if item.date or item.category or item.tag %}
+                  {% if item.date or item.type_label or item.tag %}
                     <div class="post-card__meta">
                       {% if item.date %}<time datetime="{{ item.date|date:'c' }}">{{ item.date|date:"M jS, Y" }}</time>{% endif %}
-                      {% if item.category %}<span>{{ item.category|capfirst }}</span>{% endif %}
+                      {% if item.type_label %}<span>{{ item.type_label|capfirst }}</span>{% endif %}
                       {% if item.tag %}<span>#{{ item.tag }}</span>{% endif %}
                     </div>
                   {% endif %}
