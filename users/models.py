@@ -351,6 +351,10 @@ class User(BaseUser):
     TAGLINE_MAX_LENGTH = 70
     BIOGRAPHY_MAX_LENGTH = 20000
 
+    # A row loaded without display_name (.only()/.defer()), which the rename
+    # receiver cannot compare against.
+    DISPLAY_NAME_UNKNOWN = object()
+
     # todo: consider making this unique=True after checking user data for duplicates
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
     is_commit_author_name_overridden = models.BooleanField(
@@ -555,6 +559,18 @@ class User(BaseUser):
     def delete_cached_hq_render(self):
         """Delete the cached full-size render of the high-quality image."""
         self._delete_cached_spec("hq_image", "hq_image_render")
+
+    @classmethod
+    def from_db(cls, db, field_names, values):
+        instance = super().from_db(db, field_names, values)
+        # Lets users.signals.reindex_pages_on_display_name_change spot a rename
+        # without re-reading the row.
+        instance._loaded_display_name = (
+            instance.display_name
+            if "display_name" in field_names
+            else cls.DISPLAY_NAME_UNKNOWN
+        )
+        return instance
 
     def save_image_from_provider(self, avatar_url):
         from django.core.files.base import ContentFile

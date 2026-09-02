@@ -6,7 +6,7 @@ from django.db.models.signals import post_delete, post_save
 from allauth.socialaccount.models import SocialAccount
 
 from users.constants import LOGIN_METHOD_SESSION_FIELD_NAME
-from users.models import UserProfileRoutingKey
+from users.models import User, UserProfileRoutingKey
 
 GITHUB = "github"
 GOOGLE = "google"
@@ -87,3 +87,26 @@ def user_logged_in_handler(request, user, **kwargs):
 
     if not user.data.get("ml_post_auth_seen"):
         request.session["show_ml_post_auth_modal"] = True
+
+
+@receiver(post_save, sender=User)
+def reindex_pages_on_display_name_change(sender, instance, created, **kwargs):
+    """Keep a renamed author findable by their new name.
+
+    Each page's index entry holds a copy of its author's name, so renaming the
+    user leaves every one of their posts matching only the old one.
+    """
+    if created:
+        # No pages yet, but this makes a later rename of the same instance
+        # comparable.
+        instance._loaded_display_name = instance.display_name
+        return
+    previous = getattr(instance, "_loaded_display_name", User.DISPLAY_NAME_UNKNOWN)
+    if previous is User.DISPLAY_NAME_UNKNOWN or previous == instance.display_name:
+        return
+    instance._loaded_display_name = instance.display_name
+
+    from . import tasks
+
+    user_pk = instance.pk
+    transaction.on_commit(lambda: tasks.reindex_user_pages.delay(user_pk))
