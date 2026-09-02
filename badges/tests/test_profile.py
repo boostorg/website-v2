@@ -841,6 +841,43 @@ def test_v3_post_detail_renders_the_author_badge(
 
 
 @waffle.testutils.override_flag("v3", active=True)
+def test_v3_post_detail_badge_query_is_constant(
+    plain_user, tp, wagtail_site, make_post_page
+):
+    """A post detail page reads three sets of badges: the author's, the next
+    post's and the related posts'. None may grow with how many posts exist.
+
+    Wagtail resolves the page being viewed by itself, so its author is not part
+    of the prefetched queryset the next and related cards come from. Prefetching
+    that one user would cost exactly the query it saves, so the count is pinned
+    here instead of adding a prefetch that buys nothing.
+    """
+    plain_user = _feature(plain_user, "library-authoring")
+    post = make_post_page(title="Main Post", owner=plain_user)
+    for index in range(3):
+        author = baker.make("users.User", email=f"detail-a-{index}@example.com")
+        make_post_page(
+            title=f"Related A {index}", owner=_feature(author, "library-authoring")
+        )
+
+    def detail():
+        return tp.get(post.get_url())
+
+    few, few_badge_queries = _badge_queries(detail)
+
+    for index in range(7):
+        author = baker.make("users.User", email=f"detail-b-{index}@example.com")
+        make_post_page(
+            title=f"Related B {index}", owner=_feature(author, "library-authoring")
+        )
+    many, many_badge_queries = _badge_queries(detail)
+
+    tp.response_200(few)
+    tp.response_200(many)
+    assert few_badge_queries == many_badge_queries == 3
+
+
+@waffle.testutils.override_flag("v3", active=True)
 def test_v3_feed_author_badge_query_is_constant(
     plain_user, tp, post_index_page, wagtail_site, make_post_page
 ):
