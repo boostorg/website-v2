@@ -32,16 +32,50 @@
   line-height: var(--line-height-tight);
 }
 
+/* Page-level, outside `.post-detail-page`: the design aligns Delete's right
+   edge with the header avatar's, which sits on the page gutter, not the article
+   column. The wrapper already supplies that gutter, hence no inline padding. */
 .post-detail__admin-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-default);
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
+  padding-block-start: var(--space-large);
 }
 
 .post-detail__approve-form {
   margin: 0;
+}
+
+/* The form only wraps the confirmation modal, which is never in flow. Without
+   this it still takes a flex slot and pushes the last button off the gutter. */
+.post-detail__admin-actions > form:has(.dialog-modal) {
+  display: contents;
+}
+
+/* ── Edit-window timer ──────────────────────────────────── */
+/* Server-rendered, so the value is a page-load snapshot, not a live countdown. */
+.post-detail__edit-timer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  /* Literal: the design holds 24px at every width, and no token is 24px below
+     768px, where --space-xlarge drops to 16px. */
+  height: 24px;
+  padding-inline: var(--space-default);
+  border-radius: var(--border-radius-m);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.post-detail__edit-timer-icon {
+  flex: none;
 }
 
 .post-detail__pending-badge {
@@ -312,5 +346,23 @@ html.dark .post-detail__related .card-group {
      gap + margin-top = 64. */
   .post-detail-page > .post-detail + section {
     margin-top: calc(64px - var(--space-large));
+  }
+
+  /* One line at 390px: the buttons' shared 128px min-width would overrun and
+     wrap, so they split whatever the timer leaves. */
+  .post-detail__admin-actions {
+    padding-inline: var(--space-medium);
+  }
+
+  .post-detail__admin-actions > .btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Both scales step down below 768px, so the tokens that hold the design's
+     12px and 8px here are the next ones up. */
+  .post-detail__edit-timer {
+    padding-inline: var(--space-medium);
+    font-size: var(--font-size-small);
   }
 }

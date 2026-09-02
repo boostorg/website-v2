@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from structlog import get_logger
 from wagtail.admin.panels import FieldPanel
 from wagtail.models import PageManager
@@ -460,18 +462,37 @@ class PostPage(BasePage):
         else:
             return None
 
-    def _in_edit_window(self):
+    # Measured from the first revision, so a later edit does not restart it.
+    EDIT_WINDOW = timedelta(hours=6)
+
+    @property
+    def edit_window_remaining(self):
+        """Time left in the edit window, or None once it has closed.
+
+        Not cached: the value moves with the clock, so a `cached_property`
+        would freeze it for the life of the request's page object.
+        """
         first_revision = self.revisions.order_by("created_at").first()
         if not first_revision:
-            return False
+            return None
 
-        right_now = localtime(now())
-        td = abs(right_now - first_revision.created_at)
-        if td.days > 0 or abs(right_now - first_revision.created_at).seconds > (
-            6 * 60 * 60
-        ):
-            return False
-        return True
+        remaining = (first_revision.created_at + self.EDIT_WINDOW) - localtime(now())
+        return remaining if remaining > timedelta(0) else None
+
+    @property
+    def edit_window_remaining_display(self):
+        """The remaining window as "5h 9m", or "9m" inside the last hour."""
+        remaining = self.edit_window_remaining
+        if remaining is None:
+            return ""
+
+        # Clamped: the final 59 seconds would floor to "0m" while still editable.
+        minutes = max(1, int(remaining.total_seconds() // 60))
+        hours, minutes = divmod(minutes, 60)
+        return f"{hours}h {minutes}m" if hours else f"{minutes}m"
+
+    def _in_edit_window(self):
+        return self.edit_window_remaining is not None
 
     def user_can_edit(self, user):
         return self.owner == user and self._in_edit_window()
