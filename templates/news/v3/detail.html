@@ -12,8 +12,7 @@
 {% endblock %}
 
 {% block content %}
-  {% comment %} Page-level, not article content: the design puts this row at the
-  full page width with a gutter, right-aligned, above the centred column. {% endcomment %}
+  {% comment %} Outside the article on purpose: the design aligns this row with the page gutter. {% endcomment %}
   {% if not is_preview %}
     {% if user_can_approve or user_can_edit or user_can_delete %}
       <div class="post-detail__admin-actions">

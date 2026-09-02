@@ -459,8 +459,7 @@ class PostPage(BasePage):
         else:
             return None
 
-    # How long after first submitting a post its author may still edit or
-    # delete it. Surfaced to the reader by `edit_window_remaining_display`.
+    # Measured from the first revision, so a later edit does not restart it.
     EDIT_WINDOW = timedelta(hours=6)
 
     @property
@@ -484,7 +483,8 @@ class PostPage(BasePage):
         if remaining is None:
             return ""
 
-        minutes = int(remaining.total_seconds() // 60)
+        # Clamped: the final 59 seconds would floor to "0m" while still editable.
+        minutes = max(1, int(remaining.total_seconds() // 60))
         hours, minutes = divmod(minutes, 60)
         return f"{hours}h {minutes}m" if hours else f"{minutes}m"
 

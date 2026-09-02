@@ -32,41 +32,36 @@
   line-height: var(--line-height-tight);
 }
 
-/* Right-aligned against the page gutter, not the 696px article column, so it
-   sits outside `.post-detail-page`. Matches the design, where the row is a
-   page-level sibling of the centred content rather than article content. */
+/* Page-level, outside `.post-detail-page`: the design aligns Delete's right
+   edge with the header avatar's, which sits on the page gutter, not the article
+   column. The wrapper already supplies that gutter, hence no inline padding. */
 .post-detail__admin-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-default);
   align-items: center;
   justify-content: flex-end;
-  padding: var(--space-large) var(--space-large) 0;
+  padding-block-start: var(--space-large);
 }
 
 .post-detail__approve-form {
   margin: 0;
 }
 
-/* The Delete button's form only wraps the confirmation modal, which is either
-   `display: none` or `position: fixed` and so never in flow. Without this the
-   empty form still takes a flex slot, leaving a stray gap between the last
-   button and the gutter. */
+/* The form only wraps the confirmation modal, which is never in flow. Without
+   this it still takes a flex slot and pushes the last button off the gutter. */
 .post-detail__admin-actions > form:has(.dialog-modal) {
   display: contents;
 }
 
 /* ── Edit-window timer ──────────────────────────────────── */
-/* Sits left of the Edit button while the author's edit window is open.
-   Rendered server-side, so the value is a snapshot taken at page load
-   rather than a live countdown. */
+/* Server-rendered, so the value is a page-load snapshot, not a live countdown. */
 .post-detail__edit-timer {
   display: flex;
   align-items: center;
   gap: var(--space-s);
-  /* The design holds this at 24px on mobile too, and no token is 24px below
-     768px (--space-xlarge drops to 16px), so this one stays literal. Same
-     approach as the fixed chrome heights in badge.css and branch-buttons.css. */
+  /* Literal: the design holds 24px at every width, and no token is 24px below
+     768px, where --space-xlarge drops to 16px. */
   height: 24px;
   padding-inline: var(--space-default);
   border-radius: var(--border-radius-m);
@@ -352,9 +347,8 @@ html.dark .post-detail__related .card-group {
     margin-top: calc(64px - var(--space-large));
   }
 
-  /* The action row stays on one line, with a tighter 8px gutter and the two
-     buttons splitting whatever the timer leaves. Their shared 128px min-width
-     would otherwise overrun a 390px viewport and wrap. */
+  /* One line at 390px: the buttons' shared 128px min-width would overrun and
+     wrap, so they split whatever the timer leaves. */
   .post-detail__admin-actions {
     padding-inline: var(--space-medium);
   }
@@ -364,10 +358,8 @@ html.dark .post-detail__related .card-group {
     min-width: 0;
   }
 
-  /* The design holds the timer at 12px and 8px padding on mobile, but both
-     scales step down below 768px: `--font-size-xs` lands on 10px and
-     `--space-default` on 6px. `--font-size-small` and `--space-medium` are the
-     steps that are 12px and 8px here. */
+  /* Both scales step down below 768px, so the tokens that hold the design's
+     12px and 8px here are the next ones up. */
   .post-detail__edit-timer {
     padding-inline: var(--space-medium);
     font-size: var(--font-size-small);
