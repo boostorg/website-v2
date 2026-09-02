@@ -69,21 +69,17 @@ class TestLatestPostCardsScopedToALibrary:
         assert card["title"] == "Tagged post"
         assert card["url"] == page.get_absolute_url()
         assert card["date"] == page.first_published_at
-        assert card["tag"] == ""
         assert card["author"] == page.owner.to_v3_profile_dict()
 
-    @pytest.mark.xfail(
-        reason="PostPage.tag returns the library ContentTag, so the chip shows "
-        "the library name instead of the post type. Tracked separately.",
-        strict=True,
-    )
     @override_flag("v3", active=True)
-    def test_card_category_is_the_post_type(self, rf, make_post_page):
+    def test_card_meta_matches_the_post_list(self, rf, make_post_page):
+        """Type in one slot, library in the other, as rendered at /news/."""
         make_post_page("Tagged post", tag_slugs=["multi_array"])
 
         (card,) = get_latest_post_cards(request=rf.get("/"), library_slug="multi_array")
 
         assert card["category"] == "News"
+        assert card["tag"] == "multi_array"
 
     @override_flag("v3", active=True)
     def test_omitting_the_slug_still_returns_every_post(self, rf, make_post_page):
