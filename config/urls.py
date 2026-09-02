@@ -155,11 +155,6 @@ urlpatterns = (
         ),
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
-        path(
-            "users/me/github-activity/",
-            GithubActivityFragmentView.as_view(),
-            name="profile-github-activity",
-        ),
         path("users/me/delete/", DeleteUserView.as_view(), name="profile-delete"),
         path(
             "users/me/disconnect-social/<str:platform>/",
@@ -185,6 +180,11 @@ urlpatterns = (
         # Must stay last of the single-segment "users/..." routes: `slug`
         # matches "me" and "avatar" too, so every literal segment has to be
         # registered ahead of it.
+        path(
+            "users/<slug:routing_key>/github-activity/",
+            GithubActivityFragmentView.as_view(),
+            name="profile-github-activity",
+        ),
         path(
             "users/<slug:routing_key>/",
             PublicUserProfileView.as_view(),

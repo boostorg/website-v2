@@ -135,13 +135,12 @@ class V3UserProfileContextMixin:
             "bio": user.biography or None,
             "top_links": self.get_v3_profile_link_buttons(user),
         }
-        # Owner-only: the card kicks a background refresh, and publishing it on
-        # a public profile would expose data that `hide_github_activity` is
-        # meant to withhold, an opt-out not yet wired up to rendering.
-        # Omitted entirely without a linked account, so a profile with no data
-        # stays the bio card alone.
-        if is_owner:
-            activity = github_activity_card_context(user)
-            if activity["data"]["linked"]:
-                context["github_activity"] = activity
+        # Rendered on anyone's profile, not just your own, and omitted entirely
+        # without a linked GitHub account so a profile with no data stays the
+        # bio card alone. include_hidden for the owner, for the same reason as
+        # `role` and the badges above: a member who hid their activity still
+        # sees it on their own page, and a visitor never does.
+        activity = github_activity_card_context(user, include_hidden=is_owner)
+        if activity and activity["data"]["linked"]:
+            context["github_activity"] = activity
         return context

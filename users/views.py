@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import (
+    Http404,
     HttpResponsePermanentRedirect,
     HttpResponseRedirect,
     JsonResponse,
@@ -155,22 +156,41 @@ class PublicUserProfileView(V3UserProfileContextMixin, V3Mixin, DetailView):
         return context
 
 
-class GithubActivityFragmentView(LoginRequiredMixin, TemplateView):
-    """Re-render just the GitHub activity card.
+class GithubActivityFragmentView(TemplateView):
+    """Re-render just the GitHub activity card for one profile.
 
     Polled by the card itself while a background refresh runs, so the numbers
     appear without the user reloading. Read-only: it renders whatever is stored
     and never waits on GitHub.
+
+    Keyed by routing key rather than the logged-in user: the card now appears
+    on public profiles, so a visitor polling must get the numbers of the
+    profile they are looking at, not their own. No login required, for the
+    same reason.
     """
 
     template_name = "v3/includes/_github_activity_card.html"
 
     def get_context_data(self, **kwargs):
+        # Deactivated accounts 404 here as they do on the profile page, so the
+        # fragment cannot serve a profile the page itself refuses to.
+        key = get_object_or_404(
+            UserProfileRoutingKey.objects.select_related("user"),
+            routing_key=self.kwargs["routing_key"],
+            user__is_active=True,
+        )
         try:
             attempt = int(self.request.GET.get("attempt", 0))
         except ValueError:
             attempt = 0
-        return github_activity_card_context(self.request.user, attempt=attempt)
+        context = github_activity_card_context(
+            key.user, attempt=attempt, include_hidden=key.user == self.request.user
+        )
+        # Hidden activity 404s rather than rendering, so this endpoint cannot
+        # be used to read past the profile page's own visibility rules.
+        if context is None:
+            raise Http404("No GitHub activity for this profile.")
+        return context
 
 
 class CurrentUserProfileView(

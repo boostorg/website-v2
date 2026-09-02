@@ -133,14 +133,18 @@ ACTIVITY_DATA = {
 }
 
 
-def test_card_shows_connect_prompt_without_linked_account(user, db):
+def test_card_is_empty_without_a_linked_account(user, db):
+    """Nothing to show and nothing to offer: connecting lives on the account
+    connections card, so this card just reports that it has no data and its
+    callers omit the section."""
     cache.clear()
 
     card = github_activity_card(user)
 
-    assert "Connect your GitHub account" in card["markdown_text"]
-    assert card["button_label"] == "Connect GitHub"
-    assert "process=connect" in card["button_url"]
+    assert card["linked"] is False
+    assert card["markdown_text"] == ""
+    assert card["button_label"] == ""
+    assert card["button_url"] == ""
 
 
 def test_card_shows_empty_state_when_linked_but_unsynced(user, db):
@@ -150,7 +154,9 @@ def test_card_shows_empty_state_when_linked_but_unsynced(user, db):
     with patch("users.tasks.refresh_github_activity.delay"):
         card = github_activity_card(user)
 
-    assert "Fetching your Boost GitHub activity" in card["markdown_text"]
+    assert "Fetching Boost GitHub activity" in card["markdown_text"]
+    # Reads on anyone's profile, not just your own.
+    assert "your" not in card["markdown_text"]
     assert card["refreshing"] is True
     assert card["button_url"] == ""
 

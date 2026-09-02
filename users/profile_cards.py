@@ -136,9 +136,10 @@ def github_activity_bullets(data, login):
 def github_activity_card(user):
     """Build the context for the profile's GitHub activity card.
 
-    Never calls GitHub. Returns one of three states: a connect prompt when no
-    GitHub account is linked, an empty state while the first sync runs, or the
-    stored numbers.
+    Never calls GitHub. Returns the stored numbers, or an empty state while the
+    first sync runs. With no linked GitHub account there is nothing to show:
+    `linked` stays False and callers omit the section, so connecting is offered
+    by the account connections card rather than here.
     """
     state = github_activity_state(user)
     card = {
@@ -152,15 +153,10 @@ def github_activity_card(user):
     }
 
     if not state.linked:
-        card["markdown_text"] = (
-            "Connect your GitHub account to see your Boost activity here."
-        )
-        card["button_label"] = "Connect GitHub"
-        card["button_url"] = f"{reverse('github_login')}?process=connect"
         return card
 
     if state.activity is None or not state.activity.data:
-        card["markdown_text"] = "Fetching your Boost GitHub activity…"
+        card["markdown_text"] = "Fetching Boost GitHub activity…"
         return card
 
     # Every bullet is dropped when all counts are zero, which is the common case
@@ -175,15 +171,30 @@ def github_activity_card(user):
     return card
 
 
-def github_activity_card_context(user, attempt=0):
+def github_activity_card_context(user, attempt=0, include_hidden=False):
     """Context for ``_github_activity_card.html``, shared by the profile page
-    and the fragment endpoint it polls."""
+    and the fragment endpoint it polls.
+
+    Returns None when the user has hidden their GitHub activity, unless
+    ``include_hidden`` is set.
+    Callers omit the section entirely rather than rendering it empty, the same
+    shape ``badges.display.held_badges`` uses for ``hide_badges``.
+    """
+    if user.hide_github_activity and not include_hidden:
+        return None
+
     attempt = max(0, attempt)
+    # The poll address is per profile, so a visitor polling gets the numbers of
+    # the profile they are on. An account with no routing key has no such
+    # address. The card then renders once without polling rather than pointing
+    # somewhere that 404s.
+    key = user.profile_routing_key
+    poll_url = reverse("profile-github-activity", args=[key.routing_key]) if key else ""
     return {
         "data": github_activity_card(user),
         "attempt": attempt,
         "next_attempt": attempt + 1,
-        "poll_exhausted": attempt >= GITHUB_ACTIVITY_POLL_MAX_ATTEMPTS,
-        "poll_url": reverse("profile-github-activity"),
+        "poll_exhausted": attempt >= GITHUB_ACTIVITY_POLL_MAX_ATTEMPTS or not poll_url,
+        "poll_url": poll_url,
         "poll_interval": GITHUB_ACTIVITY_POLL_INTERVAL_SECONDS,
     }
