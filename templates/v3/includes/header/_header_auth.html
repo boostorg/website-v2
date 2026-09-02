@@ -1,0 +1,16 @@
+{% comment %}
+  Header Auth — the avatar menu for a signed-in visitor, the log in link otherwise.
+
+  Rendered inline by _header_utilities.html, and served on its own by the
+  v3-header-auth view when the surrounding page defers its auth state.
+
+  Context Variables:
+    request    (HttpRequest, required) — Django request object (for auth state)
+    avatar_id  (string, required)      — unique ID prefix for avatar component, e.g. "desktop-user-menu"
+{% endcomment %}
+{% if request.user.is_authenticated %}
+  <span class="header__user">{% include "v3/includes/header/_header_avatar.html" with avatar_id=avatar_id %}</span>
+{% else %}
+  <a href="{% url 'account_login' %}"
+     class="header__nav-btn">Log In</a>
+{% endif %}

@@ -47,6 +47,13 @@ body.v3 .docs-iframe-page {
   margin-right: auto;
 }
 
+body.v3 #docsiframe {
+  margin-top: 0;
+  height: calc(100vh - var(--v3-header-footprint) - var(--version-alert-height, 0px));
+  height: calc(100svh - var(--v3-header-footprint) - var(--version-alert-height, 0px));
+  max-height: calc(100svh - var(--v3-header-footprint) - var(--version-alert-height, 0px));
+}
+
 /* ── Shared control surface ────────────────────── */
 
 .header__nav--desktop,

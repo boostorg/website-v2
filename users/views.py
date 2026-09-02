@@ -14,8 +14,10 @@ from django.http import (
     JsonResponse,
 )
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse, reverse_lazy
+from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, FormView, View
 from django.views.generic.base import TemplateView
 from django.utils import timezone
@@ -884,6 +886,30 @@ class UserAvatar(TemplateView):
                 response.delete_cookie("csrftoken", path="/")
 
         return response
+
+
+@method_decorator(never_cache, name="dispatch")
+class V3HeaderAuth(TemplateView):
+    """Serve the V3 header's auth slot on its own, for HTMX to fill in.
+
+    Static content pages under ``/doc/`` are served through a shared HTTP cache,
+    so their HTML cannot carry a per-user login state: whichever visitor warmed
+    the cache decides what everyone else sees. Those pages leave the slot empty
+    and fetch it from here, which is marked uncacheable, so the header reflects
+    the visitor's own session rather than the cached one.
+    """
+
+    template_name = "v3/includes/header/_header_auth.html"
+    default_avatar_id = "desktop-user-menu"
+    allowed_avatar_ids = frozenset({"desktop-user-menu", "mobile-user-menu"})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        avatar_id = self.request.GET.get("avatar_id", "")
+        if avatar_id not in self.allowed_avatar_ids:
+            avatar_id = self.default_avatar_id
+        context["avatar_id"] = avatar_id
+        return context
 
 
 # Confirmation-phrase error shown inline in the delete modal.

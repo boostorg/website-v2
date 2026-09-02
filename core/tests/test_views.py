@@ -579,3 +579,35 @@ def test_user_guide_top_level_request_is_modernized(request_factory, headers):
 
     mock_modernize.assert_called_once()
     assert mock_render.call_args_list[-1].args[0] == "docsiframe.html"
+
+
+def test_user_guide_defers_the_header_auth_state(request_factory):
+    """Guide pages sit behind a shared cache, so the header must not bake in auth.
+
+    Whichever visitor warmed the cache would otherwise decide what login state
+    every later visitor sees.
+    """
+    from core.views import UserGuideTemplateView
+
+    content = b"<html><body>guide page</body></html>"
+    view = UserGuideTemplateView()
+    view.request = request_factory.get("/doc/user-guide/index.html")
+    view.content_dict = {"content": content, "content_type": "text/html"}
+
+    with patch(
+        "core.views.modernize_legacy_page", return_value="<p>modernized</p>"
+    ), patch("core.views.render_to_string", return_value="wrapped page") as mock_render:
+        view.process_content(content)
+
+    assert mock_render.call_args_list[-1].args[1]["defer_auth_state"] is True
+
+
+@pytest.mark.django_db
+@override_settings(CACHES=TEST_CACHES)
+def test_static_content_context_defers_the_header_auth_state(request_factory):
+    view = StaticContentTemplateView()
+    view.request = request_factory.get("/foo.adoc")
+    view.kwargs = {"content_path": "foo.adoc"}
+    view.content_dict = {"content": b"= Title", "content_type": "text/asciidoc"}
+
+    assert view.get_context_data()["defer_auth_state"] is True

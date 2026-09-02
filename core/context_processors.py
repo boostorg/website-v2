@@ -243,6 +243,7 @@ def header_context(request):
         "nav_links": nav_links,
         "releases_url": reverse("releases-most-recent"),
         "edit_profile_url": edit_profile_url(),
+        "auth_state_url": reverse("v3-header-auth"),
         "profile_cancel_delete_url": reverse("profile-cancel-delete"),
     }
 
