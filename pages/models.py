@@ -9,7 +9,14 @@ from wagtail.search import index
 
 from django.conf import settings
 from django.core.paginator import Paginator
-from django.db.models import ExpressionWrapper, FloatField, F, Func, Value
+from django.db.models import (
+    ExpressionWrapper,
+    FloatField,
+    F,
+    Func,
+    Value,
+    prefetch_related_objects,
+)
 from django.db.models.functions import Coalesce, Greatest, Now, Power
 from django.db import models
 from django.urls import reverse_lazy
@@ -318,6 +325,12 @@ class PostPage(BasePage):
             :3
         ]
         ctx["object"] = self.specific
+        # Wagtail resolves the page being viewed by itself, so its author is not
+        # one of the rows the queryset above prefetched.
+        if self.owner_id is not None:
+            prefetch_related_objects(
+                [self.owner], active_badges_prefetch(), "profile_routing_keys"
+            )
         ctx["post_author"] = self.author
         ctx["user_can_edit"] = self.user_can_edit(request.user)
         ctx["user_can_delete"] = self.user_can_delete(request.user)

@@ -932,9 +932,10 @@ def test_v3_post_detail_badge_query_is_constant(
     post's and the related posts'. None may grow with how many posts exist.
 
     Wagtail resolves the page being viewed by itself, so its author is not part
-    of the prefetched queryset the next and related cards come from. Prefetching
-    that one user would cost exactly the query it saves, so the count is pinned
-    here instead of adding a prefetch that buys nothing.
+    of the prefetched queryset the next and related cards come from; the page
+    prefetches that author separately. One author costs the same single query
+    either way, so the number below does not move when that prefetch is removed -
+    what this pins is that none of the three grows with the post count.
     """
     plain_user = _feature(plain_user, "library-authoring")
     post = make_post_page(title="Main Post", owner=plain_user)
