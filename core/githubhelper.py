@@ -324,10 +324,18 @@ class GithubAPIClient:
             ref = self.get_ref()
         tree_sha = ref["object"]["sha"]
 
+        # Most Boost release tags are lightweight, so the ref points straight at a
+        # commit. A few are annotated (boost-1.61.0 is), and there the ref points at
+        # the tag object instead, which the tree endpoint rejects with a 422. One
+        # extra call turns it into the commit the tag names.
+        if ref["object"].get("type") == "tag":
+            tree_sha = self.get_tag(repo_slug=repo_slug, tag_sha=tree_sha)["object"][
+                "sha"
+            ]
+
         try:
             tree = self.get_tree(tree_sha=tree_sha)
         except HTTP422UnprocessableEntityError as e:
-            # Only happens for version 1.61.0; uncertain why.
             self.logger.exception(
                 "get_gitmodules_failed", repo=repo_slug, exc_msg=str(e)
             )
@@ -541,6 +549,18 @@ class GithubAPIClient:
             page += 1
 
         return tags
+
+    def get_tag(self, repo_slug: str = None, tag_sha: str = None) -> dict:
+        """
+        Get an annotated tag object from the GitHub API.
+
+        :param repo_slug: str, the repository slug
+        :param tag_sha: str, the sha of the tag object itself
+        :return: dict, the tag object, whose "object" is the commit it points at
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.api.git.get_tag(owner=self.owner, repo=repo_slug, tag_sha=tag_sha)
 
     def get_tree(self, repo_slug: str = None, tree_sha: str = None) -> dict:
         """

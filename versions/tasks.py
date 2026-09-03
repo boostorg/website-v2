@@ -31,7 +31,7 @@ from libraries.models import Library, LibraryVersion
 from libraries.website_adoc import fetch_website_adoc_fields
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
 from libraries.utils import version_within_range
-from versions.exceptions import BoostImportedDataException
+from versions.exceptions import BoostImportedDataException, PostImportStepFailed
 from versions.models import Version
 from versions.releases import (
     store_release_notes_for_in_progress,
@@ -368,10 +368,16 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         logger.info(
             "import_library_versions_version_not_found", version_name=version_name
         )
+        return None
 
     client = GithubAPIClient(token=token)
     updater = LibraryUpdater(client=client)
     parser = GithubDataParser()
+
+    # The submodules of a point release carry the base release's tag, not the
+    # point release's, so every per-library lookup below has to use that one or
+    # it 404s for all of them and the rows land with no authors.
+    metadata_tag = version.base_release_name
 
     # Get the gitmodules file for the version, which contains library data
     # The master and develop branches are not tags, so we retrieve their data
@@ -381,14 +387,14 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         ref = client.get_ref(ref=ref_s)
     except ValueError:
         logger.info(f"import_library_versions_invalid_ref {ref_s=}")
-        return
+        return None
 
     raw_gitmodules = client.get_gitmodules(ref=ref)
     if not raw_gitmodules:
         logger.info(
             "import_library_versions_invalid_gitmodules", version_name=version_name
         )
-        return
+        return None
 
     gitmodules = parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
 
@@ -405,7 +411,7 @@ def import_library_versions(version_name, token=None, version_type="tag"):
 
         try:
             libraries_json = client.get_libraries_json(
-                repo_slug=library_name, tag=version_name
+                repo_slug=library_name, tag=metadata_tag
             )
         except (
             requests.exceptions.JSONDecodeError,
@@ -478,7 +484,7 @@ def import_library_versions(version_name, token=None, version_type="tag"):
                     "cpp_standard_maximum": lib_data.get("cxxstd_max"),
                     "cpp20_module_support": lib_data.get("cpp20_module_support"),
                     "description": lib_data.get("description"),
-                    **fetch_website_adoc_fields(client, library_name, version_name),
+                    **fetch_website_adoc_fields(client, library_name, metadata_tag),
                 },
             )
             if not library.github_url:
@@ -492,11 +498,23 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         logger.info("Triggering removed submodules garbage collection")
         gc_removed_submodules.delay(library_keys, version_name)
 
-    # Retrieve and store the docs url for each library-version in this release
-    get_and_store_library_version_documentation_urls_for_version(version.pk)
+    # Both steps below run only once every library's metadata is written, and the
+    # first of them raises for a release with no docs archive in S3. Re-raised as
+    # ``PostImportStepFailed`` so a caller that needs the metadata and not the
+    # docs can tell that apart from a failure that left the metadata untouched.
+    try:
+        # Retrieve and store the docs url for each library-version in this release
+        get_and_store_library_version_documentation_urls_for_version(version.pk)
 
-    # Load maintainers for library-versions
-    call_command("update_maintainers", "--release", version.name)
+        # Load maintainers for library-versions
+        call_command("update_maintainers", "--release", version.name)
+    except Exception as exc:
+        raise PostImportStepFailed(library_keys) from exc
+
+    # The keys it managed to read. Falsy means it read nothing at all, which a
+    # caller cannot otherwise tell from a successful run: every failure above
+    # this point is logged and returned from rather than raised.
+    return library_keys
 
 
 @app.task

@@ -142,7 +142,9 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
         )
         return
 
-    base_path = f"doc/libs/{version.boost_url_slug}/libs/"
+    # A point release ships no docs archive of its own; its libraries are
+    # documented by the base release.
+    base_path = f"doc/libs/{version.base_release_url_slug}/libs/"
     boost_stripped_base_path = base_path.replace("doc/libs/boost_", "doc/libs/")
     key = f"{base_path}libraries.htm"
     result = get_content_from_s3(key)
@@ -193,7 +195,7 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
         documentation_url = None
         for exception in exceptions:
             if version_within_range(
-                library_version.version.boost_url_slug,
+                library_version.version.base_release_url_slug,
                 min_version=exception.get("min_version"),
                 max_version=exception.get("max_version"),
             ):
@@ -204,7 +206,7 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
                     library_version.library.slug.lower().replace("-", "_"),
                 )
                 documentation_url = exception_url_generator(
-                    version.boost_url_slug,
+                    version.base_release_url_slug,
                     slug,
                 )
                 break  # Stop looking once a matching version is found
@@ -280,6 +282,71 @@ def update_authors_and_maintainers():
     call_command("update_maintainers")
     call_command("update_library_version_authors", "--clean")
     app.signature("users.tasks.recompute_displayed_profile_roles").apply_async()
+
+
+@app.task
+def synchronize_release_library_data(release=""):
+    """Re-import one release's library data, then bind its authors.
+
+    The repair for a release whose libraries render with no author: the authors
+    live in ``LibraryVersion.data``, written by the import, and the author command
+    can only read what the import has already written. So the two run here in that
+    order, in one task, synchronously - the import's own management command
+    ``.delay()``s a task per version and returns, which would leave the author pass
+    racing the data it needs.
+
+    Additive by construction and safe to repeat. Nothing is cleared, nothing is
+    copied between releases, and only the chosen release is touched; the sweep
+    behind "Update Authors & Maintainers" is neither of those things.
+    """
+    from versions.exceptions import PostImportStepFailed
+    from versions.tasks import import_library_versions
+
+    version = Version.objects.with_partials().filter(name=release).first()
+    if version is None:
+        logger.warning(
+            "synchronize_release_library_data_version_not_found", release=release
+        )
+        return
+
+    # master and develop are moving refs, and importing one garbage-collects the
+    # library versions that have left its .gitmodules. That is a delete, which is
+    # the one thing this job promises not to do.
+    if version.slug in settings.BOOST_BRANCHES:
+        logger.warning(
+            "synchronize_release_library_data_branch_refused", release=version.name
+        )
+        return
+
+    # The import ends by scraping documentation URLs, which raises when a release
+    # has no docs archive in S3. That has nothing to do with authorship, and
+    # losing the author pass to it is what leaves the release rendering "Unknown",
+    # the exact state this job exists to repair. So that one failure is tolerated,
+    # and only that one: it is raised as `PostImportStepFailed` precisely because
+    # it can only come from after the libraries were read and written. Anything
+    # else - a tag that cannot be resolved, a GitHub client that cannot be built,
+    # a write that failed halfway - leaves `LibraryVersion.data` as stale as it
+    # was found, and binding authors over it and reporting success would be a lie.
+    try:
+        imported = import_library_versions(version.name, version_type="tag")
+    except PostImportStepFailed as exc:
+        logger.exception(
+            "synchronize_release_library_data_import_incomplete",
+            release=version.name,
+        )
+        imported = exc.library_keys
+
+    # A falsy result is the other shape of failure, and the one worth failing on:
+    # the import gave up before reading any library, so there is nothing for the
+    # author pass to bind and reporting success would be a lie.
+    if not imported:
+        raise ValueError(
+            f"Could not read the libraries of {version.name} from GitHub; "
+            "nothing has been changed."
+        )
+
+    call_command("update_library_version_authors", "--release", version.name)
+    logger.info("synchronize_release_library_data_finished", release=version.name)
 
 
 @app.task

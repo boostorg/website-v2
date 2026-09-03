@@ -18,8 +18,8 @@
             {% csrf_token %}
             {% if button.choices %}
               <label for="{{ button.field_id }}">{{ button.choice_label }}</label>
-              <select name="{{ button.argument }}" id="{{ button.field_id }}">
-                <option value="">{{ button.all_label }}</option>
+              <select name="{{ button.argument }}" id="{{ button.field_id }}"{% if button.require_choice %} required{% endif %}>
+                <option value="">{% if button.require_choice %}---------{% else %}{{ button.all_label }}{% endif %}</option>
                 {% for value, label in button.choices %}
                   <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}

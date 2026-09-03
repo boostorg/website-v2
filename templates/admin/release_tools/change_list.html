@@ -1,0 +1,64 @@
+{% extends "admin/task_buttons_change_list.html" %}
+
+{% block admin-actions-extra %}
+  <div class="release-tools-help">
+    <h2>Synchronize release library data</h2>
+    <p>
+      Repairs a release whose libraries show <strong>Unknown</strong> where an
+      author should be. Press <strong>Synchronize</strong> on the release you want
+      to repair; each row has its own button.
+    </p>
+    <p>
+      Authors are not stored on the library. They are stored per release, and they
+      come from the <code>meta/libraries.json</code> that each library ships in the
+      release's own Git tag. So the job does two things, in this order:
+    </p>
+    <ol>
+      <li>re-reads that release's libraries from GitHub into the database, and</li>
+      <li>binds the authors named in what it just read.</li>
+    </ol>
+    <p>
+      The order matters: the second step can only bind what the first step wrote.
+      A release left with the first step done and not the second is exactly how one
+      ends up rendering <strong>Unknown</strong>.
+    </p>
+    <p>
+      <strong>It only touches the release you press.</strong> No author is removed,
+      and no author is copied from one release to another. It is safe to run twice.
+    </p>
+    <h3>Reading the columns</h3>
+    <ul>
+      <li>
+        <strong>Needs synchronizing</strong> is libraries with no author that this
+        job is worth running for: either their authors are named upstream but not
+        stored here yet, or their metadata was never read at all. On old releases a
+        residue can remain after a successful run, because some libraries shipped
+        no <code>meta/libraries.json</code> at that tag for anything to be read
+        from. Whatever is left after one run will not clear on a second.
+      </li>
+      <li>
+        <strong>No author upstream</strong> is a handful of libraries whose own
+        <code>meta/libraries.json</code> names no author at all. They show
+        <strong>Unknown</strong> on the site and always will. Synchronizing cannot
+        change them, so they are counted here and not in the column beside it. A
+        small number in this column is normal and is not a fault.
+      </li>
+    </ul>
+    <p class="help">
+      Point releases such as <code>1.91.0-1</code> are read from their base release,
+      because their libraries are not tagged separately and they ship no
+      documentation of their own.
+    </p>
+    <p class="help">
+      Not to be confused with <strong>Update Authors &amp; Maintainers</strong> on
+      the Library page, which rebuilds every release from scratch and can overwrite
+      the authors of older releases that are already correct.
+    </p>
+  </div>
+  {% for button in task_buttons %}
+    {% include "admin/task_button_status.html" with status=button.status %}
+    {% if button.description %}
+      <p class="help">{{ button.description }}</p>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
