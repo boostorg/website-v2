@@ -609,15 +609,14 @@ class User(BaseUser):
         A deactivated account's profile 404s, so `profile_url` leaves it
         unlinked.
         """
-        featured = self.featured_badge
         return {
             "name": self.display_name or str(self),
             "profile_url": self.profile_url,
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
             **self.profile_stamps,
-            "badge": featured["icon"] if featured else None,
-            "badge_label": featured["name"] if featured else "",
+            "badge": self.badge,
+            "badge_label": self.badge_label,
             "bio": None,
         }
 
@@ -710,6 +709,25 @@ class User(BaseUser):
         from badges.display import featured_badge
 
         return featured_badge(self)
+
+    @property
+    def badge(self):
+        """Featured badge token, or None, as `_user_profile.html` reads it.
+
+        Named for the template slot rather than for `featured_badge` because
+        that is the contract being satisfied: the v3 posts feed and the post
+        detail cards pass a User straight into that component (see
+        `profile_url`), and without these two the badge was the one field it
+        could not resolve - issue #2708.
+        """
+        featured = self.featured_badge
+        return featured["icon"] if featured else None
+
+    @property
+    def badge_label(self):
+        """Hover label for `badge`, or "" - the empty case the template skips."""
+        featured = self.featured_badge
+        return featured["name"] if featured else ""
 
     def _effective_role(self, ignore_hidden=False):
         """The (role_type, library) currently displayed, or (None, None).

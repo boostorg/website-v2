@@ -326,10 +326,15 @@ class ContributorMixin:
             qs = qs.exclude(id__in=exclude)
         qs = (
             qs.annotate(count=Count("commit"))
-            # A claimed contributor links to their Boost profile, which reads
-            # the user and their routing keys.
+            # A claimed contributor links to their Boost profile and shows
+            # their badge, which reads the user, their routing keys and their
+            # badge rows. Badges are asked for through the path because `user`
+            # is select_related - see `badges.display.active_badges_prefetch`.
             .select_related("user")
-            .prefetch_related("user__profile_routing_keys")
+            .prefetch_related(
+                "user__profile_routing_keys",
+                active_badges_prefetch("user__badges"),
+            )
             .order_by("-count")
         )
         return qs
@@ -389,10 +394,15 @@ class ContributorMixin:
             CommitAuthor.humans.filter(commit__library_version__in=library_versions)
             .exclude(id__in=author_ca_ids + maintainer_ca_ids)
             .annotate(count=Count("commit"))
-            # A claimed contributor links to their Boost profile, which reads
-            # the user and their routing keys.
+            # A claimed contributor links to their Boost profile and shows
+            # their badge, which reads the user, their routing keys and their
+            # badge rows. Badges are asked for through the path because `user`
+            # is select_related - see `badges.display.active_badges_prefetch`.
             .select_related("user")
-            .prefetch_related("user__profile_routing_keys")
+            .prefetch_related(
+                "user__profile_routing_keys",
+                active_badges_prefetch("user__badges"),
+            )
             .order_by("-count")
         )
         return (

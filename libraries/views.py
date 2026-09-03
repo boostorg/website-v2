@@ -20,6 +20,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, FormView, TemplateView
 from waffle import flag_is_active
 
+from badges.display import active_badges_prefetch
 from core.constants import SLACK_JOIN_URL
 from core.githubhelper import GithubAPIClient
 from core.mixins import V3Mixin
@@ -199,7 +200,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         Prefetch(
             "authors",
             queryset=User.objects.order_by("pk").prefetch_related(
-                "profile_routing_keys"
+                "profile_routing_keys", active_badges_prefetch()
             ),
         ),
         "library",

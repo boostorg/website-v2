@@ -386,7 +386,106 @@ def test_hide_badges_suppresses_every_public_accessor(plain_user):
     assert display.featured_badge(plain_user) is None
     assert display.badge_cards(plain_user) == []
     assert plain_user.featured_badge is None
+    assert plain_user.badge is None
+    assert plain_user.badge_label == ""
     assert plain_user.to_v3_profile_dict()["badge"] is None
+
+
+def test_an_unclaimed_stub_shows_no_badges(plain_user):
+    """Stubs stand in for historical authors and nobody can log into them, so a
+    badge on one credits a placeholder rather than a member."""
+    plain_user = _feature(plain_user, "library-authoring")
+    assert plain_user.featured_badge is not None
+
+    plain_user.claimed = False
+    plain_user.save(update_fields=["claimed"])
+    plain_user = _reload(plain_user)
+
+    assert display.held_badges(plain_user) == []
+    assert display.featured_badge(plain_user) is None
+    assert display.badge_cards(plain_user) == []
+    assert plain_user.featured_badge is None
+    assert plain_user.badge is None
+    assert plain_user.badge_label == ""
+    assert plain_user.to_v3_profile_dict()["badge"] is None
+
+
+def test_an_unclaimed_stub_is_not_bypassed_by_include_hidden(plain_user):
+    """`include_hidden` lets an owner see their own hidden badges. A stub has no
+    owner to be looking, so it is the one case the bypass must not reach."""
+    plain_user = _feature(plain_user, "library-authoring")
+    plain_user.claimed = False
+    plain_user.save(update_fields=["claimed"])
+    plain_user = _reload(plain_user)
+
+    assert display.held_badges(plain_user, include_hidden=True) == []
+    assert display.featured_badge(plain_user, include_hidden=True) is None
+    assert display.badge_cards(plain_user, include_hidden=True) == []
+
+
+def test_a_deactivated_account_shows_no_badges(plain_user):
+    """A legacy account deletion scrubs the name and email but leaves the badge
+    rows behind - only `extended_scrub` drops them. Without this the deleted
+    member keeps a badge on every public card their commits still appear on."""
+    plain_user = _feature(plain_user, "library-authoring")
+    plain_user.delete_account()
+    plain_user = _reload(plain_user)
+
+    assert plain_user.badges.filter(revoked_at=None).exists(), (
+        "legacy delete is expected to leave the rows; this test is about hiding "
+        "them, so it would pass vacuously if they were gone"
+    )
+    assert display.held_badges(plain_user) == []
+    assert display.held_badges(plain_user, include_hidden=True) == []
+    assert display.featured_badge(plain_user) is None
+    assert plain_user.badge is None
+    assert plain_user.badge_label == ""
+    assert plain_user.to_v3_profile_dict()["badge"] is None
+
+
+def test_a_contributor_linked_to_a_deactivated_account_shows_no_badge(plain_user):
+    """Contributor rows resolve their badge through the linked account, and a
+    deleted member's commits stay attributed to them."""
+    plain_user = _feature(plain_user, "library-authoring")
+    author = _commit_author(user=plain_user)
+    assert author.to_v3_profile_dict("Contributor")["badge"] == BadgeToken.TIER_1
+
+    plain_user.delete_account()
+    author.refresh_from_db()
+
+    profile = author.to_v3_profile_dict("Contributor")
+
+    assert profile["badge"] is None
+    assert profile["badge_label"] == ""
+
+
+def test_claiming_the_account_restores_its_badges(plain_user):
+    """The badges were never revoked, only withheld while the stub was unowned."""
+    plain_user = _feature(plain_user, "library-authoring")
+    plain_user.claimed = False
+    plain_user.save(update_fields=["claimed"])
+    assert _reload(plain_user).featured_badge is None
+
+    _reload(plain_user).claim()
+
+    assert _reload(plain_user).featured_badge["icon"] == BadgeToken.TIER_1
+
+
+def test_a_contributor_linked_to_an_unclaimed_stub_shows_no_badge(plain_user):
+    """The case this filter exists for: contributor rows resolve their badge
+    through the linked account, and some of those accounts are importer stubs."""
+    plain_user = _feature(plain_user, "library-authoring")
+    author = _commit_author(user=plain_user)
+    assert author.to_v3_profile_dict("Contributor")["badge"] == BadgeToken.TIER_1
+
+    plain_user.claimed = False
+    plain_user.save(update_fields=["claimed"])
+    author.refresh_from_db()
+
+    profile = author.to_v3_profile_dict("Contributor")
+
+    assert profile["badge"] is None
+    assert profile["badge_label"] == ""
 
 
 def test_hide_badges_can_be_bypassed_for_the_owner(plain_user):
@@ -516,6 +615,54 @@ def test_homepage_ranked_post_badge_query_is_constant(plain_user, make_post_page
     assert {card["author"]["badge_label"] for card in four_cards} == {"Library Author"}
 
 
+def test_library_card_author_shows_their_badge(library_version, plain_user):
+    """The Libraries page builds its own author dict rather than going through
+    `to_v3_profile_dict`, and it set a `badge_url` key nothing reads - so the
+    card showed the tenure star and no badge."""
+    plain_user = _feature(plain_user, "library-authoring")
+    library_version.authors.add(plain_user)
+
+    details = library_version.author_details
+
+    assert details["badge"] == BadgeToken.TIER_1
+    assert details["badge_label"] == "Library Author"
+    assert "badge_url" not in details
+
+
+def test_library_card_without_an_author_has_no_badge(library_version):
+    """The empty case the template skips, not a placeholder medal."""
+    details = library_version.author_details
+
+    assert details["badge"] is None
+    assert details["badge_label"] == ""
+
+
+def test_library_list_author_badge_query_is_constant(library_version, plain_user):
+    """The Libraries page reads one author badge per card, so the list view
+    prefetches them through its `authors` Prefetch."""
+    from libraries.views import LibraryListBase
+
+    plain_user = _feature(plain_user, "library-authoring")
+    library_version.authors.add(plain_user)
+
+    def author_cards():
+        rows = list(LibraryListBase.queryset.all())
+        return [lv.author_details for lv in rows]
+
+    one_card, one_badge_query = _badge_queries(author_cards)
+
+    for index in range(1, 4):
+        author = baker.make("users.User", email=f"lib-list-{index}@example.com")
+        other = baker.make("libraries.LibraryVersion")
+        other.authors.add(_feature(author, "library-authoring"))
+    four_cards, four_badge_queries = _badge_queries(author_cards)
+
+    assert one_badge_query == four_badge_queries == 1
+    assert len(one_card) == 1
+    assert len(four_cards) == 4
+    assert {card["badge_label"] for card in four_cards} == {"Library Author"}
+
+
 def test_library_intro_badge_query_is_constant(library_version, plain_user):
     """The homepage library intro prefetches its User authors and maintainers."""
     from libraries.utils import build_library_intro_context
@@ -566,6 +713,92 @@ def test_library_detail_user_badge_query_is_constant(library_version, plain_user
     assert len(one_card) == 1
     assert len(four_cards) == 4
     assert {card["badge_label"] for card in four_cards} == {"Library Author"}
+
+
+def _commit_author(user=None, **kwargs):
+    """A human commit author, optionally linked to a Boost account."""
+    return baker.make("libraries.CommitAuthor", user=user, is_bot=False, **kwargs)
+
+
+def test_a_commit_author_shows_its_linked_members_badge(plain_user):
+    """Release and library contributor rows are CommitAuthors, not Users, and
+    their card hardcoded no badge even for a linked account (#2708)."""
+    plain_user = _feature(plain_user, "library-authoring")
+    author = _commit_author(user=plain_user)
+
+    profile = author.to_v3_profile_dict("Contributor")
+
+    assert profile["badge"] == BadgeToken.TIER_1
+    assert profile["badge_label"] == "Library Author"
+
+
+def test_a_git_only_contributor_has_no_badge():
+    """Badges are awarded to the account, so an unlinked git identity has none.
+
+    The empty case the template skips, not a placeholder medal.
+    """
+    profile = _commit_author().to_v3_profile_dict("Contributor")
+
+    assert profile["badge"] is None
+    assert profile["badge_label"] == ""
+
+
+def test_a_contributor_matched_by_github_username_keeps_its_badge(plain_user):
+    """`prefer_boost_profile_links` repoints a contributor at their Boost
+    profile off the GitHub username when the commit email never matched. The
+    badge has to travel with the link, or the same member renders as an
+    account beside a badgeless stranger."""
+    from libraries.utils import prefer_boost_profile_links
+
+    plain_user.github_username = "vinniefalco"
+    plain_user.claimed = True
+    plain_user.save(update_fields=["github_username", "claimed"])
+    plain_user = _feature(plain_user, "library-authoring")
+    author = _commit_author(github_profile_url="https://github.com/VinnieFalco")
+
+    profile = author.to_v3_profile_dict("Contributor")
+    assert profile["badge"] is None, "unlinked, so nothing to show yet"
+
+    prefer_boost_profile_links([profile])
+
+    assert profile["profile_url"] == plain_user.profile_url
+    assert profile["badge"] == BadgeToken.TIER_1
+    assert profile["badge_label"] == "Library Author"
+
+
+def test_release_contributor_badge_query_is_constant(plain_user, version):
+    """The downloads page loads contributor badges once, not once per row.
+
+    `user` is select_related on the contributor queryset, so the badges have to
+    be asked for through the path - see `badges.display.active_badges_prefetch`.
+    """
+    from versions.views import VersionDetail
+
+    def add_contributor(user):
+        """One commit against this release, authored by `user`'s git identity."""
+        baker.make(
+            "libraries.Commit",
+            library_version=baker.make("libraries.LibraryVersion", version=version),
+            author=_commit_author(user=user),
+        )
+
+    plain_user = _feature(plain_user, "library-authoring")
+    add_contributor(plain_user)
+
+    def contributors():
+        return VersionDetail().get_v3_contributors(version)
+
+    one_row, one_badge_query = _badge_queries(contributors)
+
+    for index in range(1, 4):
+        user = baker.make("users.User", email=f"release-{index}@example.com")
+        add_contributor(_feature(user, "library-authoring"))
+    four_rows, four_badge_queries = _badge_queries(contributors)
+
+    assert one_badge_query == four_badge_queries == 1
+    assert len(one_row) == 1
+    assert len(four_rows) == 4
+    assert {row["badge_label"] for row in four_rows} == {"Library Author"}
 
 
 @waffle.testutils.override_flag("v3", active=True)
@@ -634,6 +867,127 @@ def test_v3_news_list_renders_no_badge_without_one(
 
     tp.response_200(response)
     assert "user-card__badge" not in response.content.decode()
+
+
+def test_a_user_fills_the_profile_component_badge_slots(plain_user):
+    """`_user_profile.html` reads `badge` and `badge_label` off whatever it is
+    handed, and the v3 post cards hand it a User rather than the dict
+    `to_v3_profile_dict` builds. Both shapes have to answer the same (#2708)."""
+    assert plain_user.badge is None
+    assert plain_user.badge_label == ""
+
+    plain_user = _feature(plain_user, "library-authoring")
+    profile = plain_user.to_v3_profile_dict()
+
+    assert plain_user.badge == BadgeToken.TIER_1 == profile["badge"]
+    assert plain_user.badge_label == "Library Author" == profile["badge_label"]
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_news_list_renders_the_author_badge_on_a_post_card(
+    plain_user, tp, post_index_page, wagtail_site, make_post_page
+):
+    """The feed lists PostPages, whose `author` is the owning User.
+
+    Anonymous on purpose: the sidebar card renders the same label for a signed-in
+    member, and would pass this whether or not the author card had a badge.
+    """
+    plain_user.display_name = "Vinnie Falco"
+    plain_user.save(update_fields=["display_name"])
+    plain_user = _feature(plain_user, "library-authoring")
+    make_post_page(title="A Post", owner=plain_user)
+
+    response = tp.get(post_index_page.get_url())
+
+    tp.response_200(response)
+    body = response.content.decode()
+    assert "user-card__badge" not in body, "signed out, so no sidebar card badge"
+    assert 'aria-label="Library Author"' in body
+    assert "badge-v3--tier-1" in body
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_post_detail_renders_the_author_badge(
+    plain_user, tp, wagtail_site, make_post_page
+):
+    """The detail page's own header reads `post_author`, which is the same User."""
+    plain_user.display_name = "Vinnie Falco"
+    plain_user.save(update_fields=["display_name"])
+    plain_user = _feature(plain_user, "library-authoring")
+    post = make_post_page(title="A Post", owner=plain_user)
+
+    response = tp.get(post.get_url())
+
+    tp.response_200(response)
+    body = response.content.decode()
+    assert 'aria-label="Library Author"' in body
+    assert "badge-v3--tier-1" in body
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_post_detail_badge_query_is_constant(
+    plain_user, tp, wagtail_site, make_post_page
+):
+    """A post detail page reads three sets of badges: the author's, the next
+    post's and the related posts'. None may grow with how many posts exist.
+
+    Wagtail resolves the page being viewed by itself, so its author is not part
+    of the prefetched queryset the next and related cards come from; the page
+    prefetches that author separately. One author costs the same single query
+    either way, so the number below does not move when that prefetch is removed -
+    what this pins is that none of the three grows with the post count.
+    """
+    plain_user = _feature(plain_user, "library-authoring")
+    post = make_post_page(title="Main Post", owner=plain_user)
+    for index in range(3):
+        author = baker.make("users.User", email=f"detail-a-{index}@example.com")
+        make_post_page(
+            title=f"Related A {index}", owner=_feature(author, "library-authoring")
+        )
+
+    def detail():
+        return tp.get(post.get_url())
+
+    few, few_badge_queries = _badge_queries(detail)
+
+    for index in range(7):
+        author = baker.make("users.User", email=f"detail-b-{index}@example.com")
+        make_post_page(
+            title=f"Related B {index}", owner=_feature(author, "library-authoring")
+        )
+    many, many_badge_queries = _badge_queries(detail)
+
+    tp.response_200(few)
+    tp.response_200(many)
+    assert few_badge_queries == many_badge_queries == 3
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_v3_feed_author_badge_query_is_constant(
+    plain_user, tp, post_index_page, wagtail_site, make_post_page
+):
+    """The feed loads author badges once, not once per card.
+
+    `owner` is select_related, so the badges have to be asked for through the
+    path - see `badges.display.active_badges_prefetch`.
+    """
+    plain_user = _feature(plain_user, "library-authoring")
+    make_post_page(title="Post 0", owner=plain_user)
+
+    def feed():
+        return tp.get(post_index_page.get_url())
+
+    one_post, one_badge_query = _badge_queries(feed)
+
+    for index in range(1, 4):
+        author = baker.make("users.User", email=f"feed-{index}@example.com")
+        author = _feature(author, "library-authoring")
+        make_post_page(title=f"Post {index}", owner=author)
+    four_posts, four_badge_queries = _badge_queries(feed)
+
+    assert one_badge_query == four_badge_queries == 1
+    assert len(one_post.context["entry_list"]) == 1
+    assert len(four_posts.context["entry_list"]) == 4
 
 
 @waffle.testutils.override_flag("v3", active=True)

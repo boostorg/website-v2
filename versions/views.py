@@ -20,6 +20,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from waffle import flag_is_active
 
+from badges.display import active_badges_prefetch
 from core.hero import release_hero_context
 from core.mixins import V3Mixin
 from mailing_list.mixins import MailingListCardMixin
@@ -146,10 +147,15 @@ class VersionDetail(
                 count=Count("commit", filter=Q(commit__in=version_commits)),
             )
             .filter(count__gte=1)
-            # A claimed contributor links to their Boost profile, which reads
-            # the user and their routing keys.
+            # A claimed contributor links to their Boost profile and shows
+            # their badge, which reads the user, their routing keys and their
+            # badge rows. Badges are asked for through the path because `user`
+            # is select_related - see `badges.display.active_badges_prefetch`.
             .select_related("user")
-            .prefetch_related("user__profile_routing_keys")
+            .prefetch_related(
+                "user__profile_routing_keys",
+                active_badges_prefetch("user__badges"),
+            )
             .order_by("-count")
         )
         return qs
