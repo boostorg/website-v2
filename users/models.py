@@ -877,19 +877,41 @@ class User(BaseUser):
         empty dict means no contributions at all. Backed by the same source of
         truth as the edit-page role dropdown (`get_role_library_options`).
 
+        Within a role the libraries read flagship-first, then alphabetically.
+        That is deliberately not the dropdown's order, which ranks by commit
+        count to put the user's likeliest self-description at the top: this list
+        is read as a catalogue, so a stable name order matters more than
+        prominence. Untiered libraries sort with the non-flagships.
+
         Cached per user. The underlying roles only change on library imports,
         which drop the entry via `recompute_displayed_profile_roles`; the TTL is
         a safety net. An empty dict is a real cached value (distinct from a
         cache miss, which returns None).
         """
+        from libraries.models import Tier
+
         cache_key = contributor_data_cache_key(self.pk)
         cached = cache.get(cache_key)
         if cached is not None:
             return cached
-        data = {}
+        grouped = {}
         for option in self.get_role_library_options():
             label = ProfileRole(option["role"]).label
-            data.setdefault(label, []).append(option["library"].display_name_short)
+            grouped.setdefault(label, []).append(option["library"])
+
+        def sort_key(library):
+            return (
+                library.tier != Tier.FLAGSHIP,
+                library.display_name_short.casefold(),
+            )
+
+        data = {
+            label: [
+                library.display_name_short
+                for library in sorted(libraries, key=sort_key)
+            ]
+            for label, libraries in grouped.items()
+        }
         cache.set(cache_key, data, settings.CONTRIBUTOR_DATA_CACHE_TIMEOUT)
         return data
 
