@@ -3731,13 +3731,22 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
 }
 
 .boostlook .nav-menu .nav-list li:has(.nav-text),
-.boostlook .nav-menu .nav-list li[data-depth="1"]:not(:has(> .nav-item-toggle)),
 .boostlook #toc > ul.sectlevel1 li:has(> ul):not(:first-of-type) {
   margin-top: var(--leftbar-paddings-leftbar-padding-4xs, 0.125rem);
 }
 
 .boostlook .nav-menu .nav-list li[data-depth="1"]:not(:has(> .nav-item-toggle)) {
+  margin-top: 0;
   padding-left: 0;
+}
+
+.boostlook .nav-menu .nav-item:has(> .nav-item-toggle) + li[data-depth="1"]:not(:has(> .nav-item-toggle)) {
+  border-top: 1px solid var(--border-border-primary, #e4e7ea);
+  padding-top: var(--leftbar-paddings-leftbar-padding-xs, 0.75rem);
+}
+
+.boostlook .nav-menu .nav-list li[data-depth="1"]:not(:has(> .nav-item-toggle)):has(+ .nav-item > .nav-item-toggle) {
+  padding-bottom: var(--leftbar-paddings-leftbar-padding-xs, 0.75rem);
 }
 
 .boostlook .nav-text,
@@ -3755,8 +3764,7 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
 /* Section separator lines */
 .boostlook .nav-menu > .nav-list > .nav-item,
 .boostlook .nav-menu .nav-item:has(> .nav-text),
-.boostlook .nav-menu .nav-item:has(> .nav-item-toggle),
-.boostlook .nav-menu li[data-depth="1"]:not(:has(> .nav-item-toggle)) {
+.boostlook .nav-menu .nav-item:has(> .nav-item-toggle) {
   border-top: 1px solid var(--border-border-primary, #e4e7ea);
   margin-top: 0;
   padding-top: var(--leftbar-paddings-leftbar-padding-xs, 0.75rem);
