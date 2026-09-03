@@ -295,7 +295,7 @@ def test_docs_libs_gateway_200_non_html(tp, mock_get_file_data):
 def test_doc_libs_version_redirect(tp):
     response = tp.get("redirect-to-library-page", requested_version="1.82.0")
     tp.response_302(response)
-    assert response["Location"] == "/libraries/1.82.0/grid/"
+    assert response["Location"] == "/libraries/1.82.0/list/"
 
     response = tp.get("redirect-to-library-page", requested_version="release")
     tp.response_302(response)

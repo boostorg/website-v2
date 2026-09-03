@@ -7,7 +7,7 @@ from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from model_bakery import baker
 
-from ..constants import README_MISSING
+from ..constants import README_MISSING, SELECTED_LIBRARY_VIEW_COOKIE_NAME
 from ..models import Library
 from ..utils import benchmark_sets, designed_for_html
 from ..views import LibraryListBase, _build_quick_start_links, _is_boost_url
@@ -132,8 +132,16 @@ def test_library_list(library_version, tp, url_name="libraries", request_kwargs=
     assert lib2 not in res.context["object_list"]
 
 
-def test_library_root_redirect_to_grid(tp):
+def test_library_root_redirect_to_list(tp):
     """GET /libraries/"""
+    res = tp.get("libraries")
+    tp.response_302(res)
+    assert res.url == "/libraries/latest/list/"
+
+
+def test_library_root_redirect_honors_view_cookie(tp):
+    """GET /libraries/ with a saved view preference keeps that view."""
+    tp.client.cookies[SELECTED_LIBRARY_VIEW_COOKIE_NAME] = "grid"
     res = tp.get("libraries")
     tp.response_302(res)
     assert res.url == "/libraries/latest/grid/"
@@ -638,7 +646,7 @@ def test_redirect_to_library_list_view(library_version, tp):
     tp.response_302(response)
 
     # Should redirect to the libraries-list view with the version slug
-    expected_redirect = "/libraries/1.79.0/grid/"
+    expected_redirect = "/libraries/1.79.0/list/"
     assert response.url == expected_redirect
 
 
