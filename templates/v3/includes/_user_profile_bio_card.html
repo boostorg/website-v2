@@ -20,7 +20,7 @@
     <ul class="card__column bio-card__contributions px-large">
       {% for role, libraries in contributor_data.items %}
         <li class="bio-card__contribution"
-            x-data="{ overflowing: true, measure() { const l = $refs.libraries; if (!$refs.expand.checked) this.overflowing = l.scrollHeight > l.clientHeight + 1 } }"
+            x-data="{ overflowing: true, measure() { const l = this.$refs.libraries; if (!this.$refs.expand.checked) this.overflowing = l.scrollHeight > l.clientHeight + 1 } }"
             x-init="$nextTick(() => measure())"
             @resize.window.debounce="measure()">
           <input type="checkbox"
