@@ -136,16 +136,12 @@
   }
 }
 
-/* Tablet only: the design stacks the three sentences one per line, but the
-   header's 50% cap swings from 361px to 616px across this range, so no font
-   size makes natural wrapping land on the sentence breaks. Force the breaks and
-   step the size down to fit the narrowest column. Desktop and mobile keep their
-   natural wrapping. */
+/* Tablet: the design stacks the three sentences one per line at 64px, which is
+   already the base size here - only the breaks need forcing, since natural
+   wrapping lands mid-sentence. Below 812px the longest sentence (382px) exceeds
+   the 50% column and wraps to a fourth line; the narrowest tablet we target is
+   820px. Desktop and mobile keep natural wrapping. */
 @media (min-width: 768px) and (max-width: 1279px) {
-  .learn-page-header h1 {
-    font-size: var(--font-size-2xl);
-  }
-
   .learn-page-header h1 span {
     display: block;
   }
