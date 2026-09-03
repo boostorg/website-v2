@@ -788,15 +788,29 @@ def group_libraries_by_tier(
 def library_filter_options() -> list[tuple[str, str]]:
     """(slug, label) pairs for the library filter dropdowns.
 
+    Only libraries carried by a live post are offered. The dropdown exists to
+    narrow the feed, and a library no post is tagged with can only narrow it to
+    nothing, so listing every library buries the handful that lead somewhere.
+
+    Posts reach a library through a `ContentTag` whose slug mirrors the library
+    slug rather than through a relation, so the tagged slugs come back as a
+    subquery instead of a join.
+
     Labelled with display_name so the dropdown matches the wording used in
     feed headers ("Boost.Beast" rather than "Beast").
     """
 
     from libraries.models import Library
+    from pages.mixins import TaggedContent
+
+    tagged_slugs = TaggedContent.objects.filter(content_object__live=True).values(
+        "tag__slug"
+    )
 
     return [
         (library.slug, library.display_name)
         for library in Library.objects.exclude(slug="")
         .exclude(slug__isnull=True)
+        .filter(slug__in=tagged_slugs)
         .order_by("name")
     ]
