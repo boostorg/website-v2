@@ -16,6 +16,7 @@ from django.urls import reverse
 from model_bakery import baker
 
 from libraries.tasks import synchronize_release_library_data
+from versions.exceptions import PostImportStepFailed
 
 pytestmark = pytest.mark.django_db
 
@@ -210,17 +211,17 @@ def test_the_allowlist_holds_the_stored_releases_and_not_the_branches(
     assert all(value != "develop" for value, _ in button["choices"])
 
 
-def test_the_task_binds_authors_even_when_the_import_fails():
+def test_the_task_binds_authors_even_when_a_post_import_step_fails():
     """A point release ships no docs archive, and the import ends by scraping it.
 
     That raise has nothing to do with authorship, so losing the author pass to it
     would leave the release rendering "Unknown", which is what this job repairs.
+    The import raises it as `PostImportStepFailed`, which says the library
+    metadata the author pass reads was written before the step that failed.
     """
     baker.make("versions.Version", name="boost-1.91.0-1", slug="1-91-0-1")
     calls = Mock()
-    calls.import_versions.side_effect = ValueError(
-        "Could not get content from S3 for doc/libs/boost_1_91_0_1/libs/libraries.htm"
-    )
+    calls.import_versions.side_effect = PostImportStepFailed(["array", "asio"])
     with patch("versions.tasks.import_library_versions", calls.import_versions), patch(
         "libraries.tasks.call_command", calls.call_command
     ):
@@ -229,6 +230,40 @@ def test_the_task_binds_authors_even_when_the_import_fails():
     assert calls.call_command.call_args_list == [
         (("update_library_version_authors", "--release", "boost-1.91.0-1"), {}),
     ]
+
+
+def test_the_task_aborts_when_the_import_fails_before_writing_anything():
+    """A failure that is not the documentation scrape leaves the data untouched.
+
+    Resolving the tag, building the GitHub client and writing the rows can all
+    raise, and none of them has written a thing when they do. Binding authors
+    over metadata that is as stale as it was found and reporting success would
+    tell the operator the release was repaired when nothing was read at all.
+    """
+    baker.make("versions.Version", name="boost-1.92.0", slug="1-92-0")
+    calls = Mock()
+    calls.import_versions.side_effect = RuntimeError("no GitHub token configured")
+    with patch("versions.tasks.import_library_versions", calls.import_versions), patch(
+        "libraries.tasks.call_command", calls.call_command
+    ):
+        with pytest.raises(RuntimeError, match="no GitHub token"):
+            synchronize_release_library_data("boost-1.92.0")
+
+    calls.call_command.assert_not_called()
+
+
+def test_a_post_import_failure_that_read_nothing_still_fails():
+    """The two shapes of failure can arrive together, and the stricter one wins."""
+    baker.make("versions.Version", name="boost-1.61.0", slug="1-61-0")
+    calls = Mock()
+    calls.import_versions.side_effect = PostImportStepFailed([])
+    with patch("versions.tasks.import_library_versions", calls.import_versions), patch(
+        "libraries.tasks.call_command", calls.call_command
+    ):
+        with pytest.raises(ValueError, match="Could not read the libraries"):
+            synchronize_release_library_data("boost-1.61.0")
+
+    calls.call_command.assert_not_called()
 
 
 def _release_rows(rf, user):

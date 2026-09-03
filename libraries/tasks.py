@@ -299,6 +299,7 @@ def synchronize_release_library_data(release=""):
     copied between releases, and only the chosen release is touched; the sweep
     behind "Update Authors & Maintainers" is neither of those things.
     """
+    from versions.exceptions import PostImportStepFailed
     from versions.tasks import import_library_versions
 
     version = Version.objects.with_partials().filter(name=release).first()
@@ -320,24 +321,29 @@ def synchronize_release_library_data(release=""):
     # The import ends by scraping documentation URLs, which raises when a release
     # has no docs archive in S3. That has nothing to do with authorship, and
     # losing the author pass to it is what leaves the release rendering "Unknown",
-    # the exact state this job exists to repair. So a raise here is tolerated: it
-    # can only come from after the libraries were read and written.
+    # the exact state this job exists to repair. So that one failure is tolerated,
+    # and only that one: it is raised as `PostImportStepFailed` precisely because
+    # it can only come from after the libraries were read and written. Anything
+    # else - a tag that cannot be resolved, a GitHub client that cannot be built,
+    # a write that failed halfway - leaves `LibraryVersion.data` as stale as it
+    # was found, and binding authors over it and reporting success would be a lie.
     try:
         imported = import_library_versions(version.name, version_type="tag")
-    except Exception:
+    except PostImportStepFailed as exc:
         logger.exception(
             "synchronize_release_library_data_import_incomplete",
             release=version.name,
         )
-    else:
-        # A falsy return is the other shape of failure, and the one worth failing
-        # on: the import gave up before reading any library, so there is nothing
-        # for the author pass to bind and reporting success would be a lie.
-        if not imported:
-            raise ValueError(
-                f"Could not read the libraries of {version.name} from GitHub; "
-                "nothing has been changed."
-            )
+        imported = exc.library_keys
+
+    # A falsy result is the other shape of failure, and the one worth failing on:
+    # the import gave up before reading any library, so there is nothing for the
+    # author pass to bind and reporting success would be a lie.
+    if not imported:
+        raise ValueError(
+            f"Could not read the libraries of {version.name} from GitHub; "
+            "nothing has been changed."
+        )
 
     call_command("update_library_version_authors", "--release", version.name)
     logger.info("synchronize_release_library_data_finished", release=version.name)

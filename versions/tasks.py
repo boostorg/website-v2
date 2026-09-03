@@ -31,7 +31,7 @@ from libraries.models import Library, LibraryVersion
 from libraries.website_adoc import fetch_website_adoc_fields
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
 from libraries.utils import version_within_range
-from versions.exceptions import BoostImportedDataException
+from versions.exceptions import BoostImportedDataException, PostImportStepFailed
 from versions.models import Version
 from versions.releases import (
     store_release_notes_for_in_progress,
@@ -498,11 +498,18 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         logger.info("Triggering removed submodules garbage collection")
         gc_removed_submodules.delay(library_keys, version_name)
 
-    # Retrieve and store the docs url for each library-version in this release
-    get_and_store_library_version_documentation_urls_for_version(version.pk)
+    # Both steps below run only once every library's metadata is written, and the
+    # first of them raises for a release with no docs archive in S3. Re-raised as
+    # ``PostImportStepFailed`` so a caller that needs the metadata and not the
+    # docs can tell that apart from a failure that left the metadata untouched.
+    try:
+        # Retrieve and store the docs url for each library-version in this release
+        get_and_store_library_version_documentation_urls_for_version(version.pk)
 
-    # Load maintainers for library-versions
-    call_command("update_maintainers", "--release", version.name)
+        # Load maintainers for library-versions
+        call_command("update_maintainers", "--release", version.name)
+    except Exception as exc:
+        raise PostImportStepFailed(library_keys) from exc
 
     # The keys it managed to read. Falsy means it read nothing at all, which a
     # caller cannot otherwise tell from a successful run: every failure above

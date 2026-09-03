@@ -1,5 +1,6 @@
 from datetime import datetime
 from unittest.mock import MagicMock, patch
+from libraries.models import LibraryVersion
 from versions.models import Version
 from versions.tasks import get_release_date_for_version, import_version, skip_tag
 from libraries.management.commands.release_tasks import ReleaseTasksManager
@@ -115,3 +116,53 @@ def test_import_reviews_task_backfills_the_review_source(mock_call):
     ]
     # The admin who pressed the button, so the sync log can name them.
     assert mock_call.call_args_list[-1].kwargs == {"actor_id": 7}
+
+
+@pytest.mark.django_db
+@patch("versions.tasks.call_command")
+@patch("versions.tasks.fetch_website_adoc_fields", return_value={})
+@patch("versions.tasks.get_and_store_library_version_documentation_urls_for_version")
+@patch("versions.tasks.GithubDataParser")
+@patch("versions.tasks.LibraryUpdater")
+@patch("versions.tasks.GithubAPIClient")
+def test_import_library_versions_marks_a_failure_after_the_metadata_was_written(
+    client_class,
+    updater_class,
+    parser_class,
+    docs_mock,
+    adoc_mock,
+    call_command_mock,
+    version,
+):
+    """The docs scrape runs last, and its failure has to be told from the others.
+
+    ``synchronize_release_library_data`` tolerates a raise from here only when
+    the library metadata it feeds to the author pass is already in place, and
+    this exception is how it knows that. A release with no docs archive in S3 is
+    the ordinary case: the rows are written, the scrape then raises.
+    """
+    from versions.exceptions import PostImportStepFailed
+    from versions.tasks import import_library_versions
+
+    parser_class.return_value.parse_gitmodules.return_value = [{"module": "array"}]
+    parser_class.return_value.parse_libraries_json.return_value = {
+        "key": "array",
+        "name": "Array",
+        "authors": ["Nicolai Josuttis"],
+        "cpp20_module_support": False,
+    }
+    client_class.return_value.get_repo.return_value = {
+        "html_url": "https://github.com/boostorg/array"
+    }
+    updater_class.return_value.skip_modules = []
+    updater_class.return_value.skip_libraries = []
+    docs_mock.side_effect = ValueError("Could not get content from S3")
+
+    with pytest.raises(PostImportStepFailed) as raised:
+        import_library_versions(version.name)
+
+    # The keys it read, so the caller can still tell an import that read nothing.
+    assert raised.value.library_keys == ["array"]
+    assert LibraryVersion.objects.filter(version=version, library__key="array").exists()
+    # The maintainers pass belongs to the same tail and never ran.
+    assert call_command_mock.call_args_list == []
