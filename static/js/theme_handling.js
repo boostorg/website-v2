@@ -86,7 +86,7 @@ function checkmedia() {
   const relevantWindow = window.parent || window;
   let browserColorMode = null;
   const userColorMode = localStorage.getItem("colorMode");
-  if (!relevantWindow.matchMedia) {
+  if (relevantWindow.matchMedia) {
     browserColorMode = getBrowserColorMode(relevantWindow);
     //  transparently removed on next load if matches browser setting
     if (userColorMode === browserColorMode) {
