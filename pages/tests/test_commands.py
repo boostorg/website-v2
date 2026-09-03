@@ -163,3 +163,20 @@ class TestConvertNewsEntriesCommand:
 
         page = PostPage.objects.get(title=entry.title)
         assert page.image is None
+
+
+class TestUpdateIndexTask:
+    def test_runs_the_wagtail_command(self, mocker):
+        from pages.tasks import update_index_task
+
+        call_command = mocker.patch("pages.tasks.call_command")
+
+        update_index_task()
+
+        call_command.assert_called_once_with("wagtail_update_index")
+
+    def test_update_index_is_haystacks_no_op(self):
+        """Wagtail ships `update_index` as an alias too, but haystack precedes
+        it in INSTALLED_APPS and wins the name, which is why the task above
+        cannot use it."""
+        assert management.get_commands()["update_index"] == "haystack"

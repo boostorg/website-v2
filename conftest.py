@@ -5,6 +5,7 @@ import tempfile
 from PIL import Image
 
 from django.core.files import File as DjangoFile
+from django.db import connection
 
 # Include the various pytest fixtures from all of our Django apps tests
 # directories
@@ -17,6 +18,35 @@ pytest_plugins = [
     "users.tests.fixtures",
     "versions.tests.fixtures",
 ]
+
+
+# --no-migrations keeps core/migrations 0011 and 0012 off the test database.
+# Idempotent, because --reuse-db means this re-runs against an existing one.
+SEARCH_CONFIG_SQL = """
+CREATE EXTENSION IF NOT EXISTS unaccent;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_ts_config WHERE cfgname = 'english_unaccent')
+    THEN
+        CREATE TEXT SEARCH CONFIGURATION english_unaccent ( COPY = english );
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_ts_config WHERE cfgname = 'simple_unaccent')
+    THEN
+        CREATE TEXT SEARCH CONFIGURATION simple_unaccent ( COPY = simple );
+    END IF;
+END $$;
+ALTER TEXT SEARCH CONFIGURATION english_unaccent
+  ALTER MAPPING FOR hword, hword_part, word WITH unaccent, english_stem;
+ALTER TEXT SEARCH CONFIGURATION simple_unaccent
+  ALTER MAPPING FOR hword, hword_part, word WITH unaccent, simple;
+"""
+
+
+@pytest.fixture(scope="session")
+def django_db_setup(django_db_setup, django_db_blocker):
+    with django_db_blocker.unblock():
+        with connection.cursor() as cursor:
+            cursor.execute(SEARCH_CONFIG_SQL)
 
 
 @pytest.fixture

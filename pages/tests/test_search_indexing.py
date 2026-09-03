@@ -5,6 +5,7 @@ from model_bakery import baker
 from wagtail.search.models import IndexEntry
 
 from pages.models import PostPage
+from users.models import User
 
 pytestmark = pytest.mark.django_db
 
@@ -34,6 +35,19 @@ class TestSearchFields:
         assert ("SearchField", "post_content_type") in declared
         assert ("RelatedFields", "tags") in declared
         assert ("RelatedFields", "owner") in declared
+
+    def test_indexes_an_autocomplete_surface(self):
+        """Prefix matching reads a separate vector from SearchField."""
+        declared = {(type(f).__name__, f.field_name) for f in PostPage.search_fields}
+        owner = next(
+            f
+            for f in PostPage.search_fields
+            if type(f).__name__ == "RelatedFields" and f.field_name == "owner"
+        )
+        owner_fields = {(type(f).__name__, f.field_name) for f in owner.fields}
+
+        assert ("AutocompleteField", "title") in declared
+        assert ("AutocompleteField", "display_name") in owner_fields
 
 
 class TestSearchBody:
@@ -70,3 +84,72 @@ class TestIndexEntry:
 
         assert "beast" in body
         assert "falco" in body
+
+
+class TestSearchConfig:
+    def test_folds_accents_into_the_indexed_lexemes(self, make_post_page):
+        """The config applies at index time, so the stored vector proves it."""
+        author = baker.make("users.User", display_name="Rubén Pérez")
+        page = make_post_page(owner=author)
+
+        body = index_entry_for(page).body
+
+        assert "perez" in body
+        assert "ruben" in body
+
+    def test_backend_is_configured_for_unaccented_search(self):
+        """Both vectors, not just the full text one."""
+        from modelsearch.backends import get_search_backend
+
+        backend = get_search_backend()
+
+        assert backend.config == "english_unaccent"
+        assert backend.autocomplete_config == "simple_unaccent"
+
+
+class TestReindexOnRename:
+    """Each page's index entry holds a copy of its author's name."""
+
+    def test_a_renamed_author_is_findable_by_the_new_name(
+        self, make_post_page, django_capture_on_commit_callbacks
+    ):
+        author = baker.make("users.User", display_name="Vinnie Falco")
+        page = make_post_page(title="Authored Post", owner=author)
+
+        with django_capture_on_commit_callbacks(execute=True):
+            author.display_name = "Vinnie Zulawski"
+            author.save()
+
+        body = index_entry_for(page).body
+
+        assert "zulawski" in body
+        assert "falco" not in body
+
+    def test_a_rename_on_a_reloaded_user_is_spotted_too(
+        self, make_post_page, django_capture_on_commit_callbacks
+    ):
+        """The usual path: a request loads the user, edits and saves it."""
+        author = baker.make("users.User", display_name="Vinnie Falco")
+        page = make_post_page(title="Authored Post", owner=author)
+
+        reloaded = User.objects.get(pk=author.pk)
+        with django_capture_on_commit_callbacks(execute=True):
+            reloaded.display_name = "Vinnie Zulawski"
+            reloaded.save()
+
+        assert "zulawski" in index_entry_for(page).body
+
+    def test_saving_without_a_rename_does_not_reindex(
+        self, make_post_page, django_capture_on_commit_callbacks, mocker
+    ):
+        """Otherwise every profile save rewrites all of that author's entries."""
+        author = baker.make("users.User", display_name="Vinnie Falco")
+        make_post_page(title="Authored Post", owner=author)
+        reindex = mocker.patch("users.tasks.reindex_user_pages.delay")
+
+        reloaded = User.objects.get(pk=author.pk)
+        with django_capture_on_commit_callbacks(execute=True):
+            reloaded.tagline = "Now with a tagline"
+            reloaded.save()
+
+        reindex.assert_not_called()

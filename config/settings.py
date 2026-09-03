@@ -427,6 +427,19 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
+# Postgres' stock `english` config makes "Perez" and "Pérez" different lexemes.
+# The unaccenting configs are created in core/migrations 0011 and 0012.
+# Undeclared, the backend passes config=None and Postgres silently falls back
+# to `default_text_search_config`. Wagtail vendors modelsearch under its own
+# app config, which is why the setting is not MODELSEARCH_BACKENDS.
+WAGTAILSEARCH_BACKENDS = {
+    "default": {
+        "BACKEND": "core.search_backends",
+        "SEARCH_CONFIG": "english_unaccent",
+        "AUTOCOMPLETE_SEARCH_CONFIG": "simple_unaccent",
+    }
+}
+
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 AUTHENTICATION_BACKENDS = (

@@ -326,3 +326,22 @@ def recompute_displayed_profile_roles():
         resolved=len(top),
         cleared_choices=cleared_choices,
     )
+
+
+@shared_task
+def reindex_user_pages(user_id):
+    """Refresh the index entries that embed a user's display name.
+
+    Related-field text is copied into each page's own entry at index time, and
+    nothing reindexes those pages when the user changes.
+    """
+    from modelsearch import index as search_index
+
+    from pages.models import PostPage
+
+    reindexed = 0
+    for page in PostPage.objects.filter(owner_id=user_id).iterator():
+        search_index.insert_or_update_object(page)
+        reindexed += 1
+
+    logger.info("reindex_user_pages finished", user_id=user_id, pages=reindexed)
