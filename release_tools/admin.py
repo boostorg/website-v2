@@ -146,17 +146,24 @@ class ReleaseLibraryDataAdmin(TaskButtonAdminMixin, admin.ModelAdmin):
         allowed = self._task_button_allows(request, button)
         url = reverse(f"admin:{self._task_button_url_name(button)}")
         token = get_token(request)
-        # One cache read for the whole page: per row would be one read and one
-        # result-backend call each, on a list of every release.
-        status = self._task_button_status(button)
-        running = status["scope"] if status["poll"] else ""
+        # Per release, in one cache read for the whole page: two releases can be
+        # synchronizing at once, and the key holding the button's last run
+        # remembers only the most recent of them.
+        running = (
+            self._task_button_running_labels(
+                button, syncable_releases().values_list("name", flat=True)
+            )
+            if allowed
+            else {}
+        )
 
         def synchronize(obj):
             if not allowed:
                 return ""
-            if running and obj.display_name == running:
+            label = running.get(obj.name)
+            if label:
                 return format_html(
-                    '<span class="release-tools-running">{}</span>', status["label"]
+                    '<span class="release-tools-running">{}</span>', label
                 )
             return format_html(
                 '<form action="{}" method="post" class="release-tools-action">'

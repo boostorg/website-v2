@@ -251,6 +251,30 @@ class TaskButtonAdminMixin:
         status = task_status(task_id)
         return status is None or status[0] in RUNNING_STATES
 
+    def _task_button_running_labels(self, button, values):
+        """``{value: label}`` for the jobs among ``values`` that are unfinished.
+
+        Read per job rather than from ``_task_button_cache_key``, because one
+        button can have several jobs in flight at once and that key remembers
+        only the most recent of them. One ``get_many`` for the whole page, and
+        the result backend is asked only about the jobs that have an id.
+
+        A finished job is left out, so the control it belongs to is offered
+        again; so is one whose state the backend cannot report, which is the
+        same choice ``_task_button_status`` makes when it has nothing to poll
+        for.
+        """
+        keys = {self._task_button_job_key(button, value): value for value in values}
+        labels = {}
+        for key, task_id in cache.get_many(list(keys)).items():
+            result = task_status(task_id)
+            if result is None:
+                continue
+            state = result[0]
+            if state not in FINISHED_STATES:
+                labels[keys[key]] = TASK_STATE_LABELS.get(state, state)
+        return labels
+
     def _task_button_status(self, button):
         """What to say about ``button``'s last run, if there was one.
 

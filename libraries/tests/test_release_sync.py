@@ -320,6 +320,40 @@ def test_each_release_gets_its_own_synchronize_button(client, super_user):
         assert f'<input type="hidden" name="release" value="{name}">' in body
 
 
+def test_a_release_synchronizing_does_not_hide_another_rows_button(client, super_user):
+    """Two releases can be in flight at once; each row reports its own job.
+
+    The key holding the button's last run remembers only the most recent of
+    them, so a row read from it showed the release started second as running and
+    offered the first one a button its own lock would have refused.
+    """
+    started = ("boost-1.92.0", "task-92"), ("boost-1.91.0", "task-91")
+    finished = ("boost-1.90.0", "task-90")
+    for name, _ in (*started, finished):
+        baker.make(
+            "versions.Version",
+            name=name,
+            slug=name.removeprefix("boost-").replace(".", "-"),
+            active=True,
+        )
+    client.force_login(super_user)
+
+    states = {task_id: ("STARTED", "") for _, task_id in started}
+    states[finished[1]] = ("SUCCESS", "")
+    for name, task_id in (*started, finished):
+        with patch(TASK_PATH, return_value=Mock(id=task_id)):
+            client.post(reverse(BUTTON_URL), {"release": name}, follow=True)
+
+    with patch("core.admin_buttons.task_status", states.get):
+        body = client.get(reverse(CHANGELIST_URL)).content.decode()
+
+    for name, _ in started:
+        assert f'<input type="hidden" name="release" value="{name}">' not in body
+    assert body.count('<span class="release-tools-running">Running</span>') == 2
+    # The finished one is offered again, rather than left reading as running.
+    assert f'<input type="hidden" name="release" value="{finished[0]}">' in body
+
+
 def test_a_library_whose_metadata_was_never_read_counts_as_work(
     rf, super_user, library
 ):
