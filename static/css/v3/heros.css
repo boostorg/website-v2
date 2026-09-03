@@ -51,12 +51,17 @@
 
   /* Block height — layout, not art (Figma 480/400/600). Stays after override removal. */
   --hero-block-height: 480px;
+
+  /* Floor for a hero with no illustration (Figma 368/368/natural). */
+  --hero-block-height-no-image: 368px;
 }
 @media (max-width: 1279px) {
   :root { --hero-block-height: 400px; }
 }
 @media (max-width: 767px) {
   :root { --hero-block-height: 600px; }
+  /* 0 so the mobile block is sized purely by its content, per spec. */
+  :root { --hero-block-height-no-image: 0px; }
 }
 
 /* ── B) CURRENT-ART OVERRIDES — remove when on-spec art ships ──────────────── */
@@ -389,10 +394,11 @@
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
-   Foreground frame — SHARED by the home hero and the community hero (full-bleed,
-   bottom-anchored, baked-in-position art). Applied via class `hero-fg` in both
-   _hero_home.html and _hero_library.html (the latter gated by `fullbleed_fg`).
-   Library-detail keeps its own small-box `.hero__image` below.
+   Foreground frame — SHARED by the home, community and flagship-library heroes
+   (full-bleed, bottom-anchored, baked-in-position art). Applied via class
+   `hero-fg` in both _hero_home.html and _hero_library.html (the latter gated by
+   `fullbleed_fg`). The small-box `.hero__image` below still serves the heroes that
+   pass no `fullbleed_fg` (library empty state, example gallery).
    ─────────────────────────────────────────────────────────────────────────── */
 .hero-fg {
   position: absolute;
@@ -593,8 +599,28 @@
   padding-top: var(--space-hero-padding-top);
 }
 
+/* No illustration means no art frame to hold open, so drop the 480/400 block
+   height to the fallback floor. `auto` + `min-height` rather than a fixed height
+   so a wrapped tag or link row grows the hero instead of spilling into the
+   content below. */
 .hero--no-image .hero__block {
   align-items: center;
+  height: auto;
+  min-height: var(--hero-block-height-no-image);
+}
+
+/* Tablet, no illustration: the tablet page frame starts the cards 18px above the
+   hero component's own bottom edge, so the band reads looser than the design.
+   Trim only the block's bottom padding — the content above it does not move, the
+   hero's bottom edge just comes up to meet the cards. 32px rather than Figma's
+   literal 30px: 30 is not on the spacing scale, and 32 is what the mobile block
+   already uses, so the gap steps 48 -> 32 -> 32 across the breakpoints. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  :root { --hero-block-height-no-image: 350px; }
+
+  .hero--no-image .hero__block {
+    padding-bottom: 32px;
+  }
 }
 
 .hero__content {
@@ -604,6 +630,9 @@
   margin-left: var(--space-large);
   max-width: 662px;
   flex: 1;
+  /* The foreground frame is absolutely positioned, so it paints over in-flow
+     content unless the content is lifted. */
+  z-index: 1;
 }
 
 .hero__meta {
@@ -851,6 +880,16 @@ html.dark .hero__links .btn-icon-library:hover {
      --release    release detail: taller block, full-bleed foreground over the
                   release scene (solid surface only when no image is supplied)
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Flagship library: Figma draws the illustration as a 1440x480 layer filling the
+   hero, animals right-anchored (x=321), with the text laid over it. The shipped
+   art is a 488x416 crop of just the animals, so `contain` scales it to the block's
+   full height and `right bottom` pins it to the corner the design anchors it to.
+   Height now comes from the block, so the art can no longer overhang the hero
+   background the way the old fixed 488x416 box did in the tablet band. */
+.hero--library .hero-fg__img {
+  object-position: right bottom;
+}
 
 /* Community: background focal point + tuned per-breakpoint sizing (independent of
    other library heroes, which keep the base `cover`). */
