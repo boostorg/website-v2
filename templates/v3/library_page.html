@@ -426,7 +426,7 @@ Inputs:
           <div></div>
         </li>
         {% for item in object_list %}
-          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
         {% endfor %}
         <li id="library-empty-state"
             class="library-page__empty-state library-page__empty-state--in-list"
@@ -440,7 +440,7 @@ Inputs:
       </div>
       <div class="library-item-card-grid" x-cloak>
         {% for item in object_list %}
-          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
         {% endfor %}
       </div>
     {% elif library_view_str == 'categorized' or library_view_str == 'grading' %}
@@ -449,7 +449,7 @@ Inputs:
         <h2 class="library-page__category-header">{{ result.category }} {% if result.icon %}{% include "includes/icon.html" with icon_name=result.icon only %}{% endif %}</h2>
         <ul class="library-item-list grouped">
           {% for item in result.library_version_list %}
-            {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+            {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
           {% endfor %}
         </ul>
       </section>

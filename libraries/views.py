@@ -408,6 +408,32 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
             .order_by("name")
         )
 
+    def render_to_response(self, context, **response_kwargs):
+        if getattr(self, "_v3_active", False):
+            self._set_library_detail_urls(context)
+        return super().render_to_response(context, **response_kwargs)
+
+    def _set_library_detail_urls(self, context):
+        """Point every card at the detail page for the version segment of the
+        current URL, so a list browsed under "latest" links to
+        `/library/latest/<slug>/` rather than pinning the resolved release.
+
+        Runs on the final context because the categorized and grading views
+        rebuild their groups after `get_v3_context_data` has returned.
+        """
+        version_slug = self.kwargs.get("version_slug") or LATEST_RELEASE_URL_PATH_STR
+        library_versions = list(context.get("object_list") or [])
+        for group in context.get("library_versions_by_category") or []:
+            library_versions.extend(group["library_version_list"])
+        for library_version in library_versions:
+            library_version.library_detail_url = reverse(
+                "library-detail",
+                kwargs={
+                    "version_slug": version_slug,
+                    "library_slug": library_version.library.slug,
+                },
+            )
+
     def dispatch(self, request, *args, **kwargs):
         # Resolve selected_version once so get_v3_context_data can reuse it.
         self._selected_version = self._resolve_selected_version()
