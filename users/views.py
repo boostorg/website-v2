@@ -45,6 +45,7 @@ from waffle import flag_is_active
 
 from badges import display as badge_display
 from core.context_processors import edit_profile_url
+from core.templatetags.custom_static import large_static
 from core.mixins import V3Mixin, V3AuthContextMixin
 from libraries.constants import (
     COMMIT_EMAIL_ADD_FAILED_ERROR,
@@ -802,13 +803,24 @@ class CustomLoginView(V3AuthContextMixin, LoginView):
         return context
 
 
-class CustomEmailVerificationSentView(EmailVerificationSentView):
+class CustomEmailVerificationSentView(V3AuthContextMixin, EmailVerificationSentView):
+    v3_template_name = "v3/accounts/verification_sent.html"
+    page_title = "Verification Sent"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["EMAIL_CONFIRMATION_EXPIRE_DAYS"] = (
             app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS
         )
         return context
+
+    def get_v3_context_data(self, **kwargs):
+        ctx = super().get_v3_context_data(**kwargs)
+        ctx["background_image_url"] = large_static(
+            "img/v3/auth-page/learn-learn-how-to 1.png"
+        )
+        ctx["foreground_image_url"] = ""
+        return ctx
 
 
 class V3LoginView(V3AuthContextMixin, TemplateView):

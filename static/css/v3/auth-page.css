@@ -124,6 +124,17 @@ body.v3 .auth-page .min-vh-110 {
   margin: 0;
 }
 
+/* ── Verification Text ─────────────────────── */
+
+.auth-page__verification-text {
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
 /* ── Card ──────────────────────────────────── */
 .auth-page__card {
   display: flex;

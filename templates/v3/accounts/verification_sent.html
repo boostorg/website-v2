@@ -1,0 +1,8 @@
+{% extends "v3/accounts/auth_page.html" %}
+
+{% block auth_content %}
+<h1 class="auth-page__title">Check your email to complete sign-up</h1>
+<p class="auth-page__verification-text">An email has been sent to the provided email address. Please click the link in the email to finish the sign up process. The link will expire in 3 days.</p>
+{% url 'account_login' as url %}
+{% include 'v3/includes/_button.html' with label="Continue to Log In" url=url only %}
+{% endblock %}
