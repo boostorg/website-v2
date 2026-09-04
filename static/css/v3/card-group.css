@@ -125,7 +125,7 @@
 
 /* ── Responsive ─────────────────────────────── */
 
-@media (max-width: 767px) {
+@media (max-width: 1279px) {
   .card-group--horizontal .card-group__list {
     flex-direction: column;
   }
