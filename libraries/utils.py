@@ -225,7 +225,7 @@ def get_prioritized_library_view(request):
     View Priorities:
     1. URL parameter
     2. Cookie
-    3. Default to grid view
+    3. Default to list view
     """
     url_view = get_view_from_url(request)
     cookie_view = get_view_from_cookie(request)

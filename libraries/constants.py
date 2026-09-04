@@ -395,7 +395,7 @@ LIBRARY_GITHUB_URL_OVERRIDES = {
     "outcome": "https://github.com/ned14/outcome/issues",
 }
 
-DEFAULT_LIBRARIES_LANDING_VIEW = "grid"
+DEFAULT_LIBRARIES_LANDING_VIEW = "list"
 SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
 SELECTED_LIBRARY_VIEW_COOKIE_NAME = "library_view"
 LATEST_RELEASE_URL_PATH_STR = "latest"
