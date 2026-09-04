@@ -5,8 +5,9 @@
         title:              str, required   - text that appears bolded at the top of the card
         contributor_data:   dict, required  - a dict of contributions and libraries (i.e. {"author": "beast", "asyncio"})
                                               Each role's library list clamps to 3 lines behind a "See more" toggle.
-                                              The toggle is a hidden checkbox, so expanding works with JavaScript off;
-                                              Alpine only hides the toggle for a list that already fits.
+                                              The toggle is a hidden checkbox, so expanding works with JavaScript off.
+                                              It starts hidden and Alpine reveals it only for a list that overflows,
+                                              so a list that already fits never shows one (issue #2651).
         markdown:           str, optional   - markdown formatted text that appears in the body of the card. The card handles transforming the text. When empty, an empty state is shown instead.
         button_url:         str, optional   - url that the button should link to. If not provided, button is not shown
         button_label:       str, optional   - label for the optional cta button. If not provided, button is not shown.
@@ -20,7 +21,7 @@
     <ul class="card__column bio-card__contributions px-large">
       {% for role, libraries in contributor_data.items %}
         <li class="bio-card__contribution"
-            x-data="{ overflowing: true, measure() { const l = this.$refs.libraries; if (!this.$refs.expand.checked) this.overflowing = l.scrollHeight > l.clientHeight + 1 } }"
+            x-data="{ overflowing: false, measure() { const l = this.$refs.libraries; if (!this.$refs.expand.checked) this.overflowing = l.scrollHeight > l.clientHeight + 1 } }"
             x-init="$nextTick(() => measure())"
             @resize.window.debounce="measure()">
           <input type="checkbox"
@@ -32,13 +33,23 @@
           <p class="bio-card__contributor_libraries" x-ref="libraries">{{ libraries|join:', ' }}</p>
           <label class="bio-card__expand_label"
                  for="bio-card-contribution-{{ forloop.counter }}"
-                 x-show="overflowing">
+                 x-show="overflowing"
+                 x-cloak>
             <span class="bio-card__expand_label_more">See more</span>
             <span class="bio-card__expand_label_less">See less</span>
           </label>
         </li>
       {% endfor %}
     </ul>
+    {% comment %} No-JS fallback: the toggle is hidden until Alpine measures the
+    list, so without JS nothing would ever reveal it and a clamped list would be
+    unreachable. Show every toggle instead: expanding a list that already fits is
+    a no-op, and a clamped one stays openable. {% endcomment %}
+    <noscript>
+      <style>
+        .bio-card__expand_label[x-cloak] { display: inline-block !important; }
+      </style>
+    </noscript>
     <hr class="card__hr" />
   {% endif %}
   {% if markdown %}
