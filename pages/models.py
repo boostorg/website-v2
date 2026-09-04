@@ -16,6 +16,9 @@ from django.db.models import (
     FloatField,
     F,
     Func,
+    OuterRef,
+    Q,
+    Subquery,
     Value,
     prefetch_related_objects,
 )
@@ -192,12 +195,43 @@ class PostIndexPage(BasePage):
             )
         )
         results = searchable.search(filters.q)
-        if results.count() or len(filters.q) < self.MIN_PREFIX_SEARCH_LENGTH:
+        if len(filters.q) < self.MIN_PREFIX_SEARCH_LENGTH:
             return results
-        # Full text matches whole stemmed words, so "Rob" misses an author called
-        # Robert. A fallback rather than the primary query, so a term with real
-        # matches keeps full text relevance ranking.
-        return searchable.autocomplete(filters.q)
+        # Full text matches whole stemmed words, so "Cris" finds an author
+        # called Cris but not Cristian. The prefix pass is added rather than
+        # substituted for it, so an exact hit no longer hides the wider matches.
+        return self._with_prefix_matches(
+            searchable, results, searchable.autocomplete(filters.q)
+        )
+
+    @staticmethod
+    def _with_prefix_matches(queryset, whole_words, prefixes):
+        """One queryset over both search passes.
+
+        Whole word hits come first in their full text relevance order, then
+        the prefix hits in theirs. SearchResults cannot be combined, but the
+        Postgres results expose the ranked queryset behind them, and a score
+        annotation makes that rank readable through a correlated subquery.
+        """
+
+        def score(results):
+            ranked = results.annotate_score("score").get_queryset()
+            return Subquery(
+                ranked.filter(pk=OuterRef("pk")).values("score")[:1],
+                output_field=FloatField(),
+            )
+
+        return (
+            queryset.annotate(
+                whole_word_score=score(whole_words), prefix_score=score(prefixes)
+            )
+            .filter(Q(whole_word_score__isnull=False) | Q(prefix_score__isnull=False))
+            .order_by(
+                F("whole_word_score").desc(nulls_last=True),
+                F("prefix_score").desc(nulls_last=True),
+                "-pk",
+            )
+        )
 
     def _related_posts(self, filters):
         """Fallback shown with the empty state: same library, search dropped.

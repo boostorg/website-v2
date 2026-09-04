@@ -133,16 +133,48 @@ class TestSearch:
             "Boost.SQLite proposal results"
         }
 
-    def test_prefers_whole_word_matches_over_prefixes(
+    def test_an_exact_author_match_keeps_the_partial_ones(
         self, tp, feed_url, make_post_page
     ):
-        """The prefix pass is a fallback, so whole-word matches are not widened."""
+        """A whole-word hit used to skip the prefix pass, so "Cris" found Cris
+        and hid Cristian."""
+        cris = baker.make("users.User", display_name="Cris")
+        cristian = baker.make("users.User", display_name="Cristian")
+        make_post_page(title="Cris Post", owner=cris)
+        make_post_page(title="Cristian Post", owner=cristian)
+        make_post_page(title="Orphan Post")
+
+        assert titles(get_feed(tp, feed_url, q="Cris")) == {
+            "Cris Post",
+            "Cristian Post",
+        }
+
+    def test_ranks_whole_word_matches_before_prefixes(
+        self, tp, feed_url, make_post_page
+    ):
+        """Both passes are listed, whole words first, so an exact hit is not
+        pushed down by the wider matches."""
         falco = baker.make("users.User", display_name="Vinnie Falco")
         falconer = baker.make("users.User", display_name="Ada Falconer")
-        make_post_page(title="Falco Post", owner=falco)
         make_post_page(title="Falconer Post", owner=falconer)
+        make_post_page(title="Falco Post", owner=falco)
+        make_post_page(title="Falconer Follow-up", owner=falconer)
 
-        assert titles(get_feed(tp, feed_url, q="Falco")) == {"Falco Post"}
+        listed = [
+            post.title
+            for post in get_feed(tp, feed_url, q="Falco").context["entry_list"]
+        ]
+
+        assert listed[0] == "Falco Post"
+        assert set(listed[1:]) == {"Falconer Post", "Falconer Follow-up"}
+
+    def test_body_matches_survive_the_prefix_pass(self, tp, feed_url, make_post_page):
+        """The prefix vector covers title and author only, so a body hit is
+        reachable through the whole-word pass alone."""
+        make_post_page(title="A Post", body="asio networking")
+        make_post_page(title="Asiomatic", body="unrelated")
+
+        assert titles(get_feed(tp, feed_url, q="asio")) == {"A Post", "Asiomatic"}
 
     @pytest.mark.parametrize("term", ["p", "ab"])
     def test_does_not_run_the_prefix_pass_for_very_short_terms(
