@@ -1,4 +1,6 @@
+import re
 from datetime import timedelta
+from html import unescape
 
 from structlog import get_logger
 from wagtail.admin.panels import FieldPanel
@@ -22,7 +24,7 @@ from django.db import models
 from django.urls import reverse_lazy
 from django.utils.functional import cached_property
 from django.utils.html import strip_tags
-from django.utils.text import slugify
+from django.utils.text import Truncator, slugify
 from django.utils.timezone import localtime, now
 
 from modelcluster.contrib.taggit import ClusterTaggableManager
@@ -42,10 +44,27 @@ from pages.feed import (
 from pages.mixins import BasePage
 from pages.notifications import mark_post_seen, mark_posts_seen
 
+from news.constants import DESCRIPTION_SUMMARY_MAX_LENGTH
 from news.tasks import summary_dispatcher
 from news.tasks import set_thumbnail_for_video_page
 
 logger = get_logger(__name__)
+
+_HTML_TAG_RE = re.compile(r"<[^>]+>")
+_WHITESPACE_RE = re.compile(r"\s+")
+_SPACE_BEFORE_PUNCTUATION_RE = re.compile(r" ([.,;:!?)])")
+
+
+def _html_to_text(html):
+    """Readable text from rendered block HTML.
+
+    Tags collapse to a space rather than being dropped, so `<p>a</p><p>b</p>`
+    does not read as "ab" - then the space an inline tag left in front of
+    punctuation is taken back out. Entities are decoded after the tags are
+    gone, so an escaped `&lt;script&gt;` cannot become one.
+    """
+    text = _WHITESPACE_RE.sub(" ", _HTML_TAG_RE.sub(" ", html))
+    return _SPACE_BEFORE_PUNCTUATION_RE.sub(r"\1", unescape(text)).strip()
 
 
 class RoutableHomePage(BasePage):
@@ -404,6 +423,21 @@ class PostPage(BasePage):
         if self.use_summary:
             return self.summary
         return self.content
+
+    @property
+    def card_summary(self):
+        """Blurb for a post card: the description, or text from the body.
+
+        Always text, never the body's markup. A card is a few lines wide, and
+        the body carries headings, lists and images sized for the post page.
+        """
+        if self.post_content_type == "Video":
+            return ""
+        if self.use_summary:
+            return self.summary
+        return Truncator(_html_to_text(str(self.content))).chars(
+            DESCRIPTION_SUMMARY_MAX_LENGTH
+        )
 
     @property
     def needs_approval(self):

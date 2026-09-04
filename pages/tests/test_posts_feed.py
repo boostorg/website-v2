@@ -4,6 +4,7 @@ import pytest
 import waffle.testutils
 from model_bakery import baker
 
+from news.constants import DESCRIPTION_SUMMARY_MAX_LENGTH
 from pages.feed import PostFeedFilters
 
 pytestmark = pytest.mark.django_db
@@ -59,6 +60,21 @@ def get_feed(tp, feed_url, **params):
     response = tp.get(f"{feed_url}?{query}" if query else feed_url)
     tp.response_200(response)
     return response
+
+
+def card_summary(response):
+    """The one card's blurb, read out of the rendered feed.
+
+    Matched rather than searched for as a substring: the page carries the
+    post's body nowhere else, so a whole-page assertion would pass on markup
+    that never reached the card.
+    """
+    match = re.search(
+        r'<div class="post-card__summary">(.*?)</div>',
+        response.content.decode(),
+        re.DOTALL,
+    )
+    return match.group(1).strip() if match else None
 
 
 class TestSearch:
@@ -359,6 +375,81 @@ class TestPostCard:
 
         assert "<span>Blog</span>" in content
         assert "<span>#" not in content
+
+
+class TestCardSummary:
+    """The blurb under a card's title: the post's description, or - when it
+    was left empty - text taken from the body."""
+
+    def test_description_is_preferred(self, tp, feed_url, make_post_page):
+        make_post_page(
+            title="Echo server",
+            block="blog",
+            body="## Body heading",
+            summary="Written.",
+        )
+
+        assert card_summary(get_feed(tp, feed_url)) == "Written."
+
+    def test_body_falls_back_as_text(self, tp, feed_url, make_post_page):
+        make_post_page(
+            title="Echo server",
+            block="blog",
+            body="## Heading\n\nSome **bold** prose.",
+            summary="",
+        )
+
+        assert card_summary(get_feed(tp, feed_url)) == "Heading Some bold prose."
+
+    def test_body_markup_stays_out_of_the_card(self, tp, feed_url, make_post_page):
+        """A card is a few lines wide; the body's headings and lists are sized
+        for the post page."""
+        make_post_page(
+            title="Echo server",
+            block="blog",
+            body="## Heading\n\n- first\n- second",
+            summary="",
+        )
+
+        summary = card_summary(get_feed(tp, feed_url))
+
+        assert "<h2>" not in summary
+        assert "<li>" not in summary
+
+    def test_a_body_image_does_not_reach_the_card(self, tp, feed_url, make_post_page):
+        """The card's long-word truncation rewrites any word of 30 characters
+        or more, which for an `<img>` in the body meant chopping a hole in its
+        `src` and rendering a broken image."""
+        make_post_page(
+            title="Echo server",
+            block="blog",
+            body="![A photo](/media/wysiwyg/a8d11639e84f46c1b8db9eec23671b39.jpg)",
+            summary="",
+        )
+
+        assert "wysiwyg" not in get_feed(tp, feed_url).content.decode()
+
+    def test_a_long_body_is_capped(self, make_post_page):
+        """Without a cap the card grows to the length of the post. Asserted on
+        the page rather than the feed: a body this long is one the summarizer
+        would pick up, leaving a description and no fallback to measure."""
+        page = make_post_page(
+            title="Echo server", block="blog", body="word " * 400, summary=""
+        )
+
+        assert len(page.card_summary) == DESCRIPTION_SUMMARY_MAX_LENGTH
+
+    def test_a_video_carries_no_blurb(self, tp, feed_url, make_post_page):
+        """Video cards lead with their thumbnail, and the body is an embed URL
+        rather than prose."""
+        make_post_page(
+            title="Echo server",
+            block="video",
+            body="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            summary="",
+        )
+
+        assert card_summary(get_feed(tp, feed_url)) is None
 
 
 class TestPagination:
