@@ -15,6 +15,7 @@ from users.profile_cards import (
     github_activity_card_context,
     github_activity_card,
     github_activity_state,
+    mailing_list_activity_card_context,
 )
 
 
@@ -353,3 +354,27 @@ def test_pr_and_review_links_target_the_pull_requests_tab():
 
     assert markdown.count("type=pullrequests") == 2
     assert "type=commits" not in markdown
+
+
+def test_mailing_list_card_is_withheld_when_hidden(user, db):
+    user.hide_mailing_list_activity = True
+    user.save(update_fields=["hide_mailing_list_activity"])
+
+    assert mailing_list_activity_card_context(user) is None
+
+
+def test_mailing_list_card_is_offered_when_not_hidden(user, db):
+    context = mailing_list_activity_card_context(user)
+
+    assert context is not None
+    # TODO: Make sure to retrieve mailing_list_items once data is
+    # available.
+    assert context["mailing_list_items"] == []
+
+
+def test_mailing_list_card_reaches_its_owner_while_hidden(user, db):
+    """Hiding is about the public profile, not about hiding it from yourself."""
+    user.hide_mailing_list_activity = True
+    user.save(update_fields=["hide_mailing_list_activity"])
+
+    assert mailing_list_activity_card_context(user, include_hidden=True) is not None

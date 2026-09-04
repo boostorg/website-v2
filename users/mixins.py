@@ -3,7 +3,10 @@ from urllib.parse import urlparse
 from badges import display as badge_display
 from badges.summary import user_badge_summary
 from core.context_processors import edit_profile_url
-from users.profile_cards import github_activity_card_context
+from users.profile_cards import (
+    github_activity_card_context,
+    mailing_list_activity_card_context,
+)
 
 
 class V3UserProfileContextMixin:
@@ -171,4 +174,10 @@ class V3UserProfileContextMixin:
         activity = github_activity_card_context(user, include_hidden=is_owner)
         if activity and activity["data"]["linked"]:
             context["github_activity"] = activity
+        # Same gate for the mailing list card, which has no data source yet:
+        # the key is only set once there are items, so today the section stays
+        # out of every page and the hide switch is already honoured.
+        mailing_list = mailing_list_activity_card_context(user, include_hidden=is_owner)
+        if mailing_list and mailing_list["mailing_list_items"]:
+            context["mailing_list_activity_card_data"] = mailing_list
         return context

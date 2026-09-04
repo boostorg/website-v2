@@ -1,9 +1,12 @@
+from unittest.mock import patch
+
 import pytest
 import waffle.testutils
 from django.urls import resolve
 from model_bakery import baker
 
 from users.models import GithubActivity, UserProfileRoutingKey
+from users.profile_cards import mailing_list_activity_card_context
 
 pytestmark = pytest.mark.django_db
 
@@ -370,3 +373,62 @@ def test_hidden_github_activity_still_shows_to_its_owner(user, tp):
     content = response.content.decode()
     assert "user-profile__github" in content
     assert "Created 9 Commits" in content
+
+
+def _with_one_item(user, include_hidden=False):
+    """Stand in for a populated mailing list card.
+
+    TODO: The real card has no data source yet, so the gate always returns an empty
+    item list and the section never renders. Wrapping the real gate - rather
+    than replacing it - keeps the hide switch under test while giving the
+    template something to draw.
+    """
+    context = mailing_list_activity_card_context(user, include_hidden=include_hidden)
+    if context is None:
+        return None
+    context["mailing_list_items"] = [
+        {"date": None, "headline": "Re: [boost] a thread", "url": "https://x.test/1"}
+    ]
+    return context
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_mailing_list_activity_is_withheld_from_visitors_when_hidden(other_user, tp):
+    other_user.hide_mailing_list_activity = True
+    other_user.save(update_fields=["hide_mailing_list_activity"])
+
+    with patch("users.mixins.mailing_list_activity_card_context", _with_one_item):
+        response = tp.get(
+            "profile-user", routing_key=other_user.profile_routing_key.routing_key
+        )
+
+    content = response.content.decode()
+    assert "user-profile__mailing-list" not in content
+    assert "Re: [boost] a thread" not in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_mailing_list_activity_shows_to_visitors_when_not_hidden(other_user, tp):
+    with patch("users.mixins.mailing_list_activity_card_context", _with_one_item):
+        response = tp.get(
+            "profile-user", routing_key=other_user.profile_routing_key.routing_key
+        )
+
+    content = response.content.decode()
+    assert "user-profile__mailing-list" in content
+    assert "Re: [boost] a thread" in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_hidden_mailing_list_activity_still_shows_to_its_owner(user, tp):
+    """Hiding is about the public profile, not about hiding it from yourself."""
+    user.hide_mailing_list_activity = True
+    user.save(update_fields=["hide_mailing_list_activity"])
+
+    with patch("users.mixins.mailing_list_activity_card_context", _with_one_item):
+        with tp.login(user):
+            response = tp.get("profile-account")
+
+    content = response.content.decode()
+    assert "user-profile__mailing-list" in content
+    assert "Re: [boost] a thread" in content

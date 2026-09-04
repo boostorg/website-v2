@@ -6,6 +6,7 @@ LOGIN_METHOD_SESSION_FIELD_NAME = "boost_login_method"
 
 GITHUB_PROVIDER = "github"
 GITHUB_ACTIVITY_CARD_TITLE = "Latest Boost Github activity"
+MAILING_LIST_ACTIVITY_CARD_TITLE = "Latest mailing list activity"
 # Stored GitHub activity older than this is refreshed on the next profile load.
 GITHUB_ACTIVITY_STALE_AFTER = timedelta(hours=24)
 # Guards against re-queueing a refresh on every page load while one is running,
