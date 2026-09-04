@@ -252,6 +252,66 @@ class TestFilters:
         assert response.context["header_text"] == "Latest Posts"
 
 
+class TestLibraryFilterOptions:
+    """The dropdown offers only libraries a live post is tagged with.
+
+    Every other library narrows the feed to nothing and nothing else, so
+    listing them all buries the handful that lead somewhere.
+    """
+
+    @staticmethod
+    def options(response):
+        return response.context["library_options"]
+
+    def test_offers_a_tagged_library(self, tp, feed_url, make_post_page, beast):
+        make_post_page(title="Tagged Post", tags=[("beast", "Beast")])
+
+        assert self.options(get_feed(tp, feed_url)) == [("beast", "Boost.Beast")]
+
+    def test_omits_an_untagged_library(self, tp, feed_url, make_post_page, beast):
+        make_post_page(title="Untagged Post")
+
+        assert self.options(get_feed(tp, feed_url)) == []
+
+    def test_omits_a_library_tagged_only_on_a_draft(
+        self, tp, feed_url, make_post_page, beast
+    ):
+        """A draft is not in the feed, so filtering by its library would come
+        back empty."""
+        make_post_page(title="Draft Post", tags=[("beast", "Beast")], live=False)
+
+        assert self.options(get_feed(tp, feed_url)) == []
+
+    def test_lists_a_library_once_however_many_posts_carry_it(
+        self, tp, feed_url, make_post_page, beast
+    ):
+        """The tagged slugs arrive as a subquery over one row per post/tag
+        pair, which duplicates the library without the IN."""
+        make_post_page(title="First Post", tags=[("beast", "Beast")])
+        make_post_page(title="Second Post", tags=[("beast", "Beast")])
+
+        assert self.options(get_feed(tp, feed_url)) == [("beast", "Boost.Beast")]
+
+    def test_orders_by_name(self, tp, feed_url, make_post_page):
+        baker.make("libraries.Library", name="Beast", slug="beast")
+        baker.make("libraries.Library", name="Asio", slug="asio")
+        make_post_page(
+            title="Tagged Twice", tags=[("beast", "Beast"), ("asio", "Asio")]
+        )
+
+        assert [slug for slug, _ in self.options(get_feed(tp, feed_url))] == [
+            "asio",
+            "beast",
+        ]
+
+    def test_omits_a_tag_no_library_answers_to(self, tp, feed_url, make_post_page):
+        """Posts reach a library by matching slugs rather than by a relation,
+        so a tag with no library behind it must not reach the dropdown."""
+        make_post_page(title="Oddly Tagged", tags=[("not-a-library", "Not A Library")])
+
+        assert self.options(get_feed(tp, feed_url)) == []
+
+
 class TestFilterCombinations:
     """The search backend rejects StreamField lookups with an AttributeError
     and tag lookups with a FilterFieldError, so each combination of a search
@@ -438,10 +498,16 @@ class TestUrlDrivenState:
         assert "checked" in radio_tag(content, "news")
         assert "checked" not in radio_tag(content, "video")
 
-    def test_library_option_is_selected(self, tp, feed_url, beast):
-        """Every library gets an <option>, and the word "selected" appears in
-        the dropdown's Alpine bindings either way, so both halves of the
-        control have to be checked against the value itself."""
+    def test_library_option_is_selected(self, tp, feed_url, make_post_page, beast):
+        """The word "selected" appears in the dropdown's Alpine bindings
+        whether or not anything is chosen, so both halves of the control have
+        to be checked against the value itself.
+
+        The post is what puts Boost.Beast in the dropdown at all: only
+        libraries a live post carries are offered.
+        """
+        make_post_page(title="Tagged Post", tags=[("beast", "Beast")])
+
         content = get_feed(tp, feed_url, library="beast").content.decode()
 
         assert 'value="beast" selected' in content
