@@ -671,18 +671,9 @@ class LibraryDetail(
         )
 
         context["is_flagship_lib"] = self.object.tier == Tier.FLAGSHIP
-        if context["is_flagship_lib"]:
-            context["library_hero_image_url_light"] = (
-                SharedResources.hero_legacy_image_url_light
-            )
-            context["library_hero_image_url_dark"] = (
-                SharedResources.hero_legacy_image_url_dark
-            )
-            context["hero_image_url"] = SharedResources.hero_legacy_image_url_dark
-        else:
-            context["library_hero_image_url_light"] = ""
-            context["library_hero_image_url_dark"] = ""
-            context["hero_image_url"] = ""
+        context["library_hero_image_url_light"] = ""
+        context["library_hero_image_url_dark"] = ""
+        context["hero_image_url"] = ""
 
         return context
 
