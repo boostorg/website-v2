@@ -3730,7 +3730,6 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
   letter-spacing: -0.01em;
 }
 
-.boostlook .nav-menu .nav-list li:has(.nav-text),
 .boostlook #toc > ul.sectlevel1 li:has(> ul):not(:first-of-type) {
   margin-top: var(--leftbar-paddings-leftbar-padding-4xs, 0.125rem);
 }
@@ -3755,6 +3754,8 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
 .boostlook .nav-menu .nav-item:has(> .nav-item-toggle) > .nav-link,
 .boostlook #toc .nav-menu .nav-item:has(> .nav-item-toggle) > .nav-link {
   color: var(--text-main-text-primary, #18191b);
+  padding-top: 0;
+  padding-bottom: 0;
   font-size: var(--doc-small-size, 0.875rem);
   font-variation-settings: "wght" 500, "wdth" 95;
   line-height: 1.4;
