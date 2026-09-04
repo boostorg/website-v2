@@ -3752,7 +3752,8 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
 .boostlook .nav-text,
 .boostlook #toc > ul.sectlevel1 li:has(> ul) > a,
 .boostlook #toc > ul.sectlevel1 > li:not(:has(> ul)) > a,
-.boostlook .nav-menu .nav-item:has(> .nav-item-toggle) > .nav-link {
+.boostlook .nav-menu .nav-item:has(> .nav-item-toggle) > .nav-link,
+.boostlook #toc .nav-menu .nav-item:has(> .nav-item-toggle) > .nav-link {
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--doc-small-size, 0.875rem);
   font-variation-settings: "wght" 500, "wdth" 95;
