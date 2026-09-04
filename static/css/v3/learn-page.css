@@ -87,7 +87,7 @@
   grid-area: e;
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1279px) {
   /* Narrower layouts keep the original grid; the column wrappers dissolve so
      the cards are grid items again. */
   .card-masonry {
@@ -112,7 +112,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .card-row {
     grid-template-columns: repeat(1, 1fr);
   }
@@ -133,5 +133,16 @@
 
   .learn-page-header {
     max-width: none;
+  }
+}
+
+/* Tablet: the design stacks the three sentences one per line at 64px, which is
+   already the base size here - only the breaks need forcing, since natural
+   wrapping lands mid-sentence. Below 812px the longest sentence (382px) exceeds
+   the 50% column and wraps to a fourth line; the narrowest tablet we target is
+   820px. Desktop and mobile keep natural wrapping. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .learn-page-header h1 span {
+    display: block;
   }
 }
