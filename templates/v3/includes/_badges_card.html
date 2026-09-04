@@ -2,9 +2,10 @@
   Badges Card component.
 
   Variables:
-    badges          (list, optional)    - List of badge objects. Each badge has: icon, name, earned_date.
+    badges          (list, optional)    - List of badge objects. Each badge has: icon, name.
                                           `icon` is a Badge component token (e.g. "badge-tier-3", "star-tier-2", "boost-day").
                                           Empty or undefined triggers the empty state.
+                                          `earned_date` may be present on each badge but is intentionally not rendered.
     cta_url         (string, optional)  - CTA target URL (empty state). Omit to hide the CTA button.
     cta_label       (string, optional)  - CTA button text (empty state)
 
@@ -31,13 +32,12 @@
     {# Filled state #}
     <ul class="badges-card__grid" role="list">
       {% for badge in badges %}
-        <li class="badges-card__entry" aria-label="{{ badge.name }}, earned {{ badge.earned_date }}">
+        <li class="badges-card__entry">
           <span class="badges-card__icon">
             {% if badge.icon %}{% include "v3/includes/_badge_v3.html" with token=badge.icon label=badge.name size="large" only %}{% endif %}
           </span>
           <div class="badges-card__text">
             <span class="badges-card__name">{{ badge.name }}</span>
-            <span class="badges-card__date">{{ badge.earned_date }}</span>
           </div>
         </li>
       {% endfor %}
