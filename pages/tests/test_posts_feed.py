@@ -176,14 +176,27 @@ class TestSearch:
 
         assert titles(get_feed(tp, feed_url, q="asio")) == {"A Post", "Asiomatic"}
 
-    @pytest.mark.parametrize("term", ["p", "ab"])
-    def test_does_not_run_the_prefix_pass_for_very_short_terms(
-        self, tp, feed_url, make_post_page, term
+    def test_does_not_run_the_prefix_pass_for_a_single_letter(
+        self, tp, feed_url, make_post_page
     ):
-        """One or two letters prefix most of the feed."""
+        """One letter prefixes most of the feed."""
         make_post_page(title="Post About Absolutely Everything")
 
-        assert titles(get_feed(tp, feed_url, q=term)) == set()
+        assert titles(get_feed(tp, feed_url, q="p")) == set()
+
+    def test_two_letters_reach_every_author_with_that_prefix(
+        self, tp, feed_url, make_post_page
+    ):
+        matt = baker.make("users.User", display_name="Matt Borland")
+        mark = baker.make("users.User", display_name="Mark Cooper")
+        make_post_page(title="Decimal Goes Back to Review", owner=matt)
+        make_post_page(title="Powering Cognitive Communications", owner=mark)
+        make_post_page(title="Orphan Post")
+
+        assert titles(get_feed(tp, feed_url, q="ma")) == {
+            "Decimal Goes Back to Review",
+            "Powering Cognitive Communications",
+        }
 
     @pytest.mark.parametrize("term", ["Perez", "Pérez", "perez", "PEREZ"])
     def test_matches_an_accented_author_name_either_spelling(

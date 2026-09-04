@@ -109,8 +109,9 @@ class PostIndexPage(BasePage):
 
     PAGE_SIZE = 10
     RELATED_POSTS_LIMIT = 3
-    # One or two letters prefix too much of the feed to be worth answering.
-    MIN_PREFIX_SEARCH_LENGTH = 3
+    # A single letter prefixes most of the feed; two already narrow an author
+    # name ("Ma" for Matt and Mark) to something worth listing.
+    MIN_PREFIX_SEARCH_LENGTH = 2
 
     def route(self, request, path_components):
         """Act as an umbrella handler for both Wagtail posts and legacy entries.
