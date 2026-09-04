@@ -23,11 +23,15 @@
 
   <div class="library-subpage-container">
     <div class="card-masonry-top">
-      {% if website_adoc.about %}
       <div class="item-a">
-        {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description=website_adoc.about.blurb code=website_adoc.about.code.code language=website_adoc.about.code.language|default:"cpp" %}
+        {% if website_adoc.about %}
+          {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description=website_adoc.about.blurb code=website_adoc.about.code.code language=website_adoc.about.code.language|default:"cpp" %}
+        {% elif documentation_url %}
+          {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description="Please check out the library's documentation to learn more." button_text="View documentation" button_url=documentation_url %}
+        {% else %}
+          {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description="Please check out the library's documentation to learn more." %}
+        {% endif %}
       </div>
-      {% endif %}
 
       {% if benchmark_sets %}
       <div class="item-g">
