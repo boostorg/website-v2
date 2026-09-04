@@ -495,6 +495,28 @@ def test_library_detail_v3_latest_posts_are_scoped_to_the_library(
 
 
 @waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_v3_about_card_falls_back_to_the_docs_link(
+    tp, library_version, wagtail_site
+):
+    """Without adoc About content the card stays, pointing at the docs."""
+    library_version.website_adoc = {}
+    library_version.documentation_url = "/doc/libs/release/libs/example/"
+    library_version.save()
+    library = library_version.library
+
+    url = tp.reverse("library-detail", "latest", library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+
+    documentation_url = tp.get_context("documentation_url")
+    assert documentation_url
+    content = response.content.decode()
+    assert f"About {library.display_name}" in content
+    assert "Please check out the library" in content
+    assert f'href="{documentation_url}"' in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
 def test_library_detail_v3_latest_posts_cta_points_at_the_news_index(
     tp, library_version, make_post_page, post_index_page, wagtail_site
 ):
