@@ -104,7 +104,7 @@ def test_v3_commit_email_verification_email_names_the_requester(user, tp, mailou
             tp.reverse("v3-commit-author-email-create"),
             data={"commit_email": commit_author_email.email},
         )
-    assert "The user Requesting User has asked to link" in mailoutbox[0].body
+    assert "Requesting User has asked to link" in mailoutbox[0].body
 
 
 def test_v3_commit_email_create_htmx_returns_updated_card(user, tp):

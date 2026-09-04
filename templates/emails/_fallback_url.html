@@ -1,0 +1,8 @@
+{% comment %}
+  Plain-text copy of a CTA target, for clients that strip or mangle buttons.
+  Include with `url`, and optionally `intro` to override the lead-in line.
+{% endcomment %}
+<div style="font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:12px;line-height:1.45;color:#71737b;margin:16px 0 0 0;">
+  {{ intro|default:"Or copy and paste this URL into your browser:" }}<br>
+  <a href="{{ url }}" style="color:#71737b;text-decoration:underline;word-break:break-all;">{{ url }}</a>
+</div>

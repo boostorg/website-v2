@@ -1,0 +1,31 @@
+{% extends "emails/base_email.html" %}
+
+{% comment %}
+  Sent to a commit address when someone asks to link it to their Boost account.
+  Context: email, requester (display name, may be blank), action_url
+  (confirm_url), expiry_label, scheme, host.
+{% endcomment %}
+
+{% block title %}Confirm your commit email address{% endblock %}
+
+{% block preheader %}Confirm linking {{ email }} and its commit history to a Boost account.{% endblock %}
+
+{% block card_title %}Confirm your commit email{% endblock %}
+
+{% block card_body %}
+  <p style="margin:0;">{% if requester %}{{ requester }} has{% else %}A user has{% endif %} asked to link {{ email }}, and its commit history, to their boost.org account.</p>
+  <p style="margin:14px 0 0 0;">To confirm, sign in to that account first, then use the button below and the confirmation button on the page it opens.</p>
+  <p style="margin:14px 0 0 0;">The link only works while signed in to the account that requested it, and expires in {{ expiry_label }}.</p>
+{% endblock %}
+
+{% block cta_label %}Confirm this email{% endblock %}
+
+{% block after_card %}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td style="padding:24px 0 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:12px;line-height:1.45;color:#71737b;text-align:center;">
+        If you didn&#39;t request this, you can safely ignore this email &mdash; nothing will be linked.
+      </td>
+    </tr>
+  </table>
+{% endblock %}

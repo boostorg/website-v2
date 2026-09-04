@@ -1,11 +1,18 @@
-Hi,
+Confirm your commit email
 
-{% if requester %}The user {{ requester }} has{% else %}A user has{% endif %} asked to link {{ email }} and its commit history to their boost.org account.
+{% if requester %}{{ requester }} has{% else %}A user has{% endif %} asked to link {{ email }}, and its commit
+history, to their boost.org account.
 
-To confirm, sign in to that boost.org account, then open the link below and use the confirmation button there:
+To confirm, sign in to that boost.org account, then open the link below and
+use the confirmation button there:
 
-  {{ confirm_url }}
+{{ action_url }}
 
-The link only works while signed in to the account that requested it. It expires in {{ expiry_label }}.
+The link only works while signed in to the account that requested it.
+It expires in {{ expiry_label }}.
 
-If you did not request this, you can safely ignore this email - nothing will be linked.
+If you didn't request this, you can safely ignore this email - nothing will
+be linked.
+
+--
+Boost.org is supported by grants from The C++ Alliance.
