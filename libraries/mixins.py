@@ -114,9 +114,9 @@ class VersionAlertMixin:
 
         if selected == current:
             return format_html(
-                "You've currently chosen the {name} version. If a newer "
-                "release comes out, you will continue to view the {name} "
-                'version, not the new <a href="{url}">latest release</a>.',
+                "You're viewing version {name}.\n If a newer release becomes "
+                "available, you'll remain on this version unless you switch "
+                'to the <a href="{url}">latest release</a>.',
                 name=current.display_name,
                 url=url,
             )

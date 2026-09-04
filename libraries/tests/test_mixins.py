@@ -67,8 +67,10 @@ def test_version_alert_message_sticky_latest():
 
     current = Version(name="boost-1.90.0", full_release=True)
     msg = _alert_message(current, current)
-    assert "you will continue to view" in msg
-    assert 'href="/releases/latest/"' in msg
+    assert "You're viewing version 1.90.0." in msg
+    assert "you'll remain on this version" in msg
+    assert 'switch to the <a href="/releases/latest/">latest release</a>' in msg
+    assert "not the new" not in msg
 
 
 def test_version_alert_message_beta():
