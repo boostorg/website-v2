@@ -135,12 +135,14 @@ def test_token_numbers_climb_with_the_rank_ladder():
     )
 
 
-def test_badge_card_renders_its_semantic_asset_and_award_date(plain_user):
-    """The card hands the component a token and a date the template formats.
+def test_badge_card_renders_its_semantic_asset_but_hides_the_award_date(plain_user):
+    """The card hands the component a token and a date the template leaves out.
 
     A ``date`` rather than a preformatted string: the project renders dates
     through Django's ``DATE_FORMAT`` everywhere else, so a string here would pin
-    this one card to a format nothing else uses.
+    this one card to a format nothing else uses. The template does not show it
+    for now: the historical backfill stamped every badge with the same day, so
+    the date is kept in the data for when real dates exist but hidden from view.
     """
     achievement = Achievement.objects.get(slug="library-review")
     badge = achievement.badges.get()
@@ -159,7 +161,8 @@ def test_badge_card_renders_its_semantic_asset_and_award_date(plain_user):
     assert card["earned_date"] == date(2025, 3, 7)
     assert "img/v3/badges/tier-5.png" in rendered
     assert "img/v3/badges/tier-4.png" not in rendered
-    assert date_format(date(2025, 3, 7)) in rendered
+    assert date_format(date(2025, 3, 7)) not in rendered
+    assert "2025" not in rendered
 
 
 @override_settings(TIME_ZONE="America/New_York")
