@@ -1,4 +1,6 @@
 import datetime
+from types import SimpleNamespace
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory
@@ -105,6 +107,56 @@ def test_version_alert_message_dev_branch():
     msg = _alert_message(selected, current)
     assert "under active development" in msg
     assert "develop" in msg
+
+
+class _ContextBase:
+    def get_context_data(self, **kwargs):
+        return dict(self.base_context, **kwargs)
+
+
+class _V3AlertView(VersionAlertMixin, _ContextBase):
+    """Minimal v3-active view exercising VersionAlertMixin.get_context_data."""
+
+    _v3_active = True
+
+    def __init__(self, version_slug, selected, current):
+        self.request = RequestFactory().get("/")
+        self.request.resolver_match = SimpleNamespace(url_name="libraries-list")
+        self.kwargs = {"version_slug": version_slug, "library_view_str": "grid"}
+        self.base_context = {"selected_version": selected, "current_version": current}
+
+
+def test_version_alert_hidden_on_latest_slug():
+    from versions.models import Version
+
+    current = Version(name="boost-1.92.0", full_release=True)
+    context = _V3AlertView("latest", current, current).get_context_data()
+    assert context["version_alert"] is False
+    assert "version_alert_message" not in context
+
+
+def test_version_alert_hidden_when_numbered_version_is_current():
+    from versions.models import Version
+
+    current = Version(name="boost-1.92.0", full_release=True)
+    context = _V3AlertView("boost-1-92-0", current, current).get_context_data()
+    assert context["version_alert"] is False
+    assert "version_alert_message" not in context
+
+
+def test_version_alert_visible_for_older_version():
+    from versions.models import Version
+
+    current = Version(name="boost-1.92.0", full_release=True)
+    selected = Version(
+        name="boost-1.85.0",
+        full_release=True,
+        release_date=datetime.date(2024, 6, 1),
+    )
+    context = _V3AlertView("boost-1-85-0", selected, current).get_context_data()
+    assert context["version_alert"] is True
+    assert "older version of Boost" in context["version_alert_message"]
+    assert context["version_alert_url"] == "/libraries/latest/grid/"
 
 
 # ── build_all_contributors ──────────────────────────────────────────────────

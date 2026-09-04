@@ -92,11 +92,18 @@ class VersionAlertMixin:
                 url_name, kwargs=current_version_kwargs
             )
 
-        context["version_alert"] = alert_visible
         # V3-only: legacy templates build their own alert markup and never read
         # version_alert_message, so don't compute it off the v3 render path.
         if alert_visible and getattr(self, "_v3_active", False):
-            context["version_alert_message"] = self.get_version_alert_message(context)
+            # A numbered version that is also the current release is not a
+            # mismatch, so the banner stays hidden there as it does on /latest/.
+            if context.get("selected_version") == context.get("current_version"):
+                alert_visible = False
+            else:
+                context["version_alert_message"] = self.get_version_alert_message(
+                    context
+                )
+        context["version_alert"] = alert_visible
         return context
 
     def get_version_alert_message(self, context):
