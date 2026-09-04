@@ -1,0 +1,37 @@
+{% comment %}
+  AI description usage panel — read-only figures and change history for
+  `AIDescriptionSettings`, rendered by `news.panels.AIDescriptionUsagePanel`.
+
+  Variables:
+    self             (BoundPanel, required)          — the bound panel, supplies `heading`
+    usage            (dict, required)                — from `description_generation_usage_today()`, with:
+      - generations  (int, required)                 — counted generations since midnight UTC
+      - users_at_limit (int, required)               — distinct users refused today
+    recent_changes   (list, optional, default [])    — `ModelLogEntry` rows, newest first
+{% endcomment %}
+<fieldset>
+  {% if self.heading %}<legend class="w-sr-only">{{ self.heading }}</legend>{% endif %}
+  <div class="{{ self.classname }}">
+    <p>
+      <strong>{{ usage.generations }}</strong> generation{{ usage.generations|pluralize }} so far today,
+      <strong>{{ usage.users_at_limit }}</strong> user{{ usage.users_at_limit|pluralize }} refused at the limit.
+      Counts cover the current UTC day and reset at midnight UTC.
+    </p>
+    {% if recent_changes %}
+      <p>Recent changes to this setting:</p>
+      <ul>
+        {% for entry in recent_changes %}
+          <li>
+            {{ entry.timestamp }} —
+            {% firstof entry.user.get_full_name entry.user.email "system" %}
+            {% with change=entry.data.daily_limit %}
+              {% if change %}changed the limit from {{ change.old }} to {{ change.new }}{% else %}saved the settings{% endif %}
+            {% endwith %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No changes recorded yet.</p>
+    {% endif %}
+  </div>
+</fieldset>
