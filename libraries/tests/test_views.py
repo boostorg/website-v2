@@ -859,3 +859,64 @@ def test_library_grid_patches_authors_in_one_query(version, tp):
         if "libraries_commitauthoremail" in q["sql"]
     ]
     assert len(email_queries) == 1, email_queries
+
+
+@pytest.mark.django_db
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_list_v3_cards_link_to_latest_when_browsing_latest(library_version, tp):
+    """A list browsed under "latest" must not pin cards to the resolved release,
+    or the header selector flips to that release on the library page."""
+    library = library_version.library
+    response = tp.get("libraries-list", version_slug="latest", library_view_str="list")
+    tp.response_200(response)
+
+    expected = tp.reverse("library-detail", "latest", library.slug)
+    pinned = tp.reverse("library-detail", library_version.version.slug, library.slug)
+    cards = [
+        lv for lv in response.context["object_list"] if lv.pk == library_version.pk
+    ]
+    assert cards[0].library_detail_url == expected
+    assert expected in response.content.decode()
+    assert pinned not in response.content.decode()
+
+
+@pytest.mark.django_db
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_list_v3_cards_keep_an_explicit_version(library_version, tp):
+    library = library_version.library
+    version = library_version.version
+    response = tp.get(
+        "libraries-list", version_slug=version.slug, library_view_str="grid"
+    )
+    tp.response_200(response)
+
+    cards = [
+        lv for lv in response.context["object_list"] if lv.pk == library_version.pk
+    ]
+    assert cards[0].library_detail_url == tp.reverse(
+        "library-detail", version.slug, library.slug
+    )
+
+
+@pytest.mark.django_db
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_list_v3_grouped_cards_link_to_latest(library_version, category, tp):
+    """Categorized and grading views rebuild their groups after the v3 context
+    hook, so their cards need the same URL treatment."""
+    library = library_version.library
+    library.categories.add(category)
+    expected = tp.reverse("library-detail", "latest", library.slug)
+
+    for view_str in ("categorized", "grading"):
+        response = tp.get(
+            "libraries-list", version_slug="latest", library_view_str=view_str
+        )
+        tp.response_200(response)
+        grouped = [
+            lv
+            for group in response.context["library_versions_by_category"]
+            for lv in group["library_version_list"]
+            if lv.pk == library_version.pk
+        ]
+        assert grouped, view_str
+        assert grouped[0].library_detail_url == expected, view_str
