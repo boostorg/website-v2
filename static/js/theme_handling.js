@@ -99,8 +99,14 @@ function checkmedia() {
 checkmedia();
 
 document.addEventListener("alpine:init", function() {
+  // Match checkmedia()'s window.parent preference: inside the Boostlook docs
+  // srcdoc iframe, matchMedia on the iframe's own window unreliably reports
+  // "no preference" for prefers-color-scheme, which was making the gecko
+  // search widget's own React theme sync (mounted with that stale
+  // data-theme-mode) strip the "dark" class checkmedia() had just applied.
+  const relevantWindow = window.parent || window;
   document.getElementById("gecko-search-button").setAttribute(
     'data-theme-mode',
-    localStorage.getItem("colorMode") || getBrowserColorMode(window)
+    localStorage.getItem("colorMode") || getBrowserColorMode(relevantWindow)
   );
 });
