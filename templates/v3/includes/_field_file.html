@@ -11,6 +11,13 @@
     extra_class   (optional) — additional classes on the wrapper
     preview       (optional) — if truthy, enables clickable image preview after file selection
     preview_url   (optional) — if preview is truthy, this value will be preloaded into the image field if set
+    allow_remove  (optional) — if truthy, overlays Replace and Remove controls on the preview. Each opens a
+                               popover: Replace offers the file picker, Remove asks for confirmation and then
+                               clears the preview and posts `remove_<name>=1` so the view can drop the stored
+                               file.
+    edit_label    (optional) — accessible name for the Replace control (default "Replace image")
+    remove_label  (optional) — accessible name for the Remove control (default "Remove image")
+    remove_prompt (optional) — confirmation question (default "Are you sure you want to remove the image?")
     alpine_error  (optional) — Alpine expression for dynamic error binding (e.g. "errors.image")
   Usage:
     {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" help_text="PNG or JPEG, max 1MB" %}
@@ -21,8 +28,8 @@
 {% with field_id=id|default:default_id %}
 <div class="field field--file{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
-     x-data="{ jsReady: false, fileName: ''{% if preview %}, previewUrl: '{{preview_url|escapejs}}'{% endif %} }"
-     x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = '';{% if preview %} if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = '{{preview_url|escapejs}}'; }{% endif %} })">
+     x-data="{ jsReady: false, fileName: ''{% if preview %}, previewUrl: '{{preview_url|escapejs}}'{% endif %}{% if allow_remove %}, cleared: false, menu: ''{% endif %} }"
+     x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = '';{% if preview %} if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = '{{preview_url|escapejs}}'; }{% endif %}{% if allow_remove %} cleared = false; menu = '';{% endif %} })">
   {% if label %}
   <label class="field__label" for="{{ field_id }}">{{ label }}</label>
   {% endif %}
@@ -43,16 +50,67 @@
       {% if preview %}x-on:change="
         const file = $event.target.files && $event.target.files[0];
         if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; }
-        if (file) { fileName = file.name; previewUrl = URL.createObjectURL(file); } else { fileName = ''; }
+        if (file) { fileName = file.name; previewUrl = URL.createObjectURL(file); } else { fileName = ''; }{% if allow_remove %}
+        cleared = !file;
+        menu = '';{% endif %}
       "{% else %}x-on:change="fileName = $event.target.files.length ? $event.target.files[0].name : ''"{% endif %}
       {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ name }}-error' : {% if help_text %}'field-{{ name }}-help'{% else %}null{% endif %}"
       {% elif error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
     >
   </div>
   {% if preview %}
-  <div class="field__image-preview-wrapper" x-show="previewUrl" x-cloak tabindex="0" role="button" aria-label="Change file" @click="previewUrl && $refs.fileInput.click()" @keydown.enter.prevent="previewUrl && $refs.fileInput.click()" @keydown.space.prevent="previewUrl && $refs.fileInput.click()">
+  <div class="field__image-preview-wrapper{% if allow_remove %} field__image-preview-wrapper--actions{% endif %}" x-show="previewUrl" x-cloak{% if not allow_remove %} tabindex="0" role="button" aria-label="Change file" @click="previewUrl && $refs.fileInput.click()" @keydown.enter.prevent="previewUrl && $refs.fileInput.click()" @keydown.space.prevent="previewUrl && $refs.fileInput.click()"{% endif %}>
     <img :src="previewUrl" alt="" class="field__image-preview">
+    {% if allow_remove %}
+    <div class="field__image-overlay" x-on:click.outside="menu = ''" x-on:keydown.escape.window="if (menu) { const t = menu; menu = ''; $refs[t === 'edit' ? 'editTrigger' : 'removeTrigger'].focus(); }">
+      <div class="field__image-actions">
+        <button type="button" class="field__image-action" x-ref="editTrigger"
+          aria-label="{{ edit_label|default:'Replace image' }}" aria-haspopup="true"
+          aria-controls="{{ field_id }}-replace-menu" :aria-expanded="menu === 'edit'"
+          x-on:click="menu = menu === 'edit' ? '' : 'edit'; if (menu) $nextTick(() => $refs.chooseFile.focus())">
+          {% include "includes/icon.html" with icon_name="pixel-pencil" icon_size=16 icon_viewbox="0 0 16 16" only %}
+        </button>
+        <button type="button" class="field__image-action field__image-action--remove" x-ref="removeTrigger"
+          aria-label="{{ remove_label|default:'Remove image' }}" aria-haspopup="true"
+          aria-controls="{{ field_id }}-remove-menu" :aria-expanded="menu === 'remove'"
+          x-on:click="menu = menu === 'remove' ? '' : 'remove'; if (menu) $nextTick(() => $refs.removeCancel.focus())">
+          {% include "includes/icon.html" with icon_name="pixel-trash" icon_size=16 icon_viewbox="0 0 16 16" only %}
+        </button>
+      </div>
+
+      {% comment %} The real file input stays in the field's own control. This row proxies to it. {% endcomment %}
+      <div class="field__image-menu" id="{{ field_id }}-replace-menu" role="dialog"
+           aria-label="{{ edit_label|default:'Replace image' }}" x-show="menu === 'edit'" x-cloak>
+        <span class="field__label">{{ edit_label|default:"Replace image" }}</span>
+        <button type="button" class="field__control field__control--file field__image-menu-file" x-ref="chooseFile"
+          x-on:click="$refs.fileInput.click()">
+          <span class="field__file-display field__file-display--start">
+            <span class="field__file-placeholder">Choose File</span>
+          </span>
+        </button>
+        {% if help_text %}<p class="field__help">{{ help_text }}</p>{% endif %}
+      </div>
+
+      <div class="field__image-menu" id="{{ field_id }}-remove-menu" role="dialog"
+           aria-label="{{ remove_label|default:'Remove image' }}" x-show="menu === 'remove'" x-cloak>
+        <p class="field__image-menu-text">{{ remove_prompt|default:"Are you sure you want to remove the image?" }}</p>
+        <button type="button" class="btn btn-secondary" x-ref="removeCancel"
+          x-on:click="menu = ''; $refs.removeTrigger.focus()">Cancel</button>
+        <button type="button" class="btn btn-error"
+          x-on:click="
+            if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; }
+            fileName = '';
+            if ($refs.fileInput) { $refs.fileInput.value = ''; }
+            cleared = true;
+            menu = '';
+          ">Remove</button>
+      </div>
+    </div>
+    {% endif %}
   </div>
+  {% if allow_remove %}
+  <input type="hidden" name="remove_{{ name }}" :value="cleared ? '1' : ''">
+  {% endif %}
   {% endif %}
   {% if alpine_error %}
   <p class="field__error" id="field-{{ name }}-error" role="alert" x-show="{{ alpine_error }}" x-text="{{ alpine_error }}" x-cloak aria-live="polite"></p>

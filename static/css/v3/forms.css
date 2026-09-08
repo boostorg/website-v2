@@ -759,6 +759,109 @@
   object-fit: cover;
 }
 
+/* Overlaid Replace/Remove controls, which take the preview's own click target */
+.field__image-preview-wrapper--actions {
+  position: relative;
+  cursor: default;
+}
+
+.field__image-overlay {
+  position: absolute;
+  top: var(--space-medium, 12px);
+  right: var(--space-medium, 12px);
+}
+
+.field__image-actions {
+  display: flex;
+  gap: var(--space-default, 8px);
+}
+
+.field__image-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 var(--space-large, 16px);
+  background-color: var(--color-surface-weak, #fff);
+  border: 1px solid var(--color-stroke-weak, #0508161a);
+  border-radius: var(--border-radius-xl, 12px);
+  color: var(--color-text-primary, #050816);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.field__image-action:hover {
+  border-color: var(--color-stroke-link-accent);
+  color: var(--color-text-link-accent);
+}
+
+.field__image-action[aria-expanded="true"] {
+  background-color: var(--color-surface-strong, #efeff1);
+}
+
+.field__image-action:focus-visible {
+  outline: 2px solid var(--color-stroke-link-accent, #1f3044);
+  outline-offset: 2px;
+}
+
+.field__image-action--remove:hover,
+.field__image-action--remove[aria-expanded="true"] {
+  background-color: var(--color-surface-error-weak, #fdf2f2);
+  color: var(--color-text-error, #d32f2f);
+}
+
+.field__image-action--remove:hover {
+  border-color: var(--color-error-strong);
+}
+
+.field__image-menu {
+  position: absolute;
+  top: calc(100% + var(--space-large, 16px));
+  right: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default, 8px);
+  width: 209px;
+  padding: var(--space-large, 16px);
+  background-color: var(--color-surface-weak, #fff);
+  border: 1px solid var(--color-stroke-weak, #0508161a);
+  border-radius: var(--border-radius-xl, 12px);
+  text-align: left;
+  cursor: default;
+}
+
+.field__image-menu .btn {
+  width: 100%;
+}
+
+.field__image-menu-text {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  margin: 0;
+  padding: 0 var(--space-large, 16px);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: var(--line-height-relaxed, 1.24);
+  color: var(--color-text-primary, #050816);
+}
+
+.field__image-menu-file {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+}
+
+/* `.field__file-display` centres its text for the inline control */
+.field__file-display--start {
+  text-align: left;
+}
+
 .field__input--file {
   position: absolute;
   inset: 0;

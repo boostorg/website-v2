@@ -607,6 +607,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         related_libraries: list,
         block_name: str,
         post_type: str,
+        remove_image: bool = False,
     ):
         cleaned_data = form.cleaned_data
         page.title = cleaned_data.get("title")
@@ -627,6 +628,8 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                 file=image,
             )
             page.image = wagtail_image
+        elif remove_image:
+            page.image = None
         tags = []
         if related_libraries:
             for library in related_libraries:
@@ -691,6 +694,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
                         block_name=block_name,
                         post_type=post_type,
                         related_libraries=post_data.getlist("related_libraries"),
+                        remove_image=bool(post_data.get("remove_image")),
                     )
                 except Library.DoesNotExist:
                     return self.error_message_and_render(
@@ -881,6 +885,7 @@ class V3AllTypesEditView(V3AllTypesCreateView):
                     block_name=block_name,
                     post_type=post_type,
                     related_libraries=post_data.getlist("related_libraries"),
+                    remove_image=bool(post_data.get("remove_image")),
                 )
                 page.save_revision(user=request.user)
                 if not page.workflow_in_progress:
