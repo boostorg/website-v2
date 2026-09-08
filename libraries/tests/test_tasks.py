@@ -206,12 +206,24 @@ def test_point_release_docs_urls_address_the_base_release(
     )
 
 
+@patch("libraries.tasks.app.signature")
 @patch("libraries.tasks.call_command")
-def test_update_authors_and_maintainers_backfills_only_library_sources(mock_call):
+def test_update_authors_and_maintainers_backfills_only_library_sources(
+    mock_call, mock_signature
+):
     """A blanket backfill here would sweep the commit and review tables too."""
     from libraries.tasks import update_authors_and_maintainers
 
     update_authors_and_maintainers()
+
+    # The profile-role recompute must run eagerly and be waited on, not fired
+    # and forgotten, or the achievement backfill below can read stale roles.
+    mock_signature.assert_called_once_with(
+        "users.tasks.recompute_displayed_profile_roles"
+    )
+    mock_signature.return_value.apply.assert_called_once_with()
+    mock_signature.return_value.apply.return_value.get.assert_called_once_with()
+    mock_signature.return_value.apply_async.assert_not_called()
 
     backfills = [
         c for c in mock_call.call_args_list if c.args[0] == "backfill_achievements"
@@ -225,9 +237,10 @@ def test_update_authors_and_maintainers_backfills_only_library_sources(mock_call
     }
 
 
+@patch("libraries.tasks.app.signature")
 @patch("libraries.tasks.LibraryUpdater")
 @patch("libraries.tasks.call_command")
-def test_update_commits_does_not_backfill(mock_call, _mock_updater, db):
+def test_update_commits_does_not_backfill(mock_call, _mock_updater, mock_signature, db):
     """release_tasks sweeps every source once; a call here would double it."""
     from libraries.tasks import update_commits
 
@@ -236,6 +249,11 @@ def test_update_commits_does_not_backfill(mock_call, _mock_updater, db):
     assert not [
         c for c in mock_call.call_args_list if c.args[0] == "backfill_achievements"
     ]
+    # Same eager-and-waited requirement as update_authors_and_maintainers: the
+    # release pipeline's "Backfilling achievements" step runs right after this.
+    mock_signature.return_value.apply.assert_called_once_with()
+    mock_signature.return_value.apply.return_value.get.assert_called_once_with()
+    mock_signature.return_value.apply_async.assert_not_called()
 
 
 @patch("libraries.tasks.call_command")
