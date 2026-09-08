@@ -9,8 +9,6 @@ from django.db import transaction
 from django.db.models import BooleanField, Case, Value, When
 from django.utils import timezone
 
-from core.admin_buttons import TaskButtonAdminMixin
-
 from .constants import HOMEPAGE_POPULAR_TERMS_DISPLAY
 from .models import (
     PopularSearchTerm,
@@ -143,7 +141,7 @@ def _synchronize_commit_author_preview(_request, _value):
 
 
 @admin.register(SiteSettings)
-class SiteSettingsAdmin(TaskButtonAdminMixin, admin.ModelAdmin):
+class SiteSettingsAdmin(admin.ModelAdmin):
     list_display = ("id", "wordcloud_ignore", "rendered_content_replacement_start")
     readonly_fields = ("rendered_content_replacement_start",)
     filter_horizontal = ("pinned_community_libraries",)
