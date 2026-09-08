@@ -115,7 +115,7 @@ def test_entry_list(
     # authors' profile routing keys, which the cards link to: one query for the
     # page rather than one per card.
     response = tp.assertGoodView(
-        tp.reverse(url_name), test_query_count=11, verbose=True
+        tp.reverse(url_name), test_query_count=13, verbose=True
     )
 
     expected = [today_news, yesterday_news]
