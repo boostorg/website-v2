@@ -1,12 +1,16 @@
 import datetime
 import io
+from importlib import import_module
 
 from PIL import Image
 import pytest
 from django.db.models import Q
 from django.contrib.auth.models import Group, Permission
+from django.apps import apps as django_apps
 from django.utils.timezone import now
 from model_bakery import baker
+
+from news.constants import RATELIMIT_EXEMPT_GROUP
 
 
 @pytest.fixture
@@ -137,3 +141,15 @@ def superuser(db, make_user):
         groups={},
         perms=[],
     )
+
+
+@pytest.fixture
+def ratelimit_exempt_group(db):
+    """The AI-limit exemption group, seeded as the data migration seeds it.
+
+    The suite runs with `--no-migrations`, so nothing else creates it here.
+    Calling the migration's own function keeps the two in step.
+    """
+    migration = import_module("news.migrations.0017_ratelimit_exempt_group")
+    migration.create_ratelimit_exempt_group(django_apps, None)
+    return Group.objects.get(name=RATELIMIT_EXEMPT_GROUP)

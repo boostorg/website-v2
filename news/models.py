@@ -3,6 +3,7 @@ from pathlib import Path
 from structlog import get_logger
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Case, ExpressionWrapper, FloatField, F, Func, Value, When
 from django.db.models.functions import Greatest, Now, Power
@@ -11,6 +12,9 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from wagtail.admin.forms import WagtailAdminModelForm
+from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
+from wagtail.log_actions import log
 
 from core.validators import (
     attachment_validator,
@@ -20,7 +24,14 @@ from core.validators import (
 )
 
 from . import acl
-from .constants import CONTENT_SUMMARIZATION_THRESHOLD
+from .constants import (
+    AI_DESCRIPTION_LIMIT_CHANGED_ACTION,
+    BYPASS_DESCRIPTION_LIMIT_PERMISSION,
+    CONTENT_SUMMARIZATION_THRESHOLD,
+    DAILY_LIMIT_MIN_MESSAGE,
+    RATELIMIT_EXEMPT_GROUP,
+)
+from .panels import AIDescriptionUsagePanel
 from .tasks import summary_dispatcher
 from .tasks import set_thumbnail_for_video_entry
 
@@ -369,3 +380,135 @@ class PollChoice(models.Model):
 
 
 NEWS_MODELS = [BlogPost, Link, News, Poll, Video]
+
+
+class DescriptionInputType(models.TextChoices):
+    """Which generator produced an attempt: the post body, or a linked page."""
+
+    CONTENT = "content", _("Content")
+    LINK = "link", _("Link")
+
+
+class DescriptionGenerationOutcome(models.TextChoices):
+    """How a generation attempt ended."""
+
+    # Reserved before the model call, so a row that never leaves this state is
+    # a request that died mid-flight. Pending still consumes quota: the call
+    # was made and billed even if we never saw the answer.
+    PENDING = "pending", _("Pending")
+    SUCCESS = "success", _("Success")
+    RATE_LIMITED = "rate_limited", _("Rate limited")
+    UPSTREAM_ERROR = "upstream_error", _("Upstream error")
+
+
+class DescriptionGenerationAttempt(models.Model):
+    """One AI description generation attempt, successful or not.
+
+    Doubles as the daily counter behind `AIDescriptionSettings.daily_limit`, so
+    the number an admin sees and the number the limit enforces can never drift
+    apart. Rows are cheap: the cap keeps them to a couple of dozen per user
+    per day.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="description_generation_attempts",
+    )
+    input_type = models.CharField(max_length=16, choices=DescriptionInputType)
+    input_size = models.PositiveIntegerField(
+        help_text=(
+            "Characters of text sent to the model. For a link this is the "
+            "extracted article body, not the URL."
+        )
+    )
+    outcome = models.CharField(max_length=16, choices=DescriptionGenerationOutcome)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "created_at"])]
+        permissions = [
+            (
+                BYPASS_DESCRIPTION_LIMIT_PERMISSION,
+                "Can bypass the AI description daily limit",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.user_id} {self.input_type} {self.outcome} {self.created_at}"
+
+
+class AIDescriptionSettingsForm(WagtailAdminModelForm):
+    """Validates the limit and records who changed it, from what, to what.
+
+    Wagtail's settings edit view logs a bare `wagtail.edit` entry with no field
+    values, and registers no history UI for settings, so the old -> new pair is
+    logged here under a dedicated action the usage panel can read back.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Captured before validation binds cleaned data onto `self.instance`,
+        # which would otherwise overwrite the value we want to report.
+        self._original_daily_limit = (
+            self.instance.daily_limit if self.instance.pk else None
+        )
+        # `PositiveIntegerField.formfield()` hands the form a minimum of 0 and
+        # does not carry the model's `MinValueValidator(1)` across, so a
+        # negative value would be refused in Django's default wording while 0
+        # got ours. Rebuild the field at the real minimum so every value below
+        # one reads the same and the widget stops at 1 too.
+        self.fields["daily_limit"] = self.instance._meta.get_field(
+            "daily_limit"
+        ).formfield(
+            min_value=1,
+            error_messages={"min_value": DAILY_LIMIT_MIN_MESSAGE},
+        )
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        if self._original_daily_limit != instance.daily_limit:
+            log(
+                instance=instance,
+                action=AI_DESCRIPTION_LIMIT_CHANGED_ACTION,
+                user=self.for_user,
+                data={
+                    "daily_limit": {
+                        "old": self._original_daily_limit,
+                        "new": instance.daily_limit,
+                    }
+                },
+            )
+        return instance
+
+
+@register_setting
+class AIDescriptionSettings(BaseGenericSetting):
+    """Admin-managed cap on AI description generation, set in the Wagtail admin.
+
+    Lives in the CMS beside the posts it governs. Read per request via
+    `load(request_or_site=request)`, which caches on the request only, so an
+    edit applies from the next request with no deploy or restart.
+    """
+
+    base_form_class = AIDescriptionSettingsForm
+
+    # The default is the cap in force wherever nobody has edited the setting
+    # yet, so it is a real starting value rather than a placeholder - but it is
+    # read only when the settings row is first created, and editing the screen
+    # is what changes it after that.
+    daily_limit = models.PositiveIntegerField(
+        default=20,
+        validators=[MinValueValidator(1)],
+        help_text=(
+            "Maximum AI description generations per user per day. Resets at "
+            "midnight UTC. Applies to both the content and link generators. "
+            "Superusers and members of the "
+            f"'{RATELIMIT_EXEMPT_GROUP}' group are exempt."
+        ),
+    )
+
+    panels = ["daily_limit", AIDescriptionUsagePanel()]
+
+    class Meta:
+        verbose_name = "AI Description Settings"

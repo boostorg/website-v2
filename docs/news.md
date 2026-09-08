@@ -43,3 +43,9 @@ Users can moderate if:
 When an `Entry` is saved without a `summary`, `news/tasks.py` dispatches a Celery task that asks an LLM (via [OpenRouter](https://openrouter.ai), default model `gpt-oss-120b`) to produce a short plain-text summary, then writes it back to the entry. Clearing the `summary` field and saving triggers regeneration.
 
 This is the same OpenRouter integration used by the Boost release-notes "What's New" summary in `versions/tasks.py`. Both share `OPENROUTER_API_KEY` — see [Environment Variables](./env_vars.md).
+
+## AI description generation
+
+`v3-news-generate-description` and `v3-news-generate-link-description` call the summarization model synchronously for the create-post page. Both are capped per user per day; the limit, the day's usage and the change history live in the Wagtail admin under Settings -> AI Description Settings. See [admin.md](admin.md).
+
+The automatic summarization that `PostPage.save()` and `Entry.save()` dispatch to Celery when a post has no summary is a separate path and is **not** capped: it only fires for a live page, so it follows moderation rather than a user button.

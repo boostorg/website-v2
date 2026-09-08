@@ -118,9 +118,11 @@
                 <span>Hold on! We are generating a description for your content, it may take a few seconds</span>
               </span>
             </div>
-            <div class="create-post-page__description-actions">
-              {% comment %} Calls the generate-description endpoint; disabled while in flight. Full idle/generating/generated states are a follow-up. {% endcomment %}
-              <button type="button" class="btn btn-secondary create-post-page__generate-btn" @click="generateDescription()" :disabled="generating">Auto-Generate Description</button>
+            <div class="create-post-page__description-actions" :class="{ 'create-post-page__description-actions--limited': rateLimited }">
+              {% comment %} Takes the button's place in the row once the daily cap is spent, so the copy and the save indicator share one line. {% endcomment %}
+              <p class="field__help create-post-page__limit-note" x-show="rateLimited && !descriptionError" x-cloak aria-live="polite">{{ description_rate_limit_message }}</p>
+              {% comment %} Calls the generate-description endpoint; disabled while in flight. Hidden once the daily cap is spent - `rateLimited` is seeded from the view context and flipped by a 429 mid-session, but the endpoint enforces the cap either way. Full idle/generating/generated states are a follow-up. {% endcomment %}
+              <button type="button" class="btn btn-secondary create-post-page__generate-btn" x-show="!rateLimited" @click="generateDescription()" :disabled="generating" x-cloak>Auto-Generate Description</button>
               {% comment %} Hidden when nothing is written; "Saving" while editing, "Saved" once the draft is written to localStorage (descriptionSaveStatus driven by onDescriptionEdited / restoreDescriptionDraft). {% endcomment %}
               <span class="create-post-page__save-indicator" role="status" aria-live="polite">
                 <span class="create-post-page__save-state" x-show="descriptionSaveStatus === 'saving'" x-cloak>
@@ -163,8 +165,10 @@
               </span>
             </div>
             {% comment %} Auto-Generate is Link-only (Video is out of scope). Disabled until the link field holds a valid http(s) URL. {% endcomment %}
-            <div class="create-post-page__description-actions" x-show="isLink" x-cloak>
-              <button type="button" class="btn btn-secondary create-post-page__generate-btn" @click="generateLinkDescription()" :disabled="!linkUrlValid || linkGenerating">Auto-Generate Description</button>
+            <div class="create-post-page__description-actions" :class="{ 'create-post-page__description-actions--limited': rateLimited }" x-show="isLink" x-cloak>
+              {% comment %} Same daily cap as the content generator: one limit shared across both input types, and the copy shares the row with the save indicator. {% endcomment %}
+              <p class="field__help create-post-page__limit-note" x-show="rateLimited && !linkError" x-cloak aria-live="polite">{{ description_rate_limit_message }}</p>
+              <button type="button" class="btn btn-secondary create-post-page__generate-btn" x-show="!rateLimited" @click="generateLinkDescription()" :disabled="!linkUrlValid || linkGenerating" x-cloak>Auto-Generate Description</button>
               <span class="create-post-page__save-indicator" role="status" aria-live="polite">
                 <span class="create-post-page__save-state" x-show="linkDescriptionSaveStatus === 'saving'" x-cloak>
                   <span class="create-post-page__save-text">Saving</span>
@@ -177,7 +181,7 @@
               </span>
             </div>
             {% comment %} Inline help shown while the link field is empty/invalid so the disabled button doesn't look mysterious. {% endcomment %}
-            <p class="field__help" x-show="isLink && !linkError && !linkUrlValid" x-cloak>Add a valid link above to auto-generate a description from the page.</p>
+            <p class="field__help" x-show="isLink && !rateLimited && !linkError && !linkUrlValid" x-cloak>Add a valid link above to auto-generate a description from the page.</p>
             {% comment %} Error shown when Auto-Generate fails (invalid URL, fetch failed, or no readable text found). Cleared on next click. {% endcomment %}
             <p class="field__error" id="field-link-description-error" role="alert" x-show="isLink && linkError" x-text="linkError" x-cloak aria-live="polite"></p>
           </div>
@@ -210,6 +214,9 @@
         linkGenerating: false,
         linkError: '',
         generating: false,
+        // Seeded from the server so an exhausted user never sees the button;
+        // the endpoints enforce the cap regardless of what this says.
+        rateLimited: {{ description_generation_limit_reached|yesno:"true,false" }},
         descriptionError: '',
         descriptionSaveStatus: '',          // '' (hidden) / 'saving' / 'saved'
         contentSaveStatus: '',              // same states, for the Content field
@@ -536,9 +543,17 @@
               this.onDescriptionEdited();   // persist generated text + show Saving/Saved
             } else {
               this.description = previousDescription;
-              console.error('Description generation failed:', (data && data.error) || res.status);
-              this.descriptionError = (data && data.error)
-                || "The description is taking longer than expected to generate. Please try again in a moment.";
+              if (res.status === 429) {
+                // Running out of generations is a limit, not a failure: it reads
+                // in the muted help slot, never the red error slot, and it is
+                // not console noise.
+                this.rateLimited = true;
+                this.descriptionError = '';
+              } else {
+                console.error('Description generation failed:', (data && data.error) || res.status);
+                this.descriptionError = (data && data.error)
+                  || "The description is taking longer than expected to generate. Please try again in a moment.";
+              }
             }
           } catch (err) {
             this.description = previousDescription;
@@ -573,7 +588,13 @@
               this.onLinkDescriptionEdited();   // persist + show Saving/Saved
             } else {
               this.linkDescription = previousLinkDescription;
-              this.linkError = (data && data.error) || "We couldn't read that link. Please check the URL and try again.";
+              if (res.status === 429) {
+                // Same as the content generator: the limit note is help text.
+                this.rateLimited = true;
+                this.linkError = '';
+              } else {
+                this.linkError = (data && data.error) || "We couldn't read that link. Please check the URL and try again.";
+              }
             }
           } catch (err) {
             this.linkDescription = previousLinkDescription;

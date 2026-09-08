@@ -100,6 +100,12 @@
   flex-wrap: wrap;
 }
 
+/* Cap spent: the note replaces the button and can wrap, so the save indicator
+   lines up with its first line rather than centring against the whole block. */
+.create-post-page__description-actions--limited {
+  align-items: baseline;
+}
+
 /* Content has no Auto-Generate button, so its save indicator sits alone on the right. */
 .create-post-page__content-actions {
   display: flex;
@@ -112,6 +118,7 @@
 
 .create-post-page__save-indicator {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
@@ -201,6 +208,28 @@
 .create-post-page .wysiwyg-editor__prose {
   resize: vertical;
   overflow-y: auto;
+}
+
+/* Daily-generation limit note. Sits in the actions row where the Auto-Generate
+   button was, sharing the line with the save indicator.
+
+   `flex-basis: 0` is what keeps the indicator on the same line: flex wrapping
+   is decided from the basis before any shrinking, so an `auto` basis would let
+   long copy claim the whole row and bump the indicator below it. The design specifies
+   one colour for this line in both themes, and --color-text-tertiary remaps to
+   grey-600 in dark, so the primitive is referenced directly. */
+.create-post-page__limit-note {
+  flex: 1 1 0;
+  min-width: 0;
+  color: var(--color-primary-grey-700);
+}
+
+/* The project defines no global [x-cloak] rule, so an x-show element renders
+   until Alpine boots. Scoped to the two elements the daily cap toggles, which
+   would otherwise flash on every page load. */
+.create-post-page__limit-note[x-cloak],
+.create-post-page__generate-btn[x-cloak] {
+  display: none;
 }
 
 @media (max-width: 767px) {
