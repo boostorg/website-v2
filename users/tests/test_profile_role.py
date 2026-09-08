@@ -191,6 +191,36 @@ def test_contributor_data_lists_flagship_libraries_first(user, library, other_li
     assert user.get_contributor_data()["Author"] == ["Math", "Asio", "Beast"]
 
 
+def test_contributor_data_lists_contributor_libraries_alphabetically(
+    user, library, other_library
+):
+    """The Contributor group is sorted the same way as Author (issue #2651).
+
+    Contributor is derived from commit counts rather than an explicit role
+    link, so it exercises a different code path in _role_library_pairs than
+    the alphabetical-order tests above.
+    """
+    from libraries.models import Tier
+
+    zlib = baker.make("libraries.Library", name="Zlib")
+    asio = baker.make("libraries.Library", name="Asio")
+    math = baker.make("libraries.Library", name="Math", tier=Tier.FLAGSHIP)
+    _add_commits(user, zlib, 3)
+    _add_commits(user, asio, 5)  # most active library must not lead the list
+    _add_commits(user, math, 1)
+    assert user.get_contributor_data()["Contributor"] == ["Math", "Asio", "Zlib"]
+
+
+def test_contributor_data_cache_key_is_versioned():
+    """The cache key must change whenever get_contributor_data's shape or
+    ordering does, or a still-warm entry from before the change keeps
+    serving its old order until the next library import (issue #2651).
+    """
+    from users.models import CONTRIBUTOR_DATA_CACHE_PREFIX
+
+    assert CONTRIBUTOR_DATA_CACHE_PREFIX != "contributor_data_"
+
+
 def test_contributor_data_served_from_cache(user, library, other_library):
     library.authors.add(user)
     assert user.get_contributor_data() == {"Author": ["Beast"]}  # now cached

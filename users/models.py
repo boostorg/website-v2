@@ -287,7 +287,11 @@ NO_PUBLIC_ROLE_LABEL = (
     "No Public Role - Your role won't be linked to your name elsewhere on the site."
 )
 
-CONTRIBUTOR_DATA_CACHE_PREFIX = "contributor_data_"
+# Bump this suffix whenever get_contributor_data's output shape or ordering
+# changes. The cache is only invalidated by a library import, so an
+# old-shaped entry would otherwise keep serving a stale order for the full
+# TTL after every deploy.
+CONTRIBUTOR_DATA_CACHE_PREFIX = "contributor_data_v2_"
 
 
 def contributor_data_cache_key(user_id):
