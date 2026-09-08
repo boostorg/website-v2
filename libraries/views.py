@@ -29,11 +29,16 @@ from mailing_list.mixins import MailingListCardMixin
 from news.services import get_latest_post_cards
 from pages.routing import post_index_url
 from core.mock_data import SharedResources
+from core.templatetags.custom_static import large_static
 from users.models import User
 from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
-from .constants import COMMIT_EMAIL_STALE_ACTION_ERROR, README_MISSING
+from .constants import (
+    COMMIT_EMAIL_STALE_ACTION_ERROR,
+    LIBRARY_HERO_ART,
+    README_MISSING,
+)
 from .forms import CommitAuthorEmailForm, V3CommitAuthorEmailForm
 from .godbolt import build_compiler_explorer_url
 from .mixins import VersionAlertMixin, BoostVersionMixin, ContributorMixin
@@ -709,11 +714,41 @@ class LibraryDetail(
         )
 
         context["is_flagship_lib"] = self.object.tier == Tier.FLAGSHIP
-        context["library_hero_image_url_light"] = ""
-        context["library_hero_image_url_dark"] = ""
-        context["hero_image_url"] = ""
+        context.update(self.get_hero_art_context())
 
         return context
+
+    def get_hero_art_context(self):
+        """Resolve this library's hero illustration, if one has been drawn for it.
+
+        Keys are prefixed `library_hero_` rather than matching the include's own
+        `hero_image_url_*` names because `{% include %}` hands the parent context to
+        both the flagship and non-flagship hero; a bare name would light up the
+        branch meant to stay plain. The sub-page maps them on the flagship branch.
+
+        One export serves both themes, so the dark slot stays empty: supplying a
+        dark URL is what puts `.hero-fg` in theme-aware mode, which hides the light
+        image under `html.dark` and would blank the hero.
+        """
+        art = LIBRARY_HERO_ART.get(self.object.slug or "", {})
+        # All or nothing: a background with no illustration would still add
+        # `hero--with-bg-and-image` and leave nothing to composite over it.
+        if not art.get("illustration"):
+            art = {}
+
+        def url(key):
+            path = art.get(key)
+            return large_static(path) if path else ""
+
+        return {
+            "library_hero_image_url_light": url("illustration"),
+            "library_hero_image_url_dark": "",
+            "library_hero_image_url_mobile": url("illustration_mobile"),
+            "library_hero_background_image_url": url("background"),
+            # Empty so the include's small-box `.hero__image` stays unused; the
+            # flagship hero paints through the full-bleed `.hero-fg`.
+            "hero_image_url": "",
+        }
 
     def get_missing_version_context(self, context):
         """Add the copy and CTA for the "no records for this version" empty state.
