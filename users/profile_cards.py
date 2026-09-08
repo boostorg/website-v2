@@ -14,6 +14,7 @@ from users.constants import (
     GITHUB_ACTIVITY_POLL_MAX_ATTEMPTS,
     GITHUB_ACTIVITY_REFRESH_LOCK_SECONDS,
     GITHUB_PROVIDER,
+    MAILING_LIST_ACTIVITY_CARD_TITLE,
 )
 
 GithubActivityState = namedtuple(
@@ -197,4 +198,23 @@ def github_activity_card_context(user, attempt=0, include_hidden=False):
         "poll_exhausted": attempt >= GITHUB_ACTIVITY_POLL_MAX_ATTEMPTS or not poll_url,
         "poll_url": poll_url,
         "poll_interval": GITHUB_ACTIVITY_POLL_INTERVAL_SECONDS,
+    }
+
+
+def mailing_list_activity_card_context(user, include_hidden=False):
+    """Context for ``_mailing_list_activity_card.html`` on the public profile.
+
+    Returns None when the user has hidden their mailing list activity, unless
+    ``include_hidden`` is set - the same shape ``github_activity_card_context``
+    uses, so callers omit the section rather than rendering it empty.
+
+    TODO: The card has no data source yet, so ``mailing_list_items`` is always empty
+    and the section never renders. This is the privacy gate only.
+    """
+    if user.hide_mailing_list_activity and not include_hidden:
+        return None
+
+    return {
+        "title": MAILING_LIST_ACTIVITY_CARD_TITLE,
+        "mailing_list_items": [],
     }
