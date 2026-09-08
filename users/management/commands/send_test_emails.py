@@ -57,6 +57,18 @@ SAMPLE_ENTRY = SimpleNamespace(
     author=SimpleNamespace(display_name="Vinnie Falco", email="vinnie@example.com"),
 )
 
+SAMPLE_POST_PAGE = SimpleNamespace(
+    title="Boost 1.90.0 has been released",
+    summary=(
+        "This release adds two new libraries and includes fixes across the "
+        "collection."
+    ),
+    search_body="",
+    post_content_type="News",
+    created_at=datetime(2026, 8, 12, tzinfo=timezone.utc),
+    author=SimpleNamespace(display_name="Vinnie Falco", email="vinnie@example.com"),
+)
+
 SAMPLE_LISTS = [
     {
         "name": "Boost Users",
@@ -124,6 +136,11 @@ TEMPLATES = {
         "prefix": "v3/libraries/email/verify_commit_email",
         "action_url": "https://www.boost.org/libraries/commit-email/confirm/test-token/",
         "context": {"requester": "Vinnie Falco", "expiry_label": "7\u00a0days"},
+    },
+    "post_approved": {
+        "prefix": "v3/pages/email/post_approved",
+        "action_url": "https://www.boost.org/news/boost-1-90-0-has-been-released/",
+        "context": {"page": SAMPLE_POST_PAGE},
     },
 }
 
