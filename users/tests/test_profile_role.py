@@ -169,13 +169,56 @@ def test_contributor_data_groups_by_role_and_omits_empty(user, library, other_li
     assert data["Maintainer"] == ["Math"]
 
 
-def test_contributor_data_lists_libraries_by_commit_count(user, library, other_library):
+def test_contributor_data_lists_libraries_alphabetically(user, library, other_library):
     library.authors.add(user)
     other_library.authors.add(user)
+    # Commit counts order the edit-page dropdown, not the bio card: the busier
+    # library still sorts by name here.
     _add_commits(user, other_library, 5)
     _add_commits(user, library, 1)
-    # Busier library ranks first within the role group.
-    assert user.get_contributor_data()["Author"] == ["Math", "Beast"]
+    assert user.get_contributor_data()["Author"] == ["Beast", "Math"]
+
+
+def test_contributor_data_lists_flagship_libraries_first(user, library, other_library):
+    from libraries.models import Tier
+
+    # Math is a flagship, so it precedes Beast despite sorting after it.
+    other_library.tier = Tier.FLAGSHIP
+    other_library.save()
+    untiered = baker.make("libraries.Library", name="Asio", tier=None)
+    for lib in (library, other_library, untiered):
+        lib.authors.add(user)
+    assert user.get_contributor_data()["Author"] == ["Math", "Asio", "Beast"]
+
+
+def test_contributor_data_lists_contributor_libraries_alphabetically(
+    user, library, other_library
+):
+    """The Contributor group is sorted the same way as Author (issue #2651).
+
+    Contributor is derived from commit counts rather than an explicit role
+    link, so it exercises a different code path in _role_library_pairs than
+    the alphabetical-order tests above.
+    """
+    from libraries.models import Tier
+
+    zlib = baker.make("libraries.Library", name="Zlib")
+    asio = baker.make("libraries.Library", name="Asio")
+    math = baker.make("libraries.Library", name="Math", tier=Tier.FLAGSHIP)
+    _add_commits(user, zlib, 3)
+    _add_commits(user, asio, 5)  # most active library must not lead the list
+    _add_commits(user, math, 1)
+    assert user.get_contributor_data()["Contributor"] == ["Math", "Asio", "Zlib"]
+
+
+def test_contributor_data_cache_key_is_versioned():
+    """The cache key must change whenever get_contributor_data's shape or
+    ordering does, or a still-warm entry from before the change keeps
+    serving its old order until the next library import (issue #2651).
+    """
+    from users.models import CONTRIBUTOR_DATA_CACHE_PREFIX
+
+    assert CONTRIBUTOR_DATA_CACHE_PREFIX != "contributor_data_"
 
 
 def test_contributor_data_served_from_cache(user, library, other_library):
