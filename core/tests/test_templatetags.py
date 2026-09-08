@@ -2,7 +2,7 @@ import json
 from datetime import date, timedelta
 
 from ..templatetags.date_filters import years_since
-from ..templatetags.number_filters import k_count
+from ..templatetags.number_filters import compact_number, k_count
 from ..templatetags.text_helpers import to_json
 
 
@@ -62,3 +62,38 @@ def test_k_count_leaves_wider_numbers_alone():
 
 def test_k_count_still_uses_the_k_dimension():
     assert [k_count(n) for n in (1000, 5500, 10000)] == ["1K", "5.5K", "10K"]
+
+
+def test_k_count_rounds_five_digit_counts_to_whole_thousands():
+    """A decimal makes five digits too wide for the counter, so it is dropped."""
+    assert [k_count(n) for n in (29200, 29500, 29999)] == ["29K", "30K", "30K"]
+
+
+def test_k_count_rounds_half_up():
+    """Not half to even, which would make 28500 round down while 29500 rounds up."""
+    assert [k_count(n) for n in (28500, 29500)] == ["29K", "30K"]
+
+
+def test_k_count_keeps_the_decimal_below_five_digits():
+    assert [k_count(n) for n in (1000, 5500, 9999)] == ["1K", "5.5K", "10K"]
+
+
+def test_compact_number_rounds_five_digit_counts_to_whole_thousands():
+    assert [compact_number(n) for n in (29200, 29500, 28500)] == ["29k", "30k", "29k"]
+
+
+def test_compact_number_leaves_the_other_dimensions_alone():
+    values = (999, 2300, 9999, 100000, 1500000)
+    assert [compact_number(n) for n in values] == [
+        "999",
+        "2.3k",
+        "10k",
+        "100k",
+        "1.5M",
+    ]
+
+
+def test_compact_number_rounds_six_digit_counts_too():
+    """The decimal is dropped from five digits up, not only at five."""
+    values = (101999, 191029, 101400, 101500)
+    assert [compact_number(n) for n in values] == ["102k", "191k", "101k", "102k"]
