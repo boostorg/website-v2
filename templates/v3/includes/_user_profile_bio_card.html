@@ -7,7 +7,9 @@
                                               Each role's library list clamps to 3 lines behind a "See more" toggle.
                                               The toggle is a hidden checkbox, so expanding works with JavaScript off.
                                               It starts hidden and Alpine reveals it only for a list that overflows,
-                                              so a list that already fits never shows one (issue #2651).
+                                              so a list that already fits never shows one (issue #2651). Overflow is
+                                              measured by unclamping the list for one synchronous read: a clamped box
+                                              drops the hidden lines from layout, so its scrollHeight does not report them.
         markdown:           str, optional   - markdown formatted text that appears in the body of the card. The card handles transforming the text. When empty, an empty state is shown instead.
         button_url:         str, optional   - url that the button should link to. If not provided, button is not shown
         button_label:       str, optional   - label for the optional cta button. If not provided, button is not shown.
@@ -21,8 +23,8 @@
     <ul class="card__column bio-card__contributions px-large">
       {% for role, libraries in contributor_data.items %}
         <li class="bio-card__contribution"
-            x-data="{ overflowing: false, measure() { const l = this.$refs.libraries; if (!this.$refs.expand.checked) this.overflowing = l.scrollHeight > l.clientHeight + 1 } }"
-            x-init="$nextTick(() => measure())"
+            x-data="{ overflowing: false, measure() { const l = this.$refs.libraries; if (this.$refs.expand.checked) return; const clamped = l.clientHeight; l.classList.add('bio-card__contributor_libraries--unclamped'); const full = l.clientHeight; l.classList.remove('bio-card__contributor_libraries--unclamped'); this.overflowing = full > clamped } }"
+            x-init="$nextTick(() => measure()); document.fonts.ready.then(() => measure())"
             @resize.window.debounce="measure()">
           <input type="checkbox"
                  id="bio-card-contribution-{{ forloop.counter }}"

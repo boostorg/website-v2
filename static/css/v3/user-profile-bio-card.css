@@ -46,7 +46,8 @@
     border: 0;
 }
 
-.bio-card__expand_input:checked ~ .bio-card__contributor_libraries {
+.bio-card__expand_input:checked ~ .bio-card__contributor_libraries,
+.bio-card__contributor_libraries--unclamped {
     display: block;
     overflow: visible;
     line-clamp: none;
