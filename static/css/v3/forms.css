@@ -857,6 +857,11 @@
   color: inherit;
 }
 
+/* `.field__file-display` centres its text for the inline control */
+.field__file-display--start {
+  text-align: left;
+}
+
 .field__input--file {
   position: absolute;
   inset: 0;

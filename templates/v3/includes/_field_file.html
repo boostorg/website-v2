@@ -84,9 +84,8 @@
         <span class="field__label">{{ edit_label|default:"Replace image" }}</span>
         <button type="button" class="field__control field__control--file field__image-menu-file" x-ref="chooseFile"
           x-on:click="$refs.fileInput.click()">
-          <span class="field__file-display">
-            <span x-show="!fileName" class="field__file-placeholder">Choose File</span>
-            <span x-show="fileName" x-cloak class="field__file-name" x-text="fileName"></span>
+          <span class="field__file-display field__file-display--start">
+            <span class="field__file-placeholder">Choose File</span>
           </span>
         </button>
         {% if help_text %}<p class="field__help">{{ help_text }}</p>{% endif %}

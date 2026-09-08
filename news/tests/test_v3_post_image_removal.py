@@ -86,6 +86,12 @@ def submit(tp, page, **overrides):
     return tp.post("v3-news-edit", slug=page.slug, data=data)
 
 
+def replace_menu(content):
+    """The markup of the Replace popover alone."""
+    start = content.index('id="field-image-replace-menu"')
+    return content[start : content.index("</div>", start)]
+
+
 def latest_image(page):
     # `latest_revision` is an FK cached on the instance, so the revision the
     # POST just created is only visible after a refetch.
@@ -156,3 +162,34 @@ class TestRemoveImage:
         # Each trigger is wired to the popover it controls.
         assert 'aria-controls="field-image-replace-menu"' in content
         assert 'aria-controls="field-image-remove-menu"' in content
+
+    def test_the_replace_popover_always_prompts_for_a_file(self, tp, post, user):
+        """It must not echo the current file name back — it asks for a new one."""
+        with tp.login(user):
+            response = tp.get("v3-news-edit", slug=post.slug)
+
+        menu = replace_menu(response.content.decode())
+        assert "Choose File" in menu
+        assert "fileName" not in menu
+
+
+class TestCreatePage:
+    """The create page shares this field, and shows the popovers once a file is
+    picked client-side — which is where the prompt regressed."""
+
+    def test_the_field_carries_the_controls_before_any_image(self, tp, user):
+        with tp.login(user):
+            response = tp.get("v3-news-create")
+
+        content = response.content.decode()
+        assert 'aria-label="Replace image"' in content
+        assert 'aria-label="Remove image"' in content
+        assert 'name="remove_image"' in content
+
+    def test_the_replace_popover_always_prompts_for_a_file(self, tp, user):
+        with tp.login(user):
+            response = tp.get("v3-news-create")
+
+        menu = replace_menu(response.content.decode())
+        assert "Choose File" in menu
+        assert "fileName" not in menu
