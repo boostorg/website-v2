@@ -275,3 +275,6 @@ def test_release_tasks_delegates_the_backfill_to_the_command(mock_call):
     # Tagged, so the sync log can tell the weekly job from a person pressing a
     # button when support asks what moved a member's count.
     assert sweeps[0].handler == ["backfill_achievements", "--trigger", "pipeline"]
+    # Must run last: every other Action's source data has to be refreshed
+    # before the sweep reads it. A future reorder should fail this test.
+    assert manager.tasks[-1] is sweeps[0]
