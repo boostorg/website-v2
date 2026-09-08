@@ -24,17 +24,26 @@
 /* === Hero === */
 
 .library-page-hero {
-    margin-top: var(--space-xl);
-    margin-bottom: var(--space-xl);
+    /* The desktop rule cancels the top margin exactly; keep the two in step. */
+    --hero-outer-gap: var(--space-large);
+
+    margin-top: var(--hero-outer-gap);
+    margin-bottom: var(--hero-outer-gap);
     position: relative;
     display: grid;
     grid-template-columns: fit-content(574px) 1fr fit-content(40%);
-    gap: var(--space-xl);
+    column-gap: var(--space-xl);
+    row-gap: var(--space-large);
     align-items: center;
     grid-template-areas:
         "a . c"
         "b . c"
     ;
+    /* Rows pinned to content. Left auto, an illustration in column c taller than
+       the title and search stack spreads its surplus over both rows and forces
+       them apart. */
+    grid-template-rows: min-content min-content;
+    align-content: center;
 }
 
 .library-page-hero .hero-search-bar {
@@ -46,10 +55,33 @@
     grid-area: c;
 }
 
+/* The art runs on a diagonal rather than filling its frame, so it needs more height
+   than a centred mascot to read at the same size. 250 is the design minimum. */
 .library-page-hero .hero-image,
 .library-page-hero .hero-image img {
-    height: 160px;
+    height: 250px;
     width: auto;
+}
+
+/* Desktop: keep the band as tall as its text and let the art overhang instead.
+   `height: 0` takes the container out of row sizing, `align-self: start` sends the
+   overhang downward rather than up into the header, and the negative margin lifts
+   it flush under whatever precedes the hero. The container still occupies column c,
+   so it keeps its width and cannot ride over the title. */
+@media (min-width: 1280px) {
+    .library-page-hero .hero-image-container {
+        align-self: start;
+        height: 0;
+        margin-top: calc(var(--hero-outer-gap) * -1);
+        /* Holds the overhang clear of the Master/Develop buttons at the end of the
+           filter row, which it otherwise covers. Not cosmetic. */
+        margin-right: calc(var(--space-xxl) + var(--space-xl));
+    }
+
+    .library-page-hero .hero-image,
+    .library-page-hero .hero-image img {
+        height: 270px;
+    }
 }
 
 .library-page-hero .hero-image-dark {
@@ -202,14 +234,20 @@ html.dark .library-page-hero .hero-image-dark {
         width: 100%;
     }
 
+    /* No illustration on mobile: nothing for it to sit against, and stacked it
+       pushed the search field below the fold. Area "c" leaves the template as well
+       as the container being hidden, so the stack keeps no dead row. */
     .library-page-hero {
         grid-template-areas:
-            "c"
             "a"
             "b"
         ;
         grid-template-columns: 100%;
         justify-items: start;
+    }
+
+    .library-page-hero .hero-image-container {
+        display: none;
     }
 
     .library-page__container {
