@@ -801,7 +801,7 @@ class CustomEmailVerificationSentView(V3AuthContextMixin, EmailVerificationSentV
     def get_v3_context_data(self, **kwargs):
         ctx = super().get_v3_context_data(**kwargs)
         ctx["background_image_url"] = large_static(
-            "img/v3/auth-page/learn-learn-how-to 1.png"
+            "img/v3/auth-page/learn-learn-how-to.png"
         )
         ctx["foreground_image_url"] = ""
         return ctx
