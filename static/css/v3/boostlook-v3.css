@@ -480,8 +480,9 @@
     --leftbar-paddings-leftbar-padding-2xs: var(--spacing-size-2xs);
     --leftbar-paddings-leftbar-padding-3xs: var(--spacing-size-3xs);
     --padding-padding-md: var(--spacing-size-md);
-    --main-margin: 0rem;
+    --main-margin: var(--spacing-size-xl);
     --main-max-width-leftbar: 18.25rem;
+    --main-content-width: 100%;
     --icons-24: 1.5rem;
     --icons-20: 1.25rem;
     --icons-16: 1rem;
@@ -3877,7 +3878,7 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
 /* Responsive Design */
 @media screen and (min-width: 768px) {
   .article.toc2.toc-left:has(.boostlook) {
-    padding: 0 var(--spacing-size-lg, 1.5rem);
+    padding: 0 !important;
   }
 
   .boostlook #toggle-toc {
