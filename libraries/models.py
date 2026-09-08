@@ -833,16 +833,6 @@ class LibraryVersion(models.Model):
         return f"{self.library.github_url}/tree/{self.version.name}"
 
     @cached_property
-    def library_detail_url_for_version(self):
-        return reverse(
-            "library-detail",
-            kwargs={
-                "version_slug": self.version.slug,
-                "library_slug": self.library.slug,
-            },
-        )
-
-    @cached_property
     def author_details(self):
         author = self.authors.first()
         return {
