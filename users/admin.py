@@ -94,6 +94,10 @@ class EmailUserAdmin(UserAdmin):
                 )
             },
         ),
+        (
+            _("Privacy"),
+            {"fields": ("hide_mailing_list_activity",)},
+        ),
         (_("Badges"), {"fields": ("badge_summary",)}),
         (
             _("Permissions"),

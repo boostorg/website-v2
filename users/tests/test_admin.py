@@ -187,3 +187,14 @@ def test_admin_save_mints_for_a_user_with_no_key():
     save_in_admin(user)
 
     assert user.profile_routing_keys.get().routing_key.startswith("jane-doe-")
+
+
+def test_change_form_exposes_hide_mailing_list_activity(client, super_user, user):
+    """Staff need to read back the member's own mailing list opt-out here."""
+    client.force_login(super_user)
+
+    html = client.get(
+        reverse("admin:users_user_change", args=[user.pk])
+    ).content.decode()
+
+    assert 'name="hide_mailing_list_activity"' in html
