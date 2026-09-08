@@ -142,3 +142,17 @@ class TestRemoveImage:
         assert 'name="remove_image"' in content
         # The preview hands its click target to the Replace control.
         assert 'aria-label="Change file"' not in content
+
+    def test_the_controls_open_confirmation_popovers(self, tp, post, user):
+        with tp.login(user):
+            response = tp.get("v3-news-edit", slug=post.slug)
+
+        content = response.content.decode()
+        assert 'id="field-image-replace-menu"' in content
+        assert 'id="field-image-remove-menu"' in content
+        assert "Are you sure you want to remove the image?" in content
+        assert ">Cancel</button>" in content
+        assert ">Remove</button>" in content
+        # Each trigger is wired to the popover it controls.
+        assert 'aria-controls="field-image-replace-menu"' in content
+        assert 'aria-controls="field-image-remove-menu"' in content
