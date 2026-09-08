@@ -480,43 +480,6 @@ class MarkdownTemplateView(TemplateView):
         return self.render_to_response(context)
 
 
-class LegalPageView(V3Mixin, MarkdownTemplateView):
-    """Legal page: Wagtail-backed v3 template when the v3 flag is active, else markdown.
-
-    MarkdownTemplateView.get() builds its own context and never calls
-    get_context_data(), so it bypasses V3Mixin's v3 context injection. Route
-    the v3-active path through the standard TemplateView pipeline instead.
-
-    SWITCHOVER TODO: this view is a temporary bridge. It manually fetches the
-    LegalPage by slug so we can keep the pre-v3 markdown fallback while the v3
-    flag rolls out. Once v3 is the default, delete this view and let Wagtail's
-    router serve the page directly (see config/urls.py legal routes).
-    """
-
-    v3_template_name = "v3/legal_page.html"
-    legal_slug = None
-
-    def get(self, request, *args, **kwargs):
-        if getattr(self, "_v3_active", False):
-            return self.render_to_response(self.get_context_data(**kwargs))
-        return super().get(request, *args, **kwargs)
-
-    def get_v3_context_data(self, **kwargs):
-        from pages.models import LegalPage
-
-        context = super().get_v3_context_data(**kwargs)
-        context["page"] = LegalPage.objects.live().filter(slug=self.legal_slug).first()
-        return context
-
-
-class TermsOfUseView(LegalPageView):
-    legal_slug = "terms-of-use"
-
-
-class PrivacyPolicyView(LegalPageView):
-    legal_slug = "privacy"
-
-
 class LearnPageView(MailingListCardMixin, V3Mixin, TemplateView):
     v3_template_name = "v3/learn_page.html"
 

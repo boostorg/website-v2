@@ -30,8 +30,6 @@ from core.views import (
     ImageView,
     LearnPageView,
     MarkdownTemplateView,
-    TermsOfUseView,
-    PrivacyPolicyView,
     ModernizedDocsView,
     RedirectToDocsView,
     RedirectToHTMLDocsView,
@@ -339,23 +337,6 @@ urlpatterns = (
             ),
             name="boost-people",
         ),
-        # SWITCHOVER TODO: once the v3 flag is the default, remove the two legal
-        # views (core.views.LegalPageView) and hand these URLs to Wagtail's
-        # router so the LegalPage serves itself:
-        #   path("privacy/", include(wagtail_urls)),
-        #   path("terms-of-use/", include(wagtail_urls)),
-        path(
-            "privacy/",
-            PrivacyPolicyView.as_view(),
-            name="privacy",
-            kwargs={"markdown_local": "privacy-policy"},
-        ),
-        path(
-            "terms-of-use/",
-            TermsOfUseView.as_view(),
-            name="terms-of-use",
-            kwargs={"markdown_local": "terms-of-use"},
-        ),
         path(
             "moderators/",
             TemplateView.as_view(
@@ -495,7 +476,7 @@ urlpatterns = (
         ),
         # Static content (exclude Wagtail paths)
         re_path(
-            r"^(?!__debug__|outreach/|testimonials/|news/)(?P<content_path>.+)/?",
+            r"^(?!__debug__|outreach/|testimonials/|news/|terms-of-use/|privacy/)(?P<content_path>.+)/?",
             StaticContentTemplateView.as_view(),
             name="static-content-page",
         ),

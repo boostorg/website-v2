@@ -248,6 +248,18 @@ def header_context(request):
     }
 
 
+def footer_context(request):
+    """Context Processor for footer page links."""
+    from core.models import LegalPageSettings
+
+    legal_page_settings = LegalPageSettings.load(request_or_site=request)
+
+    return {
+        "tou_page": legal_page_settings.terms_of_use_page,
+        "privacy_page": legal_page_settings.privacy_policy_page,
+    }
+
+
 def debug(request):
     """
     Adds settings.DEBUG to the context.
