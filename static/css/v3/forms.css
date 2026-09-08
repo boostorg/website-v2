@@ -759,6 +759,56 @@
   object-fit: cover;
 }
 
+/* Overlaid Replace/Remove controls, which take the preview's own click target */
+.field__image-preview-wrapper--actions {
+  position: relative;
+  cursor: default;
+}
+
+.field__image-actions {
+  position: absolute;
+  top: var(--space-medium, 12px);
+  right: var(--space-medium, 12px);
+  display: flex;
+  gap: var(--space-default, 8px);
+}
+
+.field__image-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 var(--space-large, 16px);
+  background-color: var(--color-surface-weak, #fff);
+  border: 1px solid var(--color-stroke-weak, #0508161a);
+  border-radius: var(--border-radius-xl, 12px);
+  color: var(--color-text-primary, #050816);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.field__image-action:hover {
+  border-color: var(--color-stroke-link-accent);
+  color: var(--color-text-link-accent);
+}
+
+.field__image-action:focus-visible {
+  outline: 2px solid var(--color-stroke-link-accent, #1f3044);
+  outline-offset: 2px;
+}
+
+.field__image-action--remove,
+.field__image-action--remove:hover {
+  background-color: var(--color-surface-error-weak, #fdf2f2);
+  color: var(--color-text-error, #d32f2f);
+}
+
+.field__image-action--remove:hover {
+  border-color: var(--color-error-strong);
+}
+
 .field__input--file {
   position: absolute;
   inset: 0;
