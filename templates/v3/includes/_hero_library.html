@@ -6,6 +6,9 @@
   Variables:
     title              (optional) — Library name.
     description        (optional) — Short description.
+    expandable_description (optional) — Boolean. Clamps the description to 3 lines behind a
+                         "See more"/"See less" toggle, for pages whose description is unbounded
+                         (library subpages).
     category_tags      (optional) — List of dicts with "label" and "url". Omit to hide tag chips.
     version_tag        (optional) — e.g. "C++ 03". Omit to hide.
     first_boost_version (optional) — Version display name only, e.g. "1.66.0" (rendered as "Added in {version}"). Omit to hide.
@@ -60,7 +63,34 @@
           <h1 class="hero__title{% if is_flagship_lib %} hero__title--flagship{% endif %}" style="margin-bottom: 0;">{{ title }}</h1>
           {% endif %}
           {% if description %}
-          <p class="hero__description">{{ description }}</p>
+            {% if expandable_description %}
+            <div class="hero__description-block"
+                 x-data="{ overflowing: false, measure() { const d = this.$refs.description; if (this.$refs.expand.checked) return; const clamped = d.clientHeight; d.classList.add('hero__description--unclamped'); const full = d.clientHeight; d.classList.remove('hero__description--unclamped'); this.overflowing = full > clamped } }"
+                 x-init="$nextTick(() => measure()); document.fonts.ready.then(() => measure())"
+                 @resize.window.debounce="measure()">
+              <input type="checkbox"
+                     id="hero-description-expand"
+                     class="hero__description-input"
+                     x-ref="expand"
+                     aria-label="Show the full description">
+              <p class="hero__description hero__description--clamped" x-ref="description">{{ description }}</p>
+              <label class="hero__description-toggle" for="hero-description-expand" x-show="overflowing" x-cloak>
+                <span class="hero__description-toggle-more">See more</span>
+                <span class="hero__description-toggle-less">See less</span>
+              </label>
+            </div>
+            {% comment %} No-JS fallback: the toggle is hidden until Alpine measures the
+            description, so without JS nothing would ever reveal it and a clamped
+            description would be unreachable. Show it instead: expanding a description
+            that already fits is a no-op, and a clamped one stays openable. {% endcomment %}
+            <noscript>
+              <style>
+                .hero__description-toggle[x-cloak] { display: inline-block; }
+              </style>
+            </noscript>
+            {% else %}
+            <p class="hero__description">{{ description }}</p>
+            {% endif %}
           {% endif %}
         </div>
       </div>

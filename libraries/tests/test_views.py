@@ -7,11 +7,7 @@ from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from model_bakery import baker
 
-from ..constants import (
-    LIBRARY_DESCRIPTION_MAX_CHARS,
-    README_MISSING,
-    SELECTED_LIBRARY_VIEW_COOKIE_NAME,
-)
+from ..constants import README_MISSING, SELECTED_LIBRARY_VIEW_COOKIE_NAME
 from ..models import Library
 from ..utils import benchmark_sets, designed_for_html
 from ..views import LibraryListBase, _build_quick_start_links, _is_boost_url
@@ -271,11 +267,11 @@ def test_library_detail(library_version, tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_library_detail_caps_a_long_description(library_version, tp):
-    """A long description is capped so the hero cannot grow into the cards below.
+def test_library_detail_passes_a_long_description_through_in_full(library_version, tp):
+    """A long description is no longer truncated (issue #2766).
 
-    The cap is on the rendered value rather than the model, so the full text is
-    still available to anything else that wants it.
+    The hero clamps it to three lines and reveals the rest behind a "See more"
+    toggle, so the full text has to reach the template.
     """
     library_version.description = "word " * 200
     library_version.save()
@@ -284,15 +280,13 @@ def test_library_detail_caps_a_long_description(library_version, tp):
     response = tp.get(url)
 
     tp.response_200(response)
-    rendered = response.context["hero_description"]
-    assert len(rendered) <= LIBRARY_DESCRIPTION_MAX_CHARS
-    assert rendered.endswith("\u2026")
-    assert len(library_version.description) > LIBRARY_DESCRIPTION_MAX_CHARS
+    assert response.context["hero_description"] == library_version.description
+    assert b"hero__description-toggle" in response.content
 
 
 @waffle.testutils.override_flag("v3", active=True)
 def test_library_detail_leaves_a_short_description_alone(library_version, tp):
-    """Anything already inside the cap passes through without an ellipsis."""
+    """A short description reaches the hero unchanged."""
     library_version.description = "Short and sweet."
     library_version.save()
     url = tp.reverse("library-detail", "latest", library_version.library.slug)
