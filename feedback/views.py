@@ -16,6 +16,7 @@ from feedback.diagnostics import (
     page_context,
     recent_server_errors,
 )
+from feedback.identity import submitter_key
 from feedback.models import (
     MESSAGE_MAX_LENGTH,
     PAGE_URL_MAX_LENGTH,
@@ -42,15 +43,18 @@ def wants_json(request):
 
 
 def is_rate_limited(request):
-    """Cache-backed so it holds for clients that discard cookies, unlike a session gate.
+    """Count this submission against its submitter, member or anonymous.
 
     Fails open. The cache is Redis, which raises when it is unreachable, and losing
     a report is a worse outcome than letting a runaway client through: sessions live
     in the database, so members stay signed in through a Redis outage and would hit
     this on the very page they were trying to report from.
     """
-    key = f"feedback_rate:user:{request.user.pk}"
     try:
+        identifier = submitter_key(request)
+        if identifier is None:
+            return False
+        key = f"feedback_rate:{identifier}"
         cache.add(key, 0, timeout=RATE_WINDOW)
         return cache.incr(key) > RATE_LIMIT
     except Exception:
@@ -119,7 +123,7 @@ class FeedbackView(View):
         feedback.diagnostics = {
             **clean_client_diagnostics(request.POST.get("diagnostics", "")),
             "view_name": context["view_name"],
-            **recent_server_errors(request.user),
+            **recent_server_errors(request),
         }
         feedback.save()
 
