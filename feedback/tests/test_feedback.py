@@ -66,7 +66,7 @@ def beta_flags():
 
 @pytest.fixture(autouse=True)
 def signed_in(client, user):
-    """Every path requires an account; the signed-out tests use their own client."""
+    """Most paths are exercised signed in; the anonymous tests use their own client."""
     client.force_login(user)
     return user
 
@@ -91,25 +91,25 @@ def test_the_endpoint_is_closed_when_the_beta_is_off(client, url, payload, flag)
     assert not Feedback.objects.exists()
 
 
-def test_a_closed_endpoint_does_not_redirect_to_log_in(url):
-    """Flags are checked before auth, so a closed route is not advertised."""
+def test_a_closed_endpoint_is_not_advertised_to_signed_out_visitors(url):
+    """The flag closes the route for everyone, not only for members."""
     with waffle.testutils.override_flag("beta_feedback", active=False):
         assert Client().get(url).status_code == 404
 
 
-def test_signed_out_submission_is_refused(url, payload):
-    """Beta access is gated on an account, so there is no anonymous path."""
+def test_signed_out_submission_is_accepted_without_a_user(url, payload):
+    """The pages being reported on are public, so reporting on them is too."""
     response = Client().post(url, payload, headers=XHR)
 
-    assert response.status_code == 401
-    assert not Feedback.objects.exists()
+    assert response.status_code == 200
+    assert Feedback.objects.get().user is None
 
 
-def test_signed_out_visitor_is_sent_to_log_in(url):
+def test_signed_out_visitor_gets_the_standalone_form(url):
     response = Client().get(url)
 
-    assert response.status_code == 302
-    assert response.url.startswith("/accounts/login/")
+    assert response.status_code == 200
+    assert 'class="feedback-page__form"' in response.content.decode()
 
 
 def test_screenshot_is_stored_with_the_feedback(client, url, payload):
@@ -353,6 +353,18 @@ def test_widget_renders_with_a_working_no_js_launcher(rf, user):
     assert "a-test-token" in html, "the tag must forward csrf_token into the widget"
     assert 'enctype="multipart/form-data"' in html
     assert 'name="image"' in html
+
+
+def test_widget_renders_for_a_signed_out_visitor(rf):
+    """The launcher is site-wide now, so it must render without an account."""
+    request = rf.get("/libraries/")
+    request.user = AnonymousUser()
+
+    html = Template("{% load feedback_tags %}{% feedback_widget %}").render(
+        Context({"request": request, "csrf_token": "a-test-token"})
+    )
+
+    assert 'class="feedback-widget"' in html
 
 
 def test_widget_is_suppressed_on_the_standalone_form(client, url):
