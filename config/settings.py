@@ -191,6 +191,7 @@ TEMPLATES = [
                 "core.context_processors.selected_version",
                 "core.context_processors.active_nav_item",
                 "core.context_processors.header_context",
+                "core.context_processors.footer_context",
                 "core.context_processors.debug",
             ],
             "loaders": [

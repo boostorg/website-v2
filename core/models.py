@@ -211,6 +211,43 @@ class HomepageSettings(BaseGenericSetting):
         verbose_name = "Homepage Settings"
 
 
+@register_setting
+class LegalPageSettings(BaseGenericSetting):
+    """Configurable selection for Privacy Policy and Terms of Use Pages on a site wide configuration"""
+
+    terms_of_use_page = models.ForeignKey(
+        "pages.LegalPage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text=(
+            "Legal Page that presents the Terms of Use for the site. Used on sign up"
+            " and in the footer on every page."
+        ),
+    )
+
+    privacy_policy_page = models.ForeignKey(
+        "pages.LegalPage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text=(
+            "Legal Page that presents the Privacy Policy for the site. Used in"
+            " the footer on every page."
+        ),
+    )
+
+    panels = [
+        "terms_of_use_page",
+        "privacy_policy_page",
+    ]
+
+    class Meta:
+        verbose_name = "LegalPage Settings"
+
+
 class PopularSearchTerm(models.Model):
     """Top popular Algolia search terms, refreshed weekly by Celery.
 

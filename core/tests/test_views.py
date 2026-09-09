@@ -261,18 +261,6 @@ def test_markdown_view_nested_three_levels(tp):
     tp.response_200(res)
 
 
-def test_privacy_policy(db, tp):
-    """Test the privacy policy view"""
-    response = tp.get("privacy")
-    tp.response_200(response)
-
-
-def test_terms_of_use(db, tp):
-    """Test the terms of use view"""
-    response = tp.get("terms-of-use")
-    tp.response_200(response)
-
-
 def test_docs_libs_gateway_404(tp, mock_get_file_data):
     mock_get_file_data("<html></html>", "a-url")
 

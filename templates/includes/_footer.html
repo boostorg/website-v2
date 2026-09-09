@@ -81,8 +81,8 @@
   <div class="footer-container">
     <div class="links">
       <a href="https://lists.boost.org/mailman3/lists/boost-users.lists.boost.org/">Contact</a>
-      <a href="{% url 'privacy' %}">Privacy Policy</a>
-      <a href="{% url 'terms-of-use' %}">Terms of Use</a>
+      <a href="{{privacy_page.url}}">Privacy Policy</a>
+      <a href="{{tou_page.url}}">Terms of Use</a>
       <a href="/doc/user-guide/reporting-issues.html">Report Bug</a>
       <div class="link-icons">
         {% include "includes/_social_icon_links.html" %}

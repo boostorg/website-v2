@@ -64,7 +64,7 @@
           <span class="checkbox__box" aria-hidden="true">
             {% include "includes/icon.html" with icon_name="check" icon_class="checkbox__check" %}
           </span>
-          <span class="checkbox__label">I have read and accepted the <a href="{% url 'terms-of-use' %}">Terms of Use</a> for this service</span>
+          <span class="checkbox__label">I have read and accepted the <a href="{{tou_page.url}}">Terms of Use</a> for this service</span>
     </label>
     {% if redirect_field_value %}
       <input type="hidden"
