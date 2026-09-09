@@ -43,9 +43,11 @@
         {% include "v3/includes/_quick_start_card.html" with heading="Quick Start" links=quick_start_links %}
       </div>
 
+      {% if dependencies_list %}
       <div class="item-e">
         {% include "v3/includes/_dependencies_card.html" with dependencies=dependencies_list %}
       </div>
+      {% endif %}
 
       {% if website_adoc.designed_for %}
       <div class="item-f">
