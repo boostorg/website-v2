@@ -1,0 +1,21 @@
+{% autoescape off %}New on Boost
+
+A new {{ entry.tag }} entry was just posted.
+
+------------------------------------------------------------
+{{ entry.title }}
+
+{{ entry.content|striptags|truncatewords:50 }}
+------------------------------------------------------------
+
+Read the post:
+{{ action_url }}
+
+Thank you, the Boost news team.
+
+--
+Boost.org is supported by grants from The C++ Alliance.
+{% if preferences_url %}
+Want to change how you receive these emails?
+Update your notification preferences: {{ preferences_url }}
+{% endif %}{% endautoescape %}

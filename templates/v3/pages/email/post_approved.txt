@@ -1,0 +1,21 @@
+{% autoescape off %}Your post was approved
+
+Hi {{ page.author.display_name|default:"there" }},
+
+Congratulations! The {{ page.post_content_type|lower }} you submitted on
+{{ page.created_at|date:"M jS, Y" }} has been approved and is now live.
+
+------------------------------------------------------------
+{{ page.title }}
+
+{{ page.summary|default:page.search_body|truncatewords:50 }}
+------------------------------------------------------------
+
+View your post:
+{{ action_url }}
+
+Thank you, the Boost moderator team.
+
+--
+Boost.org is supported by grants from The C++ Alliance.
+{% endautoescape %}

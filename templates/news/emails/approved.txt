@@ -1,0 +1,24 @@
+{% autoescape off %}Your post was approved
+
+Hi {{ entry.author.display_name|default:"there" }},
+
+Congratulations! The {{ entry.tag }} entry you submitted on
+{{ entry.created_at|date:"M jS, Y" }} has been approved and is now live.
+
+------------------------------------------------------------
+{{ entry.title }}
+
+{{ entry.content|striptags|truncatewords:50 }}
+------------------------------------------------------------
+
+View your post:
+{{ action_url }}
+
+Thank you, the Boost moderator team.
+
+--
+Boost.org is supported by grants from The C++ Alliance.
+{% if preferences_url %}
+Want to change how you receive these emails?
+Update your notification preferences: {{ preferences_url }}
+{% endif %}{% endautoescape %}

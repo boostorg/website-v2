@@ -4,6 +4,7 @@
 from datetime import timedelta
 from urllib.parse import quote, urlsplit
 
+from allauth.account import app_settings as allauth_account_settings
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.utils import build_absolute_uri
 from django.conf import settings
@@ -103,6 +104,25 @@ class AccountAdapter(DefaultAccountAdapter):
         parts = urlsplit(build_absolute_uri(self.request, "/"))
         context.setdefault("scheme", parts.scheme)
         context.setdefault("host", parts.netloc)
+        if template_prefix.startswith("account/email/email_confirmation"):
+            # allauth names the confirmation link activate_url; the branded
+            # template drives its CTA and fallback URL off action_url.
+            context.setdefault("action_url", context.get("activate_url"))
+            # Signup collects display_name, not first_name, so the greeting
+            # falls back to it before going anonymous.
+            user = context.get("user")
+            context.setdefault(
+                "first_name",
+                getattr(user, "first_name", "") or getattr(user, "display_name", ""),
+            )
+            context.setdefault(
+                "confirmation_link_lifetime",
+                humanize_link_lifetime(
+                    timedelta(
+                        days=allauth_account_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS
+                    )
+                ),
+            )
         if template_prefix == "account/email/unknown_account":
             # Sent when a password reset is requested for an address with no
             # account; the call site only provides a signup URL, so point the

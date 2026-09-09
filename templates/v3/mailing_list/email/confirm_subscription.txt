@@ -1,17 +1,21 @@
-Hi,
+Confirm your subscription
 
-You requested to subscribe {{ email }} to the following Boost mailing list{{ lists|length|pluralize }}:
+You asked to subscribe {{ email }} to the following Boost mailing list{{ lists|length|pluralize }}:
 {% for item in lists %}
 ------------------------------------------------------------
-{{ item.name }} — {{ item.address }}
+{{ item.name }} - {{ item.address }}
 {% if item.description %}
 {{ item.description }}
 {% endif %}{% endfor %}------------------------------------------------------------
 
-To confirm your subscription, click the link below:
+To confirm your subscription, visit the link below:
 
-  {{ confirm_url }}
+{{ action_url }}
 
 This link expires in {{ expiry_label }}.
 
-If you did not request this, you can safely ignore this email.
+If you didn't request this, you can safely ignore this email - nothing will
+be subscribed.
+
+--
+Boost.org is supported by grants from The C++ Alliance.
