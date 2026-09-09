@@ -922,30 +922,20 @@ html.dark .hero__links .btn-icon-library:hover {
   }
 }
 
-/* Flagship library, desktop. The shared scrim's stops are viewport percentages,
-   but the text column is a fixed 662px, so coverage moved with the window and the
-   description tail measured as low as 1.09:1 against the 3.0:1 its 24px type needs.
-   These stops are anchored to the block instead; `--o` is the block's left edge
-   once the 1440 cap starts centring it.
-   Alpha rises slightly left to right on purpose. The savanna brightens towards the
-   horizon, so a flat wash reads heavy over the dark scrub and weak under the text.
-   0.36-0.40 works only because the description is white here rather than the
-   grey-400 the shared rule gives it: 3.42:1 on the description and 3.56:1 on the
-   title, both measured in their own bands. With grey-400 it needs 0.52-0.56.
-   Ends at 900, past the art's leading edge (881 at 1440, 825 at 1280). The art
-   paints above this layer, so the overlap is hidden where the animal is opaque and
-   continuous in the gaps around it; alpha there is 0.17 at 1280, the widest case.
-   1280 rather than 768 because the tablet block below replaces the background for
-   the rest of the range. */
-/* White rather than the grey-400 the shared `.hero--with-bg-and-image` rule sets.
-   Grey on the wash is what forced the scrim dark: at grey-400 the description needs
-   alpha 0.52 to clear 3.0:1, at white it clears it at 0.36, so this one line buys a
-   third off the wash. `.hero--community` already does the same thing below. */
+/* Stops are anchored to the block, not the viewport: the text column is a fixed
+   662px, so percentage stops moved coverage with the window. `--o` is the block's
+   left edge once the 1440 cap starts centring it.
+   Alpha rises left to right on purpose, because the savanna brightens towards the
+   horizon. One gradient serves 768 up; the plateau reaches 550, past the end of the
+   description at every width in that range. */
+/* White rather than the grey-400 the shared rule sets. Grey is what forced the
+   scrim dark, so raising the alpha below without reverting this will not help.
+   `.hero--community` does the same. */
 .hero--library .hero__description {
   color: #fff;
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 768px) {
   .hero--library.hero--with-background-image::before {
     --o: max(0px, (100% - 1440px) / 2);
 
@@ -954,48 +944,20 @@ html.dark .hero__links .btn-icon-library:hover {
       rgba(0, 0, 0, 0.36) 0%,
       rgba(0, 0, 0, 0.36) var(--o),
       rgba(0, 0, 0, 0.38) calc(var(--o) + 320px),
-      rgba(0, 0, 0, 0.40) calc(var(--o) + 600px),
-      /* Smootherstep (6t^5 - 15t^4 + 10t^3) over a 300px zone. A seam is a slope
-         discontinuity, so the curve is picked for zero slope at both ends, and the
-         width holds the peak to 0.0024 alpha/px. Narrower zones showed a visible
-         line at 0.034, 0.012 and 0.0067. Judge changes by peak slope, not stops. */
-      rgba(0, 0, 0, 0.40) calc(var(--o) + 633px),
-      rgba(0, 0, 0, 0.37) calc(var(--o) + 667px),
-      rgba(0, 0, 0, 0.32) calc(var(--o) + 700px),
-      rgba(0, 0, 0, 0.24) calc(var(--o) + 733px),
-      rgba(0, 0, 0, 0.16) calc(var(--o) + 767px),
-      rgba(0, 0, 0, 0.08) calc(var(--o) + 800px),
-      rgba(0, 0, 0, 0.03) calc(var(--o) + 833px),
-      rgba(0, 0, 0, 0.01) calc(var(--o) + 867px),
-      rgba(0, 0, 0, 0) calc(var(--o) + 900px)
-    );
-  }
-}
-
-/* Flagship library, tablet: same shape, pulled in again. `contain` fits the
-   animal to the short 400px block, so it starts much further left here than on
-   desktop — 570 at 1024 against 881 at 1440 — and the desktop ramp would run
-   under it. Ends at 560 to stay off the art at 1024 while still covering the
-   capped text column, which ends at 456.
-   Below about 900 the two constraints cross: the description ends at 456 and the
-   art starts at 456, so no ramp both covers the text and clears the animal. This
-   keeps the text legible and lets the tail of the wash reach the art rather than
-   the reverse; closing that needs a narrower text column, which is a design call. */
-@media (min-width: 768px) and (max-width: 1279px) {
-  .hero--library.hero--with-background-image::before {
-    /* The animal is ~456 wide across this whole band (the block stays 400 tall),
-       so it starts at about `100% - 470`. Fade out there — but never tighter than
-       560, which is what the widest capped text column in the band needs. The
-       `max()` is which constraint wins: art clearance from 1024 up, text coverage
-       below it, where the two cross. */
-    --end: max(560px, calc(100% - 470px));
-
-    background: linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.72) 0%,
-      rgba(0, 0, 0, 0.62) calc(var(--end) - 260px),
-      rgba(0, 0, 0, 0.50) calc(var(--end) - 90px),
-      rgba(0, 0, 0, 0) var(--end)
+      rgba(0, 0, 0, 0.40) calc(var(--o) + 550px),
+      /* Smootherstep over 450px. A seam is a slope discontinuity, so the curve is
+         picked for zero slope at both ends. Judge changes by peak slope, not by
+         stop count; anything above ~0.003 alpha/px reads as a line. */
+      rgba(0, 0, 0, 0.40) calc(var(--o) + 591px),
+      rgba(0, 0, 0, 0.38) calc(var(--o) + 632px),
+      rgba(0, 0, 0, 0.35) calc(var(--o) + 673px),
+      rgba(0, 0, 0, 0.30) calc(var(--o) + 714px),
+      rgba(0, 0, 0, 0.23) calc(var(--o) + 755px),
+      rgba(0, 0, 0, 0.17) calc(var(--o) + 795px),
+      rgba(0, 0, 0, 0.10) calc(var(--o) + 836px),
+      rgba(0, 0, 0, 0.05) calc(var(--o) + 877px),
+      rgba(0, 0, 0, 0.02) calc(var(--o) + 918px),
+      rgba(0, 0, 0, 0) calc(var(--o) + 959px)
     );
   }
 }
@@ -1038,16 +1000,14 @@ html.dark .hero__links .btn-icon-library:hover {
 /* Flagship library, mobile: below 768px the block turns into a column — text on
    top, animal stacked under — so every line runs the full width and falls past the
    end of the left-to-right scrim, taking the description to ~1.4:1 over open sky.
-   Same answer as `.hero--home` above: darken the top edge instead of the left.
-   Stronger than home's 0.5 because this text sits lower, where home's gradient has
-   decayed to ~0.3. Out by 60% so the ground still reads as painted; the animal
-   paints above this layer either way. */
+   Same answer as `.hero--home` above, at the same 0.5: darken the top edge rather
+   than the left. Out by 60% so the ground still reads as painted. */
 @media (max-width: 767px) {
   .hero--library.hero--with-background-image::before {
     background: linear-gradient(
       180deg,
-      rgba(0, 0, 0, 0.68) 0%,
-      rgba(0, 0, 0, 0.61) 44%,
+      rgba(0, 0, 0, 0.50) 0%,
+      rgba(0, 0, 0, 0.45) 44%,
       rgba(0, 0, 0, 0) 60%
     );
   }
