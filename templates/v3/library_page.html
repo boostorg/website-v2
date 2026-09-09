@@ -17,10 +17,18 @@ Inputs:
   <script src="{% static 'js/v3/fuse.min.js' %}" defer></script>
   <noscript>
     <style>
-      .hero-search-bar,
       .library-filter__clear-all,
       .library-filter__field:not(:has(select[name="view"])) {
         display: none !important;
+      }
+      /* The search bar keeps its space rather than being removed. It is one of the
+         hero's two grid rows, and the desktop rule hangs the illustration off the
+         top of that band assuming both rows are there: collapse the row and the
+         overhang runs into the table below, shrink the art to suit and it drops
+         under the 250 minimum. Reserving the row leaves the hero identical to the
+         scripted layout, which is what the no-JS page should look like. */
+      .hero-search-bar {
+        visibility: hidden !important;
       }
       .library-item-list[x-cloak],
       .library-item-card-grid[x-cloak] {
