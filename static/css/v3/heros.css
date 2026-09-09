@@ -922,35 +922,52 @@ html.dark .hero__links .btn-icon-library:hover {
   }
 }
 
-/* Flagship library, 768px up: the shared scrim's stops are percentages of the
-   viewport, but the text column is a fixed 662px, so how much of it gets covered
-   moves with the window — the description tail measured 1.09:1 at 1024 and 1.63:1
-   against the 3.0:1 its 24px type needs. Anchor the stops to the block instead;
-   `--o` is the block's left edge once the 1440 cap starts centring it.
-   Ends at 800 so the wash stays off the illustration, which starts at 881 at 1440
-   and 825 at 1279 (measured as the leftmost painted pixel, not the frame edge).
-   The taper is steep rather than long for the same reason: the description runs to
-   648, so the alpha has to hold that far and then clear the art within 150px.
-   Holds 3.2:1 or better on the description everywhere from 1279 up. */
-@media (min-width: 768px) {
+/* Flagship library, desktop. The shared scrim's stops are viewport percentages,
+   but the text column is a fixed 662px, so coverage moved with the window and the
+   description tail measured as low as 1.09:1 against the 3.0:1 its 24px type needs.
+   These stops are anchored to the block instead; `--o` is the block's left edge
+   once the 1440 cap starts centring it.
+   Alpha rises slightly left to right on purpose. The savanna brightens towards the
+   horizon, so a flat wash reads heavy over the dark scrub and weak under the text.
+   0.36-0.40 works only because the description is white here rather than the
+   grey-400 the shared rule gives it: 3.42:1 on the description and 3.56:1 on the
+   title, both measured in their own bands. With grey-400 it needs 0.52-0.56.
+   Ends at 900, past the art's leading edge (881 at 1440, 825 at 1280). The art
+   paints above this layer, so the overlap is hidden where the animal is opaque and
+   continuous in the gaps around it; alpha there is 0.17 at 1280, the widest case.
+   1280 rather than 768 because the tablet block below replaces the background for
+   the rest of the range. */
+/* White rather than the grey-400 the shared `.hero--with-bg-and-image` rule sets.
+   Grey on the wash is what forced the scrim dark: at grey-400 the description needs
+   alpha 0.52 to clear 3.0:1, at white it clears it at 0.36, so this one line buys a
+   third off the wash. `.hero--community` already does the same thing below. */
+.hero--library .hero__description {
+  color: #fff;
+}
+
+@media (min-width: 1280px) {
   .hero--library.hero--with-background-image::before {
     --o: max(0px, (100% - 1440px) / 2);
 
     background: linear-gradient(
       90deg,
-      rgba(0, 0, 0, 0.72) 0%,
-      rgba(0, 0, 0, 0.72) var(--o),
-      rgba(0, 0, 0, 0.62) calc(var(--o) + 420px),
-      rgba(0, 0, 0, 0.50) calc(var(--o) + 680px),
-      /* Eased rather than linear to the end. A straight ramp ends in a slope
-         discontinuity, which the eye reads as a vertical seam (Mach band); these
-         stops approach zero asymptotically so the tail disappears instead. Same
-         endpoint and same alpha at the text, so contrast is unchanged. */
-      rgba(0, 0, 0, 0.30) calc(var(--o) + 716px),
-      rgba(0, 0, 0, 0.16) calc(var(--o) + 746px),
-      rgba(0, 0, 0, 0.07) calc(var(--o) + 770px),
-      rgba(0, 0, 0, 0.02) calc(var(--o) + 787px),
-      rgba(0, 0, 0, 0) calc(var(--o) + 800px)
+      rgba(0, 0, 0, 0.36) 0%,
+      rgba(0, 0, 0, 0.36) var(--o),
+      rgba(0, 0, 0, 0.38) calc(var(--o) + 320px),
+      rgba(0, 0, 0, 0.40) calc(var(--o) + 600px),
+      /* Smootherstep (6t^5 - 15t^4 + 10t^3) over a 300px zone. A seam is a slope
+         discontinuity, so the curve is picked for zero slope at both ends, and the
+         width holds the peak to 0.0024 alpha/px. Narrower zones showed a visible
+         line at 0.034, 0.012 and 0.0067. Judge changes by peak slope, not stops. */
+      rgba(0, 0, 0, 0.40) calc(var(--o) + 633px),
+      rgba(0, 0, 0, 0.37) calc(var(--o) + 667px),
+      rgba(0, 0, 0, 0.32) calc(var(--o) + 700px),
+      rgba(0, 0, 0, 0.24) calc(var(--o) + 733px),
+      rgba(0, 0, 0, 0.16) calc(var(--o) + 767px),
+      rgba(0, 0, 0, 0.08) calc(var(--o) + 800px),
+      rgba(0, 0, 0, 0.03) calc(var(--o) + 833px),
+      rgba(0, 0, 0, 0.01) calc(var(--o) + 867px),
+      rgba(0, 0, 0, 0) calc(var(--o) + 900px)
     );
   }
 }
