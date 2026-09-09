@@ -108,8 +108,10 @@ def test_signed_out_submission_is_accepted_without_a_user(url, payload):
 def test_signed_out_visitor_gets_the_standalone_form(url):
     response = Client().get(url)
 
+    content = response.content.decode()
     assert response.status_code == 200
-    assert 'class="feedback-page__form"' in response.content.decode()
+    assert 'class="feedback-page__form"' in content
+    assert 'name="contact_email"' in content, "the no-JS form needs the field too"
 
 
 def test_screenshot_is_stored_with_the_feedback(client, url, payload):
@@ -241,6 +243,63 @@ def test_anonymous_submitters_get_their_own_rate_limit_bucket(
 
     assert second.post(url, payload, headers=XHR).status_code == 200
     assert Feedback.objects.count() == 2
+
+
+def test_an_anonymous_submitter_can_leave_an_email(url, payload):
+    """The only way back to a submitter with no account."""
+    contact = "reporter@example.com"
+
+    response = Client().post(url, {**payload, "contact_email": contact}, headers=XHR)
+
+    assert response.status_code == 200
+    feedback = Feedback.objects.get()
+    assert feedback.contact_email == contact
+    assert feedback.reply_to == contact
+
+
+@pytest.mark.parametrize(
+    "contact,expected",
+    [
+        ("reporter@example.com", "Anonymous <reporter@example.com>"),
+        ("", "Anonymous"),
+    ],
+)
+def test_an_anonymous_row_names_its_contact_address(contact, expected):
+    """Triage reads who to answer off the changelist, without opening the row."""
+    assert Feedback(contact_email=contact).submitter == expected
+
+
+def test_the_email_is_optional_for_anonymous_submitters(url, payload):
+    """An address is a nicety; refusing the report without one would lose it."""
+    response = Client().post(url, payload, headers=XHR)
+
+    assert response.status_code == 200
+    assert Feedback.objects.get().contact_email == ""
+
+
+def test_an_unusable_email_is_rejected_rather_than_stored(url, payload):
+    """A malformed address is worse than none — it looks like a reply is possible."""
+    response = Client().post(
+        url, {**payload, "contact_email": "not-an-address"}, headers=XHR
+    )
+
+    assert response.status_code == 400
+    assert "contact_email" in response.json()["errors"]
+    assert not Feedback.objects.exists()
+
+
+def test_a_members_identity_is_used_without_asking_for_an_email(
+    client, url, payload, user
+):
+    """The field is not on a member's form, so a posted value cannot displace their account."""
+    response = client.post(
+        url, {**payload, "contact_email": "spoofed@example.com"}, headers=XHR
+    )
+
+    assert response.status_code == 200
+    feedback = Feedback.objects.get()
+    assert feedback.contact_email == ""
+    assert feedback.reply_to == user.email
 
 
 def test_a_rejected_no_js_submission_re_renders_the_message(client, url, payload):
@@ -399,6 +458,20 @@ def test_widget_renders_with_a_working_no_js_launcher(rf, user):
     assert "a-test-token" in html, "the tag must forward csrf_token into the widget"
     assert 'enctype="multipart/form-data"' in html
     assert 'name="image"' in html
+
+
+def test_the_email_field_is_offered_only_to_signed_out_visitors(rf, user):
+    """Asking a member for an address we already hold is noise on the form."""
+    request = rf.get("/libraries/")
+
+    def widget_html(as_user):
+        request.user = as_user
+        return Template("{% load feedback_tags %}{% feedback_widget %}").render(
+            Context({"request": request, "csrf_token": "a-test-token"})
+        )
+
+    assert 'name="contact_email"' in widget_html(AnonymousUser())
+    assert 'name="contact_email"' not in widget_html(user)
 
 
 def test_widget_renders_for_a_signed_out_visitor(rf):

@@ -76,6 +76,9 @@ class Feedback(models.Model):
         blank=True,
         default=None,
     )
+    # Optional, and only offered to anonymous submitters: a member is already
+    # reachable through the account on the row above.
+    contact_email = models.EmailField(blank=True, default="")
     # CharField, not URLField: URLValidator rejects single-label internal hosts.
     # The view enforces an http(s) scheme, which is what makes this safe to link.
     page_url = models.CharField(max_length=PAGE_URL_MAX_LENGTH, blank=True, default="")
@@ -113,7 +116,21 @@ class Feedback(models.Model):
 
     @property
     def submitter(self):
-        return str(self.user) if self.user else "Anonymous"
+        """Who sent this, in the `name <email>` form the user model already uses.
+
+        Carries the address so triage can identify a row from the changelist,
+        rather than needing a second column that only anonymous rows populate.
+        """
+        if self.user:
+            return str(self.user)
+        return (
+            f"Anonymous <{self.contact_email}>" if self.contact_email else "Anonymous"
+        )
+
+    @property
+    def reply_to(self):
+        """Where a reply would go, whichever way the submitter was identified."""
+        return self.user.email if self.user else self.contact_email
 
 
 @receiver(post_delete, sender=Feedback)
@@ -150,4 +167,14 @@ class FeedbackForm(forms.ModelForm):
 
     class Meta:
         model = Feedback
-        fields = ["feedback_type", "message", "image"]
+        fields = ["feedback_type", "message", "image", "contact_email"]
+
+    def __init__(self, *args, authenticated=False, **kwargs):
+        """Drop the contact field for members, whose account already identifies them.
+
+        Removed rather than hidden, so a posted value is ignored instead of
+        overwriting the address we would actually reply to.
+        """
+        super().__init__(*args, **kwargs)
+        if authenticated:
+            del self.fields["contact_email"]

@@ -15,7 +15,7 @@ class FeedbackResource(resources.ModelResource):
     status = fields.Field(column_name="Status", attribute="status")
     source = fields.Field(column_name="Source", attribute="source")
     submitter = fields.Field(column_name="Submitter", attribute="submitter")
-    email = fields.Field(column_name="Submitter email", attribute="user__email")
+    email = fields.Field(column_name="Submitter email", attribute="reply_to")
     message = fields.Field(column_name="Message", attribute="message")
     image = fields.Field(column_name="Screenshot", attribute="image")
     page_url = fields.Field(column_name="Page", attribute="page_url")
@@ -75,13 +75,14 @@ class FeedbackAdmin(ExportMixin, admin.ModelAdmin):
         "boost_version",
         "created_at",
     )
-    search_fields = ("message", "user__email", "page_url")
+    search_fields = ("message", "user__email", "contact_email", "page_url")
     date_hierarchy = "created_at"
     readonly_fields = (
         "feedback_type",
         "message",
         "image",
         "user",
+        "contact_email",
         "source",
         "page_url",
         "url_name",

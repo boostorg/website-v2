@@ -83,12 +83,12 @@ class FeedbackView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        return self._render(request, FeedbackForm())
+        return self._render(request, self._form(request))
 
     def post(self, request):
         page_url = self._page_url(request)
 
-        form = FeedbackForm(request.POST, request.FILES)
+        form = self._form(request, request.POST, request.FILES)
         if not form.is_valid():
             if wants_json(request):
                 first_errors = {
@@ -131,6 +131,10 @@ class FeedbackView(View):
             return JsonResponse({"ok": True})
         messages.success(request, SUCCESS_MESSAGE)
         return redirect(self._safe_redirect_target(request, page_url))
+
+    def _form(self, request, *args):
+        """Members never see the contact field; their account is the contact detail."""
+        return FeedbackForm(*args, authenticated=request.user.is_authenticated)
 
     def _source(self, request):
         """Which form produced this submission, and whether JavaScript was running.
