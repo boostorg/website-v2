@@ -52,7 +52,11 @@
       {% include "v3/includes/_button.html" with label="Send feedback" style="primary" type="submit" %}
 
       <p class="feedback-page__disclosure">
-        Sent as {{ request.user.display_name }}, with your browser and current page info.
+        {% if request.user.is_authenticated %}
+          Sent as {{ request.user.display_name }}, with your browser and current page info.
+        {% else %}
+          Sent with your browser and current page info.
+        {% endif %}
       </p>
     </form>
   </div>

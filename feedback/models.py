@@ -67,7 +67,7 @@ class Feedback(models.Model):
         validators=[image_validator, feedback_image_size_validator],
         help_text="Optional screenshot showing the problem.",
     )
-    # Set on every submission; only goes null if the account is later deleted.
+    # Null for anonymous submitters, and for accounts deleted after the fact.
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name="feedback",
@@ -113,7 +113,7 @@ class Feedback(models.Model):
 
     @property
     def submitter(self):
-        return str(self.user) if self.user else "(deleted account)"
+        return str(self.user) if self.user else "Anonymous"
 
 
 @receiver(post_delete, sender=Feedback)
