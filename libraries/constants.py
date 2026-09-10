@@ -429,6 +429,20 @@ LIBRARY_HERO_ART = {
         # crop of it would scale to the same thing. Omitting the key drops the
         # <source> and uses the desktop image at every width.
     },
+    "mqtt5": {
+        "background": "img/v3/library-heros/mqtt5-background.png",
+        "illustration": "img/v3/library-heros/mqtt5.png",
+        # Level: this artwork runs the other way to Beast's, open sky under the
+        # left of the description and shrubs under its right, where the rising
+        # ramp reads 2.96:1 against the 3.0:1 its type needs. Flat at the far
+        # value reads 3.31:1; the far end has no headroom to give back, because
+        # the shared falloff starts there.
+        "scrim": {"near": 0.40, "mid": 0.40},
+        # No mobile export: this figure is narrow enough that its desktop layer
+        # is already a tight crop, so the tighter one Beast needs would scale to
+        # the same thing. Omitting the key drops the <source> and uses the
+        # desktop image at every width.
+    },
 }
 
 DEFAULT_LIBRARIES_LANDING_VIEW = "list"

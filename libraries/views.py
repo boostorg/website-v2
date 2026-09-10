@@ -769,9 +769,16 @@ class LibraryDetail(
             value = scrim.get(key)
             return f"{float(value):.2f}" if value is not None else ""
 
+        # Per-artwork hook for heros.css, for what the custom properties above
+        # cannot carry: MQTT5 needs its mobile background sized and anchored to
+        # the figure, which is a whole layer stack rather than a value. Empty when
+        # there is no art, so the class only exists where it can be used.
+        modifier = f" hero--library-{self.object.slug}" if art else ""
+
         return {
             "library_hero_scrim_near": alpha("near"),
             "library_hero_scrim_mid": alpha("mid"),
+            "library_hero_art_class": modifier,
             "library_hero_image_url_light": url("illustration"),
             "library_hero_image_url_dark": "",
             "library_hero_image_url_mobile": url("illustration_mobile"),
