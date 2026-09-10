@@ -30,6 +30,7 @@
   <p style="margin:0;">Hi {{ user.first_name|default:user.get_username }},</p>
   {% if page %}
     <p style="margin:14px 0 0 0;">"{{ page.get_admin_display_title }}" has been submitted for approval in moderation stage "{{ task.name }}".</p>
+    {% include "v3/pages/email/_post_preview.html" %}
   {% else %}
     {% latest_str object as title %}
     <p style="margin:14px 0 0 0;">"{{ title }}" has been submitted for approval in moderation stage "{{ task.name }}".</p>

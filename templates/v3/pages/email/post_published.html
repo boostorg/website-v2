@@ -3,9 +3,10 @@
 {% comment %}
   Sent to a PostPage's author once it goes live (wagtail.signals.page_published,
   see pages/signals.py). Distinct from Wagtail's own workflow-approved notice
-  (branded, see core/wagtail_notifications.py) -- a workflow can clear
-  moderation without the page auto-publishing, so the two aren't always the
-  same moment. Mirrors news/emails/approved.html's design and copy -- the
+  (branded, see templates/wagtailadmin/notifications/workflow_state_approved.html)
+  -- a workflow can clear moderation without the page auto-publishing, so the
+  two aren't always the same moment; pages/signals.py skips this email when
+  they are. Mirrors news/emails/approved.html's design and copy -- the
   equivalent notice for the legacy news.Entry flow -- adapted to PostPage's
   fields.
   Context: page, action_url, scheme, host.

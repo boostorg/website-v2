@@ -61,6 +61,8 @@ def test_task_submitted_sends_a_branded_html_email(moderated_page, reviewer):
     html = _html_alternative(msg)
     assert 'alt="Boost"' in html
     assert "Needs your review" in html
+    assert moderated_page.title in html
+    assert moderated_page.summary in html
     # Wagtail's own default template's fingerprint style, absent once overridden.
     assert "#E6E6E6" not in html
     # Built from Wagtail's base_url_setting tag, not an unresolved context var.
@@ -84,6 +86,8 @@ def test_workflow_approved_sends_a_branded_html_email(moderated_page, user, revi
     assert 'alt="Boost"' in html
     assert "Cleared moderation" in html
     assert moderated_page.full_url in html
+    assert moderated_page.title in html
+    assert moderated_page.summary in html
     assert "#E6E6E6" not in html
 
 
@@ -103,4 +107,6 @@ def test_workflow_rejected_sends_a_branded_html_email(moderated_page, user, revi
     assert 'alt="Boost"' in html
     assert "Needs changes" in html
     assert "Needs a source link." in html
+    assert moderated_page.title in html
+    assert moderated_page.summary in html
     assert "#E6E6E6" not in html
