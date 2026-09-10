@@ -39,7 +39,12 @@
 /* ── Release Notes card ── */
 .release-detail .markdown-card {
   border-radius: var(--border-radius-l);
-  height: 572px;
+}
+
+/* No scroll cap: release notes should render at their full natural height. */
+.release-detail .markdown-card .markdown-card__body {
+  max-height: none;
+  overflow: visible;
 }
 
 .release-detail .markdown-content {

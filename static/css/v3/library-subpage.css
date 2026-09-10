@@ -97,10 +97,10 @@ body:has(.hero:not(.hero--no-image)) .library-subpage-container {
   max-height: none;
 }
 
-.library-subpage__documentation > .markdown-card {
-  max-height: 572px;
-  display: flex;
-  flex-direction: column;
+/* No scroll cap: the README should render at its full natural height. */
+.library-subpage__documentation > .markdown-card .markdown-card__body {
+  max-height: none;
+  overflow: visible;
 }
 
 /* ── Card body scroll caps ───────────────────────────────────────────────── */
