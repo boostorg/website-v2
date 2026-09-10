@@ -410,8 +410,8 @@ LIBRARY_HERO_ART = {
         "illustration_mobile": "img/v3/library-heros/beast-mobile.png",
     },
     "mqtt5": {
-        "background": "img/v3/library-heros/mqtt5-background.png",
-        "illustration": "img/v3/library-heros/mqtt5.png",
+        "background": "img/v3/library-heros/mqtt5-background.webp",
+        "illustration": "img/v3/library-heros/mqtt5.webp",
         # No mobile export: this figure is narrow enough that its desktop layer
         # is already a tight crop, so the tighter one Beast needs would scale to
         # the same thing. Omitting the key drops the <source> and uses the
