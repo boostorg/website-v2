@@ -7,6 +7,10 @@
   this needs no Python changes and builds its own URLs via `base_url_setting`
   instead of relying on context. Context: workflow, object, model_name, page
   (only set when object is a Page), task, task_state, comment, user (recipient).
+
+  Post preview and moderator-team sign-off mirror the same news.Entry-flow
+  design workflow_state_approved.html and task_state_submitted.html mirror --
+  there is no rejection notice in that older flow to mirror directly.
 {% endcomment %}
 
 {% block title %}{% if page %}"{{ page.get_admin_display_title }}" needs changes{% else %}{% latest_str object as title %}"{{ title }}" needs changes{% endif %}{% endblock %}
@@ -58,4 +62,14 @@
   <br><br>
   Want to change how you receive these emails?<br>
   <a href="{{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications" style="color:#050816;text-decoration:underline;">Update your notification preferences</a>.
+{% endblock %}
+
+{% block after_card %}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td style="padding:24px 0 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:12px;line-height:1.45;color:#71737b;text-align:center;">
+        Thank you, the Boost moderator team.
+      </td>
+    </tr>
+  </table>
 {% endblock %}

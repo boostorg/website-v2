@@ -60,7 +60,7 @@ def test_task_submitted_sends_a_branded_html_email(moderated_page, reviewer):
 
     html = _html_alternative(msg)
     assert 'alt="Boost"' in html
-    assert "Needs your review" in html
+    assert "needs your review" in html
     assert moderated_page.title in html
     assert moderated_page.summary in html
     # Wagtail's own default template's fingerprint style, absent once overridden.

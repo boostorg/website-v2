@@ -1,1 +1,1 @@
-{% load wagtailadmin_tags %}{% autoescape off %}{% if page %}"{{ page.get_admin_display_title }}" cleared moderation{% else %}{% latest_str object as title %}"{{ title }}" cleared moderation{% endif %}{% endautoescape %}
+{% load wagtailadmin_tags %}{% autoescape off %}Boost.org: {% if page %}"{{ page.get_admin_display_title }}" cleared moderation{% else %}{% latest_str object as title %}"{{ title }}" cleared moderation{% endif %}{% endautoescape %}

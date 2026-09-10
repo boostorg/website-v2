@@ -1,6 +1,14 @@
 {% load wagtailadmin_tags %}{% autoescape off %}{% base_url_setting default="" as base_url %}{% if page %}"{{ page.get_admin_display_title }}" needs your review
 
-{{ task.name }} is waiting on your approval.
+You're receiving this because you moderate "{{ task.name }}".
+
+{{ page.owner.display_name|default:page.owner.get_username }} submitted "{{ page.get_admin_display_title }}" for review:
+
+------------------------------------------------------------
+{{ page.title }}
+
+{{ page.summary|default:page.search_body|truncatewords:50 }}
+------------------------------------------------------------
 
 Preview: {{ base_url }}{% url 'wagtailadmin_pages:workflow_preview' page.id task.id %}
 Edit: {{ base_url }}{% url 'wagtailadmin_pages:edit' page.id %}
@@ -11,8 +19,10 @@ Edit: {{ base_url }}{% url 'wagtailadmin_pages:edit' page.id %}
 Edit: {{ base_url }}{{ edit_url }}
 {% endif %}{% endif %}
 
-Update your notification preferences: {{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications
+Thank you, the Boost moderator team.
 
 --
 Boost.org is supported by grants from The C++ Alliance.
+
+Update your notification preferences: {{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications
 {% endautoescape %}

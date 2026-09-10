@@ -2,13 +2,21 @@
 
 Your submission has been approved in workflow "{{ workflow.name }}".
 
+------------------------------------------------------------
+{{ page.title }}
+
+{{ page.summary|default:page.search_body|truncatewords:50 }}
+------------------------------------------------------------
+
 View: {{ page.full_url }}
 {% else %}{% latest_str object as title %}"{{ title }}" cleared moderation
 
 Your submission has been approved in workflow "{{ workflow.name }}".
 {% endif %}
-Update your notification preferences: {{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications
+Thank you, the Boost moderator team.
 
 --
 Boost.org is supported by grants from The C++ Alliance.
+
+Update your notification preferences: {{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications
 {% endautoescape %}

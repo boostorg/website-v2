@@ -14,6 +14,10 @@
   scope), so every absolute URL here is built from Wagtail's own
   `base_url_setting` tag instead. Context actually provided: workflow, object,
   model_name, page (only set when object is a Page), user (recipient).
+
+  Post preview and moderator-team sign-off mirror
+  templates/news/emails/approved.html's design (the equivalent notice for the
+  legacy news.Entry flow), adapted to any Page-backed workflow.
 {% endcomment %}
 
 {% block title %}{% if page %}"{{ page.get_admin_display_title }}" cleared moderation{% else %}{% latest_str object as title %}"{{ title }}" cleared moderation{% endif %}{% endblock %}
@@ -55,4 +59,14 @@
   <br><br>
   Want to change how you receive these emails?<br>
   <a href="{{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications" style="color:#050816;text-decoration:underline;">Update your notification preferences</a>.
+{% endblock %}
+
+{% block after_card %}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td style="padding:24px 0 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:12px;line-height:1.45;color:#71737b;text-align:center;">
+        Thank you, the Boost moderator team.
+      </td>
+    </tr>
+  </table>
 {% endblock %}
