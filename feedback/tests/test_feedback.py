@@ -21,7 +21,7 @@ from django.test import Client
 from django.urls import reverse
 from PIL import Image
 
-from feedback.diagnostics import RING_BUFFER_LIMIT
+from feedback.diagnostics import RING_BUFFER_LIMIT, recent_server_errors
 from feedback.models import IMAGE_MAX_BYTES, Feedback
 
 pytestmark = pytest.mark.django_db
@@ -228,21 +228,50 @@ def test_the_rate_limit_throttles_further_submissions(
     assert Feedback.objects.count() == 1
 
 
-def test_anonymous_submitters_get_their_own_rate_limit_bucket(
+def anon(ip, **extra):
+    """Headers for a signed-out submission arriving from `ip` through the CDN."""
+    return {**XHR, "fastly-client-ip": ip, **extra}
+
+
+def test_anonymous_submitters_are_counted_by_network_address(url, payload, monkeypatch):
+    """One address, one allowance — a second visitor elsewhere is unaffected."""
+    monkeypatch.setattr("feedback.views.RATE_LIMIT", 1)
+
+    assert Client().post(url, payload, headers=anon("203.0.113.5")).status_code == 200
+    assert Client().post(url, payload, headers=anon("203.0.113.5")).status_code == 429
+
+    assert Client().post(url, payload, headers=anon("198.51.100.9")).status_code == 200
+    assert Feedback.objects.count() == 2
+
+
+def test_a_forged_forwarding_header_does_not_buy_a_fresh_allowance(
     url, payload, monkeypatch
 ):
-    """Keyed by session, so one visitor's quota cannot throttle every other one.
+    """nginx appends to X-Forwarded-For, so its first entry is whatever the caller sent.
 
-    Without a session key they would all share the anonymous user's empty pk.
+    The CDN overwrites Fastly-Client-IP, so that is what has to win.
     """
     monkeypatch.setattr("feedback.views.RATE_LIMIT", 1)
-    first, second = Client(), Client()
+    real = "203.0.113.5"
 
-    assert first.post(url, payload, headers=XHR).status_code == 200
-    assert first.post(url, payload, headers=XHR).status_code == 429
+    assert Client().post(url, payload, headers=anon(real)).status_code == 200
+    forged = Client().post(
+        url, payload, headers=anon(real, **{"x-forwarded-for": "1.2.3.4"})
+    )
 
-    assert second.post(url, payload, headers=XHR).status_code == 200
-    assert Feedback.objects.count() == 2
+    assert forged.status_code == 429
+    assert Feedback.objects.count() == 1
+
+
+def test_a_submission_with_no_usable_address_is_not_refused(url, payload, monkeypatch):
+    """Losing a report is worse than letting an unidentifiable caller through."""
+    monkeypatch.setattr("feedback.views.RATE_LIMIT", 0)
+
+    response = Client().post(
+        url, payload, headers={**XHR, "fastly-client-ip": "junk"}, REMOTE_ADDR=""
+    )
+
+    assert response.status_code == 200
 
 
 def test_an_anonymous_submitter_can_leave_an_email(url, payload):
@@ -401,45 +430,16 @@ def test_server_errors_are_attached_to_a_later_submission(
     assert errors[0]["request_id"] == "req-abc123"
 
 
-def test_server_errors_follow_a_signed_out_visitor_by_session(url, payload, rf):
-    """A 500 page cannot show the widget, so the error must outlive the request.
-
-    The first report is what gives an anonymous visitor a session to file under.
-    """
-    anonymous = Client()
-    anonymous.post(url, payload, headers=XHR)
-
-    broken = rf.get("/library/1.88.0/beast/")
-    broken.user = AnonymousUser()
-    broken.session = anonymous.session
-    try:
-        raise ValueError("no such column: libraries_library.retired")
-    except ValueError:
-        got_request_exception.send(sender=None, request=broken)
-
-    anonymous.post(url, payload, headers=XHR)
-
-    errors = Feedback.objects.order_by("-pk").first().diagnostics["server_errors"]
-    assert len(errors) == 1
-    assert errors[0]["type"] == "ValueError"
-
-
-def test_one_visitors_server_errors_do_not_leak_into_anothers_report(url, payload, rf):
-    """Sessions are the boundary; a shared bucket would hand out other people's paths."""
-    reporter, bystander = Client(), Client()
-    reporter.post(url, payload, headers=XHR)
-
-    broken = rf.get("/libraries/")
-    broken.user = AnonymousUser()
-    broken.session = reporter.session
+def test_server_errors_are_not_recorded_for_signed_out_visitors(rf):
+    """Keying them by address would leak one visitor's paths to everyone behind it."""
+    request = rf.get("/libraries/")
+    request.user = AnonymousUser()
     try:
         raise ValueError("boom")
     except ValueError:
-        got_request_exception.send(sender=None, request=broken)
+        got_request_exception.send(sender=None, request=request)
 
-    bystander.post(url, payload, headers=XHR)
-
-    assert "server_errors" not in Feedback.objects.order_by("-pk").first().diagnostics
+    assert recent_server_errors(request.user) == {}
 
 
 def test_widget_renders_with_a_working_no_js_launcher(rf, user):

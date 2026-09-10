@@ -33,7 +33,7 @@ THROTTLE_MESSAGE = (
     "please try again in an hour."
 )
 
-RATE_LIMIT = 40
+RATE_LIMIT = 1
 RATE_WINDOW = 3600  # seconds
 
 
@@ -123,7 +123,7 @@ class FeedbackView(View):
         feedback.diagnostics = {
             **clean_client_diagnostics(request.POST.get("diagnostics", "")),
             "view_name": context["view_name"],
-            **recent_server_errors(request),
+            **recent_server_errors(request.user),
         }
         feedback.save()
 

@@ -6,9 +6,10 @@ Everything the browser alone knows — viewport, console errors, failed requests
 arrives as a JSON blob from the client and is treated as untrusted input.
 
 Server-side exceptions are recorded separately: the 500 page cannot render the
-widget, so an error has to outlive its request and wait for the visitor to report
-from wherever they land next. They are filed under the same identifier the rate
-limit uses, so signed-out visitors keep theirs across a session too.
+widget, so an error has to outlive its request and wait for the member to report
+from wherever they land next. Only for signed-in members: filing an anonymous
+visitor's errors would mean keying them by network address, which would hand one
+person's paths and messages to everyone else behind it.
 """
 
 import json
@@ -20,7 +21,6 @@ from django.core.cache import cache
 from django.urls import Resolver404, resolve
 from django.utils import timezone
 
-from feedback.identity import submitter_key
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.utils import get_version_from_cookie
 from versions.models import Version
@@ -93,12 +93,12 @@ def clean_client_diagnostics(raw):
     return cleaned
 
 
-def _server_error_key(identifier):
-    return f"feedback_server_errors:{identifier}"
+def _server_error_key(user_pk):
+    return f"feedback_server_errors:user:{user_pk}"
 
 
 def record_server_error(sender, request=None, **kwargs):
-    """Remember an unhandled exception against the visitor who hit it.
+    """Remember an unhandled exception against the member who hit it.
 
     Connected to `got_request_exception`, which fires while the request is already
     failing, so this swallows everything: a feedback tool must never turn one error
@@ -113,11 +113,11 @@ def record_server_error(sender, request=None, **kwargs):
         if exc is None or request is None:
             return
 
-        identifier = submitter_key(request)
-        if identifier is None:
+        user = getattr(request, "user", None)
+        if not user or not user.is_authenticated:
             return
 
-        key = _server_error_key(identifier)
+        key = _server_error_key(user.pk)
         entries = cache.get(key) or []
         entries.append(
             {
@@ -137,18 +137,17 @@ def record_server_error(sender, request=None, **kwargs):
         logger.debug("Could not record a server error for feedback", exc_info=True)
 
 
-def recent_server_errors(request):
-    """Server errors this submitter hit recently, oldest first.
+def recent_server_errors(user):
+    """Server errors this member hit recently, oldest first.
 
     Left in the cache rather than consumed, so a second report about the same
     failure still carries it. Each entry is timestamped, so triage can tell
     whether the error actually relates to the message.
     """
     try:
-        identifier = submitter_key(request)
-        if identifier is None:
+        if not user or not user.is_authenticated:
             return {}
-        entries = cache.get(_server_error_key(identifier))
+        entries = cache.get(_server_error_key(user.pk))
     except Exception:
         # Losing the error context is a far better outcome than losing the report.
         logger.debug("Could not read server errors for feedback", exc_info=True)
