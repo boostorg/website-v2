@@ -1,0 +1,14 @@
+{% load wagtailadmin_tags %}{% autoescape off %}{% base_url_setting default="" as base_url %}{% if page %}"{{ page.get_admin_display_title }}" cleared moderation
+
+Your submission has been approved in workflow "{{ workflow.name }}".
+
+View: {{ page.full_url }}
+{% else %}{% latest_str object as title %}"{{ title }}" cleared moderation
+
+Your submission has been approved in workflow "{{ workflow.name }}".
+{% endif %}
+Update your notification preferences: {{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications
+
+--
+Boost.org is supported by grants from The C++ Alliance.
+{% endautoescape %}

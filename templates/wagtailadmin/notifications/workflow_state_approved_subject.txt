@@ -1,0 +1,1 @@
+{% load wagtailadmin_tags %}{% autoescape off %}{% if page %}"{{ page.get_admin_display_title }}" cleared moderation{% else %}{% latest_str object as title %}"{{ title }}" cleared moderation{% endif %}{% endautoescape %}

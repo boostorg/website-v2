@@ -768,6 +768,10 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
 WAGTAIL_SITE_NAME = "Boost.org"
 WAGTAILADMIN_BASE_URL = env("WAGTAILADMIN_BASE_URL", default="https://www.boost.org")
 WAGTAILADMIN_NOTIFICATION_INCLUDE_SUPERUSERS = False
+# Without this, Wagtail's own workflow-submitted/approved/rejected notices
+# (templates/wagtailadmin/notifications/, overridden below with the V3 brand)
+# only ever send their .txt part.
+WAGTAILADMIN_NOTIFICATION_USE_HTML = True
 WAGTAILDOCS_EXTENSIONS = [
     "csv",
     "docx",

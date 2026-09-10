@@ -1,0 +1,1 @@
+{% load wagtailadmin_tags %}{% autoescape off %}{% if page %}"{{ page.get_admin_display_title }}" needs your review{% else %}{% latest_str object as title %}"{{ title }}" needs your review{% endif %}{% endautoescape %}

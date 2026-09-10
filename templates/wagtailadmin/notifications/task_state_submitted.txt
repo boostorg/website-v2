@@ -1,0 +1,18 @@
+{% load wagtailadmin_tags %}{% autoescape off %}{% base_url_setting default="" as base_url %}{% if page %}"{{ page.get_admin_display_title }}" needs your review
+
+{{ task.name }} is waiting on your approval.
+
+Preview: {{ base_url }}{% url 'wagtailadmin_pages:workflow_preview' page.id task.id %}
+Edit: {{ base_url }}{% url 'wagtailadmin_pages:edit' page.id %}
+{% else %}{% latest_str object as title %}{% admin_edit_url object user as edit_url %}"{{ title }}" needs your review
+
+{{ task.name }} is waiting on your approval.
+{% if edit_url %}
+Edit: {{ base_url }}{{ edit_url }}
+{% endif %}{% endif %}
+
+Update your notification preferences: {{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications
+
+--
+Boost.org is supported by grants from The C++ Alliance.
+{% endautoescape %}

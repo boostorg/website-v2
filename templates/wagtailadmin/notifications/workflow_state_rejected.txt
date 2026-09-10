@@ -1,0 +1,21 @@
+{% load wagtailadmin_tags %}{% autoescape off %}{% base_url_setting default="" as base_url %}{% if page %}"{{ page.get_admin_display_title }}" needs changes
+
+Rejected during "{{ task.name }}" in workflow "{{ workflow.name }}"{% if task_state.finished_by %} by {{ task_state.finished_by|user_display_name }}{% endif %}.
+{% if comment %}
+Comment left: "{{ comment }}"
+{% endif %}
+Edit: {{ base_url }}{% url 'wagtailadmin_pages:edit' page.id %}
+{% else %}{% latest_str object as title %}{% admin_edit_url object user as edit_url %}"{{ title }}" needs changes
+
+Rejected during "{{ task.name }}" in workflow "{{ workflow.name }}"{% if task_state.finished_by %} by {{ task_state.finished_by|user_display_name }}{% endif %}.
+{% if comment %}
+Comment left: "{{ comment }}"
+{% endif %}{% if edit_url %}
+Edit: {{ base_url }}{{ edit_url }}
+{% endif %}{% endif %}
+
+Update your notification preferences: {{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications
+
+--
+Boost.org is supported by grants from The C++ Alliance.
+{% endautoescape %}

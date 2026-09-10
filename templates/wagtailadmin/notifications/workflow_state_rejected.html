@@ -1,0 +1,60 @@
+{% extends "emails/base_email.html" %}
+{% load custom_static wagtailadmin_tags %}
+
+{% comment %}
+  Overrides Wagtail's own workflow_state_rejected.html (see wagtail/admin/mail.py
+  WorkflowStateRejectionEmailNotifier). See workflow_state_approved.html for why
+  this needs no Python changes and builds its own URLs via `base_url_setting`
+  instead of relying on context. Context: workflow, object, model_name, page
+  (only set when object is a Page), task, task_state, comment, user (recipient).
+{% endcomment %}
+
+{% block title %}{% if page %}"{{ page.get_admin_display_title }}" needs changes{% else %}{% latest_str object as title %}"{{ title }}" needs changes{% endif %}{% endblock %}
+
+{% block preheader %}Rejected during "{{ task.name }}" in workflow "{{ workflow.name }}".{% endblock %}
+
+{% block header %}
+  {% base_url_setting default="" as base_url %}
+  <tr>
+    <td style="padding:18px 16px;" align="left">
+      <a href="{{ base_url }}/" style="text-decoration:none;">
+        <img src="{% large_static 'img/emails/email-logo.png' %}" width="184" height="43" alt="Boost" style="display:block;width:184px;height:43px;">
+      </a>
+    </td>
+  </tr>
+{% endblock %}
+
+{% block card_title %}Needs changes{% endblock %}
+
+{% block card_body %}
+  <p style="margin:0;">Hi {{ user.first_name|default:user.get_username }},</p>
+  {% if page %}
+    <p style="margin:14px 0 0 0;">"{{ page.get_admin_display_title }}" was rejected during "{{ task.name }}" in workflow "{{ workflow.name }}"{% if task_state.finished_by %} by {{ task_state.finished_by|user_display_name }}{% endif %}.</p>
+  {% else %}
+    {% latest_str object as title %}
+    <p style="margin:14px 0 0 0;">"{{ title }}" was rejected during "{{ task.name }}" in workflow "{{ workflow.name }}"{% if task_state.finished_by %} by {{ task_state.finished_by|user_display_name }}{% endif %}.</p>
+  {% endif %}
+  {% if comment %}
+    <p style="margin:14px 0 0 0;">Comment left: &#34;{{ comment }}&#34;</p>
+  {% endif %}
+{% endblock %}
+
+{% block cta %}
+  {% base_url_setting default="" as base_url %}
+  {% if page %}
+    {% url 'wagtailadmin_pages:edit' page.id as edit_url %}
+    {% include "emails/_cta_button.html" with url=base_url|add:edit_url label="Edit" %}
+  {% else %}
+    {% admin_edit_url object user as edit_url %}
+    {% if edit_url %}
+      {% include "emails/_cta_button.html" with url=base_url|add:edit_url label="Edit" %}
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block footer_links %}
+  {% base_url_setting default="" as base_url %}
+  <br><br>
+  Want to change how you receive these emails?<br>
+  <a href="{{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications" style="color:#050816;text-decoration:underline;">Update your notification preferences</a>.
+{% endblock %}
