@@ -1,9 +1,9 @@
-{% autoescape off %}Your post was approved
+{% autoescape off %}Your post is live
 
 Hi {{ page.author.display_name|default:"there" }},
 
 Congratulations! The {{ page.post_content_type|lower }} you submitted on
-{{ page.created_at|date:"M jS, Y" }} has been approved and is now live.
+{{ page.created_at|date:"M jS, Y" }} is now live.
 
 ------------------------------------------------------------
 {{ page.title }}

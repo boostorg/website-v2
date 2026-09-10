@@ -40,11 +40,11 @@ def update_index_task():
 
 
 @shared_task
-def send_post_approved_email(page_id):
-    """Tell a PostPage's author their post cleared moderation and is live.
+def send_post_published_email(page_id):
+    """Tell a PostPage's author their post is live.
 
-    Fired from pages.signals in response to Wagtail's `workflow_approved`
-    signal, which carries no request, so scheme/host come from the page's own
+    Fired from pages.signals in response to Wagtail's `page_published` signal,
+    which carries no request, so scheme/host come from the page's own
     absolute URL instead. Takes an id rather than the page itself since
     Celery arguments must serialize to JSON; the page is refetched fresh on
     the worker.
@@ -60,7 +60,7 @@ def send_post_approved_email(page_id):
         "scheme": parts.scheme,
         "host": parts.netloc,
     }
-    prefix = "v3/pages/email/post_approved"
+    prefix = "v3/pages/email/post_published"
     msg = EmailMultiAlternatives(
         subject=render_to_string(f"{prefix}_subject.txt", context).strip(),
         body=render_to_string(f"{prefix}.txt", context),

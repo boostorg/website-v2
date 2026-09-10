@@ -141,8 +141,8 @@ TEMPLATES = {
         "action_url": "https://www.boost.org/libraries/commit-email/confirm/test-token/",
         "context": {"requester": "Vinnie Falco", "expiry_label": "7\u00a0days"},
     },
-    "post_approved": {
-        "prefix": "v3/pages/email/post_approved",
+    "post_published": {
+        "prefix": "v3/pages/email/post_published",
         "action_url": "https://www.boost.org/news/boost-1-90-0-has-been-released/",
         "context": {"page": SAMPLE_POST_PAGE},
     },

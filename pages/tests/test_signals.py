@@ -1,51 +1,57 @@
-"""Notifying a PostPage's author once Wagtail's moderation workflow approves it."""
+"""Notifying a PostPage's author and lighting the nav dot once it goes live."""
 
-from types import SimpleNamespace
+from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
-from wagtail.signals import workflow_approved
+from wagtail.signals import page_published
 
-from pages.signals import notify_post_author_on_approval
+from pages.notifications import latest_notified_post_id
 
 
 @pytest.mark.django_db
-def test_workflow_approved_emails_the_post_author(user, wagtail_site, make_post_page):
+def test_first_publish_emails_the_author_and_lights_the_dot(
+    user, wagtail_site, make_post_page
+):
     page = make_post_page(owner=user)
+    page.last_published_at = page.first_published_at  # a true first publish
 
-    with patch("pages.signals.send_post_approved_email.delay") as delay:
-        workflow_approved.send(
-            sender=object(),
-            instance=SimpleNamespace(content_object=page),
-            user=user,
-        )
+    with patch("pages.signals.send_post_published_email.delay") as delay:
+        page_published.send(sender=type(page), instance=page)
 
     delay.assert_called_once_with(page.pk)
+    assert latest_notified_post_id() == page.pk
 
 
 @pytest.mark.django_db
-def test_workflow_approved_ignores_non_post_page_content(user):
-    with patch("pages.signals.send_post_approved_email.delay") as delay:
-        workflow_approved.send(
-            sender=object(),
-            instance=SimpleNamespace(content_object=SimpleNamespace()),
-            user=user,
-        )
+def test_republish_does_not_email_again(wagtail_site, make_post_page):
+    page = make_post_page()
+    page.last_published_at = page.first_published_at + timedelta(days=1)
+
+    with patch("pages.signals.send_post_published_email.delay") as delay:
+        page_published.send(sender=type(page), instance=page)
 
     delay.assert_not_called()
 
 
 @pytest.mark.django_db
-def test_workflow_approved_skips_author_with_no_email(wagtail_site, make_post_page):
-    author = SimpleNamespace(email="", display_name="No Email")
-    page = make_post_page()
-    page.author = author
+def test_not_yet_live_does_not_email(wagtail_site, make_post_page):
+    page = make_post_page(live=False)
 
-    with patch("pages.signals.send_post_approved_email.delay") as delay:
-        notify_post_author_on_approval(
-            sender=object(),
-            instance=SimpleNamespace(content_object=page),
-            user=None,
-        )
+    with patch("pages.signals.send_post_published_email.delay") as delay:
+        page_published.send(sender=type(page), instance=page)
+
+    delay.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_skips_author_with_no_email(user, wagtail_site, make_post_page):
+    page = make_post_page(owner=user)
+    page.last_published_at = page.first_published_at  # a true first publish
+    page.author.email = ""
+    page.author.save()
+
+    with patch("pages.signals.send_post_published_email.delay") as delay:
+        page_published.send(sender=type(page), instance=page)
 
     delay.assert_not_called()
