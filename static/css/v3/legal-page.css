@@ -194,8 +194,8 @@ body:has(.legal-page) .v3-container {
 @media (max-width: 767px) {
   .legal-page {
     padding-top: 32px;
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-left: var(--space-medium);
+    padding-right: var(--space-medium);
   }
 
   .legal-page__top-copy {
