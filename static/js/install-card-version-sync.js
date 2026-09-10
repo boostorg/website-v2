@@ -5,8 +5,8 @@
  * version-dropdown JS (see _header_v3.html) and swaps the install card between
  * its "latest" and "older" variants without a page reload.
  *
- * Progressive enhancement: with JS disabled, the dropdown's form submits
- * normally and the server's POST + 302 + GET roundtrip swaps the card.
+ * Progressive enhancement: with JS disabled, the dropdown link navigates
+ * normally and the server's GET + redirect + GET roundtrip swaps the card.
  *
  * Requires:
  *   - Wrapper element [data-install-card-wrapper][data-active-variant]
