@@ -430,8 +430,8 @@ LIBRARY_HERO_ART = {
         # <source> and uses the desktop image at every width.
     },
     "mqtt5": {
-        "background": "img/v3/library-heros/mqtt5-background.png",
-        "illustration": "img/v3/library-heros/mqtt5.png",
+        "background": "img/v3/library-heros/mqtt5-background.webp",
+        "illustration": "img/v3/library-heros/mqtt5.webp",
         # Level: this artwork runs the other way to Beast's, open sky under the
         # left of the description and shrubs under its right, where the rising
         # ramp reads 2.96:1 against the 3.0:1 its type needs. Flat at the far
