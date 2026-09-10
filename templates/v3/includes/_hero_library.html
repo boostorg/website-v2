@@ -85,7 +85,8 @@
             that already fits is a no-op, and a clamped one stays openable. {% endcomment %}
             <noscript>
               <style>
-                .hero__description-toggle[x-cloak] { display: inline-block; }
+                /* Beats the global `[x-cloak] { display: none !important }` in styles.css. */
+                .hero__description-toggle[x-cloak] { display: inline-block !important; }
               </style>
             </noscript>
             {% else %}
