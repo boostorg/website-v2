@@ -882,13 +882,135 @@ html.dark .hero__links .btn-icon-library:hover {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Flagship library: Figma draws the illustration as a 1440x480 layer filling the
-   hero, animals right-anchored (x=321), with the text laid over it. The shipped
-   art is a 488x416 crop of just the animals, so `contain` scales it to the block's
-   full height and `right bottom` pins it to the corner the design anchors it to.
-   Height now comes from the block, so the art can no longer overhang the hero
-   background the way the old fixed 488x416 box did in the tablet band. */
+   hero, animals right-anchored (x=321), with the text laid over it. It ships as
+   two layers rather than one baked image — a background filling the block and an
+   animal on top — so `contain` scales the animal to the block's full height and
+   `right bottom` pins it where the design anchors it. Height comes from the block,
+   so the art can no longer overhang the background the way the old fixed 488x416
+   placeholder did in the tablet band. See LIBRARY_HERO_ART in
+   libraries/constants.py for why the layers line up. */
 .hero--library .hero-fg__img {
   object-position: right bottom;
+}
+
+/* Flagship library, 768px up: hold the figure clear of the header. `.hero__block`
+   reserves room for the absolutely-positioned header with `padding-top`, which is
+   why the text clears it, but `.hero-fg` is positioned against the block's padding
+   box and so spans the full height and slides underneath. Short bottom-weighted
+   art never noticed; this animal fills the frame top to bottom (Figma draws it 483
+   tall in a 480 hero), so its raised paw and mane sat behind the opaque nav pills —
+   10% of the art at desktop, 13% at tablet, where the header stays 64 while the
+   block drops to 400. Inset the top by the header's own footprint and let
+   `inset-block-end: 0` size it, so `contain` fits the animal into the visible band.
+   Costs ~13% of its size; art with headroom baked in could drop this. */
+@media (min-width: 768px) {
+  .hero--library .hero-fg {
+    top: var(--v3-header-footprint);
+    height: auto;
+  }
+}
+
+/* Flagship library, tablet: `contain` fits the animal to the block's height, and
+   the tablet block is short (400) for its width, so the animal claims ~71% of a
+   768px viewport where the design gives it 46%. The 662px text column then runs
+   under it, putting the description tail on the animal's trousers. Same cap and
+   same value the community hero uses for this collision a few rules down; worst
+   case is a 3-line description at 286px in the 400px block, so nothing spills. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .hero--library .hero__content {
+    max-width: min(615px, 50vw);
+  }
+}
+
+/* Stops are anchored to the block, not the viewport: the text column is a fixed
+   662px, so percentage stops moved coverage with the window. `--o` is the block's
+   left edge once the 1440 cap starts centring it.
+   Alpha rises left to right on purpose, because the savanna brightens towards the
+   horizon. One gradient serves 768 up; the plateau reaches 550, past the end of the
+   description at every width in that range. */
+/* White rather than the grey-400 the shared rule sets. Grey is what forced the
+   scrim dark, so raising the alpha below without reverting this will not help.
+   `.hero--community` does the same. */
+.hero--library .hero__description {
+  color: #fff;
+}
+
+@media (min-width: 768px) {
+  .hero--library.hero--with-background-image::before {
+    --o: max(0px, (100% - 1440px) / 2);
+
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.36) 0%,
+      rgba(0, 0, 0, 0.36) var(--o),
+      rgba(0, 0, 0, 0.38) calc(var(--o) + 320px),
+      rgba(0, 0, 0, 0.40) calc(var(--o) + 550px),
+      /* Smootherstep over 450px. A seam is a slope discontinuity, so the curve is
+         picked for zero slope at both ends. Judge changes by peak slope, not by
+         stop count; anything above ~0.003 alpha/px reads as a line. */
+      rgba(0, 0, 0, 0.40) calc(var(--o) + 591px),
+      rgba(0, 0, 0, 0.38) calc(var(--o) + 632px),
+      rgba(0, 0, 0, 0.35) calc(var(--o) + 673px),
+      rgba(0, 0, 0, 0.30) calc(var(--o) + 714px),
+      rgba(0, 0, 0, 0.23) calc(var(--o) + 755px),
+      rgba(0, 0, 0, 0.17) calc(var(--o) + 795px),
+      rgba(0, 0, 0, 0.10) calc(var(--o) + 836px),
+      rgba(0, 0, 0, 0.05) calc(var(--o) + 877px),
+      rgba(0, 0, 0, 0.02) calc(var(--o) + 918px),
+      rgba(0, 0, 0, 0) calc(var(--o) + 959px)
+    );
+  }
+}
+
+/* Flagship library, mobile: `--hero-fg-aspect` (768/672) is tuned to home's and
+   community's art, and it makes the figure declare its own height. This hero's
+   text column is taller than theirs — three description lines and four link
+   buttons over two rows — so content plus figure cleared the shared 600px floor
+   and the block grew to 710, 110px past every other hero. Let the figure take
+   whatever the text leaves instead of asking for a fixed ratio, which holds the
+   block on the floor; `contain` then scales the animal to fit. `margin-top` back
+   to 0 because `flex: 1` absorbs the slack that `auto` was there to absorb. */
+@media (max-width: 767px) {
+  /* `height` as well as the inherited `min-height` floor, so the block is a
+     definite size that flex can divide. Left at auto there is nothing for
+     `flex: 1` to grow into, and the figure falls back to sizing itself from the
+     image's own ratio (289px at 378 wide), which is what put the block at 668.
+     Content is `flex: 0 0 auto` and keeps its full height; only the figure
+     flexes. Beast's text uses 251 of the 472 available, so there is room for a
+     longer description before this needs revisiting.
+     `:not(.hero--no-image)` because the flagship branch adds `hero--library`
+     whether or not art exists, and this rule would otherwise out-order
+     `.hero--no-image .hero__block`'s `height: auto` at equal specificity and hold
+     an illustration-less flagship open at the full 600 — the gap #2618 closed. */
+  .hero--library:not(.hero--no-image) .hero__block {
+    height: var(--hero-block-height);
+    /* The shared mobile padding leaves 32px under the figure, which reads as a
+       gap below the animal's rock. Community zeroes it for the same reason. */
+    padding-bottom: 0;
+  }
+
+  .hero--library .hero-fg {
+    flex: 1;
+    min-height: 0;
+    aspect-ratio: auto;
+    margin-top: 0;
+  }
+}
+
+/* Flagship library, mobile: below 768px the block turns into a column — text on
+   top, animal stacked under — so every line runs the full width and falls past the
+   end of the left-to-right scrim, taking the description to ~1.4:1 over open sky.
+   Same answer as `.hero--home` above, at the same 0.5: darken the top edge rather
+   than the left. Out by 60% so the ground still reads as painted. */
+@media (max-width: 767px) {
+  .hero--library.hero--with-background-image::before {
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.50) 0%,
+      rgba(0, 0, 0, 0.45) 44%,
+      rgba(0, 0, 0, 0) 60%
+    );
+  }
 }
 
 /* Community: background focal point + tuned per-breakpoint sizing (independent of

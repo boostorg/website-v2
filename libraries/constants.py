@@ -395,6 +395,22 @@ LIBRARY_GITHUB_URL_OVERRIDES = {
     "outcome": "https://github.com/ned14/outcome/issues",
 }
 
+# Hero art for flagship library sub-pages. Paths are relative to the
+# static-content bucket (the art is too heavy to commit) and LibraryDetail
+# resolves them through large_static(). heros.css composites the two layers
+# rather than using one baked image, which only lines up while background and
+# illustration are exported at the same scale and height. No entry here means the
+# no-illustration hero from #2618, which is the intended fallback.
+# key: Library.slug
+LIBRARY_HERO_ART = {
+    "beast": {
+        "background": "img/v3/library-heros/beast-background.png",
+        "illustration": "img/v3/library-heros/beast.png",
+        # Narrower export of the same animal, swapped in below 768px.
+        "illustration_mobile": "img/v3/library-heros/beast-mobile.png",
+    },
+}
+
 DEFAULT_LIBRARIES_LANDING_VIEW = "list"
 SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
 SELECTED_LIBRARY_VIEW_COOKIE_NAME = "library_view"
