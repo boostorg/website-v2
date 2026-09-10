@@ -2,6 +2,10 @@
 
 import ipaddress
 
+import structlog
+
+logger = structlog.get_logger()
+
 
 def submitter_key(request):
     """Stable identifier for the submitter, or None when there is nothing to key on.
@@ -34,13 +38,17 @@ def client_address(request):
     are client-supplied headers.
     """
     candidates = (
-        request.headers.get("fastly-client-ip", ""),
-        request.headers.get("x-forwarded-for", "").split(",")[0],
-        request.META.get("REMOTE_ADDR", ""),
+        ("fastly-client-ip", request.headers.get("fastly-client-ip", "")),
+        ("x-forwarded-for", request.headers.get("x-forwarded-for", "").split(",")[0]),
+        ("remote-addr", request.META.get("REMOTE_ADDR", "")),
     )
-    for candidate in candidates:
+    for source, candidate in candidates:
         try:
-            return str(ipaddress.ip_address(candidate.strip()))
+            address = str(ipaddress.ip_address(candidate.strip()))
         except ValueError:
             continue
+
+        logger.info("Resolved feedback submitter address from %s", source)
+        return address
+    logger.warning("No usable feedback submitter address")
     return ""
