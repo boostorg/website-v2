@@ -938,13 +938,20 @@ html.dark .hero__links .btn-icon-library:hover {
 @media (min-width: 768px) {
   .hero--library.hero--with-background-image::before {
     --o: max(0px, (100% - 1440px) / 2);
+    /* The plateau, split out because its slope belongs to the artwork rather than
+       to the hero: it rises here because Beast's savanna brightens towards the
+       horizon. The falloff below descends from `--scrim-far` and is shared, so an
+       artwork that only needs a different ramp sets these and nothing else. */
+    --scrim-near: 0.36;
+    --scrim-mid: 0.38;
+    --scrim-far: 0.40;
 
     background: linear-gradient(
       90deg,
-      rgba(0, 0, 0, 0.36) 0%,
-      rgba(0, 0, 0, 0.36) var(--o),
-      rgba(0, 0, 0, 0.38) calc(var(--o) + 320px),
-      rgba(0, 0, 0, 0.40) calc(var(--o) + 550px),
+      rgba(0, 0, 0, var(--scrim-near)) 0%,
+      rgba(0, 0, 0, var(--scrim-near)) var(--o),
+      rgba(0, 0, 0, var(--scrim-mid)) calc(var(--o) + 320px),
+      rgba(0, 0, 0, var(--scrim-far)) calc(var(--o) + 550px),
       /* Smootherstep over 450px. A seam is a slope discontinuity, so the curve is
          picked for zero slope at both ends. Judge changes by peak slope, not by
          stop count; anything above ~0.003 alpha/px reads as a line. */
@@ -959,6 +966,18 @@ html.dark .hero__links .btn-icon-library:hover {
       rgba(0, 0, 0, 0.02) calc(var(--o) + 918px),
       rgba(0, 0, 0, 0) calc(var(--o) + 959px)
     );
+  }
+
+  /* MQTT5: this artwork runs the other way. The description sits over open sky at
+     its left edge and over the shrubs and the house at its right, so the ramp that
+     Beast needs takes the worst pixel under the description to 2.96:1 at 1440 and
+     2.97:1 at 1280, under the 3.0:1 its 24px type needs. Flatten the plateau to the
+     far value and the same measurement reads 3.31:1. Level rather than reversed
+     because the far end has no headroom to give back: the falloff starts there and
+     is shared. */
+  .hero--library-mqtt5.hero--with-background-image::before {
+    --scrim-near: 0.40;
+    --scrim-mid: 0.40;
   }
 }
 
@@ -1010,6 +1029,56 @@ html.dark .hero__links .btn-icon-library:hover {
       rgba(0, 0, 0, 0.45) 44%,
       rgba(0, 0, 0, 0) 60%
     );
+  }
+}
+
+/* MQTT5, mobile: size the painting to the figure and stand the figure on it.
+   Two problems below 768, both from `cover`. The shared `center` slice lands on
+   open lawn and clips the leading shrub of the house planting, so the figure
+   stands in an empty field beside a stray bush; and the block stacks, which drops
+   `.hero-fg` to `flex: 1` and leaves the figure only the height the text does not
+   use. Measured as background-scale over figure-scale, the layers sit at 1.16 on
+   desktop and 1.19-1.28 across tablet, but 2.15 at 425 and 2.37 at 390 — the
+   house painted at twice the size the artwork intends, a door towering over the
+   mail carrier.
+   `cover` cannot go below the block height and geometry cannot win it either:
+   with ~320px of text in a 600px block, matching desktop would need a block
+   ~2300px tall. So size the painting explicitly. `80% bottom` is the important
+   half: bottom-anchored, the painted road ends exactly where the figure's feet
+   are, so the mailbox is planted on the ground rather than floating 258px below
+   it on fill, which is what the earlier top-anchored version did. `auto 96%` is
+   then chosen against the mailbox — the planting behind it meets the bush it
+   carries, and the house reads at the size a mailbox implies.
+   The strip that leaves uncovered is at the top and is filled with sky. The
+   painting's own sky is #8dd3fa at its top row, so over the left of the crop the
+   fill is the same colour and there is no seam; over the right it sits behind the
+   treetops, which is where sky belongs anyway.
+   Properly this wants art composed for a portrait frame, the way Beast has a
+   mobile crop of its figure. A 3:1 painting with its only subject in the right
+   45% cannot be cropped to a phone without compromise. Note also that desktop's
+   figure fills 87% of its block against 53% here: reproducing that needs the
+   figure absolute and full-height with the text over it, as it is from 768 up,
+   and at phone width the title lands on the animal's face. Hence the stack. */
+@media (max-width: 767px) {
+  .hero--library-mqtt5.hero--with-background-image {
+    background-image:
+      /* Painted over the artwork's top edge, not under it. Bottom-anchoring
+         leaves 150px uncovered at the top, and at this crop the painting's top
+         row is treetops and roof rather than sky, so a fill butted against it
+         slices the canopy in a dead-straight line. Measured as mean row-to-row
+         luminance delta that edge reads 33; fading sky down over it takes it to
+         22, which is under the 24 the artwork's own detail measures in the same
+         band, so it stops being findable. The fade stops track the gap: at 96%
+         it is 24px, so hold to 2% and clear by 24%.
+         96 rather than 100 because at 100 the painting is drawn at exactly the
+         scale `cover` would give it (0.698 either way at 425), which is the
+         treatment this rule exists to replace. */
+      linear-gradient(180deg, #8dd3fa 0%, #8dd3fa 2%, rgba(141, 211, 250, 0) 24%),
+      var(--hero-bg-image),
+      linear-gradient(180deg, #8dd3fa 0%, #a9dcf5 60%, #bfe3f2 100%);
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    background-size: 100% 100%, auto 96%, 100% 100%;
+    background-position: center center, 80% bottom, center center;
   }
 }
 
