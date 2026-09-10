@@ -44,11 +44,15 @@ body:has(.hero:not(.hero--no-image)) .library-subpage-container {
   --subpage-col-min: 22rem;
   columns: var(--subpage-col-min);
   column-gap: var(--space-card);
+  /* Cancels the trailing row gap the last card in each column carries. */
+  margin-bottom: calc(-1 * var(--space-card));
 }
 
+/* Row gap as padding, not margin: Safari adds a card's bottom margin to the
+   balanced column height, which leaves a tall empty band under the masonry. */
 .card-masonry-top > * {
   break-inside: avoid;
-  margin-bottom: var(--space-card);
+  padding-bottom: var(--space-card);
 }
 
 /* ── Bottom card row (desktop/tablet: posts 2/3, mailing 1/3) ────────────── */
