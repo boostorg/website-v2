@@ -409,6 +409,14 @@ LIBRARY_HERO_ART = {
         # Narrower export of the same animal, swapped in below 768px.
         "illustration_mobile": "img/v3/library-heros/beast-mobile.png",
     },
+    "mqtt5": {
+        "background": "img/v3/library-heros/mqtt5-background.webp",
+        "illustration": "img/v3/library-heros/mqtt5.webp",
+        # No mobile export: this figure is narrow enough that its desktop layer
+        # is already a tight crop, so the tighter one Beast needs would scale to
+        # the same thing. Omitting the key drops the <source> and uses the
+        # desktop image at every width.
+    },
 }
 
 DEFAULT_LIBRARIES_LANDING_VIEW = "list"

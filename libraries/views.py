@@ -740,7 +740,14 @@ class LibraryDetail(
             path = art.get(key)
             return large_static(path) if path else ""
 
+        # Per-artwork hook for heros.css. The scrim's shape is a property of what
+        # is painted behind the text, not of the hero, so each illustration needs
+        # somewhere to tune it; the shared rule's ramp is Beast's savanna. Empty
+        # when there is no art, so the class only exists where it can be used.
+        modifier = f" hero--library-{self.object.slug}" if art else ""
+
         return {
+            "library_hero_art_class": modifier,
             "library_hero_image_url_light": url("illustration"),
             "library_hero_image_url_dark": "",
             "library_hero_image_url_mobile": url("illustration_mobile"),
