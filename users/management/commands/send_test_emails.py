@@ -101,6 +101,10 @@ TEMPLATES = {
         "prefix": "emails/account_deletion_scheduled",
         "action_url": "https://www.boost.org/accounts/login/",
     },
+    "account_deleted": {
+        "prefix": "emails/account_deleted",
+        "action_url": "",
+    },
     "news_needs_moderation": {
         "prefix": "news/emails/needs_moderation",
         "action_url": "https://www.boost.org/news/magic-approve/test-token-abc123/",
