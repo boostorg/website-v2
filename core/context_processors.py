@@ -56,13 +56,14 @@ def selected_version(request):
 
     When the version comes from the URL, the dropdown renders anchor links that
     swap the version segment of the current path — shareable. Otherwise it
-    renders POST forms that write the cookie without navigating.
+    renders anchor links to the `set-version` GET endpoint, which writes the
+    cookie and redirects back without a visible navigation.
 
     Examples
     --------
     GET /releases/1.88.0/  (no cookie)
         selected_version               -> Version(slug="boost-1-88-0")
-        selected_version_is_url_driven -> True       (URL mode: render <a>s)
+        selected_version_is_url_driven -> True       (URL mode)
         selected_version_is_non_latest -> True       (button reads "1.88.0")
         selected_version_label         -> "1.88.0"
         version_dropdown_options[i]    -> Version with `.href` attached,
@@ -71,11 +72,12 @@ def selected_version(request):
 
     GET /  (cookie boost_version="boost-1-87-0")
         selected_version               -> Version(slug="boost-1-87-0")
-        selected_version_is_url_driven -> False      (cookie mode: render <form>s)
+        selected_version_is_url_driven -> False      (cookie mode)
         selected_version_is_non_latest -> True       (button reads "1.87.0")
         selected_version_label         -> "1.87.0"
-        version_dropdown_options[i]    -> Version (no `.href` needed)
-        latest_href                    -> ""
+        version_dropdown_options[i]    -> Version with `.href` attached,
+                                          e.g. "/set-version/?version=boost-1-87-0"
+        latest_href                    -> "/set-version/?version=latest"
 
     GET /  (no cookie)
         selected_version               -> Version.objects.most_recent()
@@ -123,6 +125,8 @@ def selected_version(request):
             url_kwargs=dict(resolver_match.kwargs),
             options=options,
         )
+    else:
+        latest_href = _annotate_set_version_hrefs(options)
 
     return {
         "selected_version": version,
@@ -171,6 +175,20 @@ def _annotate_option_hrefs(*, view_name, url_kwargs, options):
         )
     except NoReverseMatch:
         return ""
+
+
+def _annotate_set_version_hrefs(options):
+    """Attach `.href` to each option pointing at the cookie-setting GET
+    endpoint; return the latest option's href.
+
+    Used on pages that are not version-aware (i.e. everything except
+    `/releases/`, `/libraries/`, `/library/`) — picking a version here writes
+    the `boost_version` cookie and redirects back rather than navigating.
+    """
+    set_version_url = reverse("set-version")
+    for v in options:
+        v.href = f"{set_version_url}?version={v.slug}"
+    return f"{set_version_url}?version={LATEST_RELEASE_URL_PATH_STR}"
 
 
 class NavItem(StrEnum):
