@@ -33,7 +33,7 @@ THROTTLE_MESSAGE = (
     "please try again in an hour."
 )
 
-RATE_LIMIT = 1
+RATE_LIMIT = 40
 RATE_WINDOW = 3600  # seconds
 
 
