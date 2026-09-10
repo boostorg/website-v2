@@ -80,11 +80,11 @@ def test_workflow_approved_sends_a_branded_html_email(moderated_page, user, revi
     assert len(mail.outbox) == 1
     msg = mail.outbox[0]
     assert msg.recipients() == [user.email]
-    assert "cleared moderation" in msg.subject
+    assert "is approved" in msg.subject
 
     html = _html_alternative(msg)
     assert 'alt="Boost"' in html
-    assert "Cleared moderation" in html
+    assert "Your post is approved" in html
     assert moderated_page.full_url in html
     assert moderated_page.title in html
     assert moderated_page.summary in html
@@ -105,7 +105,7 @@ def test_workflow_rejected_sends_a_branded_html_email(moderated_page, user, revi
 
     html = _html_alternative(msg)
     assert 'alt="Boost"' in html
-    assert "Needs changes" in html
+    assert "Your post needs changes" in html
     assert "Needs a source link." in html
     assert moderated_page.title in html
     assert moderated_page.summary in html

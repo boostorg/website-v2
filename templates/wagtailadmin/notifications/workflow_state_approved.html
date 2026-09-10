@@ -3,7 +3,7 @@
 
 {% comment %}
   Overrides Wagtail's own workflow_state_approved.html (see wagtail/admin/mail.py
-  WorkflowStateApprovalEmailNotifier) so the moderation-cleared notice carries
+  WorkflowStateApprovalEmailNotifier) so the approval notice carries
   the V3 brand instead of Wagtail's bare admin styling. No Python changes
   needed for this: Wagtail resolves the template by path through Django's
   normal loader, so this file alone is enough to override Wagtail's stock
@@ -20,9 +20,9 @@
   legacy news.Entry flow), adapted to any Page-backed workflow.
 {% endcomment %}
 
-{% block title %}{% if page %}"{{ page.get_admin_display_title }}" cleared moderation{% else %}{% latest_str object as title %}"{{ title }}" cleared moderation{% endif %}{% endblock %}
+{% block title %}{% if page %}"{{ page.get_admin_display_title }}" is approved{% else %}{% latest_str object as title %}"{{ title }}" is approved{% endif %}{% endblock %}
 
-{% block preheader %}Your submission has been approved in workflow "{{ workflow.name }}".{% endblock %}
+{% block preheader %}Your post has been approved in workflow "{{ workflow.name }}".{% endblock %}
 
 {% block header %}
   {% base_url_setting default="" as base_url %}
@@ -35,7 +35,7 @@
   </tr>
 {% endblock %}
 
-{% block card_title %}Cleared moderation{% endblock %}
+{% block card_title %}Your post is approved{% endblock %}
 
 {% block card_body %}
   <p style="margin:0;">Hi {{ user.first_name|default:user.get_username }},</p>

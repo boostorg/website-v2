@@ -93,7 +93,7 @@ def test_auto_publish_on_approval_only_sends_wagtails_own_notice(
 ):
     """A single-task workflow auto-publishes on approval: `page_published`
     fires, then `workflow_approved` fires for the same click. The author
-    already gets Wagtail's own branded "cleared moderation" notice for that
+    already gets Wagtail's own branded "your post is approved" notice for that
     approval, so the "you're live" email here should not double up on it.
     """
     page = make_post_page(owner=user)
@@ -120,6 +120,35 @@ def test_publish_without_a_concurrent_approval_still_emails(
     page = make_post_page(owner=user)
     page.last_published_at = page.first_published_at  # a true first publish
 
+    with patch("pages.signals.send_post_published_email.delay") as delay:
+        with django_capture_on_commit_callbacks(execute=True):
+            page_published.send(sender=type(page), instance=page)
+
+    delay.assert_called_once_with(page.pk)
+
+
+@pytest.mark.django_db
+def test_approval_with_a_future_go_live_does_not_suppress_the_later_real_publish(
+    user, wagtail_site, make_post_page, django_capture_on_commit_callbacks
+):
+    """Approving a workflow is not the same as the page going live.
+
+    A `PostPage` with a future `go_live_at` still gets `workflow_approved` on
+    approval, but `page_published` (which Wagtail fires unconditionally) sees
+    `instance.live` still `False` and returns before registering a send -- so
+    nothing in that transaction consumes the flag the approval just set. When
+    the scheduled go-live actually publishes the page later, in its own
+    separate transaction, that stale flag must not silently eat the real
+    "you're live" email.
+    """
+    page = make_post_page(owner=user)
+
+    with django_capture_on_commit_callbacks(execute=True):
+        workflow_approved.send(
+            sender=None, instance=_FakeWorkflowState(page), user=user
+        )
+
+    page.last_published_at = page.first_published_at  # the real, later publish
     with patch("pages.signals.send_post_published_email.delay") as delay:
         with django_capture_on_commit_callbacks(execute=True):
             page_published.send(sender=type(page), instance=page)

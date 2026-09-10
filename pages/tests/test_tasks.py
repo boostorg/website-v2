@@ -20,7 +20,7 @@ def test_post_published_email_is_branded_multipart(user, wagtail_site, make_post
     send_post_published_email(page.pk)
 
     msg = mail.outbox[0]
-    assert msg.subject == "Boost.org: Post published"
+    assert msg.subject == "Boost.org: Your post is live"
     assert msg.recipients() == [user.email]
 
     html_body = next(

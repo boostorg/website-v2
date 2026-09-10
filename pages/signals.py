@@ -67,6 +67,16 @@ def flag_post_as_just_approved(sender, instance, **kwargs):
     """Mark a `PostPage` so the handler above skips its own "you're live"
     email when the page auto-published as a direct result of this same
     approval, per the docstring above.
+
+    Approving a workflow is not the same as the page going live: a `PostPage`
+    with a future `go_live_at` still gets `workflow_approved` here, but stays
+    unpublished (Wagtail's `PublishPageRevisionAction` fires `page_published`
+    unconditionally, and the handler above returns before registering an
+    `on_commit` send for a page that isn't live yet). Left unattended, that
+    flag would leak past this transaction and could wrongly suppress the real
+    "you're live" email once the scheduled go-live actually publishes the
+    page later, on its own, unrelated transaction. So this always schedules
+    its own cleanup, whether or not the flag ends up consumed above.
     """
     page = instance.content_object
     if not isinstance(page, PostPage):
@@ -77,3 +87,6 @@ def flag_post_as_just_approved(sender, instance, **kwargs):
     if not hasattr(_local, "approved_page_ids"):
         _local.approved_page_ids = set()
     _local.approved_page_ids.add(page.pk)
+
+    page_id = page.pk
+    transaction.on_commit(lambda: _local.approved_page_ids.discard(page_id))
