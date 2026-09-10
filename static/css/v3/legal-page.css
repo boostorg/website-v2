@@ -14,11 +14,11 @@ body:has(.legal-page) .v3-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   position: relative;
   gap: calc(2 * var(--space-xl));
   width: 100%;
-  padding: 80px var(--space-medium) 43px var(--space-medium);
+  padding: 80px 10% 43px 10%;
 }
 
 .legal-page__inner {
@@ -28,10 +28,6 @@ body:has(.legal-page) .v3-container {
   align-items: flex-start;
   justify-content: flex-start;
   width: 100%;
-  min-width: 0;
-  max-width: 696px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .legal-page__header {
@@ -117,6 +113,72 @@ body:has(.legal-page) .v3-container {
   text-decoration: underline;
 }
 
+.legal-page__top-copy {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.legal-page__top-image {
+  top: 20px;
+  position: sticky;
+}
+
+.legal-page__top-copy > :first-child {
+  max-width: 40%;
+}
+
+.legal-page__top-copy > :last-child {
+  max-width: 50%;
+}
+
+.legal-page__cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  gap: 16px;
+}
+
+.legal-page__cards-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.legal-page-card {
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  margin: 0;
+  padding: var(--space-card);
+  border-radius: var(--border-radius-l);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-stroke-weak);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  position: relative;
+  box-sizing: border-box;
+  align-self: start;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.legal-page-card p {
+  padding: 0px;
+}
+
+.legal-page-card ul {
+  list-style: unset;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  padding-left: 40px;
+}
+
+.legal-page-card .content-detail-icon__description {
+  padding-right: 32px;
+}
+
+
 /* Responsive Adjustments */
 @media (max-width: 1024px) {
   .legal-page {
@@ -132,5 +194,23 @@ body:has(.legal-page) .v3-container {
 @media (max-width: 767px) {
   .legal-page {
     padding-top: 32px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .legal-page__top-copy {
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .legal-page__top-copy > :first-child {
+    max-width: 100%;
+  }
+  .legal-page__top-copy > :last-child {
+    max-width: 100%;
+  }
+
+  .legal-page__cards {
+    grid-template-columns: 1fr;
   }
 }
