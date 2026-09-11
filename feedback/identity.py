@@ -26,20 +26,21 @@ def submitter_key(request):
 
 
 def client_address(request):
-    """The caller's address, most trustworthy source first.
+    """The caller's address, or empty when none can be trusted.
 
-    `Fastly-Client-IP` is overwritten by the CDN, so it is the one value in the
-    chain a caller cannot choose. `X-Forwarded-For` reaches us as what the caller
-    sent followed by what nginx saw, because nginx appends rather than replaces.
-    Its first entry is caller-supplied, and is only a fallback for environments
-    with no CDN in front.
+    Only two sources are consulted. The CDN overwrites `Fastly-Client-IP`, and
+    `REMOTE_ADDR` comes from the server rather than the request, so neither can
+    be chosen by the caller.
 
-    Parsed rather than trusted: the result becomes part of a cache key, and these
-    are client-supplied headers.
+    `X-Forwarded-For` is deliberately not consulted. nginx appends to it instead
+    of replacing it, so its first entry is whatever the caller sent: a different
+    value on each request would buy a fresh allowance every time and the limit
+    would count nothing.
+
+    Parsed rather than trusted, since the result becomes part of a cache key.
     """
     candidates = (
         ("fastly-client-ip", request.headers.get("fastly-client-ip", "")),
-        ("x-forwarded-for", request.headers.get("x-forwarded-for", "").split(",")[0]),
         ("remote-addr", request.META.get("REMOTE_ADDR", "")),
     )
     for source, candidate in candidates:
