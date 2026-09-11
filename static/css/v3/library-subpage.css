@@ -2,8 +2,9 @@
   Library Subpage layout.
 
   .card-masonry-top: CSS multi-column, so cards pack into as many columns as fit
-  (3 → 2 → 1 by width) with no strict breakpoints and no grid row-stretching
-  gaps. Reading order runs down each column, then across.
+  (3 → 2 → 1 by width) with no grid row-stretching gaps. Reading order runs down
+  each column, then across. At three columns the column starts are pinned, so
+  card placement does not depend on how many cards there are or how tall.
 
   .card-masonry-bottom: posts 2/3 + mailing list 1/3, stacking on mobile.
 */
@@ -53,6 +54,26 @@ body:has(.hero:not(.hero--no-image)) .library-subpage-container {
 .card-masonry-top > * {
   break-inside: avoid;
   padding-bottom: var(--space-card);
+}
+
+/* Pin the three columns at the widths where three actually fit. Balanced
+   multi-column places cards by height, so an absent optional card — or merely a
+   taller one — shifts every card after it into the wrong column. Quick Start and
+   Contributors always render, so forcing a break before each one fixes the
+   column starts regardless of which optional cards are present:
+     1 About, Benchmarks | 2 Quick Start, Dependencies, Designed for, Freeform,
+     Install | 3 Contributors
+   column-count pins it to 3 so the forced breaks can't spill into a 4th. */
+@media (min-width: 1120px) {
+  .card-masonry-top {
+    columns: 3;
+  }
+
+  .card-masonry-top .item-b,
+  .card-masonry-top .item-d {
+    -webkit-column-break-before: always;
+    break-before: column;
+  }
 }
 
 /* ── Bottom card row (desktop/tablet: posts 2/3, mailing 1/3) ────────────── */
