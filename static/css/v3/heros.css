@@ -709,6 +709,85 @@
   padding: 0;
 }
 
+/* Expandable description (expandable_description in _hero_library.html): library
+   descriptions are unbounded, so a long one is clamped to 3 lines and the rest is
+   reached through the "See more" toggle. */
+.hero__description-block {
+  position: relative;
+  align-self: stretch;
+  z-index: 1;
+}
+
+/* The block's fixed height would clip an expanded description, so it becomes a
+   floor instead. The illustration is absolutely positioned and bottom-anchored,
+   so it stays put as the block grows. .hero--no-image already sizes this way,
+   with its own smaller floor, and is left alone.
+   768 up only: below that the flagship hero stacks text over the figure and needs
+   a definite height for the figure to flex against (#2758), and this rule would
+   out-specify it. No library with hero art has a description long enough to clamp
+   yet, so nothing is cut off there today. */
+@media (min-width: 768px) {
+  .hero:not(.hero--no-image) .hero__block:has(.hero__description-block) {
+    height: auto;
+    min-height: var(--hero-block-height);
+  }
+}
+
+.hero__description--clamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.hero__description-input:checked ~ .hero__description--clamped,
+.hero__description--unclamped {
+  display: block;
+  overflow: visible;
+  line-clamp: none;
+  -webkit-line-clamp: none;
+}
+
+.hero__description-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.hero__description-toggle {
+  display: inline-block;
+  margin-top: var(--space-default);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-loose-alt);
+  letter-spacing: -0.01em;
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.hero__description-input:focus-visible ~ .hero__description-toggle {
+  outline: 2px solid var(--color-stroke-link-accent);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-xs);
+}
+
+.hero__description-toggle-less,
+.hero__description-input:checked ~ .hero__description-toggle .hero__description-toggle-more {
+  display: none;
+}
+
+.hero__description-input:checked ~ .hero__description-toggle .hero__description-toggle-less {
+  display: inline;
+}
+
 .hero__links {
   display: flex;
   flex-direction: row;
@@ -938,6 +1017,10 @@ html.dark .hero__links .btn-icon-library:hover {
    whether or not LIBRARY_HERO_ART has an entry, so ungated this turned every
    art-less flagship description white on the light surface (#2790). */
 .hero--library.hero--with-background-image .hero__description {
+  color: #fff;
+}
+
+.hero--library.hero--with-background-image .hero__description-toggle {
   color: #fff;
 }
 
