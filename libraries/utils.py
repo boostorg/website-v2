@@ -243,9 +243,14 @@ def determine_selected_boost_version(request_value, request):
     if version_slug in (DEVELOP_RELEASE_URL_PATH_STR, MASTER_RELEASE_URL_PATH_STR):
         version_args = {f"allow_{version_slug}": True}
 
-    valid_versions = getattr(request, "extra_context", {}).get(
-        "versions", Version.objects.get_dropdown_versions(**version_args)
-    )
+    # `.get(key, default)` would evaluate `default` eagerly even when `key` is
+    # already present, so build it lazily instead - this call runs several
+    # times per request and the dropdown query is not free.
+    extra_context = getattr(request, "extra_context", {})
+    if "versions" in extra_context:
+        valid_versions = extra_context["versions"]
+    else:
+        valid_versions = Version.objects.get_dropdown_versions(**version_args)
     if version_slug in [v.slug for v in valid_versions] + [LATEST_RELEASE_URL_PATH_STR]:
         return version_slug
     logger.warning(f"Invalid version slug in cookies: {version_slug}")
