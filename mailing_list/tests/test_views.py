@@ -1,5 +1,8 @@
 import pytest
+from django.contrib.auth.models import AnonymousUser
 from django.core import signing
+from django.template.loader import render_to_string
+from django.test import Client
 from django.urls import reverse
 from model_bakery import baker
 from unittest.mock import patch
@@ -350,3 +353,89 @@ def test_no_js_quick_subscribe_strips_referer_host(client, user):
         )
     assert response.status_code == 302
     assert response["Location"] == "/community/?edit=true"
+
+
+# ---------------------------------------------------------------------------
+# CSRF: exempt for anonymous requests, still enforced once a session is involved
+# ---------------------------------------------------------------------------
+
+
+def _render_card(rf, user):
+    request = rf.get("/")
+    request.user = user
+    return render_to_string(
+        "v3/includes/_mailing_list_card.html",
+        {
+            "subscribe_url": reverse("mailing-list-quick-subscribe"),
+            "modal_subscribe_url": reverse("mailing-list-modal-subscribe"),
+            "mailing_lists": [
+                {"id": LIST_ID, "name": "Boost", "address": LIST_ID, "description": ""}
+            ],
+            "list_id": LIST_ID,
+        },
+        request=request,
+    )
+
+
+@pytest.mark.django_db
+def test_card_omits_csrf_token_for_anonymous(rf):
+    """Rendering the card for a logged-out visitor must not call {% csrf_token %},
+    or Django sets the csrftoken cookie on every response and the CDN can't
+    cache the page (community, learn, release detail, library pages)."""
+    html = _render_card(rf, AnonymousUser())
+    assert "csrfmiddlewaretoken" not in html
+
+
+@pytest.mark.django_db
+def test_card_includes_csrf_token_for_authenticated(rf, user):
+    """Authenticated rendering keeps the token: those pages aren't cached anyway,
+    and the forms mutate session-bound subscription state."""
+    html = _render_card(rf, user)
+    assert "csrfmiddlewaretoken" in html
+
+
+@pytest.mark.django_db
+def test_anon_quick_subscribe_succeeds_without_csrf_token():
+    """QuickSubscribeView is csrf_exempt: the anonymous flow is stateless (just
+    sends a confirmation email), so there's no session-bound action to forge."""
+    csrf_client = Client(enforce_csrf_checks=True)
+    url = reverse("mailing-list-quick-subscribe")
+    with patch("mailing_list.views._send_confirmation_email"), patch(
+        "mailing_list.views.MailmanClient"
+    ) as MockClient:
+        MockClient.return_value.is_confirmed.return_value = False
+        response = csrf_client.post(url, {"email": EMAIL, "list_id": LIST_ID})
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_auth_quick_subscribe_rejects_request_without_csrf_token(user):
+    """Authenticated requests write to the caller's own subscription state, so
+    the standard CSRF check still applies."""
+    csrf_client = Client(enforce_csrf_checks=True)
+    csrf_client.force_login(user)
+    url = reverse("mailing-list-quick-subscribe")
+    response = csrf_client.post(url, {"email": user.email, "list_id": LIST_ID})
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_anon_modal_subscribe_succeeds_without_csrf_token():
+    """ModalSubscribeView is csrf_exempt: the anonymous flow only sends a
+    confirmation email, no session-bound state is touched."""
+    csrf_client = Client(enforce_csrf_checks=True)
+    url = reverse("mailing-list-modal-subscribe")
+    with patch("mailing_list.views._send_confirmation_email"):
+        response = csrf_client.post(url, {"email": EMAIL, "list_id": [LIST_ID]})
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_auth_modal_subscribe_rejects_request_without_csrf_token(user):
+    """Authenticated requests can subscribe/unsubscribe the caller's own lists,
+    so the standard CSRF check still applies."""
+    csrf_client = Client(enforce_csrf_checks=True)
+    csrf_client.force_login(user)
+    url = reverse("mailing-list-modal-subscribe")
+    response = csrf_client.post(url, {"email": user.email, "list_id": [LIST_ID]})
+    assert response.status_code == 403

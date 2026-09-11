@@ -8,7 +8,7 @@ from operator import attrgetter
 from django.db.models import Q, Count
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import View
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET
 from django.views.generic import DetailView, TemplateView, ListView
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
@@ -42,15 +42,16 @@ from versions.models import Review, Version
 logger = structlog.get_logger()
 
 
-@require_POST
+@require_GET
 def set_version(request):
     """Writes the selected version cookie, then redirects back to the referring page.
 
     Used by the navbar version dropdown on pages that are not version-aware
-    (i.e. everything except `/releases/`, `/libraries/`, `/library/`). Validation
-    and cookie semantics are delegated to `set_selected_boost_version`.
+    (i.e. everything except `/releases/`, `/libraries/`, `/library/`). A plain
+    GET link, so no CSRF token is required in the header on every page.
+    Validation and cookie semantics are delegated to `set_selected_boost_version`.
     """
-    version_slug = request.POST.get("version", "")
+    version_slug = request.GET.get("version", "")
     referer = request.headers.get("referer", "")
     if referer and url_has_allowed_host_and_scheme(
         url=referer,
@@ -60,7 +61,7 @@ def set_version(request):
         next_url = referer
     else:
         next_url = "/"
-    response = HttpResponseRedirect(next_url, status=303)
+    response = HttpResponseRedirect(next_url)
     set_selected_boost_version(version_slug, response)
     return response
 

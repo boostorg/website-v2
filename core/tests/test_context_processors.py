@@ -114,16 +114,18 @@ def test_selected_version_url_driven_with_latest_slug(rf):
 
 def test_selected_version_cookie_driven(rf):
     """Cookie mode: no URL slug, cookie picks the version, dropdown renders
-    POST forms (no `latest_href`, no per-option `.href`)."""
+    GET links to `set-version` (no CSRF token needed)."""
     request = rf.get("/")
     request.COOKIES[SELECTED_BOOST_VERSION_COOKIE_NAME] = "boost-1-87-0"
-    _, older = _stub_header_data(request)
+    most_recent, older = _stub_header_data(request)
     ctx = selected_version(request)
     assert ctx["selected_version_is_url_driven"] is False
     assert ctx["selected_version_is_non_latest"] is True
     assert ctx["selected_version_label"] == "1.87.0"
     assert ctx["selected_version"] is older
-    assert ctx["latest_href"] == ""
+    assert ctx["latest_href"] == "/set-version/?version=latest"
+    assert most_recent.href == "/set-version/?version=boost-1-88-0"
+    assert older.href == "/set-version/?version=boost-1-87-0"
 
 
 def test_selected_version_ignores_foreign_route_with_same_kwarg(rf):

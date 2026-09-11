@@ -15,6 +15,14 @@ Variables:
   subscribed_ids       - (optional) set of list IDs the user is currently subscribed to; controls checkbox state
   error_message        - error text shown when state="error"
 
+Both forms omit {% csrf_token %} for anonymous requests, on purpose: this card
+renders on cached, logged-out pages, and calling the tag unconditionally makes
+Django set the csrftoken cookie on every response, which defeats CDN caching.
+The anonymous POST handlers (QuickSubscribeView, ModalSubscribeView) are
+csrf_exempt to match, since anonymous submissions here don't touch any
+session-bound state. Authenticated requests still get the token and are still
+checked.
+
 Modal open/close: CSS-only via :target (id="mailing-list-modal"), matching the _dialog.html pattern.
 The "Manage your lists" trigger and the modal form work without JS (the form posts
 natively via method/action; the view redirects (PRG) for non-HTMX requests).
@@ -76,7 +84,7 @@ and HTMX swaps [data-ml-block] in place; x-init then clears the URL hash so the 
         class="mailing-list-card__form"
         @submit.prevent="mlEmail = $event.target.elements.email.value.trim(); if (mlEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mlEmail)) window.location.hash = 'mailing-list-modal'"
       >
-        {% csrf_token %}
+        {% if request.user.is_authenticated %}{% csrf_token %}{% endif %}
         <input type="hidden" name="list_id" value="{{ list_id|default:'boost.lists.boost.org' }}">
         <div class="card__column px-large">
           <span>Get the latest on releases, features, security patches, fixes and all major announcements.</span>
@@ -138,7 +146,7 @@ and HTMX swaps [data-ml-block] in place; x-init then clears the URL hash so the 
               hx-post="{{ modal_subscribe_url }}"
               hx-target="closest [data-ml-block]"
               hx-swap="outerHTML">
-          {% csrf_token %}
+          {% if request.user.is_authenticated %}{% csrf_token %}{% endif %}
           <input type="hidden" name="email" value="{{ user_email|default:'' }}" :value="mlEmail">
           <div class="mailing-list-modal__list-card">
             <ul class="mailing-list-modal__list" role="list" x-ref="checkboxContainer">

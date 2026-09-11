@@ -9,13 +9,16 @@ from django.core import signing
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, transaction
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
+from django.middleware.csrf import CsrfViewMiddleware
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.timesince import timesince
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 
 from mailing_list import constants
 from mailing_list.client import MailmanAPIError
@@ -77,6 +80,20 @@ def _get_client_ip(request) -> str:
 
 def _is_privileged(user) -> bool:
     return user.is_authenticated and (user.is_staff or user.is_superuser)
+
+
+def _reject_forged_authenticated_request(request) -> HttpResponseForbidden | None:
+    """Run the standard CSRF check, but only for authenticated requests.
+
+    Callers of this are csrf_exempt so the card can render on cached, logged-out
+    pages without Django setting the csrftoken cookie on every response. Once a
+    session is involved, a forged request can mutate that user's real
+    subscription state (e.g. unsubscribe them from active lists), so
+    authenticated requests still go through the normal check.
+    """
+    if not request.user.is_authenticated:
+        return None
+    return CsrfViewMiddleware(lambda r: None).process_view(request, None, (), {})
 
 
 def _rate_limit_key(request) -> str:
@@ -285,6 +302,7 @@ def _build_card_context(request) -> dict:
     return ctx
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class QuickSubscribeView(View):
     """Subscribe to a single list. Works for both authenticated and anonymous users.
 
@@ -300,6 +318,10 @@ class QuickSubscribeView(View):
         )
 
     def post(self, request):
+        rejected = _reject_forged_authenticated_request(request)
+        if rejected:
+            return rejected
+
         email = request.POST.get("email", "").strip()
         managed_lists = set(constants.MAILMAN_LISTS)
         list_id = request.POST.get("list_id", "").strip()
@@ -560,6 +582,7 @@ class ConfirmSubscriptionView(View):
         )
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class ModalSubscribeView(View):
     """Subscribe to one or more lists via the list-selection modal.
 
@@ -598,6 +621,10 @@ class ModalSubscribeView(View):
         )
 
     def post(self, request):
+        rejected = _reject_forged_authenticated_request(request)
+        if rejected:
+            return rejected
+
         email = request.POST.get("email", "").strip()
         managed_lists = set(constants.MAILMAN_LISTS)
         list_ids = [
