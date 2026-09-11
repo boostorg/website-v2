@@ -1,6 +1,6 @@
 {% load wagtailadmin_tags %}{% autoescape off %}{% base_url_setting default="" as base_url %}{% if page %}"{{ page.get_admin_display_title }}" is approved
 
-Your post has been approved in workflow "{{ workflow.name }}".
+Your post has been approved by moderation.
 
 ------------------------------------------------------------
 {{ page.title }}
@@ -11,7 +11,7 @@ Your post has been approved in workflow "{{ workflow.name }}".
 View: {{ page.full_url }}
 {% else %}{% latest_str object as title %}"{{ title }}" is approved
 
-Your post has been approved in workflow "{{ workflow.name }}".
+Your post has been approved by moderation.
 {% endif %}
 Thank you, the Boost moderator team.
 

@@ -22,7 +22,7 @@
 
 {% block title %}{% if page %}"{{ page.get_admin_display_title }}" is approved{% else %}{% latest_str object as title %}"{{ title }}" is approved{% endif %}{% endblock %}
 
-{% block preheader %}Your post has been approved in workflow "{{ workflow.name }}".{% endblock %}
+{% block preheader %}Your post has been approved by moderation.{% endblock %}
 
 {% block header %}
   {% base_url_setting default="" as base_url %}
@@ -40,11 +40,11 @@
 {% block card_body %}
   <p style="margin:0;">Hi {{ user.first_name|default:user.get_username }},</p>
   {% if page %}
-    <p style="margin:14px 0 0 0;">"{{ page.get_admin_display_title }}" has been approved in workflow "{{ workflow.name }}".</p>
+    <p style="margin:14px 0 0 0;">Your post "{{ page.get_admin_display_title }}" has been approved by moderation.</p>
     {% include "v3/pages/email/_post_preview.html" %}
   {% else %}
     {% latest_str object as title %}
-    <p style="margin:14px 0 0 0;">"{{ title }}" has been approved in workflow "{{ workflow.name }}".</p>
+    <p style="margin:14px 0 0 0;">Your post "{{ title }}" has been approved by moderation.</p>
   {% endif %}
 {% endblock %}
 
