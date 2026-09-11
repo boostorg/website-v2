@@ -5,7 +5,7 @@ the radio/CSS state key, `command` is the shell command shown to the user.
 """
 
 INSTALL_PKG_MANAGERS = [
-    {"label": "Conan", "value": "conan", "command": "conan install boost"},
+    {"label": "Conan", "value": "conan", "command": "conan install --requires='boost/[*]'"},
     {"label": "Vcpkg", "value": "vcpkg", "command": "vcpkg install boost"},
 ]
 
