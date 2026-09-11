@@ -916,8 +916,11 @@ html.dark .hero__links .btn-icon-library:hover {
    under it, putting the description tail on the animal's trousers. Same cap and
    same value the community hero uses for this collision a few rules down; worst
    case is a 3-line description at 286px in the 400px block, so nothing spills. */
+/* `:not(.hero--no-image)` because the cap exists to clear the figure, and an
+   art-less flagship has none — there it would only halve the column against the
+   base 662px. Same reason the mobile block rule below is gated. */
 @media (min-width: 768px) and (max-width: 1279px) {
-  .hero--library .hero__content {
+  .hero--library:not(.hero--no-image) .hero__content {
     max-width: min(615px, 50vw);
   }
 }
@@ -930,8 +933,11 @@ html.dark .hero__links .btn-icon-library:hover {
    description at every width in that range. */
 /* White rather than the grey-400 the shared rule sets. Grey is what forced the
    scrim dark, so raising the alpha below without reverting this will not help.
-   `.hero--community` does the same. */
-.hero--library .hero__description {
+   `.hero--community` does the same.
+   Gated on the scrim, not on `.hero--library`: the flagship branch adds that class
+   whether or not LIBRARY_HERO_ART has an entry, so ungated this turned every
+   art-less flagship description white on the light surface (#2790). */
+.hero--library.hero--with-background-image .hero__description {
   color: #fff;
 }
 
