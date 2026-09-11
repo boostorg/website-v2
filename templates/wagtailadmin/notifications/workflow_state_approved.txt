@@ -18,5 +18,5 @@ Thank you, the Boost moderator team.
 --
 Boost.org is supported by grants from The C++ Alliance.
 
-Update your notification preferences: {{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications
+Update your notification preferences: {{ base_url }}{% url 'profile-account' %}?edit=true
 {% endautoescape %}

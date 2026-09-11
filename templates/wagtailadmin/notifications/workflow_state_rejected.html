@@ -61,7 +61,7 @@
   {% base_url_setting default="" as base_url %}
   <br><br>
   Want to change how you receive these emails?<br>
-  <a href="{{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications" style="color:#050816;text-decoration:underline;">Update your notification preferences</a>.
+  <a href="{{ base_url }}{% url 'profile-account' %}?edit=true" style="color:#050816;text-decoration:underline;">Update your notification preferences</a>.
 {% endblock %}
 
 {% block after_card %}
