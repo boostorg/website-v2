@@ -263,6 +263,28 @@ def test_a_forged_forwarding_header_does_not_buy_a_fresh_allowance(
     assert Feedback.objects.count() == 1
 
 
+def test_a_forwarded_header_cannot_identify_a_submitter(url, payload, monkeypatch):
+    """With no CDN header, X-Forwarded-For must not be believed.
+
+    nginx appends to that header rather than replacing it, so its first entry is
+    whatever the caller sent. Were it trusted, a new value per request would buy a
+    fresh allowance each time. Both submissions below claim a different address and
+    must still land in the same bucket.
+    """
+    monkeypatch.setattr("feedback.views.RATE_LIMIT", 1)
+
+    first = Client().post(
+        url, payload, headers={**XHR, "x-forwarded-for": "203.0.113.5"}
+    )
+    second = Client().post(
+        url, payload, headers={**XHR, "x-forwarded-for": "198.51.100.9"}
+    )
+
+    assert first.status_code == 200
+    assert second.status_code == 429
+    assert Feedback.objects.count() == 1
+
+
 def test_a_submission_with_no_usable_address_is_not_refused(url, payload, monkeypatch):
     """Losing a report is worse than letting an unidentifiable caller through."""
     monkeypatch.setattr("feedback.views.RATE_LIMIT", 0)
