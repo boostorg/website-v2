@@ -517,6 +517,27 @@ def test_library_detail_v3_about_card_falls_back_to_the_docs_link(
 
 
 @waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_v3_bare_library_keeps_the_pinned_column_cards(
+    tp, library_version, wagtail_site
+):
+    """The masonry pins its columns on About, Quick Start and Contributors, so
+    those three render even when the library has no adoc content at all."""
+    library_version.website_adoc = {}
+    library_version.save()
+    library_version.dependencies.clear()
+
+    url = tp.reverse("library-detail", "latest", library_version.library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+
+    content = response.content.decode()
+    assert not tp.get_context("dependencies_list")
+    assert 'class="item-e"' not in content
+    for item in ('class="item-a"', 'class="item-b"', 'class="item-d"'):
+        assert item in content
+
+
+@waffle.testutils.override_flag("v3", active=True)
 def test_library_detail_v3_latest_posts_cta_points_at_the_news_index(
     tp, library_version, make_post_page, post_index_page, wagtail_site
 ):
