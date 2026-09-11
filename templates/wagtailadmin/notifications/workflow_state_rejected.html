@@ -33,11 +33,11 @@
 {% block card_body %}
   <p style="margin:0;">Hi {{ user.first_name|default:user.get_username }},</p>
   {% if page %}
-    <p style="margin:14px 0 0 0;">Your post "{{ page.get_admin_display_title }}" needs changes before it can be approved{% if task_state.finished_by %}, according to {{ task_state.finished_by|user_display_name }}{% endif %}.</p>
+    <p style="margin:14px 0 0 0;">Your post "{{ page.get_admin_display_title }}" needs changes before it can be approved.</p>
     {% include "v3/pages/email/_post_preview.html" %}
   {% else %}
     {% latest_str object as title %}
-    <p style="margin:14px 0 0 0;">Your post "{{ title }}" needs changes before it can be approved{% if task_state.finished_by %}, according to {{ task_state.finished_by|user_display_name }}{% endif %}.</p>
+    <p style="margin:14px 0 0 0;">Your post "{{ title }}" needs changes before it can be approved.</p>
   {% endif %}
   {% if comment %}
     <p style="margin:14px 0 0 0;">Comment left: &#34;{{ comment }}&#34;</p>

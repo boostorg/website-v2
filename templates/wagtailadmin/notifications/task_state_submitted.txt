@@ -1,7 +1,5 @@
 {% load wagtailadmin_tags %}{% autoescape off %}{% base_url_setting default="" as base_url %}{% if page %}"{{ page.get_admin_display_title }}" needs your review
 
-You're receiving this because you moderate "{{ task.name }}".
-
 {{ page.owner.display_name|default:page.owner.get_username }} submitted "{{ page.get_admin_display_title }}" for review:
 
 ------------------------------------------------------------
@@ -11,12 +9,12 @@ You're receiving this because you moderate "{{ task.name }}".
 ------------------------------------------------------------
 
 Preview: {{ base_url }}{% url 'wagtailadmin_pages:workflow_preview' page.id task.id %}
-Edit: {{ base_url }}{% url 'wagtailadmin_pages:edit' page.id %}
+Review: {{ base_url }}{% url 'wagtailadmin_pages:edit' page.id %}
 {% else %}{% latest_str object as title %}{% admin_edit_url object user as edit_url %}"{{ title }}" needs your review
 
-{{ task.name }} is waiting on your approval.
+This has been submitted for review.
 {% if edit_url %}
-Edit: {{ base_url }}{{ edit_url }}
+Review: {{ base_url }}{{ edit_url }}
 {% endif %}{% endif %}
 
 Thank you, the Boost moderator team.

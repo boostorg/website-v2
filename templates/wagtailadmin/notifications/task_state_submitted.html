@@ -17,7 +17,7 @@
 
 {% block title %}{% if page %}"{{ page.get_admin_display_title }}" needs your review{% else %}{% latest_str object as title %}"{{ title }}" needs your review{% endif %}{% endblock %}
 
-{% block preheader %}{% if page %}{{ page.owner.display_name|default:page.owner.get_username }} submitted "{{ page.get_admin_display_title }}" for review.{% else %}{{ task.name }} is waiting on your approval.{% endif %}{% endblock %}
+{% block preheader %}{% if page %}{{ page.owner.display_name|default:page.owner.get_username }} submitted "{{ page.get_admin_display_title }}" for review.{% else %}This has been submitted for review.{% endif %}{% endblock %}
 
 {% block header %}
   {% base_url_setting default="" as base_url %}
@@ -33,13 +33,12 @@
 {% block card_title %}{% if page %}A post needs your review{% else %}This needs your review{% endif %}{% endblock %}
 
 {% block card_body %}
-  <p style="margin:0;">You&#39;re receiving this because you moderate "{{ task.name }}".</p>
   {% if page %}
-    <p style="margin:14px 0 0 0;">{{ page.owner.display_name|default:page.owner.get_username }} submitted "{{ page.get_admin_display_title }}" for review.</p>
+    <p style="margin:0;">{{ page.owner.display_name|default:page.owner.get_username }} submitted "{{ page.get_admin_display_title }}" for review.</p>
     {% include "v3/pages/email/_post_preview.html" %}
   {% else %}
     {% latest_str object as title %}
-    <p style="margin:14px 0 0 0;">"{{ title }}" has been submitted for approval in moderation stage "{{ task.name }}".</p>
+    <p style="margin:0;">"{{ title }}" has been submitted for review.</p>
   {% endif %}
 {% endblock %}
 
@@ -49,11 +48,11 @@
     {% url 'wagtailadmin_pages:workflow_preview' page.id task.id as preview_url %}
     {% url 'wagtailadmin_pages:edit' page.id as edit_url %}
     {% include "emails/_cta_button.html" with url=base_url|add:preview_url label="Preview" %}
-    {% include "emails/_cta_button.html" with url=base_url|add:edit_url label="Edit" secondary=True %}
+    {% include "emails/_cta_button.html" with url=base_url|add:edit_url label="Review" secondary=True %}
   {% else %}
     {% admin_edit_url object user as edit_url %}
     {% if edit_url %}
-      {% include "emails/_cta_button.html" with url=base_url|add:edit_url label="Edit" %}
+      {% include "emails/_cta_button.html" with url=base_url|add:edit_url label="Review" %}
     {% endif %}
   {% endif %}
 {% endblock %}
