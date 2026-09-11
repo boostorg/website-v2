@@ -198,20 +198,30 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
     """Based on LibraryVersion, list all of our libraries in grid format for a specific
     Boost version, or default to the current version."""
 
-    queryset = LibraryVersion.objects.prefetch_related(
-        # author_details links the author's profile, which reads their routing
-        # keys. The inner queryset is ordered so that its `.first()` call can
-        # slice the prefetch cache: `first()` re-sorts an unordered queryset by
-        # pk, and that clone drops the cache and re-queries once per card.
-        Prefetch(
-            "authors",
-            queryset=User.objects.order_by("pk").prefetch_related(
-                "profile_routing_keys", active_badges_prefetch()
+    queryset = (
+        LibraryVersion.objects.select_related(
+            # LibraryVersion.__str__ reads self.version.name - without this, every
+            # unrelated per-instance str()/repr() (e.g. from logging, or Django
+            # Debug Toolbar's own template-context inspection) triggers a separate
+            # per-row fetch of the single version row every card shares.
+            "version"
+        )
+        .prefetch_related(
+            # author_details links the author's profile, which reads their routing
+            # keys. The inner queryset is ordered so that its `.first()` call can
+            # slice the prefetch cache: `first()` re-sorts an unordered queryset by
+            # pk, and that clone drops the cache and re-queries once per card.
+            Prefetch(
+                "authors",
+                queryset=User.objects.order_by("pk").prefetch_related(
+                    "profile_routing_keys", active_badges_prefetch()
+                ),
             ),
-        ),
-        "library",
-        "library__categories",
-    ).defer("data")
+            "library",
+            "library__categories",
+        )
+        .defer("data")
+    )
     ordering = "library__name"
     template_name = "libraries/grid_list.html"
     v3_template_name = "v3/library_page.html"
@@ -407,11 +417,21 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         return context
 
     def get_categories(self, version=None):
-        return (
+        # V3Mixin.get_context_data() re-enters this class's get_context_data()
+        # once to build the base context it then hands to get_v3_context_data(),
+        # so this runs twice per request. Cache per version so the second call
+        # reuses the first call's evaluated queryset instead of re-querying.
+        cache_key = version.pk if version else None
+        if getattr(self, "_categories_cache_key", "unset") == cache_key:
+            return self._categories_cache
+        categories = (
             Category.objects.filter(libraries__versions=version)
             .distinct()
             .order_by("name")
         )
+        self._categories_cache_key = cache_key
+        self._categories_cache = categories
+        return categories
 
     def render_to_response(self, context, **response_kwargs):
         if getattr(self, "_v3_active", False):
@@ -497,6 +517,14 @@ class LibraryCategorized(LibraryListBase):
         return context
 
     def get_results_by_category(self, version: Version | None):
+        # V3Mixin.get_context_data() re-enters this class's get_context_data()
+        # once to build the base context it then hands to get_v3_context_data(),
+        # so this - and its Library/LibraryVersion prefetch queries - would
+        # otherwise run twice per request. Cache per version.
+        cache_key = version.pk if version else None
+        if getattr(self, "_results_by_category_cache_key", "unset") == cache_key:
+            return self._results_by_category_cache
+
         # Define filter kwargs based on whether version is provided
         category_filter = (
             {"libraries__library_version__version": version} if version else {}
@@ -532,6 +560,8 @@ class LibraryCategorized(LibraryListBase):
             results_by_category.append(
                 {"category": category, "library_version_list": library_versions}
             )
+        self._results_by_category_cache_key = cache_key
+        self._results_by_category_cache = results_by_category
         return results_by_category
 
 
@@ -546,7 +576,10 @@ class LibraryByTier(LibraryListBase):
         return context
 
     def get_results_by_tier(self):
-        library_versions = self.get_queryset()
+        # self.object_list was already built from get_queryset() by ListView's
+        # get(), with the same filters this would otherwise re-apply - reuse it
+        # rather than re-running the query (and its prefetches) a second time.
+        library_versions = self.object_list
         flagship, core, other = group_libraries_by_tier(library_versions)
 
         return [
