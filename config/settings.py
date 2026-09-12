@@ -766,8 +766,21 @@ POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT = env.int(
 # Required by Wagtail
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
 WAGTAIL_SITE_NAME = "Boost.org"
-WAGTAILADMIN_BASE_URL = env("WAGTAILADMIN_BASE_URL", default="https://www.boost.org")
+# Notification emails (templates/wagtailadmin/notifications/) build every
+# absolute URL from this via Wagtail's `base_url_setting` tag, since they
+# fire from signals with no request to take a host from. Stage/production
+# set the env var explicitly (see kube/), so this default only ever applies
+# locally or in CI - without it, those emails would link to production even
+# when sent from a laptop.
+WAGTAILADMIN_BASE_URL = env(
+    "WAGTAILADMIN_BASE_URL",
+    default="http://localhost:8000" if LOCAL_DEVELOPMENT else "https://www.boost.org",
+)
 WAGTAILADMIN_NOTIFICATION_INCLUDE_SUPERUSERS = False
+# Without this, Wagtail's own workflow-submitted/approved/rejected notices
+# (templates/wagtailadmin/notifications/, overridden below with the V3 brand)
+# only ever send their .txt part.
+WAGTAILADMIN_NOTIFICATION_USE_HTML = True
 WAGTAILDOCS_EXTENSIONS = [
     "csv",
     "docx",

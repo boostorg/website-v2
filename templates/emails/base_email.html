@@ -12,11 +12,18 @@
                       offering it is omitted when this is absent, so
                       one-off transactional emails render without it
 
+  scheme/host only matter to the default `header` block below (the logo's
+  home link). A caller with no request to take them from - Wagtail's own
+  workflow-notification signals, for example - can override `header` instead
+  of supplying them, computing its own logo link inline (see
+  templates/wagtailadmin/notifications/ for an example using Wagtail's
+  `base_url_setting` tag).
+
   Body copy uses the platform UI font stack (Segoe UI on Windows, San Francisco
   on Apple, Roboto on Android) at a light 300 weight; the title, button and
   footer use Arial.
 
-  Child templates override the blocks: preheader, hero, card_title,
+  Child templates override the blocks: header, preheader, hero, card_title,
   card_body, cta_label and after_card. Emails that need more than one CTA, or
   none, override cta instead of cta_label and compose the _cta_button.html /
   _fallback_url.html partials themselves.
@@ -58,14 +65,16 @@
           <!--[if mso]><table role="presentation" align="center" width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
           <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background-color:#f7fdfe;">
 
-            <!-- Header: Boost logo -->
-            <tr>
-              <td style="padding:18px 16px;" align="left">
-                <a href="{{ scheme }}://{{ host }}/" style="text-decoration:none;">
-                  <img src="{% large_static 'img/emails/email-logo.png' %}" width="184" height="43" alt="Boost" style="display:block;width:184px;height:43px;">
-                </a>
-              </td>
-            </tr>
+            {% block header %}
+              <!-- Header: Boost logo -->
+              <tr>
+                <td style="padding:18px 16px;" align="left">
+                  <a href="{{ scheme }}://{{ host }}/" style="text-decoration:none;">
+                    <img src="{% large_static 'img/emails/email-logo.png' %}" width="184" height="43" alt="Boost" style="display:block;width:184px;height:43px;">
+                  </a>
+                </td>
+              </tr>
+            {% endblock %}
 
             <!-- Content -->
             <tr>

@@ -1,0 +1,75 @@
+{% extends "emails/base_email.html" %}
+{% load custom_static wagtailadmin_tags %}
+
+{% comment %}
+  Overrides Wagtail's own workflow_state_rejected.html (see wagtail/admin/mail.py
+  WorkflowStateRejectionEmailNotifier). See workflow_state_approved.html for why
+  this needs no Python changes and builds its own URLs via `base_url_setting`
+  instead of relying on context. Context: workflow, object, model_name, page
+  (only set when object is a Page), task, task_state, comment, user (recipient).
+
+  Post preview and moderator-team sign-off mirror the same news.Entry-flow
+  design workflow_state_approved.html and task_state_submitted.html mirror --
+  there is no rejection notice in that older flow to mirror directly.
+{% endcomment %}
+
+{% block title %}{% if page %}"{{ page.get_admin_display_title }}" needs changes{% else %}{% latest_str object as title %}"{{ title }}" needs changes{% endif %}{% endblock %}
+
+{% block preheader %}Your post needs changes before it can be approved.{% endblock %}
+
+{% block header %}
+  {% base_url_setting default="" as base_url %}
+  <tr>
+    <td style="padding:18px 16px;" align="left">
+      <a href="{{ base_url }}/" style="text-decoration:none;">
+        <img src="{% large_static 'img/emails/email-logo.png' %}" width="184" height="43" alt="Boost" style="display:block;width:184px;height:43px;">
+      </a>
+    </td>
+  </tr>
+{% endblock %}
+
+{% block card_title %}Your post needs changes{% endblock %}
+
+{% block card_body %}
+  <p style="margin:0;">Hi {{ user.first_name|default:user.get_username }},</p>
+  {% if page %}
+    <p style="margin:14px 0 0 0;">Your post "{{ page.get_admin_display_title }}" needs changes before it can be approved.</p>
+    {% include "v3/pages/email/_post_preview.html" %}
+  {% else %}
+    {% latest_str object as title %}
+    <p style="margin:14px 0 0 0;">Your post "{{ title }}" needs changes before it can be approved.</p>
+  {% endif %}
+  {% if comment %}
+    <p style="margin:14px 0 0 0;">Comment left: &#34;{{ comment }}&#34;</p>
+  {% endif %}
+{% endblock %}
+
+{% block cta %}
+  {% base_url_setting default="" as base_url %}
+  {% if page %}
+    {% url 'wagtailadmin_pages:edit' page.id as edit_url %}
+    {% include "emails/_cta_button.html" with url=base_url|add:edit_url label="Edit" %}
+  {% else %}
+    {% admin_edit_url object user as edit_url %}
+    {% if edit_url %}
+      {% include "emails/_cta_button.html" with url=base_url|add:edit_url label="Edit" %}
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block footer_links %}
+  {% base_url_setting default="" as base_url %}
+  <br><br>
+  Want to change how you receive these emails?<br>
+  <a href="{{ base_url }}{% url 'profile-account' %}?edit=true" style="color:#050816;text-decoration:underline;">Update your notification preferences</a>.
+{% endblock %}
+
+{% block after_card %}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td style="padding:24px 0 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:12px;line-height:1.45;color:#71737b;text-align:center;">
+        Thank you, the Boost moderator team.
+      </td>
+    </tr>
+  </table>
+{% endblock %}

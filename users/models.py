@@ -969,7 +969,10 @@ class User(BaseUser):
         from . import tasks
 
         email = self.email
-        transaction.on_commit(lambda: tasks.send_account_deleted_email.delay(email))
+        first_name = self.first_name
+        transaction.on_commit(
+            lambda: tasks.send_account_deleted_email.delay(email, first_name)
+        )
 
         # Remove linked auth + preference records. Manager-level deletes are
         # idempotent, so a second run (immediate delete racing the scheduled
