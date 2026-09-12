@@ -1,0 +1,25 @@
+{% comment %}
+  V3 Legal Page Card – single card (content-detail-icon).
+  Variables:
+    title       (required) — card heading
+    description (required) — card body text
+    icon_name   (optional) — icon name for includes/icon.html (e.g. "bullseye-arrow").
+                 If omitted (and badge_count not set), card is rendered without icon and modifier --has-icon is not applied.
+    icon_size   (optional) - Size in pixels of icon, defaults to 16px. Only used if icon_name is set.
+    icon_viewbox (optional) — icon viewBox; set "0 0 16 16" for 16-unit glyphs
+Usage:
+    {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers..." icon_name="bullseye-arrow" %}
+    With badge (e.g. carousel): {% include "..." with title="..." description="..." badge_count=1 %}
+{% endcomment %}
+{% load wagtailcore_tags %}
+<article class="legal-page-card{% if icon_name %} content-detail-icon--has-icon{% endif %}">
+  {% if icon_name %}
+  <div class="content-detail-icon__icon" aria-hidden="true">
+    {% include "includes/icon.html" with icon_name=icon_name icon_class="content-detail-icon__icon-svg" icon_size=icon_size|default:16 icon_viewbox=icon_viewbox %}
+  </div>
+  {% endif %}
+  <h3 class="content-detail-icon__title">
+    {{ title }}
+  </h3>
+  <div class="content-detail-icon__description">{{ description|richtext }}</div>
+</article>
