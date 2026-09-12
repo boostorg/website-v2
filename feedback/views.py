@@ -4,7 +4,6 @@ from urllib.parse import urlsplit
 
 import structlog
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
@@ -17,6 +16,7 @@ from feedback.diagnostics import (
     page_context,
     recent_server_errors,
 )
+from feedback.identity import submitter_key
 from feedback.models import (
     MESSAGE_MAX_LENGTH,
     PAGE_URL_MAX_LENGTH,
@@ -28,7 +28,6 @@ from feedback.models import (
 logger = structlog.get_logger()
 
 SUCCESS_MESSAGE = "Thanks for the feedback — the team will take a look."
-SIGNED_OUT_MESSAGE = "Your session has expired. Please sign in again to send feedback."
 THROTTLE_MESSAGE = (
     "Thanks for your feedback! You've reached the submission limit for now, "
     "please try again in an hour."
@@ -44,15 +43,18 @@ def wants_json(request):
 
 
 def is_rate_limited(request):
-    """Cache-backed so it holds for clients that discard cookies, unlike a session gate.
+    """Count this submission against its submitter, member or anonymous.
 
     Fails open. The cache is Redis, which raises when it is unreachable, and losing
     a report is a worse outcome than letting a runaway client through: sessions live
     in the database, so members stay signed in through a Redis outage and would hit
     this on the very page they were trying to report from.
     """
-    key = f"feedback_rate:user:{request.user.pk}"
     try:
+        identifier = submitter_key(request)
+        if identifier is None:
+            return False
+        key = f"feedback_rate:{identifier}"
         cache.add(key, 0, timeout=RATE_WINDOW)
         return cache.incr(key) > RATE_LIMIT
     except Exception:
@@ -60,11 +62,12 @@ def is_rate_limited(request):
         return False
 
 
-class FeedbackView(LoginRequiredMixin, View):
+class FeedbackView(View):
     """GET renders the standalone form; POST accepts submissions from it and the widget.
 
-    Login required: beta access is granted through the `v3` flag, which is scoped to
-    signed-in users, so every submitter has an account and an email we can reply to.
+    Open to signed-out visitors: the pages being reported on are public, so reporting
+    on them has to be too. Signed-in submitters are still identified by their account;
+    anonymous ones are saved with no user attached.
     """
 
     template_name = "v3/feedback_page.html"
@@ -72,9 +75,6 @@ class FeedbackView(LoginRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
         """Honour the same flags as the widget, so switching the beta off closes the
         endpoint rather than only hiding the launcher.
-
-        Runs before the login check, so a signed-out visitor gets a 404 instead of a
-        login redirect advertising a route that is not open.
         """
         if not (
             flag_is_active(request, "v3") and flag_is_active(request, "beta_feedback")
@@ -82,19 +82,13 @@ class FeedbackView(LoginRequiredMixin, View):
             raise Http404
         return super().dispatch(request, *args, **kwargs)
 
-    def handle_no_permission(self):
-        """A session that expired mid-form should say so, not fail opaquely."""
-        if wants_json(self.request):
-            return JsonResponse({"errors": {"__all__": SIGNED_OUT_MESSAGE}}, status=401)
-        return super().handle_no_permission()
-
     def get(self, request):
-        return self._render(request, FeedbackForm())
+        return self._render(request, self._form(request))
 
     def post(self, request):
         page_url = self._page_url(request)
 
-        form = FeedbackForm(request.POST, request.FILES)
+        form = self._form(request, request.POST, request.FILES)
         if not form.is_valid():
             if wants_json(request):
                 first_errors = {
@@ -114,7 +108,7 @@ class FeedbackView(LoginRequiredMixin, View):
             return redirect(self._safe_redirect_target(request, page_url))
 
         feedback = form.save(commit=False)
-        feedback.user = request.user
+        feedback.user = request.user if request.user.is_authenticated else None
         feedback.page_url = page_url
         feedback.source = self._source(request)
         feedback.user_agent = request.headers.get("user-agent", "")[
@@ -137,6 +131,10 @@ class FeedbackView(LoginRequiredMixin, View):
             return JsonResponse({"ok": True})
         messages.success(request, SUCCESS_MESSAGE)
         return redirect(self._safe_redirect_target(request, page_url))
+
+    def _form(self, request, *args):
+        """Members never see the contact field; their account is the contact detail."""
+        return FeedbackForm(*args, authenticated=request.user.is_authenticated)
 
     def _source(self, request):
         """Which form produced this submission, and whether JavaScript was running.

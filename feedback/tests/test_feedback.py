@@ -66,7 +66,7 @@ def beta_flags():
 
 @pytest.fixture(autouse=True)
 def signed_in(client, user):
-    """Every path requires an account; the signed-out tests use their own client."""
+    """Most paths are exercised signed in; the anonymous tests use their own client."""
     client.force_login(user)
     return user
 
@@ -91,25 +91,27 @@ def test_the_endpoint_is_closed_when_the_beta_is_off(client, url, payload, flag)
     assert not Feedback.objects.exists()
 
 
-def test_a_closed_endpoint_does_not_redirect_to_log_in(url):
-    """Flags are checked before auth, so a closed route is not advertised."""
+def test_a_closed_endpoint_is_not_advertised_to_signed_out_visitors(url):
+    """The flag closes the route for everyone, not only for members."""
     with waffle.testutils.override_flag("beta_feedback", active=False):
         assert Client().get(url).status_code == 404
 
 
-def test_signed_out_submission_is_refused(url, payload):
-    """Beta access is gated on an account, so there is no anonymous path."""
+def test_signed_out_submission_is_accepted_without_a_user(url, payload):
+    """The pages being reported on are public, so reporting on them is too."""
     response = Client().post(url, payload, headers=XHR)
 
-    assert response.status_code == 401
-    assert not Feedback.objects.exists()
+    assert response.status_code == 200
+    assert Feedback.objects.get().user is None
 
 
-def test_signed_out_visitor_is_sent_to_log_in(url):
+def test_signed_out_visitor_gets_the_standalone_form(url):
     response = Client().get(url)
 
-    assert response.status_code == 302
-    assert response.url.startswith("/accounts/login/")
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert 'class="feedback-page__form"' in content
+    assert 'name="contact_email"' in content, "the no-JS form needs the field too"
 
 
 def test_screenshot_is_stored_with_the_feedback(client, url, payload):
@@ -226,6 +228,131 @@ def test_the_rate_limit_throttles_further_submissions(
     assert Feedback.objects.count() == 1
 
 
+def anon(ip, **extra):
+    """Headers for a signed-out submission arriving from `ip` through the CDN."""
+    return {**XHR, "fastly-client-ip": ip, **extra}
+
+
+def test_anonymous_submitters_are_counted_by_network_address(url, payload, monkeypatch):
+    """One address, one allowance — a second visitor elsewhere is unaffected."""
+    monkeypatch.setattr("feedback.views.RATE_LIMIT", 1)
+
+    assert Client().post(url, payload, headers=anon("203.0.113.5")).status_code == 200
+    assert Client().post(url, payload, headers=anon("203.0.113.5")).status_code == 429
+
+    assert Client().post(url, payload, headers=anon("198.51.100.9")).status_code == 200
+    assert Feedback.objects.count() == 2
+
+
+def test_a_forged_forwarding_header_does_not_buy_a_fresh_allowance(
+    url, payload, monkeypatch
+):
+    """nginx appends to X-Forwarded-For, so its first entry is whatever the caller sent.
+
+    The CDN overwrites Fastly-Client-IP, so that is what has to win.
+    """
+    monkeypatch.setattr("feedback.views.RATE_LIMIT", 1)
+    real = "203.0.113.5"
+
+    assert Client().post(url, payload, headers=anon(real)).status_code == 200
+    forged = Client().post(
+        url, payload, headers=anon(real, **{"x-forwarded-for": "1.2.3.4"})
+    )
+
+    assert forged.status_code == 429
+    assert Feedback.objects.count() == 1
+
+
+def test_a_forwarded_header_cannot_identify_a_submitter(url, payload, monkeypatch):
+    """With no CDN header, X-Forwarded-For must not be believed.
+
+    nginx appends to that header rather than replacing it, so its first entry is
+    whatever the caller sent. Were it trusted, a new value per request would buy a
+    fresh allowance each time. Both submissions below claim a different address and
+    must still land in the same bucket.
+    """
+    monkeypatch.setattr("feedback.views.RATE_LIMIT", 1)
+
+    first = Client().post(
+        url, payload, headers={**XHR, "x-forwarded-for": "203.0.113.5"}
+    )
+    second = Client().post(
+        url, payload, headers={**XHR, "x-forwarded-for": "198.51.100.9"}
+    )
+
+    assert first.status_code == 200
+    assert second.status_code == 429
+    assert Feedback.objects.count() == 1
+
+
+def test_a_submission_with_no_usable_address_is_not_refused(url, payload, monkeypatch):
+    """Losing a report is worse than letting an unidentifiable caller through."""
+    monkeypatch.setattr("feedback.views.RATE_LIMIT", 0)
+
+    response = Client().post(
+        url, payload, headers={**XHR, "fastly-client-ip": "junk"}, REMOTE_ADDR=""
+    )
+
+    assert response.status_code == 200
+
+
+def test_an_anonymous_submitter_can_leave_an_email(url, payload):
+    """The only way back to a submitter with no account."""
+    contact = "reporter@example.com"
+
+    response = Client().post(url, {**payload, "contact_email": contact}, headers=XHR)
+
+    assert response.status_code == 200
+    feedback = Feedback.objects.get()
+    assert feedback.contact_email == contact
+    assert feedback.reply_to == contact
+
+
+@pytest.mark.parametrize(
+    "contact,expected",
+    [
+        ("reporter@example.com", "Anonymous <reporter@example.com>"),
+        ("", "Anonymous"),
+    ],
+)
+def test_an_anonymous_row_names_its_contact_address(contact, expected):
+    """Triage reads who to answer off the changelist, without opening the row."""
+    assert Feedback(contact_email=contact).submitter == expected
+
+
+def test_the_email_is_optional_for_anonymous_submitters(url, payload):
+    """An address is a nicety; refusing the report without one would lose it."""
+    response = Client().post(url, payload, headers=XHR)
+
+    assert response.status_code == 200
+    assert Feedback.objects.get().contact_email == ""
+
+
+def test_an_unusable_email_is_rejected_rather_than_stored(url, payload):
+    """A malformed address is worse than none — it looks like a reply is possible."""
+    response = Client().post(
+        url, {**payload, "contact_email": "not-an-address"}, headers=XHR
+    )
+
+    assert response.status_code == 400
+    assert "contact_email" in response.json()["errors"]
+    assert not Feedback.objects.exists()
+
+
+def test_a_members_identity_is_used_without_asking_for_an_email(
+    client, url, payload, user
+):
+    """The field is not on a member's form, so a posted value cannot displace their account."""
+    response = client.post(
+        url, {**payload, "contact_email": "spoofed@example.com"}, headers=XHR
+    )
+
+    assert response.status_code == 200
+    feedback = Feedback.objects.get()
+    assert feedback.contact_email == ""
+    assert feedback.reply_to == user.email
+
+
 def test_a_rejected_no_js_submission_re_renders_the_message(client, url, payload):
     """The standalone form has no client state, so the server must echo it back."""
     response = client.post(url, {**payload, "feedback_type": ""})
@@ -326,7 +453,7 @@ def test_server_errors_are_attached_to_a_later_submission(
 
 
 def test_server_errors_are_not_recorded_for_signed_out_visitors(rf):
-    """Nothing to attach them to, and no report can follow."""
+    """Keying them by address would leak one visitor's paths to everyone behind it."""
     request = rf.get("/libraries/")
     request.user = AnonymousUser()
     try:
@@ -353,6 +480,32 @@ def test_widget_renders_with_a_working_no_js_launcher(rf, user):
     assert "a-test-token" in html, "the tag must forward csrf_token into the widget"
     assert 'enctype="multipart/form-data"' in html
     assert 'name="image"' in html
+
+
+def test_the_email_field_is_offered_only_to_signed_out_visitors(rf, user):
+    """Asking a member for an address we already hold is noise on the form."""
+    request = rf.get("/libraries/")
+
+    def widget_html(as_user):
+        request.user = as_user
+        return Template("{% load feedback_tags %}{% feedback_widget %}").render(
+            Context({"request": request, "csrf_token": "a-test-token"})
+        )
+
+    assert 'name="contact_email"' in widget_html(AnonymousUser())
+    assert 'name="contact_email"' not in widget_html(user)
+
+
+def test_widget_renders_for_a_signed_out_visitor(rf):
+    """The launcher is site-wide now, so it must render without an account."""
+    request = rf.get("/libraries/")
+    request.user = AnonymousUser()
+
+    html = Template("{% load feedback_tags %}{% feedback_widget %}").render(
+        Context({"request": request, "csrf_token": "a-test-token"})
+    )
+
+    assert 'class="feedback-widget"' in html
 
 
 def test_widget_is_suppressed_on_the_standalone_form(client, url):

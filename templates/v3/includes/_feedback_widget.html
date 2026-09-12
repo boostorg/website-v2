@@ -88,10 +88,18 @@
 
       {% include "v3/includes/_field_file.html" with name="image" label="Add a screenshot" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" help_text="Optional. PNG or JPEG, up to 2MB — a picture often saves us a lot of guesswork." %}
 
+      {% if not request.user.is_authenticated %}
+        {% include "v3/includes/_field_text.html" with name="contact_email" type="email" label="Your email" placeholder="you@example.com" alpine_error="errors.contact_email" help_text="Optional. Only used if we need to ask you a follow-up question." %}
+      {% endif %}
+
       {% include "v3/includes/_button.html" with label="Send feedback" style="primary" type="submit" alpine_disabled="saving" label_x_text="saving ? 'Sending…' : 'Send feedback'" extra_classes="btn-flex" %}
 
       <p class="feedback-widget__disclosure">
-        Sent as {{ request.user.display_name }}, with your browser and current page info.
+        {% if request.user.is_authenticated %}
+          Sent as {{ request.user.display_name }}, with your browser and current page info.
+        {% else %}
+          Sent with your browser and current page info.
+        {% endif %}
       </p>
     </form>
   </div>
