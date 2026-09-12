@@ -15,6 +15,7 @@ from dateutil.relativedelta import relativedelta
 
 from dateutil.parser import ParserError, parse
 from django.conf import settings
+from django.core.cache import cache
 from django.db.models import Count, F, QuerySet, prefetch_related_objects
 from django.db.models.functions import Lower
 from django.urls import reverse
@@ -48,8 +49,15 @@ def get_commit_data_by_release_for_library(library, limit=20):
     """Return list of { release, commit_count } for a library, ordered by release (oldest first).
 
     Used by the library detail page and by the V3 examples “commits per release” lookup.
+    Cached for a day (same reasoning as `get_commit_data_by_release`: counts only
+    change when a release's commits are imported).
     """
     from .models import LibraryVersion
+
+    cache_key = f"{settings.COMMIT_DATA_CACHE_KEY}:library:{library.id}:{limit}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
 
     qs = (
         LibraryVersion.objects.filter(
@@ -59,27 +67,56 @@ def get_commit_data_by_release_for_library(library, limit=20):
         .annotate(count=Count("commit"), version_name=F("version__name"))
         .order_by("-version__name")
     )[:limit]
-    return [
+    result = [
         {"release": x.version_name.removeprefix("boost-"), "commit_count": x.count}
         for x in reversed(list(qs))
     ]
+    cache.set(cache_key, result, settings.COMMIT_DATA_CACHE_TIMEOUT)
+    return result
 
 
 def get_commit_data_by_release(limit=10):
     """Return list of { release, commit_count } across all Boost libraries per
     minor release, ordered by release (oldest first).
 
-    Used by the homepage "Boost in numbers" chart.
+    Used by the homepage "Boost in numbers" chart. Cached for a day: the counts
+    only change when a release's commits are imported, and computing them joins
+    the full commit history, which is far too expensive to run per pageview.
+
+    The versions are selected first (a cheap, join-free query) and commits are
+    counted only for those, rather than aggregating commit counts for every
+    release and then discarding all but `limit` of them.
     """
-    qs = (
+    from .models import Commit
+
+    cache_key = f"{settings.COMMIT_DATA_CACHE_KEY}:{limit}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    # Newest `limit` minor releases. Ordered by the numeric version parts, not
+    # by name: name ordering is lexicographic ("boost-1.9.0" > "boost-1.85.0").
+    versions = list(
         Version.objects.minor_versions()
-        .annotate(count=Count("library_version__commit"))
-        .order_by("-name")
-    )[:limit]
-    return [
-        {"release": v.name.removeprefix("boost-"), "commit_count": v.count}
-        for v in reversed(list(qs))
+        .order_by("-version_array")
+        .values_list("id", "name")[:limit]
+    )
+    version_ids = [version_id for version_id, _ in versions]
+    counts = dict(
+        Commit.objects.filter(library_version__version_id__in=version_ids)
+        .values("library_version__version_id")
+        .annotate(count=Count("id"))
+        .values_list("library_version__version_id", "count")
+    )
+    result = [
+        {
+            "release": name.removeprefix("boost-"),
+            "commit_count": counts.get(version_id, 0),
+        }
+        for version_id, name in reversed(versions)
     ]
+    cache.set(cache_key, result, settings.COMMIT_DATA_CACHE_TIMEOUT)
+    return result
 
 
 def commit_data_to_stats_bars(commit_data):

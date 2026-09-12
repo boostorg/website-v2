@@ -724,6 +724,11 @@ POSTS_RANKING_GRAVITY = env.float("POSTS_RANKING_GRAVITY", default=2.0)
 EVENTS_CACHE_KEY = "homepage_events"
 EVENTS_CACHE_TIMEOUT = 300  # 5 min
 
+# Homepage "Boost in numbers" commit chart. The underlying data only changes
+# when a new release's commits are imported, so a day-long TTL is safe.
+COMMIT_DATA_CACHE_KEY = "homepage_commit_data_by_release"
+COMMIT_DATA_CACHE_TIMEOUT = 60 * 60 * 24  # 1 day
+
 # OAuth settings
 OAUTH_APP_NAME = (
     "Boost OAuth Concept"  # Stored in the admin; replicated for convenience
