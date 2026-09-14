@@ -31,6 +31,7 @@ from libraries.models import Commit, CommitAuthor, ReleaseReport
 from libraries.tasks import generate_release_report
 from libraries.utils import (
     apply_collective_author_overrides,
+    cache_or_compute,
     prefer_boost_profile_links,
     set_selected_boost_version,
     determine_selected_boost_version,
@@ -147,26 +148,33 @@ class VersionDetail(
         return version.get_dependency_stats()
 
     def get_top_contributors_release(self, version: Version):
-        version_commits = Commit.objects.filter(library_version__version=version)
-        # Narrow to this release's authors before aggregating, instead of
-        # counting every author's entire history and discarding most of it
-        # via HAVING - that was the slowest query on this page in production.
-        author_ids = version_commits.values_list("author_id", flat=True).distinct()
-        qs = (
-            CommitAuthor.humans.filter(id__in=author_ids)
-            .annotate(count=Count("commit", filter=Q(commit__in=version_commits)))
-            # A claimed contributor links to their Boost profile and shows
-            # their badge, which reads the user, their routing keys and their
-            # badge rows. Badges are asked for through the path because `user`
-            # is select_related - see `badges.display.active_badges_prefetch`.
-            .select_related("user")
-            .prefetch_related(
-                "user__profile_routing_keys",
-                active_badges_prefetch("user__badges"),
+        # Contributors for a release don't change until the next one, so the
+        # result is cached for a day (see CONTRIBUTORS_CACHE_TIMEOUT).
+        def compute():
+            version_commits = Commit.objects.filter(library_version__version=version)
+            # Narrow to this release's authors before aggregating, instead of
+            # counting every author's entire history and discarding most of it
+            # via HAVING - that was the slowest query on this page in production.
+            author_ids = version_commits.values_list("author_id", flat=True).distinct()
+            qs = (
+                CommitAuthor.humans.filter(id__in=author_ids)
+                .annotate(count=Count("commit", filter=Q(commit__in=version_commits)))
+                # A claimed contributor links to their Boost profile and shows
+                # their badge, which reads the user, their routing keys and
+                # their badge rows. Badges are asked for through the path
+                # because `user` is select_related - see
+                # `badges.display.active_badges_prefetch`.
+                .select_related("user")
+                .prefetch_related(
+                    "user__profile_routing_keys",
+                    active_badges_prefetch("user__badges"),
+                )
+                .order_by("-count")
             )
-            .order_by("-count")
-        )
-        return qs
+            return list(qs)
+
+        cache_key = f"{settings.CONTRIBUTORS_CACHE_KEY}:{version.id}"
+        return cache_or_compute(cache_key, settings.CONTRIBUTORS_CACHE_TIMEOUT, compute)
 
     def get_release_notes(self, obj):
         try:
