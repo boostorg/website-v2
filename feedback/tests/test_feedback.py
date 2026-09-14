@@ -11,6 +11,7 @@ import os
 
 import pytest
 import waffle.testutils
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -470,14 +471,15 @@ def test_widget_renders_with_a_working_no_js_launcher(rf, user):
     request.user = user
 
     html = Template("{% load feedback_tags %}{% feedback_widget %}").render(
-        Context({"request": request, "csrf_token": "a-test-token"})
+        Context({"request": request})
     )
 
     assert 'class="feedback-widget"' in html
     # The launcher must be a real link carrying the originating page, or the
     # no-JS path has nowhere to go and loses the page being described.
     assert f'href="{reverse("feedback")}?from=' in html
-    assert "a-test-token" in html, "the tag must forward csrf_token into the widget"
+    # A token here would set a cookie on every page and cost the CDN its shared copy.
+    assert 'name="csrfmiddlewaretoken"' not in html
     assert 'enctype="multipart/form-data"' in html
     assert 'name="image"' in html
 
@@ -489,7 +491,7 @@ def test_the_email_field_is_offered_only_to_signed_out_visitors(rf, user):
     def widget_html(as_user):
         request.user = as_user
         return Template("{% load feedback_tags %}{% feedback_widget %}").render(
-            Context({"request": request, "csrf_token": "a-test-token"})
+            Context({"request": request})
         )
 
     assert 'name="contact_email"' in widget_html(AnonymousUser())
@@ -502,10 +504,56 @@ def test_widget_renders_for_a_signed_out_visitor(rf):
     request.user = AnonymousUser()
 
     html = Template("{% load feedback_tags %}{% feedback_widget %}").render(
-        Context({"request": request, "csrf_token": "a-test-token"})
+        Context({"request": request})
     )
 
     assert 'class="feedback-widget"' in html
+
+
+def test_no_page_carries_a_csrf_cookie_for_the_widget(client, rf):
+    """The whole point: a cacheable page must set no cookie.
+
+    The widget renders site-wide, so a token in its markup would put a cookie on
+    every page and give each visitor their own uncacheable copy.
+    """
+    request = rf.get("/libraries/")
+    request.user = AnonymousUser()
+
+    html = Template("{% load feedback_tags %}{% feedback_widget %}").render(
+        Context({"request": request})
+    )
+
+    assert 'class="feedback-widget"' in html
+    assert 'name="csrfmiddlewaretoken"' not in html
+
+
+def test_the_token_endpoint_hands_out_a_token_and_its_cookie(client):
+    """Both halves have to arrive together or the submission cannot be checked."""
+    response = Client().get(reverse("feedback-token"))
+
+    assert response.status_code == 200
+    assert response.json()["token"]
+    assert settings.CSRF_COOKIE_NAME in response.cookies
+
+
+@pytest.mark.parametrize("flag", ["v3", "beta_feedback"])
+def test_the_token_endpoint_closes_with_the_beta(flag):
+    """It must not outlive the flag that gates the widget it serves."""
+    with waffle.testutils.override_flag(flag, active=False):
+        assert Client().get(reverse("feedback-token")).status_code == 404
+
+
+def test_a_submission_without_a_token_is_refused(url, payload):
+    """A third party must not be able to submit through a stranger's browser.
+
+    That is what the token buys: our per-address limit cannot see an attack spread
+    across thousands of unwitting visitors, each submitting once from their own
+    connection.
+    """
+    response = Client(enforce_csrf_checks=True).post(url, payload, headers=XHR)
+
+    assert response.status_code == 403
+    assert not Feedback.objects.exists()
 
 
 def test_widget_is_suppressed_on_the_standalone_form(client, url):

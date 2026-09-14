@@ -6,9 +6,12 @@ import structlog
 from django.contrib import messages
 from django.core.cache import cache
 from django.http import Http404, JsonResponse
+from django.middleware.csrf import get_token
 from django.shortcuts import redirect, render
+from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
+from django.views.decorators.csrf import ensure_csrf_cookie
 from waffle import flag_is_active
 
 from feedback.diagnostics import (
@@ -35,6 +38,11 @@ THROTTLE_MESSAGE = (
 
 RATE_LIMIT = 40
 RATE_WINDOW = 3600  # seconds
+
+
+def beta_is_open(request):
+    """Both flags gate every feedback route, not just the launcher."""
+    return flag_is_active(request, "v3") and flag_is_active(request, "beta_feedback")
 
 
 def wants_json(request):
@@ -76,9 +84,7 @@ class FeedbackView(View):
         """Honour the same flags as the widget, so switching the beta off closes the
         endpoint rather than only hiding the launcher.
         """
-        if not (
-            flag_is_active(request, "v3") and flag_is_active(request, "beta_feedback")
-        ):
+        if not beta_is_open(request):
             raise Http404
         return super().dispatch(request, *args, **kwargs)
 
@@ -193,3 +199,23 @@ class FeedbackView(View):
         ):
             return page_url
         return "/"
+
+
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class FeedbackTokenView(View):
+    """Hands the widget a CSRF token, and the cookie that pairs with it.
+
+    The widget renders on every page, so a token in its markup would set a cookie
+    on every page and make each one uncacheable for that visitor. Instead, the form
+    ships without one and picks it up here when somebody opens the panel. This is the
+    point at which they were going to stop being served from cache anyway.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        """Closed with the rest of the beta, so the widget cannot outlive the flag."""
+        if not beta_is_open(request):
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        return JsonResponse({"token": get_token(request)})
