@@ -4,6 +4,7 @@ from datetime import date, timedelta
 
 import pytest
 import waffle.testutils
+from django.core.cache import cache
 from django.db import connection
 from django.template.loader import render_to_string
 from django.test.utils import CaptureQueriesContext, override_settings
@@ -796,6 +797,11 @@ def test_release_contributor_badge_query_is_constant(plain_user, version):
     for index in range(1, 4):
         user = baker.make("users.User", email=f"release-{index}@example.com")
         add_contributor(_feature(user, "library-authoring"))
+    # get_top_contributors_release() caches its result for a day (see
+    # CONTRIBUTORS_CACHE_TIMEOUT) - clear it so this second call recomputes
+    # against the now-larger contributor list instead of reusing the cached
+    # one-contributor result.
+    cache.clear()
     four_rows, four_badge_queries = _badge_queries(contributors)
 
     assert one_badge_query == four_badge_queries == 1

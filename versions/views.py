@@ -31,6 +31,7 @@ from libraries.models import Commit, CommitAuthor, ReleaseReport
 from libraries.tasks import generate_release_report
 from libraries.utils import (
     apply_collective_author_overrides,
+    cache_or_compute,
     prefer_boost_profile_links,
     set_selected_boost_version,
     determine_selected_boost_version,
@@ -105,20 +106,25 @@ class VersionDetail(
         context["heading"] = self.get_version_heading(
             obj, context["current_version"] == obj
         )
-        context["release_notes"] = self.get_release_notes(obj)
-        context["top_contributors_release"] = self.get_top_contributors_release(obj)
+        # The v3 template computes its own contributors/release notes/deps and
+        # doesn't use these - skip them so we're not doing the same work twice.
+        v3_active = getattr(self, "_v3_active", False)
+        if not v3_active:
+            context["release_notes"] = self.get_release_notes(obj)
+            context["top_contributors_release"] = self.get_top_contributors_release(obj)
 
         context["documentation_url"] = obj.documentation_url
         report_file_info = self.get_release_report_info()
         if report_file_info:
             context["release_report_file_name"] = report_file_info["file_name"]
             context["release_report_url"] = report_file_info["file_path"]
-        try:
-            context["deps"] = self.get_library_version_dependencies(obj)
-        except BoostImportedDataException:
-            logger.warning("Library version dependencies not set, need importing.")
-            context["deps"] = None
-            context["dependencies_not_calculated"] = True
+        if not v3_active:
+            try:
+                context["deps"] = self.get_library_version_dependencies(obj)
+            except BoostImportedDataException:
+                logger.warning("Library version dependencies not set, need importing.")
+                context["deps"] = None
+                context["dependencies_not_calculated"] = True
         if context["version_str"] == LATEST_RELEASE_URL_PATH_STR:
             context["documentation_url"] = library_doc_latest_transform(
                 obj.documentation_url
@@ -142,24 +148,33 @@ class VersionDetail(
         return version.get_dependency_stats()
 
     def get_top_contributors_release(self, version: Version):
-        version_commits = Commit.objects.filter(library_version__version=version)
-        qs = (
-            CommitAuthor.humans.annotate(
-                count=Count("commit", filter=Q(commit__in=version_commits)),
+        # Contributors for a release don't change until the next one, so the
+        # result is cached for a day (see CONTRIBUTORS_CACHE_TIMEOUT).
+        def compute():
+            version_commits = Commit.objects.filter(library_version__version=version)
+            # Narrow to this release's authors before aggregating, instead of
+            # counting every author's entire history and discarding most of it
+            # via HAVING - that was the slowest query on this page in production.
+            author_ids = version_commits.values_list("author_id", flat=True).distinct()
+            qs = (
+                CommitAuthor.humans.filter(id__in=author_ids)
+                .annotate(count=Count("commit", filter=Q(commit__in=version_commits)))
+                # A claimed contributor links to their Boost profile and shows
+                # their badge, which reads the user, their routing keys and
+                # their badge rows. Badges are asked for through the path
+                # because `user` is select_related - see
+                # `badges.display.active_badges_prefetch`.
+                .select_related("user")
+                .prefetch_related(
+                    "user__profile_routing_keys",
+                    active_badges_prefetch("user__badges"),
+                )
+                .order_by("-count")
             )
-            .filter(count__gte=1)
-            # A claimed contributor links to their Boost profile and shows
-            # their badge, which reads the user, their routing keys and their
-            # badge rows. Badges are asked for through the path because `user`
-            # is select_related - see `badges.display.active_badges_prefetch`.
-            .select_related("user")
-            .prefetch_related(
-                "user__profile_routing_keys",
-                active_badges_prefetch("user__badges"),
-            )
-            .order_by("-count")
-        )
-        return qs
+            return list(qs)
+
+        cache_key = f"{settings.CONTRIBUTORS_CACHE_KEY}:{version.id}"
+        return cache_or_compute(cache_key, settings.CONTRIBUTORS_CACHE_TIMEOUT, compute)
 
     def get_release_notes(self, obj):
         try:
@@ -260,8 +275,9 @@ class VersionDetail(
                 )
             self.object = self.get_object()
             self.set_extra_context(request)
+            # get_context_data() already includes the v3 context (V3Mixin merges
+            # it in) - no need to build it again here.
             context = self.get_context_data()
-            context.update(self.get_v3_context_data())
             response = self.render_to_response(context)
             set_selected_boost_version(version_slug, response)
             return response

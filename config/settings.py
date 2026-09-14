@@ -729,6 +729,10 @@ EVENTS_CACHE_TIMEOUT = 300  # 5 min
 COMMIT_DATA_CACHE_KEY = "homepage_commit_data_by_release"
 COMMIT_DATA_CACHE_TIMEOUT = 60 * 60 * 24  # 1 day
 
+# Release contributors don't change until the next release, so cache them for a day.
+CONTRIBUTORS_CACHE_KEY = "release_top_contributors"
+CONTRIBUTORS_CACHE_TIMEOUT = 60 * 60 * 24  # 1 day
+
 # OAuth settings
 OAUTH_APP_NAME = (
     "Boost OAuth Concept"  # Stored in the admin; replicated for convenience
