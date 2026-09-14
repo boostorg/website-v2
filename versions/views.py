@@ -148,11 +148,13 @@ class VersionDetail(
 
     def get_top_contributors_release(self, version: Version):
         version_commits = Commit.objects.filter(library_version__version=version)
+        # Narrow to this release's authors before aggregating, instead of
+        # counting every author's entire history and discarding most of it
+        # via HAVING - that was the slowest query on this page in production.
+        author_ids = version_commits.values_list("author_id", flat=True).distinct()
         qs = (
-            CommitAuthor.humans.annotate(
-                count=Count("commit", filter=Q(commit__in=version_commits)),
-            )
-            .filter(count__gte=1)
+            CommitAuthor.humans.filter(id__in=author_ids)
+            .annotate(count=Count("commit", filter=Q(commit__in=version_commits)))
             # A claimed contributor links to their Boost profile and shows
             # their badge, which reads the user, their routing keys and their
             # badge rows. Badges are asked for through the path because `user`
