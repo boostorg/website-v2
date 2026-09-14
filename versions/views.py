@@ -105,20 +105,25 @@ class VersionDetail(
         context["heading"] = self.get_version_heading(
             obj, context["current_version"] == obj
         )
-        context["release_notes"] = self.get_release_notes(obj)
-        context["top_contributors_release"] = self.get_top_contributors_release(obj)
+        # The v3 template computes its own contributors/release notes/deps and
+        # doesn't use these - skip them so we're not doing the same work twice.
+        v3_active = getattr(self, "_v3_active", False)
+        if not v3_active:
+            context["release_notes"] = self.get_release_notes(obj)
+            context["top_contributors_release"] = self.get_top_contributors_release(obj)
 
         context["documentation_url"] = obj.documentation_url
         report_file_info = self.get_release_report_info()
         if report_file_info:
             context["release_report_file_name"] = report_file_info["file_name"]
             context["release_report_url"] = report_file_info["file_path"]
-        try:
-            context["deps"] = self.get_library_version_dependencies(obj)
-        except BoostImportedDataException:
-            logger.warning("Library version dependencies not set, need importing.")
-            context["deps"] = None
-            context["dependencies_not_calculated"] = True
+        if not v3_active:
+            try:
+                context["deps"] = self.get_library_version_dependencies(obj)
+            except BoostImportedDataException:
+                logger.warning("Library version dependencies not set, need importing.")
+                context["deps"] = None
+                context["dependencies_not_calculated"] = True
         if context["version_str"] == LATEST_RELEASE_URL_PATH_STR:
             context["documentation_url"] = library_doc_latest_transform(
                 obj.documentation_url
@@ -260,8 +265,9 @@ class VersionDetail(
                 )
             self.object = self.get_object()
             self.set_extra_context(request)
+            # get_context_data() already includes the v3 context (V3Mixin merges
+            # it in) - no need to build it again here.
             context = self.get_context_data()
-            context.update(self.get_v3_context_data())
             response = self.render_to_response(context)
             set_selected_boost_version(version_slug, response)
             return response
