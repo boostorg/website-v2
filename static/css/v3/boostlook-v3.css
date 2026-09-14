@@ -1479,6 +1479,18 @@ html:not(.v3):has(.boostlook) {
   margin: 0;
 }
 
+/* Underline metrics (#2794). Same normalization as foundations.css — see the
+   comment there for why Firefox needs it — repeated because docs pages load this
+   stylesheet without components.css, so foundations never reaches them. */
+.boostlook {
+  text-decoration-skip-ink: none;
+  text-underline-offset: 2px;
+}
+
+.boostlook :where(*) {
+  text-decoration-thickness: 1px !important;
+}
+
 /* Link Styling */
 .boostlook a,
 .boostlook .doc a {
@@ -1495,8 +1507,7 @@ html:not(.v3):has(.boostlook) {
 .boostlook .ulist a:not(.anchor),
 .boostlook .olist a:not(.anchor),
 .boostlook .dlist a:not(.anchor) {
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration-line: underline;
 }
 
 /* Link Hover States */
@@ -2832,7 +2843,7 @@ html.dark .boostlook nav.pagination > span:hover a {
 .boostlook .edit-this-page a {
   color: inherit;
   font: inherit;
-  text-decoration: underline;
+  text-decoration-line: underline;
 }
 
 html.dark .boostlook .edit-this-page {
@@ -3793,8 +3804,7 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
 /* On-page TOC (right side): underline links per Figma */
 .boostlook #toc:not(.toc2) > ul.sectlevel1 a,
 .boostlook:not(:has(.doc)) div.toc a {
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration-line: underline;
 }
 
 .boostlook #toc a:hover,
@@ -4508,7 +4518,7 @@ html.dark .boostlook #toctitle .theme-toggle .theme-icon-dark { display: none; }
 }
 
 .boostlook .breadcrumbs ul li a:hover {
-  text-decoration: underline;
+  text-decoration-line: underline;
 }
 
 .boostlook .breadcrumbs ul li:first-of-type:not(:only-child) {
@@ -5715,9 +5725,7 @@ html.v3 .boostlook {
 
 .boostlook.markdown-content a {
   color: var(--color-text-link-accent);
-  text-decoration: underline;
-  text-decoration-skip-ink: none;
-  text-underline-position: from-font;
+  text-decoration-line: underline;
 }
 
 /* Code blocks defer to boostlook's own code styling; only add horizontal-scroll
@@ -5788,7 +5796,7 @@ html.v3 .boostlook {
 
 .boostlook.post-detail__body a {
   color: inherit;
-  text-decoration: underline;
+  text-decoration-line: underline;
 }
 
 .boostlook.post-detail__body img {

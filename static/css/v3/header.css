@@ -420,7 +420,9 @@ html.dark .header__icon--theme-moon {
 .header__version-option[aria-current="true"] {
   color: var(--color-text-primary);
   font-weight: var(--font-weight-medium);
-  text-decoration: underline;
+  /* Longhand: the shorthand out-specifies foundations.css and would reset
+     text-decoration-thickness to `auto` (#2794). */
+  text-decoration-line: underline;
 }
 
 /* ── User menu & avatar ────────────────────────── */

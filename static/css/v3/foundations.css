@@ -179,28 +179,42 @@ html.v3 code {
 .border-link-accent { border-color: var(--color-stroke-link-accent); }
 
 /* ==========================================================================
-   Underline links (#2297)
+   Underline metrics (#2297, #2794)
    Left at `auto`, Firefox derives underline thickness and position from the
    font's own metrics. For Mona Sans that seats the line inside the descenders,
    and `skip-ink` then carves a gap around every g/p/y, so the underline renders
    as disconnected fragments and heavier than in Chromium.
 
-   These three properties are inert unless a decoration is actually drawn, so
-   setting them on every v3 anchor is safe and covers links added later. Keep the
-   specificity low so a component can still override deliberately, and do not
-   reintroduce `auto`, a percentage, or `text-underline-position: from-font` in a
-   component rule: any of those puts the bug back for that component only.
+   These properties are inert unless a decoration is actually drawn, so pinning
+   them site-wide is safe and covers elements added later. #2297 enumerated the
+   selectors instead; every underline on a non-anchor (a "See more" <label>, the
+   banner's <button>) then had to be remembered, and the ones that were not kept
+   the bug.
+
+   Do not reintroduce `auto`, a percentage, or `text-underline-position:
+   from-font` in a component rule, and reach for `text-decoration-line` rather
+   than the `text-decoration` shorthand: the shorthand resets thickness to `auto`,
+   which puts the bug back for that component alone.
    ========================================================================== */
-body.v3 a,
-/* Non-anchor elements that carry their own underline. .learn-card__link is a
-   span inside the anchor, so the selector above does not reach it. */
-body.v3 .learn-card__link,
-body.v3 .btn-underline,
-body.v3 .dropdown__item--selected,
-body.v3 .mailing-list-modal__select-all {
+
+/* Both inherit, so one declaration on the page root reaches every descendant. */
+body.v3 {
   text-decoration-skip-ink: none;
-  text-decoration-thickness: 1px;
   text-underline-offset: 2px;
+}
+
+/* Thickness does not inherit, so it has to land on every element that might draw
+   a line, hence `:where(*)`.
+
+   `!important` because specificity cannot win this one. Any `text-decoration`
+   shorthand resets thickness to `auto` — including `text-decoration: none`, which
+   is how most components clear a link's default underline — so a rule as ordinary
+   as `.header__version-dropdown .header__version-option { text-decoration: none }`
+   reinstates the bug for anything underlined further down. Thickness here is a
+   browser-normalization constant, not a design knob; the one place that wants a
+   different value (footer.css's inline-link hover) marks it `!important` too. */
+body.v3 :where(*) {
+  text-decoration-thickness: 1px !important;
 }
 
 /* Container for v3 content */
