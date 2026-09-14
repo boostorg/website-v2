@@ -92,7 +92,9 @@
 .footer__link--inline:hover {
   color: var(--color-text-link-accent);
   background: transparent;
-  text-decoration-thickness: 2px;
+  /* !important to clear foundations.css's normalization, which is itself
+     !important — see the comment there. */
+  text-decoration-thickness: 2px !important;
 }
 
 /* ==========================================================================

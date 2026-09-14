@@ -203,12 +203,18 @@ body.v3 {
   text-underline-offset: 2px;
 }
 
-/* Thickness does not inherit, so it has to land on the element drawing the line.
-   The `:where(*)` arm is (0,1,1) and catches non-anchors; the `a` arm repeats
-   #2297's (0,1,2) so no component rule that sits between the two starts winning. */
-body.v3 :where(*),
-body.v3 a {
-  text-decoration-thickness: 1px;
+/* Thickness does not inherit, so it has to land on every element that might draw
+   a line, hence `:where(*)`.
+
+   `!important` because specificity cannot win this one. Any `text-decoration`
+   shorthand resets thickness to `auto` — including `text-decoration: none`, which
+   is how most components clear a link's default underline — so a rule as ordinary
+   as `.header__version-dropdown .header__version-option { text-decoration: none }`
+   reinstates the bug for anything underlined further down. Thickness here is a
+   browser-normalization constant, not a design knob; the one place that wants a
+   different value (footer.css's inline-link hover) marks it `!important` too. */
+body.v3 :where(*) {
+  text-decoration-thickness: 1px !important;
 }
 
 /* Container for v3 content */
