@@ -6,10 +6,12 @@ line inside the descenders, and `text-decoration-skip-ink` then carves a gap
 around every g/p/y, so the underline renders as disconnected fragments and
 heavier than in Chromium.
 
-`static/css/v3/foundations.css` pins the three properties once for every v3
-anchor. These tests fail if a component rule takes that decision back, which is
-the only way the bug can return. They read the stylesheets as text rather than
-rendering anything, so they cost nothing and run in CI with everything else.
+`static/css/v3/foundations.css` pins the three properties for the whole v3 site.
+#2794 widened that from the original per-selector list, which only reached
+anchors and so missed every underline drawn by a <label>, <button> or <span>.
+These tests fail if a component rule takes the decision back, which is the only
+way the bug can return. They read the stylesheets as text rather than rendering
+anything, so they cost nothing and run in CI with everything else.
 """
 
 import re
@@ -43,12 +45,43 @@ HANDS_BACK_CONTROL = re.compile(
 UNDERLINE_SHORTHAND = re.compile(r"(?<!-)\btext-decoration\s*:\s*[^;]*underline")
 STATE_SELECTOR = re.compile(r":(?:hover|focus|focus-visible|active|visited)")
 
-# The shared rule's three declarations, and the selector that has to carry them.
-SHARED_RULE_SELECTOR = "body.v3 a"
-SHARED_RULE_DECLARATIONS = (
-    ("text-decoration-skip-ink", "none"),
-    ("text-decoration-thickness", "1px"),
-    ("text-underline-offset", "2px"),
+# The shared declarations and the selector each one has to sit on. Split in two
+# because the properties behave differently: skip-ink and offset inherit, so the
+# page root carries them, while thickness does not and has to reach every element
+# that might draw a line.
+#
+# Thickness is `!important` (#2794) because specificity cannot win that one: any
+# `text-decoration` shorthand resets it to `auto`, `text-decoration: none`
+# included, and the v3 stylesheets have well over a hundred of those. Dropping
+# the `!important` reopens the bug wherever such a rule outranks this one.
+SHARED_RULES = (
+    (
+        "body.v3",
+        (
+            ("text-decoration-skip-ink", "none"),
+            ("text-underline-offset", "2px"),
+        ),
+    ),
+    (
+        "body.v3 :where(*)",
+        (("text-decoration-thickness", "1px !important"),),
+    ),
+)
+
+# Docs pages load boostlook-v3.css without components.css, so foundations.css
+# never reaches them and the sheet has to carry its own copy (#2794).
+BOOSTLOOK_RULES = (
+    (
+        ".boostlook",
+        (
+            ("text-decoration-skip-ink", "none"),
+            ("text-underline-offset", "2px"),
+        ),
+    ),
+    (
+        ".boostlook :where(*)",
+        (("text-decoration-thickness", "1px !important"),),
+    ),
 )
 
 
@@ -90,38 +123,57 @@ def test_stylesheets_are_discoverable():
     assert (V3_CSS / "foundations.css") in sheets
 
 
-def test_shared_underline_rule_is_present():
-    """The other tests only make sense if the rule they defer to still exists.
+def _pattern(value):
+    """Turn an expected declaration value into a whitespace-tolerant regex."""
+    return re.escape(value).replace(r"\ ", r"\s*").replace(" ", r"\s*")
 
-    All three declarations have to sit in one rule that reaches v3 anchors.
-    Finding them scattered across the file would not pin anything, so this walks
-    the rule bodies rather than searching the stylesheet as a whole.
+
+def _assert_rules_present(path, required):
+    """Every (selector, declarations) pair has to be satisfied by one rule.
+
+    Finding the declarations scattered across separate rules would not pin
+    anything, so this walks the rule bodies rather than searching the stylesheet
+    as a whole, and matches the selector exactly: `body.v3` and
+    `body.v3 :where(*)` are different rules doing different jobs.
     """
-    candidates = []
-    for selector, body in _rules(V3_CSS / "foundations.css"):
-        if SHARED_RULE_SELECTOR not in selector:
-            continue
-        missing = [
-            f"{prop}: {value}"
-            for prop, value in SHARED_RULE_DECLARATIONS
-            if not re.search(rf"{prop}\s*:\s*{value}\b", body)
-        ]
-        if not missing:
-            return
-        candidates.append((selector, missing))
+    failures = []
+    for selector, declarations in required:
+        candidates = []
+        for found, body in _rules(path):
+            if selector not in [part.strip() for part in found.split(",")]:
+                continue
+            missing = [
+                f"{prop}: {value}"
+                for prop, value in declarations
+                if not re.search(rf"{prop}\s*:\s*{_pattern(value)}", body)
+            ]
+            if not missing:
+                break
+            candidates.append(missing)
+        else:
+            if candidates:
+                detail = " / ".join(", ".join(m) for m in candidates)
+                failures.append(f"  `{selector}` is missing {detail}")
+            else:
+                failures.append(f"  no rule in {path.name} selects `{selector}`")
 
-    detail = (
-        "\n".join(
-            f"  `{selector}` is missing {', '.join(missing)}"
-            for selector, missing in candidates
-        )
-        or f"  no rule in foundations.css selects `{SHARED_RULE_SELECTOR}`"
+    assert not failures, (
+        f"{path.name} no longer pins the underline geometry:\n"
+        + "\n".join(failures)
+        + "\n\nIf the shared rules moved, point these tests at their new home "
+        "rather than deleting them."
     )
-    raise AssertionError(
-        "foundations.css no longer pins the underline geometry in a single rule "
-        f"for `{SHARED_RULE_SELECTOR}`:\n" + detail + "\n\nIf the shared rule "
-        "moved, point these tests at its new home rather than deleting them."
-    )
+
+
+def test_shared_underline_rules_are_present():
+    """The other tests only make sense if the rules they defer to still exist."""
+    _assert_rules_present(V3_CSS / "foundations.css", SHARED_RULES)
+
+
+def test_boostlook_carries_its_own_underline_rules():
+    """boostlook-v3.css is excluded from the scans below, but docs pages load it
+    on its own, so it is the only thing pinning underlines there."""
+    _assert_rules_present(V3_CSS / "boostlook-v3.css", BOOSTLOOK_RULES)
 
 
 @pytest.mark.parametrize("path", _stylesheets(), ids=lambda p: p.name)
