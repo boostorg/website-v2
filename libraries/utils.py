@@ -45,6 +45,11 @@ if TYPE_CHECKING:
     from libraries.models import Library, LibraryVersion
 
 
+def cache_or_compute(cache_key, timeout, compute):
+    """Return the cached value, or compute, cache, and return it."""
+    return cache.get_or_set(cache_key, compute, timeout)
+
+
 def get_commit_data_by_release_for_library(library, limit=20):
     """Return list of { release, commit_count } for a library, ordered by release (oldest first).
 
@@ -54,25 +59,22 @@ def get_commit_data_by_release_for_library(library, limit=20):
     """
     from .models import LibraryVersion
 
-    cache_key = f"{settings.COMMIT_DATA_CACHE_KEY}:library:{library.id}:{limit}"
-    cached = cache.get(cache_key)
-    if cached is not None:
-        return cached
+    def compute():
+        qs = (
+            LibraryVersion.objects.filter(
+                library=library,
+                version__in=Version.objects.minor_versions(),
+            )
+            .annotate(count=Count("commit"), version_name=F("version__name"))
+            .order_by("-version__name")
+        )[:limit]
+        return [
+            {"release": x.version_name.removeprefix("boost-"), "commit_count": x.count}
+            for x in reversed(list(qs))
+        ]
 
-    qs = (
-        LibraryVersion.objects.filter(
-            library=library,
-            version__in=Version.objects.minor_versions(),
-        )
-        .annotate(count=Count("commit"), version_name=F("version__name"))
-        .order_by("-version__name")
-    )[:limit]
-    result = [
-        {"release": x.version_name.removeprefix("boost-"), "commit_count": x.count}
-        for x in reversed(list(qs))
-    ]
-    cache.set(cache_key, result, settings.COMMIT_DATA_CACHE_TIMEOUT)
-    return result
+    cache_key = f"{settings.COMMIT_DATA_CACHE_KEY}:library:{library.id}:{limit}"
+    return cache_or_compute(cache_key, settings.COMMIT_DATA_CACHE_TIMEOUT, compute)
 
 
 def get_commit_data_by_release(limit=10):
@@ -89,34 +91,32 @@ def get_commit_data_by_release(limit=10):
     """
     from .models import Commit
 
-    cache_key = f"{settings.COMMIT_DATA_CACHE_KEY}:{limit}"
-    cached = cache.get(cache_key)
-    if cached is not None:
-        return cached
+    def compute():
+        # Newest `limit` minor releases. Ordered by the numeric version parts,
+        # not by name: name ordering is lexicographic ("boost-1.9.0" >
+        # "boost-1.85.0").
+        versions = list(
+            Version.objects.minor_versions()
+            .order_by("-version_array")
+            .values_list("id", "name")[:limit]
+        )
+        version_ids = [version_id for version_id, _ in versions]
+        counts = dict(
+            Commit.objects.filter(library_version__version_id__in=version_ids)
+            .values("library_version__version_id")
+            .annotate(count=Count("id"))
+            .values_list("library_version__version_id", "count")
+        )
+        return [
+            {
+                "release": name.removeprefix("boost-"),
+                "commit_count": counts.get(version_id, 0),
+            }
+            for version_id, name in reversed(versions)
+        ]
 
-    # Newest `limit` minor releases. Ordered by the numeric version parts, not
-    # by name: name ordering is lexicographic ("boost-1.9.0" > "boost-1.85.0").
-    versions = list(
-        Version.objects.minor_versions()
-        .order_by("-version_array")
-        .values_list("id", "name")[:limit]
-    )
-    version_ids = [version_id for version_id, _ in versions]
-    counts = dict(
-        Commit.objects.filter(library_version__version_id__in=version_ids)
-        .values("library_version__version_id")
-        .annotate(count=Count("id"))
-        .values_list("library_version__version_id", "count")
-    )
-    result = [
-        {
-            "release": name.removeprefix("boost-"),
-            "commit_count": counts.get(version_id, 0),
-        }
-        for version_id, name in reversed(versions)
-    ]
-    cache.set(cache_key, result, settings.COMMIT_DATA_CACHE_TIMEOUT)
-    return result
+    cache_key = f"{settings.COMMIT_DATA_CACHE_KEY}:{limit}"
+    return cache_or_compute(cache_key, settings.COMMIT_DATA_CACHE_TIMEOUT, compute)
 
 
 def commit_data_to_stats_bars(commit_data):
