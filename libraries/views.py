@@ -197,20 +197,27 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
     """Based on LibraryVersion, list all of our libraries in grid format for a specific
     Boost version, or default to the current version."""
 
-    queryset = LibraryVersion.objects.prefetch_related(
-        # author_details links the author's profile, which reads their routing
-        # keys. The inner queryset is ordered so that its `.first()` call can
-        # slice the prefetch cache: `first()` re-sorts an unordered queryset by
-        # pk, and that clone drops the cache and re-queries once per card.
-        Prefetch(
-            "authors",
-            queryset=User.objects.order_by("pk").prefetch_related(
-                "profile_routing_keys", active_badges_prefetch()
+    queryset = (
+        LibraryVersion.objects.select_related(
+            # Avoids a repeat query every time a card's version is read or logged.
+            "version"
+        )
+        .prefetch_related(
+            # author_details links the author's profile, which reads their routing
+            # keys. The inner queryset is ordered so that its `.first()` call can
+            # slice the prefetch cache: `first()` re-sorts an unordered queryset by
+            # pk, and that clone drops the cache and re-queries once per card.
+            Prefetch(
+                "authors",
+                queryset=User.objects.order_by("pk").prefetch_related(
+                    "profile_routing_keys", active_badges_prefetch()
+                ),
             ),
-        ),
-        "library",
-        "library__categories",
-    ).defer("data")
+            "library",
+            "library__categories",
+        )
+        .defer("data")
+    )
     ordering = "library__name"
     template_name = "libraries/grid_list.html"
     v3_template_name = "v3/library_page.html"
@@ -406,11 +413,19 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         return context
 
     def get_categories(self, version=None):
-        return (
+        # This runs twice per request (v3 builds its context in two passes) -
+        # cache per version so the second call doesn't re-query.
+        cache_key = version.pk if version else None
+        if getattr(self, "_categories_cache_key", "unset") == cache_key:
+            return self._categories_cache
+        categories = (
             Category.objects.filter(libraries__versions=version)
             .distinct()
             .order_by("name")
         )
+        self._categories_cache_key = cache_key
+        self._categories_cache = categories
+        return categories
 
     def render_to_response(self, context, **response_kwargs):
         if getattr(self, "_v3_active", False):
@@ -496,6 +511,11 @@ class LibraryCategorized(LibraryListBase):
         return context
 
     def get_results_by_category(self, version: Version | None):
+        # Same double-computation issue as get_categories() above - cache per version.
+        cache_key = version.pk if version else None
+        if getattr(self, "_results_by_category_cache_key", "unset") == cache_key:
+            return self._results_by_category_cache
+
         # Define filter kwargs based on whether version is provided
         category_filter = (
             {"libraries__library_version__version": version} if version else {}
@@ -531,6 +551,8 @@ class LibraryCategorized(LibraryListBase):
             results_by_category.append(
                 {"category": category, "library_version_list": library_versions}
             )
+        self._results_by_category_cache_key = cache_key
+        self._results_by_category_cache = results_by_category
         return results_by_category
 
 
@@ -545,7 +567,8 @@ class LibraryByTier(LibraryListBase):
         return context
 
     def get_results_by_tier(self):
-        library_versions = self.get_queryset()
+        # get() already built this list via get_queryset() - reuse it instead of re-querying.
+        library_versions = self.object_list
         flagship, core, other = group_libraries_by_tier(library_versions)
 
         return [
