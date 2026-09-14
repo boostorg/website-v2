@@ -69,6 +69,10 @@
   Copy buttons match on data-copy-option, not data-option: the bare
   [data-option] rule below would otherwise match them too, showing the button
   with display:block and bypassing the .js-copy-enabled gate.
+
+  The selected-item rules use text-decoration-line, not the shorthand: these
+  selectors out-specify foundations.css, and the shorthand would reset
+  text-decoration-thickness to `auto` (#2794).
 {% endcomment %}
 <style>
   {% for opt in install_card_pkg_managers %}
@@ -84,7 +88,7 @@
     #{{ card_id }}-pkg-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="{{ card_id }}-pkg-{{ opt.value }}"] {
       color: var(--color-text-primary);
       font-weight: var(--font-weight-medium, 500);
-      text-decoration: underline;
+      text-decoration-line: underline;
     }
     #{{ card_id }}-pkg-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="{{ card_id }}-pkg-{{ opt.value }}"]:hover {
       color: var(--color-text-link-accent);
@@ -107,7 +111,7 @@
     #{{ card_id }}-sys-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="{{ card_id }}-sys-{{ opt.value }}"] {
       color: var(--color-text-primary);
       font-weight: var(--font-weight-medium, 500);
-      text-decoration: underline;
+      text-decoration-line: underline;
     }
     #{{ card_id }}-sys-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="{{ card_id }}-sys-{{ opt.value }}"]:hover {
       color: var(--color-text-link-accent);
