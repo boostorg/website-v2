@@ -31,3 +31,12 @@ def purge_expired_pending_subscriptions():
     ).delete()
     if deleted:
         logger.info("purged_pending_subscriptions", count=deleted)
+
+
+@app.task
+def calculate_mailing_listActivity():
+    """Task to calculate mailing list activity from hyperkitty database."""
+    if not settings.HYPERKITTY_DATABASE_NAME:
+        logger.warning("HYPERKITTY_DATABASE_NAME not set.")
+        return
+    call_command("calculate_mailing_list_activity")

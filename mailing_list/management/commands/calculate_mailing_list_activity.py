@@ -1,6 +1,7 @@
 import djclick as click
 
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import models
 from django.conf import settings
 
@@ -55,12 +56,11 @@ def command(dry, user_id):
             user=u, defaults={"count": 0}
         )
 
-        emails = [
-            x.email
-            for x in u.commitauthor_set.annotate(
-                email=models.F("commitauthoremail__email")
-            )
-        ]
+        emails = (
+            u.commitauthor_set.all()
+            .aggregate(emails=ArrayAgg("commitauthoremail__email"))
+            .get("emails", [])
+        )
         postings_count = ListPosting.objects.filter(sender_id__in=emails).count()
         if dry:
             if mla.count != postings_count:

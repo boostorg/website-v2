@@ -5,6 +5,7 @@ from datetime import datetime
 from io import TextIOWrapper
 
 from django import forms
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.shortcuts import redirect, render
 from django.urls import path
 from django.http import HttpResponseRedirect
@@ -138,6 +139,22 @@ class ListPostingAdmin(admin.ModelAdmin):
 class MailingListActivityAdmin(admin.ModelAdmin):
     list_display = ["user__email", "count"]
     search_fields = ["user__email"]
+    fields = ["user", "count", "emails"]
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .prefetch_related("user", "user__commitauthor_set__commitauthoremail_set")
+        )
+
+    def emails(self, obj):
+        r_obj = (", ").join(
+            obj.user.commitauthor_set.all()
+            .aggregate(emails=ArrayAgg("commitauthoremail__email"))
+            .get("emails", [])
+        )
+        return r_obj
 
     def has_add_permission(self, request):
         return False
