@@ -81,7 +81,7 @@ Storybook opens on [http://localhost:6006](http://localhost:6006) and proxies te
 
 The pre-built Storybook bundle is served directly by Django at `/storybook/`. Access requires a staff account — it uses the same session authentication as the rest of the site.
 
-The pattern-library API endpoint (`/pattern-library/`) is also staff-gated by `PatternLibraryStaffMiddleware`, so template rendering works for authenticated staff users.
+The pattern-library API endpoint (`/pattern-library/`) is also staff-gated by `PatternLibraryStaffMiddleware`. Because `/storybook/` is served same-origin by Django here (unlike the dev server's cross-origin proxy in Mode 1), the browser's normal session cookie reaches these calls: `storybook-django` is pinned to `1.0.0` specifically because it sends its render requests with `credentials: 'same-origin'` (earlier `0.5.1` used `credentials: 'omit'`, which silently dropped the cookie and made every render look anonymous even to a logged-in staff user). django-pattern-library's own render endpoint (`render_pattern_api`) is `@csrf_exempt` by design — it renders arbitrary template context, not a state-changing action, so its own threat model relies on `PatternLibraryStaffMiddleware`'s staff check for authorization rather than a CSRF token. So template rendering works for authenticated staff users, and unauthenticated or non-staff requests are still rejected exactly as before.
 
 ### Steps to build and serve
 
@@ -126,8 +126,8 @@ Log in as a staff user and navigate to `/storybook/`. The full Storybook UI load
 ### How the protection works
 
 - `/storybook/` - served by `StorybookView` (in `core/views.py`), decorated with `@staff_member_required`. Non-staff users are redirected to login.
-- `/pattern-library/` - gated by `PatternLibraryStaffMiddleware` (in `core/middleware.py`). Non-authenticated requests are redirected to login; authenticated non-staff get 403.
-- The Storybook JS (running in the browser) calls `/pattern-library/render/` with the session cookie from the existing login session, so renders work transparently for staff users.
+- `/pattern-library/` - gated by `PatternLibraryStaffMiddleware` (in `core/middleware.py`). Non-authenticated requests are redirected to login; authenticated non-staff get 403. The render endpoint itself (`render_pattern_api`, in django-pattern-library) is `@csrf_exempt` - it only renders template context, so staff authorization is the actual security boundary, not a CSRF token.
+- The Storybook JS (running in the browser) calls the pattern-library API with the session cookie from the existing login session, so renders work transparently for staff users - this relies on `storybook-django` being pinned to `1.0.0` or later, which sends `credentials: 'same-origin'` (earlier versions used `credentials: 'omit'` and never sent the cookie at all).
 
 ---
 
