@@ -253,6 +253,61 @@ export const DropdownWithSelection = () => (
 );
 DropdownWithSelection.storyName = "Dropdown (pre-selected)";
 
+// --- Badge select ---
+
+const BADGE_SELECT_OPTIONS = [
+  {
+    value: "1",
+    name: "Patch Wizard",
+    detail: "Bronze tier",
+    icon: "badge-tier-1",
+    rank: "Bronze",
+    selectable: true,
+  },
+  {
+    value: "2",
+    name: "Review Hawk",
+    detail: "Gold tier",
+    icon: "badge-tier-3",
+    rank: "Gold",
+    selectable: true,
+  },
+  {
+    value: "3",
+    name: "Code Whisperer",
+    detail: "Diamond tier - not yet earned",
+    icon: "badge-tier-5",
+    rank: "Diamond",
+    selectable: false,
+  },
+];
+
+export const BadgeSelect = () => (
+  <Pattern
+    template="v3/includes/_field_badge_select.html"
+    context={{
+      name: "ex_display_badge",
+      label: "Display Badge",
+      placeholder: "Unlock a badge to display on profile",
+      options: BADGE_SELECT_OPTIONS,
+    }}
+  />
+);
+BadgeSelect.storyName = "Badge Select";
+
+export const BadgeSelectSelected = () => (
+  <Pattern
+    template="v3/includes/_field_badge_select.html"
+    context={{
+      name: "ex_display_badge_selected",
+      label: "Display Badge",
+      options: BADGE_SELECT_OPTIONS,
+      selected: "2",
+    }}
+  />
+);
+BadgeSelectSelected.storyName = "Badge Select (pre-selected)";
+
 export const DropdownWithError = () => (
   <Pattern
     template="v3/includes/_field_dropdown.html"
