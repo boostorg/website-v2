@@ -39,7 +39,7 @@ def command(dry, user_id):
         .filter(commit_author_count__gt=0)
     )
 
-    click.echo(f"{qs.count()} users found to update. Beginning activty count...")
+    click.echo(f"{qs.count()} users found to update. Beginning activity count...")
     mla_list = []
     count = 0
     for u in qs:

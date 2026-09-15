@@ -93,3 +93,14 @@ def ensure_github_token_env_variable():
 @pytest.fixture(scope="session")
 def celery_config():
     return {"broker_url": "amqp://", "result_backend": "redis://"}
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtestloop():
+    from django.apps import apps
+
+    unmanaged_models = []
+    for app in apps.get_app_configs():
+        unmanaged_models += [m for m in app.get_models() if not m._meta.managed]
+    for m in unmanaged_models:
+        m._meta.managed = True
