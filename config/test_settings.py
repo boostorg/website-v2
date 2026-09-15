@@ -1,6 +1,10 @@
 import logging
 from .settings import *  # noqa
 
+import environs
+
+env = environs.env()
+
 
 # Disable migrations for all-the-things
 class DisableMigrations(object):
@@ -53,3 +57,6 @@ STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
 }
+
+
+HYPERKITTY_DATABASE_NAME = env("HYPERKITTY_DATABASE_NAME", default="test_value")

@@ -30,6 +30,7 @@ from libraries.managers import (
     IssueManager,
 )
 from mailing_list.models import EmailData
+from mailing_list.tasks import calculate_mailing_list_activity
 from versions.models import ReportConfiguration
 from .constants import (
     COMMIT_EMAIL_CLAIM_MAX_AGE,
@@ -386,6 +387,9 @@ class CommitAuthorEmail(models.Model):
                 return False
             author.user = self.claimed_by
             author.save(update_fields=["user"])
+            # recalculate the mailing list activity to account for the
+            # newly claimed email
+            calculate_mailing_list_activity.delay(author.user.pk)
             return True
 
     def withdraw_claim(self):
