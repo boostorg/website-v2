@@ -156,6 +156,7 @@ class MailingListActivityAdmin(TaskButtonAdminMixin, admin.ModelAdmin):
     list_display = ["user__email", "count"]
     search_fields = ["user__email"]
     fields = ["user", "count", "emails"]
+    readonly_fields = ["emails", "user", "count"]
 
     def get_queryset(self, request):
         return (
