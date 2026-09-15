@@ -14,8 +14,8 @@ Usage:
 {% load wagtailcore_tags %}
 <article class="legal-page-card{% if icon_name %} content-detail-icon--has-icon{% endif %}">
   {% if icon_name %}
-  <div class="content-detail-icon__icon" aria-hidden="true">
-    {% include "includes/icon.html" with icon_name=icon_name icon_class="content-detail-icon__icon-svg" icon_size=icon_size|default:16 icon_viewbox=icon_viewbox %}
+  <div class="legal-page-card__icon" aria-hidden="true">
+    {% include "includes/icon.html" with icon_name=icon_name icon_class="content-detail-icon__icon-svg" icon_size=icon_size|default:24 icon_viewbox=icon_viewbox %}
   </div>
   {% endif %}
   <h3 class="content-detail-icon__title">

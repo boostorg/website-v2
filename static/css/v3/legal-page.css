@@ -163,6 +163,19 @@ body:has(.legal-page) .v3-container {
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
+.legal-page-card__icon {
+  position: absolute;
+  top: var(--space-card);
+  right: var(--space-card);
+  color: var(--color-icon-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  transition: color 0.2s ease;
+}
+
 .legal-page-card p {
   padding: 0px;
 }
