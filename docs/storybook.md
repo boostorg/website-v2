@@ -75,13 +75,13 @@ The pattern-library API endpoint (`/pattern-library/`) is also staff-gated by `P
 
 In CI, `docker/Dockerfile`'s `builder-js` stage runs `yarn build-storybook` automatically and the release stage copies `var/storybook/` into the image, so a deployed environment already has the bundle — no manual step needed there.
 
-For a local or manual build (requires Node.js):
+For a local rebuild, no Node install required — run it in a throwaway container using the same `node:22-slim` image `docker/Dockerfile`'s `builder-js` stage is built on:
 
 ```bash
-npm run build-storybook
+docker run --rm -v "$PWD:/code" -w /code node:22-slim sh -c "yarn install && yarn build-storybook"
 ```
 
-This outputs the static bundle to `var/storybook/` (excluded from git by the existing `var/` gitignore rule).
+The `web` service bind-mounts this whole directory (`.:/code` in `docker-compose.yml`), so the output lands straight into `var/storybook/` and the already-running `web` container picks it up immediately — no rebuild or restart of `web` itself needed. (If you already have Node.js installed locally, `yarn install && npm run build-storybook` on the host does the same thing.)
 
 **2. Enable the pattern-library endpoint**
 
