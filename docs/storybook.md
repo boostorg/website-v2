@@ -87,7 +87,9 @@ The pattern-library API endpoint (`/pattern-library/`) is also staff-gated by `P
 
 **1. Build the Storybook bundle**
 
-With Docker (recommended):
+In CI, `docker/Dockerfile`'s `builder-js` stage runs `yarn build-storybook` automatically and the release stage copies `var/storybook/` into the image, so a deployed environment already has the bundle — no manual step needed there.
+
+For a local or manual build, with Docker (recommended):
 
 ```bash
 docker compose run --rm storybook npx storybook build -o var/storybook
