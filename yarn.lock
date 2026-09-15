@@ -7950,10 +7950,10 @@ store2@^2.14.2:
   resolved "https://registry.yarnpkg.com/store2/-/store2-2.14.4.tgz#81b313abaddade4dcd7570c5cc0e3264a8f7a242"
   integrity sha512-srTItn1GOvyvOycgxjAnPA63FZNwy0PTyUBFMHRM+hVFltAeoh0LmNBz9SZqUS9mMqGk8rfyWyXn3GH5ReJ8Zw==
 
-storybook-django@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/storybook-django/-/storybook-django-0.5.1.tgz#770a3d003baefc41ca2a16b5187f839b4c78a3ad"
-  integrity sha512-aanBh2hU/ucP+0zjfAsAvFZtwY/e07FWgTzTjb1fKUpCeliutrrzkaH/9veVccZtr2zSqD3M1xgRLhN/YsQ0iA==
+storybook-django@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/storybook-django/-/storybook-django-1.0.0.tgz#44f1507dd7cf0d78c5225d6dc9b9f64681892c82"
+  integrity sha512-5cyY1FvQC6KGkZe2Wiv3WXEIc070rFxYf/FLZZt9CpydjeT6pYtdCplmsaQpWoeWrrTLh0YT7yKwjPWZMHyziw==
   dependencies:
     http-proxy-middleware "^2.0.0"
 
