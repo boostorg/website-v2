@@ -6,7 +6,8 @@
   each column, then across. At three columns the column starts are pinned, so
   card placement does not depend on how many cards there are or how tall.
 
-  .card-masonry-bottom: posts 2/3 + mailing list 1/3, stacking on mobile.
+  .card-masonry-bottom: posts 2/3 + mailing list 1/3 on desktop, an even split on
+  tablet, stacking on mobile.
 */
 
 /* ── Page wrapper ─────────────────────────────────────────────────────────── */
@@ -76,7 +77,7 @@ body:has(.hero:not(.hero--no-image)) .library-subpage-container {
   }
 }
 
-/* ── Bottom card row (desktop/tablet: posts 2/3, mailing 1/3) ────────────── */
+/* ── Bottom card row (desktop: posts 2/3, mailing 1/3) ───────────────────── */
 
 .card-masonry-bottom {
   display: grid;
@@ -91,6 +92,19 @@ body:has(.hero:not(.hero--no-image)) .library-subpage-container {
 
 .card-masonry-bottom:not(:has(> .item-a)) {
   grid-template-areas: "b . .";
+}
+
+/* Tablet: an even split, so the posts card can't squeeze the mailing list card
+   below half the row. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .card-masonry-bottom {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: "a b";
+  }
+
+  .card-masonry-bottom:not(:has(> .item-a)) {
+    grid-template-areas: "b .";
+  }
 }
 
 /* ── Card max-width overrides ────────────────────────────────────────────── */
