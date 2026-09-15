@@ -10,7 +10,7 @@ There are two ways to use Storybook in this project:
 
 | Mode | URL | When to use |
 |---|---|---|
-| **Dev server** | `http://localhost:6006` | Active development - live controls, instant re-render |
+| **Dev server** (plain Node, no container) | `http://localhost:6006` | Active development - live controls, instant re-render |
 | **Served by Django** | `http://localhost:8000/storybook/` | Review / QA - pre-built bundle behind staff login |
 
 ---
@@ -45,23 +45,9 @@ npm install
 
 ### Running
 
-#### Option A: Docker (recommended)
+There is no Docker container for this mode — run Storybook directly with Node, against a Django instance you already have running (the `web` service in this project's `docker compose` stack, or a plain `runserver`).
 
-```bash
-docker compose up --build
-```
-
-This brings up all services including `storybook` on [http://localhost:6006](http://localhost:6006). The Storybook container proxies to Django via `DJANGO_ORIGIN=http://web:8000` on the shared `backend` network.
-
-To start only Storybook and its dependencies:
-
-```bash
-docker compose up --build storybook
-```
-
-#### Option B: Local (two terminals)
-
-**Terminal 1 - Django:**
+**Terminal 1 - Django** (skip if `web` is already up via `docker compose up`):
 
 ```bash
 python manage.py runserver 8000
@@ -73,7 +59,7 @@ python manage.py runserver 8000
 npm run storybook
 ```
 
-Storybook opens on [http://localhost:6006](http://localhost:6006) and proxies template-rendering requests to Django on port 8000.
+Storybook opens on [http://localhost:6006](http://localhost:6006) and proxies template-rendering requests to Django on port 8000. If Django is running elsewhere, point the proxy at it with `DJANGO_ORIGIN` (see `.storybook/middleware.js`), e.g. `DJANGO_ORIGIN=http://localhost:8010 npm run storybook`.
 
 ---
 
@@ -89,13 +75,7 @@ The pattern-library API endpoint (`/pattern-library/`) is also staff-gated by `P
 
 In CI, `docker/Dockerfile`'s `builder-js` stage runs `yarn build-storybook` automatically and the release stage copies `var/storybook/` into the image, so a deployed environment already has the bundle — no manual step needed there.
 
-For a local or manual build, with Docker (recommended):
-
-```bash
-docker compose run --rm storybook npx storybook build -o var/storybook
-```
-
-Or locally (requires Node.js):
+For a local or manual build (requires Node.js):
 
 ```bash
 npm run build-storybook
@@ -235,5 +215,4 @@ With Django and Storybook running, the component appears automatically in the si
 | `.storybook/preview.js` | Storybook preview parameters, dark/light theme sync |
 | `package.json` | `storybook` (dev) and `build-storybook` (outputs to `var/storybook/`) scripts |
 | `requirements.txt` | `django-pattern-library` Python dependency |
-| `docker/Dockerfile.storybook` | Storybook container image (Node 22) |
-| `docker-compose.yml` | `storybook` service on `backend` + `frontend` networks |
+| `docker/Dockerfile` | `builder-js` stage runs `yarn build-storybook`; release stage ships `var/storybook/` |
