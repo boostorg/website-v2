@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponseForbidden
 
@@ -12,6 +13,14 @@ class PatternLibraryStaffMiddleware:
     endpoint is enabled (ENABLE_PATTERN_LIBRARY=True), so it can never be
     accessed by unauthenticated or non-staff users.
 
+    The check is skipped when DEBUG is on: Storybook's dev proxy
+    (.storybook/middleware.js) renders components server-side and never
+    carries a browser session, so it would otherwise always be treated as
+    anonymous. ENABLE_PATTERN_LIBRARY is already off by default outside
+    DEBUG, so this doesn't expose anything not already gated off in any
+    real deployment - a DEBUG=False environment keeps the staff check
+    exactly as before.
+
     Must appear in MIDDLEWARE after AuthenticationMiddleware.
     """
 
@@ -19,7 +28,7 @@ class PatternLibraryStaffMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.path.startswith(_PATTERN_LIBRARY_PREFIX):
+        if request.path.startswith(_PATTERN_LIBRARY_PREFIX) and not settings.DEBUG:
             if not request.user.is_authenticated:
                 return redirect_to_login(request.get_full_path())
             if not request.user.is_staff:

@@ -163,6 +163,8 @@ var/storybook/         # Pre-built bundle output (gitignored)
 
 In **dev server** mode, the `.storybook/middleware.js` proxy handles routing these requests to Django on port 8000. In **Django-served** mode, requests go to the same origin with no proxy needed.
 
+The dev server proxy runs server-side and never forwards a browser session cookie, so its requests to `/pattern-library/` are always anonymous. `PatternLibraryStaffMiddleware` skips its staff check whenever `DEBUG=True` for this reason - dev server mode only ever runs locally with `DEBUG=True`, where `ENABLE_PATTERN_LIBRARY` is already on by default, so this doesn't open up anything that isn't already reachable in that environment. Any `DEBUG=False` environment (including a staging app with `ENABLE_PATTERN_LIBRARY` explicitly turned on) keeps the staff-only requirement.
+
 ---
 
 ## Adding a new component
