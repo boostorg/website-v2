@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static wagtailcore_tags %}
+{% load static wagtailcore_tags wagtailimages_tags %}
 
 {% block title %}{{ page.title }}{% endblock %}
 {% block description %}{{ page.search_description }}{% endblock %}
@@ -11,15 +11,38 @@
 
 {% block content %}
 <div class="legal-page">
-  <div class="legal-page__inner">
-    <header class="legal-page__header">
-      <h1 class="legal-page__title">{{ page.title }}</h1>
-      {% if page.last_published_at %}
-        <p class="legal-page__last-updated">Last Updated: {{ page.last_published_at|date:"F j, Y" }}</p>
-      {% endif %}
-    </header>
-    <div class="legal-page__body">
-      {{ page.body|richtext }}
+  <div class="legal-page__top-copy">
+    <div class="legal-page__inner">
+      <header class="legal-page__header">
+        <h1 class="legal-page__title">{{ page.title }}</h1>
+        {% if page.last_published_at %}
+          <p class="legal-page__last-updated">Last Updated: {{ page.last_published_at|date:"F j, Y" }}</p>
+        {% endif %}
+      </header>
+      <div class="legal-page__body">
+        {{ page.body|richtext }}
+      </div>
+    </div>
+    <div>
+    <div class="legal-page__top-image">
+    {% image page.image original %}
+    </div>
+    </div>
+  </div>
+  <div class="legal-page__cards">
+    <div class="legal-page__cards-column">
+      {% for card_block in page.even_cards %}
+        {% with card=card_block.value %}
+          {% include "v3/includes/_legal_page_card.html" with title=card.title description=card.content icon_name=card.icon  richtext=True %}
+        {% endwith %}
+      {% endfor %}
+    </div>
+    <div class="legal-page__cards-column">
+      {% for card_block in page.odd_cards %}
+        {% with card=card_block.value %}
+          {% include "v3/includes/_legal_page_card.html" with title=card.title description=card.content icon_name=card.icon  richtext=True %}
+        {% endwith %}
+      {% endfor %}
     </div>
   </div>
 </div>

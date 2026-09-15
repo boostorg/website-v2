@@ -37,7 +37,7 @@ from waffle import flag_is_active
 
 from badges.display import active_badges_prefetch
 from libraries.utils import library_filter_options
-from pages.blocks import POST_BLOCKS
+from pages.blocks import POST_BLOCKS, LegalPageCardBlock
 from pages.feed import (
     CONTENT_TYPES_BY_BLOCK,
     FEED_FILTER_TERMS,
@@ -663,5 +663,32 @@ class LegalPage(BasePage):
     subpage_types = []
 
     body = RichTextField(features=settings.RICH_TEXT_FEATURES, blank=True)
+    image = models.ForeignKey(
+        "wagtailimages.Image",
+        verbose_name=("Image"),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+    cards = StreamField(
+        [
+            ("card", LegalPageCardBlock()),
+        ],
+        null=True,
+        blank=True,
+    )
 
-    content_panels = BasePage.content_panels + ["body"]
+    content_panels = BasePage.content_panels + [
+        "body",
+        "image",
+        "cards",
+    ]
+
+    @property
+    def even_cards(self):
+        return self.cards[0::2]
+
+    @property
+    def odd_cards(self):
+        return self.cards[1::2]
