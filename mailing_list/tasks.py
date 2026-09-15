@@ -34,9 +34,12 @@ def purge_expired_pending_subscriptions():
 
 
 @app.task
-def calculate_mailing_listActivity():
+def calculate_mailing_list_activity(user_id: int | None = None):
     """Task to calculate mailing list activity from hyperkitty database."""
     if not settings.HYPERKITTY_DATABASE_NAME:
         logger.warning("HYPERKITTY_DATABASE_NAME not set.")
         return
-    call_command("calculate_mailing_list_activity")
+    kwargs = {}
+    if user_id:
+        kwargs["user-id"] = user_id
+    call_command("calculate_mailing_list_activity", **kwargs)

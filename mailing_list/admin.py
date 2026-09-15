@@ -12,13 +12,14 @@ from django.http import HttpResponseRedirect
 from django.contrib import admin, messages
 from django.conf import settings
 
+from core.admin_buttons import TaskButton, TaskButtonAdminMixin
 from mailing_list.models import (
     EmailData,
     SubscriptionData,
     ListPosting,
     MailingListActivity,
 )
-from mailing_list.tasks import sync_mailinglist_stats
+from mailing_list.tasks import sync_mailinglist_stats, calculate_mailing_list_activity
 
 logger = logging.getLogger(__name__)
 
@@ -135,8 +136,23 @@ class ListPostingAdmin(admin.ModelAdmin):
         return False
 
 
+CALCULATE_ML_ACTIVITY_BUTTON = TaskButton(
+    task=calculate_mailing_list_activity,
+    name="Calculate Mailing List Activity Button",
+    label="Recalculate All Mailing List Activity",
+    success_message="Successfully updated all mailing list counts",
+    busy_message="Recalculation already in progress...",
+    description=(
+        "Recalculates all mailing list activity counts. This is handled automatically"
+        " each day 9:05AM and whenever a user claims a new CommitAuthorEmail. This button"
+        " should only be used as a last resort in case of unintended drift or for testing."
+    ),
+)
+
+
 @admin.register(MailingListActivity)
-class MailingListActivityAdmin(admin.ModelAdmin):
+class MailingListActivityAdmin(TaskButtonAdminMixin, admin.ModelAdmin):
+    task_buttons = (CALCULATE_ML_ACTIVITY_BUTTON,)
     list_display = ["user__email", "count"]
     search_fields = ["user__email"]
     fields = ["user", "count", "emails"]
@@ -157,9 +173,6 @@ class MailingListActivityAdmin(admin.ModelAdmin):
         return r_obj
 
     def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request, obj=None):
         return False
 
     def has_delete_permission(self, request, obj=None):
