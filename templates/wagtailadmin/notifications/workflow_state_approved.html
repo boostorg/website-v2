@@ -1,0 +1,72 @@
+{% extends "emails/base_email.html" %}
+{% load custom_static wagtailadmin_tags %}
+
+{% comment %}
+  Overrides Wagtail's own workflow_state_approved.html (see wagtail/admin/mail.py
+  WorkflowStateApprovalEmailNotifier) so the approval notice carries
+  the V3 brand instead of Wagtail's bare admin styling. No Python changes
+  needed for this: Wagtail resolves the template by path through Django's
+  normal loader, so this file alone is enough to override Wagtail's stock
+  notifier - which stays connected and unmodified.
+
+  Self-contained rather than relying on context: Wagtail's own get_context()
+  never provides scheme/host/preferences_url (this fires with no request in
+  scope), so every absolute URL here is built from Wagtail's own
+  `base_url_setting` tag instead. Context actually provided: workflow, object,
+  model_name, page (only set when object is a Page), user (recipient).
+
+  Post preview and moderator-team sign-off mirror
+  templates/news/emails/approved.html's design (the equivalent notice for the
+  legacy news.Entry flow), adapted to any Page-backed workflow.
+{% endcomment %}
+
+{% block title %}{% if page %}"{{ page.get_admin_display_title }}" is approved{% else %}{% latest_str object as title %}"{{ title }}" is approved{% endif %}{% endblock %}
+
+{% block preheader %}Your post has been approved by moderation.{% endblock %}
+
+{% block header %}
+  {% base_url_setting default="" as base_url %}
+  <tr>
+    <td style="padding:18px 16px;" align="left">
+      <a href="{{ base_url }}/" style="text-decoration:none;">
+        <img src="{% large_static 'img/emails/email-logo.png' %}" width="184" height="43" alt="Boost" style="display:block;width:184px;height:43px;">
+      </a>
+    </td>
+  </tr>
+{% endblock %}
+
+{% block card_title %}Your post is approved{% endblock %}
+
+{% block card_body %}
+  <p style="margin:0;">Hi {{ user.first_name|default:user.get_username }},</p>
+  {% if page %}
+    <p style="margin:14px 0 0 0;">Your post "{{ page.get_admin_display_title }}" has been approved by moderation.</p>
+    {% include "v3/pages/email/_post_preview.html" %}
+  {% else %}
+    {% latest_str object as title %}
+    <p style="margin:14px 0 0 0;">Your post "{{ title }}" has been approved by moderation.</p>
+  {% endif %}
+{% endblock %}
+
+{% block cta %}
+  {% if page %}
+    {% include "emails/_cta_button.html" with url=page.full_url label="View" %}
+  {% endif %}
+{% endblock %}
+
+{% block footer_links %}
+  {% base_url_setting default="" as base_url %}
+  <br><br>
+  Want to change how you receive these emails?<br>
+  <a href="{{ base_url }}{% url 'profile-account' %}?edit=true" style="color:#050816;text-decoration:underline;">Update your notification preferences</a>.
+{% endblock %}
+
+{% block after_card %}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td style="padding:24px 0 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:12px;line-height:1.45;color:#71737b;text-align:center;">
+        Thank you, the Boost moderator team.
+      </td>
+    </tr>
+  </table>
+{% endblock %}

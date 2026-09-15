@@ -1,0 +1,23 @@
+Your account has been deleted
+
+Hi {{ first_name|default:"there" }},
+
+Your Boost account has been permanently deleted.
+
+What changed:
+
+- Your profile (name, email, and photo) has been anonymized
+- Your GitHub/Google sign-ins have been disconnected
+- Your notification preferences have been removed
+
+Posts and contributions you've made will remain on the site but are no longer
+linked to you.
+
+If you have mailing list subscriptions, you can still manage those through
+Postorius ({{ postorius_url }}).
+
+Thanks,
+The Boost Team
+
+--
+Boost.org is supported by grants from The C++ Alliance.

@@ -1,0 +1,32 @@
+{% extends "emails/base_email.html" %}
+
+{% comment %}
+  Sent when an account deletion completes - either the immediate V3 delete or
+  the grace-period delete that follows account_deletion_scheduled. Subject:
+  "Your account has been deleted" (see account_deleted_subject.txt).
+  Context: first_name, postorius_url, scheme, host.
+{% endcomment %}
+
+{% block title %}Your account has been deleted{% endblock %}
+
+{% block preheader %}Your Boost account has been permanently deleted.{% endblock %}
+
+{% block card_title %}Account deleted{% endblock %}
+
+{% block card_body %}
+  <p style="margin:0;">Hi {{ first_name|default:"there" }},</p>
+  <p style="margin:14px 0 0 0;">Your Boost account has been permanently deleted.</p>
+  <p style="margin:18px 0 8px 0;">What changed:</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin:0 0 6px 0;">Your profile (name, email, and photo) has been anonymized</li>
+    <li style="margin:0 0 6px 0;">Your GitHub/Google sign-ins have been disconnected</li>
+    <li style="margin:0;">Your notification preferences have been removed</li>
+  </ul>
+  <p style="margin:14px 0 0 0;">Posts and contributions you've made will remain on the site but are no longer linked to you.</p>
+  <p style="margin:14px 0 0 0;">If you have mailing list subscriptions, you can still manage those through <a href="{{ postorius_url }}" style="color:#050816;text-decoration:underline;">Postorius</a>.</p>
+  <p style="margin:18px 0 0 0;">Thanks,<br>The Boost Team</p>
+{% endblock %}
+
+{% block cta %}{% endblock %}
+
+{% block footer_links %}{% endblock %}

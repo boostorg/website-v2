@@ -1,0 +1,75 @@
+{% extends "emails/base_email.html" %}
+{% load custom_static wagtailadmin_tags %}
+
+{% comment %}
+  Overrides Wagtail's own task_state_submitted.html (see wagtail/admin/mail.py
+  GroupApprovalTaskStateSubmissionEmailNotifier). See workflow_state_approved.html
+  for why this needs no Python changes and builds its own URLs via
+  `base_url_setting` instead of relying on context. Context: task, object,
+  model_name, page (only set when object is a Page), user (recipient).
+
+  Mirrors templates/news/emails/needs_moderation.html's design and copy (the
+  equivalent "needs moderation" notice for the legacy news.Entry flow) --
+  same explanatory framing line, post preview, and moderator-team sign-off --
+  adapted to any Page-backed workflow, since this template is not PostPage-
+  specific (it also covers e.g. the testimonials moderation workflow).
+{% endcomment %}
+
+{% block title %}{% if page %}"{{ page.get_admin_display_title }}" needs your review{% else %}{% latest_str object as title %}"{{ title }}" needs your review{% endif %}{% endblock %}
+
+{% block preheader %}{% if page %}{{ page.owner.display_name|default:page.owner.get_username }} submitted "{{ page.get_admin_display_title }}" for review.{% else %}This has been submitted for review.{% endif %}{% endblock %}
+
+{% block header %}
+  {% base_url_setting default="" as base_url %}
+  <tr>
+    <td style="padding:18px 16px;" align="left">
+      <a href="{{ base_url }}/" style="text-decoration:none;">
+        <img src="{% large_static 'img/emails/email-logo.png' %}" width="184" height="43" alt="Boost" style="display:block;width:184px;height:43px;">
+      </a>
+    </td>
+  </tr>
+{% endblock %}
+
+{% block card_title %}{% if page %}A post needs your review{% else %}This needs your review{% endif %}{% endblock %}
+
+{% block card_body %}
+  {% if page %}
+    <p style="margin:0;">{{ page.owner.display_name|default:page.owner.get_username }} submitted "{{ page.get_admin_display_title }}" for review.</p>
+    {% include "v3/pages/email/_post_preview.html" %}
+  {% else %}
+    {% latest_str object as title %}
+    <p style="margin:0;">"{{ title }}" has been submitted for review.</p>
+  {% endif %}
+{% endblock %}
+
+{% block cta %}
+  {% base_url_setting default="" as base_url %}
+  {% if page %}
+    {% url 'wagtailadmin_pages:workflow_preview' page.id task.id as preview_url %}
+    {% url 'wagtailadmin_pages:edit' page.id as edit_url %}
+    {% include "emails/_cta_button.html" with url=base_url|add:preview_url label="Preview" %}
+    {% include "emails/_cta_button.html" with url=base_url|add:edit_url label="Review" secondary=True %}
+  {% else %}
+    {% admin_edit_url object user as edit_url %}
+    {% if edit_url %}
+      {% include "emails/_cta_button.html" with url=base_url|add:edit_url label="Review" %}
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block footer_links %}
+  {% base_url_setting default="" as base_url %}
+  <br><br>
+  Want to change how you receive these emails?<br>
+  <a href="{{ base_url }}{% url 'wagtailadmin_account' %}#tab-notifications" style="color:#050816;text-decoration:underline;">Update your notification preferences</a>.
+{% endblock %}
+
+{% block after_card %}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td style="padding:24px 0 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:300;font-size:12px;line-height:1.45;color:#71737b;text-align:center;">
+        Thank you, the Boost moderator team.
+      </td>
+    </tr>
+  </table>
+{% endblock %}

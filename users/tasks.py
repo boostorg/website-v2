@@ -1,11 +1,12 @@
 from time import sleep
 from datetime import timedelta
+from urllib.parse import urlsplit
 
 import structlog
 
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth import get_user_model
-from django.core.mail import EmailMultiAlternatives, send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.db import connection, transaction
 from django.db.models import Q
 from django.template.loader import render_to_string
@@ -98,13 +99,33 @@ def do_scheduled_user_deletions():
 
 
 @shared_task
-def send_account_deleted_email(email):
-    send_mail(
-        "Your boost.org account has been deleted",
-        "Your account on boost.org has been deleted.",
-        settings.DEFAULT_FROM_EMAIL,
-        [email],
+def send_account_deleted_email(email, first_name=""):
+    """Confirm an account deletion has completed.
+
+    Fires from `delete_account`, which runs both inside a request (immediate
+    V3 delete) and from the `do_scheduled_user_deletions` Celery task (grace
+    period expiry, no request available) -- so scheme/host for the branded
+    template's logo link come from the site's configured base URL rather
+    than a request.
+    """
+    parts = urlsplit(settings.WAGTAILADMIN_BASE_URL)
+    context = {
+        "first_name": first_name,
+        "postorius_url": settings.POSTORIUS_URL,
+        "scheme": parts.scheme,
+        "host": parts.netloc,
+    }
+    subject = render_to_string("emails/account_deleted_subject.txt", context).strip()
+    text_body = render_to_string("emails/account_deleted.txt", context)
+    html_body = render_to_string("emails/account_deleted.html", context)
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=text_body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[email],
     )
+    msg.attach_alternative(html_body, "text/html")
+    msg.send()
 
 
 @app.task
