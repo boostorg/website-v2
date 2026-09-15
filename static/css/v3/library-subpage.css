@@ -3,10 +3,12 @@
 
   .card-masonry-top: CSS multi-column, so cards pack into as many columns as fit
   (3 → 2 → 1 by width) with no grid row-stretching gaps. Reading order runs down
-  each column, then across. At three columns the column starts are pinned, so
-  card placement does not depend on how many cards there are or how tall.
+  each column, then across. At three and two columns the column starts are
+  pinned, so card placement does not depend on how many cards there are or how
+  tall.
 
-  .card-masonry-bottom: posts 2/3 + mailing list 1/3, stacking on mobile.
+  .card-masonry-bottom: posts 2/3 + mailing list 1/3 on desktop, an even split on
+  tablet, stacking on mobile.
 */
 
 /* ── Page wrapper ─────────────────────────────────────────────────────────── */
@@ -39,8 +41,8 @@ body:has(.hero:not(.hero--no-image)) .library-subpage-container {
 
 /* ── Top card masonry ────────────────────────────────────────────────────── */
 
-/* --subpage-col-min is hand-picked: with the 1440px container and 16px gaps it
-   yields 3 columns on desktop, 2 on tablet, 1 on mobile. */
+/* --subpage-col-min is hand-picked so a column holds a readable card at the
+   1440px container width; the count itself is pinned per breakpoint below. */
 .card-masonry-top {
   --subpage-col-min: 22rem;
   columns: var(--subpage-col-min);
@@ -76,7 +78,24 @@ body:has(.hero:not(.hero--no-image)) .library-subpage-container {
   }
 }
 
-/* ── Bottom card row (desktop/tablet: posts 2/3, mailing 1/3) ────────────── */
+/* Tablet gets two pinned columns for the same reason, and for one more: WebKit
+   stops balancing an auto-height multicol once an unbreakable card is taller
+   than the balanced height, so every card lands in column 1 and column 2 renders
+   empty — the single-column tablet layout Chrome's responsive mode never shows.
+     1 About, Benchmarks, Quick Start, Dependencies, Designed for, Freeform,
+     Install | 2 Contributors */
+@media (min-width: 768px) and (max-width: 1119px) {
+  .card-masonry-top {
+    columns: 2;
+  }
+
+  .card-masonry-top .item-d {
+    -webkit-column-break-before: always;
+    break-before: column;
+  }
+}
+
+/* ── Bottom card row (desktop: posts 2/3, mailing 1/3) ───────────────────── */
 
 .card-masonry-bottom {
   display: grid;
@@ -91,6 +110,19 @@ body:has(.hero:not(.hero--no-image)) .library-subpage-container {
 
 .card-masonry-bottom:not(:has(> .item-a)) {
   grid-template-areas: "b . .";
+}
+
+/* Tablet: an even split, so the posts card can't squeeze the mailing list card
+   below half the row. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .card-masonry-bottom {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: "a b";
+  }
+
+  .card-masonry-bottom:not(:has(> .item-a)) {
+    grid-template-areas: "b .";
+  }
 }
 
 /* ── Card max-width overrides ────────────────────────────────────────────── */
