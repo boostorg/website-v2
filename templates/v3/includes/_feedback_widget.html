@@ -9,7 +9,6 @@
     feedback_type_options (required) — Feedback.Type.choices, for the type dropdown
     image_max_bytes       (required) — screenshot size ceiling, mirrored from the model
     message_max_length    (required) — message ceiling, mirrored from the model
-    csrf_token            (required) — forwarded by the tag so {% csrf_token %} resolves
     request               (required) — for the current user and the page URL
 
   Progressive enhancement:
@@ -17,8 +16,11 @@
     - With JS: Alpine intercepts the click, opens the panel, and posts via fetch() so
       the submitter stays on the page they are giving feedback about.
 
-  CSRF: the token travels in the FormData built from this form. CSRF_COOKIE_HTTPONLY is
-  on, so reading the cookie from JavaScript is not an option.
+  CSRF: deliberately absent from this markup. The widget renders site-wide, so a token
+  here would set a cookie on every page and cost the CDN its shared copy. It is fetched
+  from {% url 'feedback-token' %} when the panel opens and added to the FormData on
+  submit. CSRF_COOKIE_HTTPONLY is on, so reading the cookie from JavaScript is not an
+  option.
 {% endcomment %}
 <div class="feedback-widget"
      x-data="feedbackWidget({{ image_max_bytes }})"
@@ -67,7 +69,6 @@
           x-ref="form"
           x-show="!sent"
           @submit.prevent="submit($event)">
-      {% csrf_token %}
       <input type="hidden" name="page_url" value="{{ request.build_absolute_uri }}">
       {# Populated at submit time from js/feedback-diagnostics.js. #}
       <input type="hidden" name="diagnostics" x-ref="diagnostics" value="">
@@ -88,10 +89,18 @@
 
       {% include "v3/includes/_field_file.html" with name="image" label="Add a screenshot" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" help_text="Optional. PNG or JPEG, up to 2MB — a picture often saves us a lot of guesswork." %}
 
+      {% if not request.user.is_authenticated %}
+        {% include "v3/includes/_field_text.html" with name="contact_email" type="email" label="Your email" placeholder="you@example.com" alpine_error="errors.contact_email" help_text="Optional. Only used if we need to ask you a follow-up question." %}
+      {% endif %}
+
       {% include "v3/includes/_button.html" with label="Send feedback" style="primary" type="submit" alpine_disabled="saving" label_x_text="saving ? 'Sending…' : 'Send feedback'" extra_classes="btn-flex" %}
 
       <p class="feedback-widget__disclosure">
-        Sent as {{ request.user.display_name }}, with your browser and current page info.
+        {% if request.user.is_authenticated %}
+          Sent as {{ request.user.display_name }}, with your browser and current page info.
+        {% else %}
+          Sent with your browser and current page info.
+        {% endif %}
       </p>
     </form>
   </div>
@@ -105,6 +114,7 @@
         sent: false,
         saving: false,
         errors: {},
+        csrfToken: '',
 
         toggle() {
           if (this.open) {
@@ -112,9 +122,26 @@
             return;
           }
           this.open = true;
+          // Start the round trip now so the token is waiting by the time they submit.
+          this.loadToken();
           // Land keyboard and screen-reader users inside the dialog. The panel itself
           // rather than a field, so opening does not expand the type dropdown.
           this.$nextTick(() => this.$refs.panel?.focus());
+        },
+
+        // Fetched rather than rendered, so no page carries a CSRF cookie. Failure is
+        // silent here because submit() asks again and reports it there.
+        async loadToken() {
+          if (this.csrfToken) return;
+          try {
+            const response = await fetch('{% url "feedback-token" %}', {
+              headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            if (!response.ok) return;
+            this.csrfToken = (await response.json()).token || '';
+          } catch (error) {
+            /* submit() retries */
+          }
         },
 
         // Closing clears a completed submission so reopening offers a fresh form.
@@ -151,14 +178,23 @@
             this.errors = { image: 'That image is over 2MB. Please attach a smaller one.' };
             return;
           }
+          // Retry here: opening the panel may have failed, or the token may have
+          // been fetched so long ago that the session behind it has rotated.
+          await this.loadToken();
+          if (!this.csrfToken) {
+            this.errors = { __all__: 'Something went wrong on our end. Please try again in a moment.' };
+            return;
+          }
           this.attachDiagnostics();
           this.saving = true;
           this.errors = {};
           try {
+            const body = new FormData(form);
+            body.set('csrfmiddlewaretoken', this.csrfToken);
             const response = await fetch(form.action, {
               method: 'POST',
               headers: { 'X-Requested-With': 'XMLHttpRequest' },
-              body: new FormData(form),
+              body,
             });
             const data = await response.json();
             if (response.ok) {

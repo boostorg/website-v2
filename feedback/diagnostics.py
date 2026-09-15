@@ -7,7 +7,9 @@ arrives as a JSON blob from the client and is treated as untrusted input.
 
 Server-side exceptions are recorded separately: the 500 page cannot render the
 widget, so an error has to outlive its request and wait for the member to report
-from wherever they land next.
+from wherever they land next. Only for signed-in members: filing an anonymous
+visitor's errors would mean keying them by network address, which would hand one
+person's paths and messages to everyone else behind it.
 """
 
 import json
@@ -107,12 +109,12 @@ def record_server_error(sender, request=None, **kwargs):
     a best-effort buffer rather than an audit log.
     """
     try:
-        user = getattr(request, "user", None)
-        if not user or not user.is_authenticated:
+        exc_type, exc, _ = sys.exc_info()
+        if exc is None or request is None:
             return
 
-        exc_type, exc, _ = sys.exc_info()
-        if exc is None:
+        user = getattr(request, "user", None)
+        if not user or not user.is_authenticated:
             return
 
         key = _server_error_key(user.pk)
