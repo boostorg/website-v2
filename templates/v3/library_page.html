@@ -431,7 +431,7 @@ Inputs:
           <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Category</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Author</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div class="library-page__list-header-flex library-page__list-header-justify"><span class="library-page__list-header-text">Version</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
-          <div></div>
+          <div class="library-page__list-header-flex library-page__list-header-justify"><span class="library-page__list-header-text">Docs</span></div>
         </li>
         {% for item in object_list %}
           {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
