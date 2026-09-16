@@ -41,5 +41,5 @@ def calculate_mailing_list_activity(user_id: int | None = None):
         return
     kwargs = {}
     if user_id:
-        kwargs["user-id"] = user_id
+        kwargs["user_id"] = user_id
     call_command("calculate_mailing_list_activity", **kwargs)
