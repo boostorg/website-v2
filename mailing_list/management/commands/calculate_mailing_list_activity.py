@@ -61,6 +61,9 @@ def command(dry, user_id):
             .aggregate(emails=ArrayAgg("commitauthoremail__email"))
             .get("emails", [])
         )
+        # If the user has no confirmed emails, move on.
+        if not emails:
+            continue
         postings_count = ListPosting.objects.filter(sender_id__in=emails).count()
         if dry:
             if mla.count != postings_count:
