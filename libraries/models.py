@@ -361,7 +361,6 @@ class CommitAuthorEmail(models.Model):
         Returns True when attribution was bound to the claimant, False
         when a conflicting verified sibling claim left author.user alone.
         """
-        r_value = False
         with transaction.atomic():
             # locking the author serializes sibling verifications, so two
             # can't both pass the conflict check before either commits
@@ -385,16 +384,16 @@ class CommitAuthorEmail(models.Model):
                     self.author_id,
                     author.user_id,
                 )
+                return False
             else:
                 author.user = self.claimed_by
                 author.save(update_fields=["user"])
                 # recalculate the mailing list activity to account for the
                 # newly claimed email
-                r_value = True
-
-        if r_value:
-            calculate_mailing_list_activity.delay(author.user.pk)
-        return r_value
+                transaction.on_commit(
+                    lambda: calculate_mailing_list_activity.delay(author.user.pk)
+                )
+                return True
 
     def withdraw_claim(self):
         """Undo a pending claim without touching the imported email record.
