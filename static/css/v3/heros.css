@@ -1025,15 +1025,27 @@ html.dark .hero__links .btn-icon-library:hover {
 }
 
 @media (min-width: 768px) {
+  /* The plateau. Its slope belongs to the artwork rather than to the hero: it
+     rises here because Beast's savanna brightens towards the horizon, and an
+     illustration that needs another ramp overrides these from LIBRARY_HERO_ART,
+     which arrives inline. Declared on the element and not on `::before`, or the
+     default would beat the inline value. The falloff below descends from
+     `--scrim-far` literally, so a plateau may sit above it but not below. */
+  .hero--library.hero--with-background-image {
+    --scrim-near: 0.36;
+    --scrim-mid: 0.38;
+    --scrim-far: 0.40;
+  }
+
   .hero--library.hero--with-background-image::before {
     --o: max(0px, (100% - 1440px) / 2);
 
     background: linear-gradient(
       90deg,
-      rgba(0, 0, 0, 0.36) 0%,
-      rgba(0, 0, 0, 0.36) var(--o),
-      rgba(0, 0, 0, 0.38) calc(var(--o) + 320px),
-      rgba(0, 0, 0, 0.40) calc(var(--o) + 550px),
+      rgba(0, 0, 0, var(--scrim-near)) 0%,
+      rgba(0, 0, 0, var(--scrim-near)) var(--o),
+      rgba(0, 0, 0, var(--scrim-mid)) calc(var(--o) + 320px),
+      rgba(0, 0, 0, var(--scrim-far)) calc(var(--o) + 550px),
       /* Smootherstep over 450px. A seam is a slope discontinuity, so the curve is
          picked for zero slope at both ends. Judge changes by peak slope, not by
          stop count; anything above ~0.003 alpha/px reads as a line. */

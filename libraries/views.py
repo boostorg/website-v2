@@ -759,7 +759,19 @@ class LibraryDetail(
             path = art.get(key)
             return large_static(path) if path else ""
 
+        # The scrim's plateau, rendered as custom properties on the hero rather
+        # than as a per-slug CSS rule: how dark it has to be is a property of the
+        # artwork, so it belongs beside the paths. Coerced through float so a bad
+        # entry fails here rather than reaching the style attribute.
+        scrim = art.get("scrim") or {}
+
+        def alpha(key):
+            value = scrim.get(key)
+            return f"{float(value):.2f}" if value is not None else ""
+
         return {
+            "library_hero_scrim_near": alpha("near"),
+            "library_hero_scrim_mid": alpha("mid"),
             "library_hero_image_url_light": url("illustration"),
             "library_hero_image_url_dark": "",
             "library_hero_image_url_mobile": url("illustration_mobile"),

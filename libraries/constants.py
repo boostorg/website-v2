@@ -401,6 +401,12 @@ LIBRARY_GITHUB_URL_OVERRIDES = {
 # rather than using one baked image, which only lines up while background and
 # illustration are exported at the same scale and height. No entry here means the
 # no-illustration hero from #2618, which is the intended fallback.
+#
+# "scrim" is optional and tunes the plateau alpha of the gradient that holds the
+# title and description legible, because how dark that has to be is a property of
+# what is painted behind them. LibraryDetail passes it through as custom
+# properties so a new illustration stays a dict entry rather than a CSS rule; see
+# `--scrim-near` in heros.css. Omit it to take the shared ramp.
 # key: Library.slug
 LIBRARY_HERO_ART = {
     "beast": {
@@ -412,6 +418,16 @@ LIBRARY_HERO_ART = {
     "describe": {
         "background": "img/v3/library-heros/describe-background.webp",
         "illustration": "img/v3/library-heros/describe.webp",
+    },
+    "json": {
+        "background": "img/v3/library-heros/json-background.webp",
+        "illustration": "img/v3/library-heros/json.webp",
+        # Descending: the title crosses window glass, where the shared ramp reads
+        # 2.72:1 against the 3.0:1 its type needs.
+        "scrim": {"near": 0.46, "mid": 0.44},
+        # No mobile export: this figure is wide rather than tall, so a tighter
+        # crop of it would scale to the same thing. Omitting the key drops the
+        # <source> and uses the desktop image at every width.
     },
 }
 

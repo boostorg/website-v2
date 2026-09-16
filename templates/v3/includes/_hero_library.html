@@ -22,6 +22,9 @@
     hero_image_url     (optional) — Image URL. If omitted, image block is not shown.
     hero_image_url_mobile (optional) — Art-directed image swapped in at &lt;=767px (e.g. a tighter crop). If omitted, the desktop image is used at all widths.
     hero_background_image_url (optional) — Background image URL for the hero container.
+    hero_scrim_near, hero_scrim_mid (optional) — Plateau alpha for the text scrim, 0-1, set as
+                         `--scrim-near`/`--scrim-mid` on the container. Only read by the flagship
+                         library hero, and only with a background image. Omit to take the shared ramp.
     extra_classes      (optional) — Extra modifier classes for the hero <section>, e.g. "hero--community" (community) or "hero--release" (release detail).
     is_flagship_lib    (optional) — Boolean value stating whether or not this is the hero for a flagship library. If it isn't, styles are a bit different.
     show_branch_buttons (optional) — Boolean. If truthy, renders the small Master/Develop version-switch buttons (v3/includes/_branch_buttons.html) as the last item of the actions/links row: far right of the hero and bottom-aligned with that row on desktop and tablet, on their own line below it on mobile. Off by default so the buttons only appear on library sub-pages, not other heroes (community, release, examples).
@@ -38,7 +41,7 @@
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
 {% endcomment %}
 <section class="hero{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero--with-bg-and-image{% endif %}{% if hero_background_image_url %} hero--with-background-image{% endif %}{% if extra_classes %} {{ extra_classes }}{% endif %}"
-         {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
+         {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');{% if hero_scrim_near %}--scrim-near: {{ hero_scrim_near }};{% endif %}{% if hero_scrim_mid %}--scrim-mid: {{ hero_scrim_mid }};{% endif %}"{% endif %}
          aria-label="Library hero">
   <div class="hero__block">
     <div class="hero__content">
