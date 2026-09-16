@@ -429,6 +429,10 @@ LIBRARY_HERO_ART = {
         # crop of it would scale to the same thing. Omitting the key drops the
         # <source> and uses the desktop image at every width.
     },
+    "regex": {
+        "background": "img/v3/library-heros/regex-background.webp",
+        "illustration": "img/v3/library-heros/regex.webp",
+    },
 }
 
 DEFAULT_LIBRARIES_LANDING_VIEW = "list"
