@@ -25,6 +25,7 @@ from mailing_list.client import MailmanAPIError
 from mailing_list.client import MailmanClient
 from mailing_list.constants import MAILING_LIST_LABELS
 from mailing_list.mixins import has_active_subscription
+from mailing_list.mixins import is_verified_email_for_user
 from mailing_list.models import SubscriptionStatus
 from mailing_list.models import UserMailingListSubscription
 
@@ -111,15 +112,54 @@ def _is_rate_limited(request) -> bool:
     return cache.incr(key) > _SUBSCRIBE_RATE_LIMIT
 
 
+def _subscribe_active(
+    user, email: str, list_ids: list[str]
+) -> tuple[list[str], str | None]:
+    """Subscribe immediately, skipping the double opt-in email.
+
+    Only called for an email already proven to belong to this user (account
+    email, or a verified commit-author email) - the confirmation email exists
+    to establish ownership, and that has already happened.
+    """
+    succeeded = []
+    for lid in list_ids:
+        try:
+            MailmanClient().subscribe(email, lid)
+        except MailmanAPIError as exc:
+            logger.error("Mailman subscribe error for %s/%s: %s", email, lid, exc)
+            continue
+        try:
+            with transaction.atomic():
+                UserMailingListSubscription.objects.update_or_create(
+                    user=user,
+                    list_id=lid,
+                    defaults={"email": email, "status": SubscriptionStatus.ACTIVE},
+                )
+        except IntegrityError:
+            continue
+        succeeded.append(lid)
+
+    if not succeeded and list_ids:
+        return [], "Could not subscribe. Please try again."
+    return succeeded, None
+
+
 def _subscribe_pending(
     request, user, email: str, list_ids: list[str]
-) -> tuple[list[str], str | None]:
-    """Create PENDING subscription records and send a confirmation email.
+) -> tuple[list[str], str | None, bool]:
+    """Create PENDING subscription records and send a confirmation email, unless
+    `email` is already verified for this user, in which case subscribe immediately
+    (see `_subscribe_active`).
 
-    Returns (succeeded, error_message). On email failure the records are
-    rolled back and error_message is set; on partial IntegrityError the
-    affected list is silently skipped.
+    Returns (succeeded, error_message, immediate). On email failure the records
+    are rolled back and error_message is set; on partial IntegrityError the
+    affected list is silently skipped. `immediate` is True when the verified-email
+    shortcut was taken, so callers can render "active" state instead of "pending".
     """
+    if is_verified_email_for_user(user, email):
+        succeeded, error = _subscribe_active(user, email, list_ids)
+        return succeeded, error, True
+
     succeeded = []
     for lid in list_ids:
         try:
@@ -134,7 +174,7 @@ def _subscribe_pending(
             pass
 
     if not succeeded:
-        return [], None
+        return [], None, False
 
     try:
         _send_confirmation_email(request, email, user.pk, succeeded)
@@ -143,9 +183,9 @@ def _subscribe_pending(
         UserMailingListSubscription.objects.filter(
             user=user, list_id__in=succeeded
         ).delete()
-        return [], "Could not send confirmation email. Please try again."
+        return [], "Could not send confirmation email. Please try again.", False
 
-    return succeeded, None
+    return succeeded, None, False
 
 
 def _send_confirmation_email(
@@ -409,13 +449,17 @@ class QuickSubscribeView(View):
                 )
             return _prg_redirect(request)
 
+        immediate = is_verified_email_for_user(request.user, email)
+        target_status = (
+            SubscriptionStatus.ACTIVE if immediate else SubscriptionStatus.PENDING
+        )
         try:
             with transaction.atomic():
                 UserMailingListSubscription.objects.create(
                     user=request.user,
                     list_id=list_id,
                     email=email,
-                    status=SubscriptionStatus.PENDING,
+                    status=target_status,
                 )
         except IntegrityError:
             if _is_htmx(request):
@@ -432,6 +476,45 @@ class QuickSubscribeView(View):
                 ml_error="This email is already registered for this list by another account.",
                 ml_email=email,
             )
+
+        if immediate:
+            # Already proven to belong to this user elsewhere - skip the double
+            # opt-in confirmation email and subscribe right away.
+            try:
+                MailmanClient().subscribe(email, list_id)
+            except MailmanAPIError as exc:
+                logger.error(
+                    "Mailman subscribe error for %s/%s: %s", email, list_id, exc
+                )
+                UserMailingListSubscription.objects.filter(
+                    user=request.user, list_id=list_id
+                ).delete()
+                if _is_htmx(request):
+                    return self._card(
+                        request,
+                        state="error",
+                        error_message="Could not subscribe. Please try again.",
+                        user_email=email,
+                        list_id=list_id,
+                    )
+                return _prg_redirect(
+                    request,
+                    ml_state="error",
+                    ml_error="Could not subscribe. Please try again.",
+                    ml_email=email,
+                )
+            subscription_count = UserMailingListSubscription.objects.filter(
+                user=request.user, list_id__in=managed_lists
+            ).count()
+            if _is_htmx(request):
+                return self._card(
+                    request,
+                    state="active",
+                    user_email=email,
+                    subscription_count=subscription_count,
+                    manage_url=manage_url,
+                )
+            return _prg_redirect(request)
 
         try:
             _send_confirmation_email(request, email, request.user.pk, [list_id])
@@ -685,7 +768,7 @@ class ModalSubscribeView(View):
                 manage_url=manage_url,
             )
 
-        succeeded, error = _subscribe_pending(
+        succeeded, error, immediate = _subscribe_pending(
             request, request.user, email, to_subscribe
         )
 
@@ -700,6 +783,18 @@ class ModalSubscribeView(View):
                 state="error",
                 error_message="Could not subscribe. Please try again.",
                 user_email=email,
+            )
+
+        if immediate:
+            subscription_count = UserMailingListSubscription.objects.filter(
+                user=request.user, list_id__in=managed_lists
+            ).count()
+            return self._card(
+                request,
+                state="active",
+                user_email=email,
+                subscription_count=subscription_count,
+                manage_url=manage_url,
             )
 
         return self._card(

@@ -221,6 +221,81 @@ def test_auth_quick_subscribe_already_active_returns_success_card(client, user):
 
 
 @pytest.mark.django_db
+def test_auth_quick_subscribe_account_email_subscribes_immediately(client, user):
+    """POST /mailing-list/quick-subscribe/ — auth: subscribing with the account's own
+    (already-verified) email skips the confirmation email and activates right away.
+    """
+    client.force_login(user)
+    url = reverse("mailing-list-quick-subscribe")
+    with patch("mailing_list.views._send_confirmation_email") as mock_send, patch(
+        "mailing_list.views.MailmanClient"
+    ) as MockClient:
+        response = client.post(
+            url,
+            {"email": user.email, "list_id": LIST_ID},
+            HTTP_HX_REQUEST="true",
+        )
+    assert response.status_code == 200
+    mock_send.assert_not_called()
+    MockClient.return_value.subscribe.assert_called_once_with(user.email, LIST_ID)
+    sub = UserMailingListSubscription.objects.get(user=user, list_id=LIST_ID)
+    assert sub.status == SubscriptionStatus.ACTIVE
+    assert b"pending" not in response.content.lower()
+
+
+@pytest.mark.django_db
+def test_auth_quick_subscribe_verified_commit_email_subscribes_immediately(
+    client, user
+):
+    """POST /mailing-list/quick-subscribe/ — auth: subscribing with a verified
+    commit-author email (not the account email) also skips confirmation.
+    """
+    commit_email = "commits@example.com"
+    baker.make(
+        "libraries.CommitAuthorEmail",
+        claimed_by=user,
+        claim_verified=True,
+        email=commit_email,
+    )
+    client.force_login(user)
+    url = reverse("mailing-list-quick-subscribe")
+    with patch("mailing_list.views._send_confirmation_email") as mock_send, patch(
+        "mailing_list.views.MailmanClient"
+    ) as MockClient:
+        response = client.post(
+            url,
+            {"email": commit_email, "list_id": LIST_ID},
+            HTTP_HX_REQUEST="true",
+        )
+    assert response.status_code == 200
+    mock_send.assert_not_called()
+    MockClient.return_value.subscribe.assert_called_once_with(commit_email, LIST_ID)
+    sub = UserMailingListSubscription.objects.get(user=user, list_id=LIST_ID)
+    assert sub.status == SubscriptionStatus.ACTIVE
+
+
+@pytest.mark.django_db
+def test_auth_quick_subscribe_unverified_email_still_requires_confirmation(
+    client, user
+):
+    """POST /mailing-list/quick-subscribe/ — auth: an email with no verified claim
+    still goes through the normal pending + confirmation-email flow.
+    """
+    client.force_login(user)
+    url = reverse("mailing-list-quick-subscribe")
+    with patch("mailing_list.views._send_confirmation_email") as mock_send:
+        response = client.post(
+            url,
+            {"email": EMAIL, "list_id": LIST_ID},
+            HTTP_HX_REQUEST="true",
+        )
+    assert response.status_code == 200
+    mock_send.assert_called_once()
+    sub = UserMailingListSubscription.objects.get(user=user, list_id=LIST_ID)
+    assert sub.status == SubscriptionStatus.PENDING
+
+
+@pytest.mark.django_db
 def test_auth_quick_subscribe_duplicate_email_returns_error(client, user, other_user):
     """POST /mailing-list/quick-subscribe/ — auth: email already registered by another account returns error."""
     baker.make(
@@ -491,3 +566,24 @@ def test_auth_modal_subscribe_rejects_request_without_csrf_token(user):
     url = reverse("mailing-list-modal-subscribe")
     response = csrf_client.post(url, {"email": user.email, "list_id": [LIST_ID]})
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_auth_modal_subscribe_verified_email_subscribes_immediately(client, user):
+    """POST /mailing-list/modal-subscribe/ — auth: the account's own email skips
+    the confirmation email and comes back as "active", not "pending"."""
+    client.force_login(user)
+    url = reverse("mailing-list-modal-subscribe")
+    with patch("mailing_list.views._send_confirmation_email") as mock_send, patch(
+        "mailing_list.views.MailmanClient"
+    ) as MockClient:
+        response = client.post(
+            url,
+            {"email": user.email, "list_id": [LIST_ID]},
+            HTTP_HX_REQUEST="true",
+        )
+    assert response.status_code == 200
+    mock_send.assert_not_called()
+    MockClient.return_value.subscribe.assert_called_once_with(user.email, LIST_ID)
+    sub = UserMailingListSubscription.objects.get(user=user, list_id=LIST_ID)
+    assert sub.status == SubscriptionStatus.ACTIVE

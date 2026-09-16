@@ -5,6 +5,7 @@ from model_bakery import baker
 
 from mailing_list.constants import MAILMAN_LISTS
 from mailing_list.mixins import MailingListCardMixin
+from mailing_list.mixins import is_verified_email_for_user
 from mailing_list.models import SubscriptionStatus, UserMailingListSubscription
 
 LIST_ID = MAILMAN_LISTS[0]
@@ -118,6 +119,39 @@ def test_card_pending_without_active_subscription(rf, user):
     )
     context = _context(rf, user)
     assert context["mailing_list_card_has_active_subscription"] is False
+
+
+@pytest.mark.django_db
+def test_is_verified_email_matches_account_email(user):
+    assert is_verified_email_for_user(user, user.email) is True
+    assert is_verified_email_for_user(user, user.email.upper()) is True
+
+
+@pytest.mark.django_db
+def test_is_verified_email_matches_verified_commit_email(user):
+    baker.make(
+        "libraries.CommitAuthorEmail",
+        claimed_by=user,
+        claim_verified=True,
+        email="commits@example.com",
+    )
+    assert is_verified_email_for_user(user, "commits@example.com") is True
+
+
+@pytest.mark.django_db
+def test_is_verified_email_rejects_unclaimed_email(user):
+    baker.make(
+        "libraries.CommitAuthorEmail",
+        claimed_by=user,
+        claim_verified=False,
+        email="pending@example.com",
+    )
+    assert is_verified_email_for_user(user, "pending@example.com") is False
+    assert is_verified_email_for_user(user, "random@example.com") is False
+
+
+def test_is_verified_email_false_for_anonymous():
+    assert is_verified_email_for_user(AnonymousUser(), "user@example.com") is False
 
 
 @pytest.mark.django_db

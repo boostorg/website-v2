@@ -15,6 +15,29 @@ class SubscriptionState(NamedTuple):
     email: Optional[str]
 
 
+def is_verified_email_for_user(user, email: str) -> bool:
+    """True if `email` is already proven to belong to this user elsewhere on the
+    site - their account email, or a commit-author email they've verified via the
+    claim flow. A subscription to an already-verified address doesn't need its own
+    double opt-in: the ownership check that confirmation email exists to perform
+    has already happened.
+    """
+    if not user.is_authenticated or not email:
+        return False
+    email = email.strip().lower()
+    if user.email and user.email.strip().lower() == email:
+        return True
+
+    # Local import: libraries.models imports mailing_list.models at module level,
+    # so importing libraries.models back at mixins.py's module level would risk a
+    # circular import during app loading.
+    from libraries.models import CommitAuthorEmail
+
+    return CommitAuthorEmail.objects.filter(
+        claimed_by=user, claim_verified=True, email__iexact=email
+    ).exists()
+
+
 def has_active_subscription(user, list_ids) -> bool:
     """True if the user already has at least one ACTIVE (confirmed) subscription
     among list_ids. Used to distinguish "verify ownership of this address" (which
