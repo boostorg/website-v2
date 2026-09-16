@@ -3,7 +3,7 @@ from .settings import *  # noqa
 
 import environs
 
-env = environs.env()
+env = environs.Env()
 
 
 # Disable migrations for all-the-things
