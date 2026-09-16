@@ -243,6 +243,52 @@ def test_auth_quick_subscribe_duplicate_email_returns_error(client, user, other_
     assert not UserMailingListSubscription.objects.filter(user=user).exists()
 
 
+@pytest.mark.django_db
+def test_auth_quick_subscribe_with_active_subscription_drops_ownership_phrase(
+    client, user
+):
+    """POST /mailing-list/quick-subscribe/ — auth: a user who already has one ACTIVE
+    list sees copy that doesn't ask them to "verify ownership" again for a second,
+    still-pending list.
+    """
+    baker.make(
+        UserMailingListSubscription,
+        user=user,
+        list_id=MAILMAN_LISTS[0],
+        email=EMAIL,
+        status=SubscriptionStatus.ACTIVE,
+    )
+    client.force_login(user)
+    url = reverse("mailing-list-quick-subscribe")
+    with patch("mailing_list.views._send_confirmation_email"):
+        response = client.post(
+            url,
+            {"email": EMAIL, "list_id": MAILMAN_LISTS[1]},
+            HTTP_HX_REQUEST="true",
+        )
+    assert response.status_code == 200
+    assert b"verify ownership" not in response.content.lower()
+
+
+@pytest.mark.django_db
+def test_auth_quick_subscribe_without_active_subscription_keeps_ownership_phrase(
+    client, user
+):
+    """POST /mailing-list/quick-subscribe/ — auth: a user with no confirmed address
+    yet still sees the "verify ownership" copy on their first pending subscription.
+    """
+    client.force_login(user)
+    url = reverse("mailing-list-quick-subscribe")
+    with patch("mailing_list.views._send_confirmation_email"):
+        response = client.post(
+            url,
+            {"email": EMAIL, "list_id": LIST_ID},
+            HTTP_HX_REQUEST="true",
+        )
+    assert response.status_code == 200
+    assert b"verify ownership" in response.content.lower()
+
+
 # ---------------------------------------------------------------------------
 # ConfirmSubscriptionView
 # ---------------------------------------------------------------------------

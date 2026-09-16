@@ -24,6 +24,7 @@ from mailing_list import constants
 from mailing_list.client import MailmanAPIError
 from mailing_list.client import MailmanClient
 from mailing_list.constants import MAILING_LIST_LABELS
+from mailing_list.mixins import has_active_subscription
 from mailing_list.models import SubscriptionStatus
 from mailing_list.models import UserMailingListSubscription
 
@@ -390,6 +391,9 @@ class QuickSubscribeView(View):
                         user_email=existing.email,
                         list_id=list_id,
                         manage_url=manage_url,
+                        has_active_subscription=has_active_subscription(
+                            request.user, managed_lists
+                        ),
                     )
                 return _prg_redirect(request)
             subscription_count = UserMailingListSubscription.objects.filter(
@@ -460,6 +464,9 @@ class QuickSubscribeView(View):
                 user_email=email,
                 list_id=list_id,
                 manage_url=manage_url,
+                has_active_subscription=has_active_subscription(
+                    request.user, managed_lists
+                ),
             )
         return _prg_redirect(request)
 
@@ -700,6 +707,9 @@ class ModalSubscribeView(View):
             state="pending",
             user_email=email,
             manage_url=manage_url,
+            has_active_subscription=has_active_subscription(
+                request.user, managed_lists
+            ),
         )
 
     def _handle_anonymous(self, request, email, list_ids):

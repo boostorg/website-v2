@@ -15,6 +15,19 @@ class SubscriptionState(NamedTuple):
     email: Optional[str]
 
 
+def has_active_subscription(user, list_ids) -> bool:
+    """True if the user already has at least one ACTIVE (confirmed) subscription
+    among list_ids. Used to distinguish "verify ownership of this address" (which
+    only makes sense before the user has proven they own any address at all) from
+    a returning subscriber adding one more list to an address already confirmed.
+    """
+    if not user.is_authenticated:
+        return False
+    return UserMailingListSubscription.objects.filter(
+        user=user, list_id__in=list_ids, status=SubscriptionStatus.ACTIVE
+    ).exists()
+
+
 def get_subscription_state_count_and_email(user, list_ids) -> SubscriptionState:
     if not user.is_authenticated:
         return SubscriptionState(None, 0, None)
@@ -92,6 +105,10 @@ class MailingListCardMixin:
             context["mailing_list_card_subscription_count"] = state.count
             context["mailing_list_card_user_email"] = state.email or request.user.email
             context["mailing_list_card_manage_url"] = reverse("profile-account")
+            context["mailing_list_card_has_active_subscription"] = (
+                state.state == SubscriptionStatus.PENDING
+                and has_active_subscription(request.user, managed_lists)
+            )
             context["mailing_list_card_subscribed_ids"] = set(
                 UserMailingListSubscription.objects.filter(
                     user=request.user, list_id__in=managed_lists

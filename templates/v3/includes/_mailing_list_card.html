@@ -13,6 +13,9 @@ Variables:
                          (authenticated users); the trigger opens the modal via :target
   subscription_count   - (optional) number of lists subscribed to (shown in active state)
   subscribed_ids       - (optional) set of list IDs the user is currently subscribed to; controls checkbox state
+  has_active_subscription - (optional) True if the user already has at least one ACTIVE
+                         subscription; swaps the pending state's copy from "verify
+                         ownership" (first-time confirmation) to a returning-subscriber phrasing
   error_message        - error text shown when state="error"
 
 Both forms omit {% csrf_token %} for anonymous requests, on purpose: this card
@@ -61,7 +64,11 @@ and HTMX swaps [data-ml-block] in place; x-init then clears the URL hash so the 
       </div>
       <hr class="card__hr" />
       <div class="card__column px-large">
-        <span>We've sent you an email — please confirm to verify ownership of this address and activate your subscription.</span>
+        {% if has_active_subscription %}
+          <span>We've sent you an email to confirm this address for your new list selection.</span>
+        {% else %}
+          <span>We've sent you an email — please confirm to verify ownership of this address and activate your subscription.</span>
+        {% endif %}
       </div>
       {% if manage_url %}
         <div class="card__cta_section">

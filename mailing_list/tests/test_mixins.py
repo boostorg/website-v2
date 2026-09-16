@@ -81,6 +81,46 @@ def test_card_context_built_once_per_request(rf, user, django_assert_num_queries
 
 
 @pytest.mark.django_db
+def test_card_pending_flags_existing_active_subscription(rf, user):
+    """A user with one ACTIVE list and a new PENDING one gets has_active_subscription=True,
+    so the card can drop the "verify ownership" phrasing that only makes sense before
+    any address has been confirmed.
+    """
+    baker.make(
+        UserMailingListSubscription,
+        user=user,
+        list_id=MAILMAN_LISTS[0],
+        email="user@example.com",
+        status=SubscriptionStatus.ACTIVE,
+    )
+    baker.make(
+        UserMailingListSubscription,
+        user=user,
+        list_id=MAILMAN_LISTS[1],
+        email="user@example.com",
+        status=SubscriptionStatus.PENDING,
+    )
+    context = _context(rf, user)
+    assert context["mailing_list_card_has_active_subscription"] is True
+
+
+@pytest.mark.django_db
+def test_card_pending_without_active_subscription(rf, user):
+    """A user with only a PENDING subscription (no confirmed address yet) gets
+    has_active_subscription=False, so "verify ownership" copy still applies.
+    """
+    baker.make(
+        UserMailingListSubscription,
+        user=user,
+        list_id=LIST_ID,
+        email="user@example.com",
+        status=SubscriptionStatus.PENDING,
+    )
+    context = _context(rf, user)
+    assert context["mailing_list_card_has_active_subscription"] is False
+
+
+@pytest.mark.django_db
 def test_prg_error_param_overrides_account_email(rf, user):
     """The no-JS error PRG echoes back the submitted address, not the account email."""
     context = _context(
