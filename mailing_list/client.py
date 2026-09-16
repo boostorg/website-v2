@@ -62,6 +62,22 @@ class MailmanClient:
                 f"subscribe failed [{response.status_code}]: {response.text}"
             )
 
+    def list_lists(self) -> None:
+        """GET /<version>/lists — a read-only, no-op query used only as a liveness
+        probe: it never mutates Mailman, it just confirms the API is reachable and
+        our credentials still work.
+        """
+        url = f"{self._base}/lists"
+        try:
+            response = requests.get(url, auth=self._credentials, timeout=10)
+        except requests.RequestException as exc:
+            raise MailmanAPIError(f"Mailman API unreachable: {exc}") from exc
+
+        if not response.ok:
+            raise MailmanAPIError(
+                f"list lookup failed [{response.status_code}]: {response.text}"
+            )
+
     def is_confirmed(self, email: str, list_id: str) -> bool:
         """Return True if the email is a confirmed (active) member of the list."""
         url = f"{self._base}/lists/{list_id}/member/{email}"
