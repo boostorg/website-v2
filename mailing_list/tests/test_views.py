@@ -73,18 +73,24 @@ def test_anon_quick_subscribe_sends_email_and_returns_pending(client):
 
 
 @pytest.mark.django_db
-def test_anon_quick_subscribe_already_subscribed_returns_error(client):
-    """POST /mailing-list/quick-subscribe/ — anon: email already confirmed in Mailman returns error."""
+def test_anon_quick_subscribe_already_subscribed_does_not_leak_status(client):
+    """POST /mailing-list/quick-subscribe/ — anon: response never reveals whether the
+    address is already a member, so it can't be used to probe subscription status.
+    The pending card and confirmation email are the same either way.
+    """
     url = reverse("mailing-list-quick-subscribe")
-    with patch("mailing_list.views.MailmanClient") as MockClient:
-        MockClient.return_value.is_confirmed.return_value = True
+    with patch("mailing_list.views._send_confirmation_email") as mock_send, patch(
+        "mailing_list.views.MailmanClient"
+    ) as MockClient:
         response = client.post(
             url,
             {"email": EMAIL, "list_id": LIST_ID},
             HTTP_HX_REQUEST="true",
         )
     assert response.status_code == 200
-    assert b"already subscribed" in response.content.lower()
+    assert b"already subscribed" not in response.content.lower()
+    mock_send.assert_called_once()
+    MockClient.return_value.is_confirmed.assert_not_called()
 
 
 @pytest.mark.django_db

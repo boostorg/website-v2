@@ -464,25 +464,14 @@ class QuickSubscribeView(View):
         return _prg_redirect(request)
 
     def _handle_anonymous(self, request, email, list_id):
-        try:
-            if MailmanClient().is_confirmed(email, list_id):
-                if _is_htmx(request):
-                    return self._card(
-                        request,
-                        state="error",
-                        error_message=f"{email} is already subscribed to this list.",
-                        user_email=email,
-                        list_id=list_id,
-                    )
-                return _prg_redirect(
-                    request,
-                    ml_state="error",
-                    ml_error=f"{email} is already subscribed to this list.",
-                    ml_email=email,
-                )
-        except MailmanAPIError:
-            pass  # can't determine — proceed and let Mailman handle it on confirm
-
+        # Deliberately does not check MailmanClient().is_confirmed() here or
+        # branch on the result. Telling an anonymous caller whether a given
+        # address is already subscribed would let anyone probe arbitrary
+        # emails against these lists - a data-compliance issue, not just a
+        # UX one. The confirmation flow is idempotent (subscribe() treats an
+        # existing member as a no-op), so proceeding unconditionally is safe:
+        # the response the caller sees never depends on whether the address
+        # was already a member.
         try:
             _send_confirmation_email(request, email, None, [list_id])
         except Exception as exc:
