@@ -7,6 +7,7 @@ from django.urls import reverse
 from model_bakery import baker
 from unittest.mock import patch
 
+from mailing_list.client import MailmanAPIError
 from mailing_list.constants import MAILMAN_LISTS
 from mailing_list.models import SubscriptionStatus, UserMailingListSubscription
 from mailing_list.views import _CONFIRM_SALT
@@ -423,6 +424,53 @@ def test_confirm_anonymous_token_subscribes_without_db_record(client):
         response = client.get(url)
     assert response.status_code == 200
     MockClient.return_value.subscribe.assert_called_once_with(EMAIL, LIST_ID)
+
+
+@pytest.mark.django_db
+def test_confirm_total_mailman_failure_shows_dedicated_error_page(client, user):
+    """GET /mailing-list/confirm/<token>/ — every list fails at Mailman: renders the
+    dedicated error page (502), not the success page with an error list attached.
+    """
+    baker.make(
+        UserMailingListSubscription,
+        user=user,
+        list_id=LIST_ID,
+        email=EMAIL,
+        status=SubscriptionStatus.PENDING,
+    )
+    token = _make_token(EMAIL, [LIST_ID], user_id=user.pk)
+    url = reverse("mailing-list-confirm", args=[token])
+    with patch("mailing_list.views.MailmanClient") as MockClient:
+        MockClient.return_value.subscribe.side_effect = MailmanAPIError("boom")
+        response = client.get(url)
+    assert response.status_code == 502
+    assert b"could not" in response.content.lower()
+    assert (
+        UserMailingListSubscription.objects.get(user=user, list_id=LIST_ID).status
+        == SubscriptionStatus.PENDING
+    )
+
+
+@pytest.mark.django_db
+def test_confirm_partial_mailman_failure_keeps_success_page(client, user):
+    """GET /mailing-list/confirm/<token>/ — one list succeeds, one fails: still the
+    success page, with the failures called out in its own section."""
+    list_a, list_b = MAILMAN_LISTS[0], MAILMAN_LISTS[1]
+    for lid in (list_a, list_b):
+        baker.make(
+            UserMailingListSubscription,
+            user=user,
+            list_id=lid,
+            email=EMAIL,
+            status=SubscriptionStatus.PENDING,
+        )
+    token = _make_token(EMAIL, [list_a, list_b], user_id=user.pk)
+    url = reverse("mailing-list-confirm", args=[token])
+    with patch("mailing_list.views.MailmanClient") as MockClient:
+        MockClient.return_value.subscribe.side_effect = [None, MailmanAPIError("boom")]
+        response = client.get(url)
+    assert response.status_code == 200
+    assert b"subscription confirmed" in response.content.lower()
 
 
 # ---------------------------------------------------------------------------

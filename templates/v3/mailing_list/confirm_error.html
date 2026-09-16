@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/mailing-list-confirm.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<main class="mailing-list-confirm">
+  <div class="mailing-list-confirm__inner">
+
+    <div class="mailing-list-confirm__icon-wrap mailing-list-confirm__icon-wrap--error" aria-hidden="true">
+      <svg class="mailing-list-confirm__icon mailing-list-confirm__icon--error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+
+    <div class="mailing-list-confirm__header">
+      <h1 class="mailing-list-confirm__title">Could not complete your subscription</h1>
+      <p class="mailing-list-confirm__body">
+        <span class="mailing-list-confirm__email">{{ email }}</span>
+        could not be subscribed to the following list{{ errors|length|pluralize }}. Please try subscribing again later.
+      </p>
+    </div>
+
+    <ul class="mailing-list-confirm__list" role="list">
+      {% for item in errors %}
+        <li class="mailing-list-confirm__list-item mailing-list-confirm__list-item--error">
+          <span class="mailing-list-confirm__list-name">{{ item.name }}</span>
+          {% if item.address %}<span class="mailing-list-confirm__list-address">{{ item.address }}</span>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+
+    {% include "v3/includes/_button.html" with url=home_url label="Go to homepage" only %}
+
+  </div>
+</main>
+{% endblock %}

@@ -649,6 +649,20 @@ class ConfirmSubscriptionView(View):
                 return {"name": entry["name"], "address": entry["address"]}
             return {"name": list_id, "address": None}
 
+        if not confirmed and errors:
+            # Nothing succeeded - a dedicated error page, not the success page's
+            # checkmark with an error list stapled underneath it.
+            return render(
+                request,
+                "v3/mailing_list/confirm_error.html",
+                {
+                    "email": email,
+                    "errors": [_label(lid) for lid in errors],
+                    "home_url": "/",
+                },
+                status=502,
+            )
+
         return render(
             request,
             "v3/mailing_list/confirm_success.html",
