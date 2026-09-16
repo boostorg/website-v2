@@ -15,6 +15,29 @@ class SubscriptionState(NamedTuple):
     email: Optional[str]
 
 
+def verified_emails_for_user(user) -> set[str]:
+    """Every email already proven to belong to this user elsewhere on the site:
+    their account email, plus any commit-author email they've verified via the
+    claim flow. Lowercased for case-insensitive comparison.
+    """
+    if not user.is_authenticated:
+        return set()
+
+    # Local import: libraries.models imports mailing_list.models at module level,
+    # so importing libraries.models back at mixins.py's module level would risk a
+    # circular import during app loading.
+    from libraries.models import CommitAuthorEmail
+
+    emails = set(
+        CommitAuthorEmail.objects.filter(
+            claimed_by=user, claim_verified=True
+        ).values_list("email", flat=True)
+    )
+    if user.email:
+        emails.add(user.email)
+    return {e.strip().lower() for e in emails if e}
+
+
 def is_verified_email_for_user(user, email: str) -> bool:
     """True if `email` is already proven to belong to this user elsewhere on the
     site - their account email, or a commit-author email they've verified via the
@@ -22,20 +45,9 @@ def is_verified_email_for_user(user, email: str) -> bool:
     double opt-in: the ownership check that confirmation email exists to perform
     has already happened.
     """
-    if not user.is_authenticated or not email:
+    if not email:
         return False
-    email = email.strip().lower()
-    if user.email and user.email.strip().lower() == email:
-        return True
-
-    # Local import: libraries.models imports mailing_list.models at module level,
-    # so importing libraries.models back at mixins.py's module level would risk a
-    # circular import during app loading.
-    from libraries.models import CommitAuthorEmail
-
-    return CommitAuthorEmail.objects.filter(
-        claimed_by=user, claim_verified=True, email__iexact=email
-    ).exists()
+    return email.strip().lower() in verified_emails_for_user(user)
 
 
 def has_active_subscription(user, list_ids) -> bool:

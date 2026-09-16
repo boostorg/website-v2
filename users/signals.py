@@ -88,6 +88,14 @@ def user_logged_in_handler(request, user, **kwargs):
     if not user.data.get("ml_post_auth_seen"):
         request.session["show_ml_post_auth_modal"] = True
 
+    # Reconcile any mailing list subscription made directly through Postorious
+    # (outside this site) so the "manage your lists" modal reflects it, instead
+    # of showing the list as unchecked because we never saw the subscription.
+    from mailing_list.tasks import sync_mailman_membership_for_user
+
+    user_pk = user.pk
+    transaction.on_commit(lambda: sync_mailman_membership_for_user.delay(user_pk))
+
 
 @receiver(post_save, sender=User)
 def reindex_pages_on_display_name_change(sender, instance, created, **kwargs):
