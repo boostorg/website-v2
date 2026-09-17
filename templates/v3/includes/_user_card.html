@@ -25,6 +25,13 @@
     description     (string, optional)  - Description text for logged-out variant.
     extra_attrs     (string, optional)  - Extra HTML attributes for analytics (rendered raw)
 
+  Entry points: the featured-badge icon opens the Achievements dialog; the
+  tenure star and Boost Day icon open the Badges dialog - independently of
+  their hover tooltips. The page including this card must also include
+  v3/includes/_achievements_modal.html and v3/includes/_badges_modal.html
+  once each (with no `items` on a non-profile page, so the content stays
+  static rather than querying anyone's live counts).
+
   Usage:
     Normal (green background + CTA):
       {% include "v3/includes/_user_card.html" with username="vinniefalco" avatar_url="/img/avatar.png" badge_name="Bug Catcher" badge="badge-tier-3" member_since="2008" role="Board Member" flag_emoji="🇺🇸" cta_url="/create-post/" %}
@@ -75,10 +82,10 @@
       {% if tenure_stamp or boost_day_stamp %}
         <span class="user-card__stamps">
           {% if tenure_stamp %}
-            {% include "v3/includes/_badge_v3.html" with token=tenure_stamp.token label=tenure_stamp.label size="large" only %}
+            {% include "v3/includes/_badge_v3.html" with token=tenure_stamp.token label=tenure_stamp.label size="large" href="#badges-modal" only %}
           {% endif %}
           {% if boost_day_stamp %}
-            {% include "v3/includes/_badge_v3.html" with token=boost_day_stamp.token label=boost_day_stamp.label size="large" only %}
+            {% include "v3/includes/_badge_v3.html" with token=boost_day_stamp.token label=boost_day_stamp.label size="large" href="#badges-modal" only %}
           {% endif %}
         </span>
       {% endif %}
@@ -88,7 +95,7 @@
     <span class="user-card__badge">
       {{ badge_name }}
       {% if badge %}
-        {% include "v3/includes/_badge_v3.html" with token=badge label=badge_name size="small" extra_class="user-card__badge-icon" only %}
+        {% include "v3/includes/_badge_v3.html" with token=badge label=badge_name size="small" extra_class="user-card__badge-icon" href="#achievements-modal" only %}
       {% endif %}
     </span>
     {% endif %}

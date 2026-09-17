@@ -84,4 +84,15 @@
       </section>
     {% endif %}
   </div>
+
+  {% comment %}
+    Outside .post-detail-page so the fixed-position overlay is not contained
+    by an ancestor, matching how the profile page places its dialogs. This is
+    a non-profile surface: the post author's badge, star and Boost Day icons
+    (rendered by _post_header.html and, for next/related posts, _post_card.html
+    - both via _user_profile.html) open these with no `items`, so the content
+    is static and informational rather than any one author's live counts.
+  {% endcomment %}
+  {% include "v3/includes/_achievements_modal.html" %}
+  {% include "v3/includes/_badges_modal.html" %}
 {% endblock %}

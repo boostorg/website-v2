@@ -162,4 +162,15 @@
       </div>
     </div>
   </div>
+
+  {% comment %}
+    Outside .post-content-container so the fixed-position overlay is not
+    contained by an ancestor, matching how the profile page places its
+    dialogs. Non-profile surface: the badge/star/Boost Day icons rendered
+    here (the signed-in user's own card, and each post's author via
+    _post_card.html / _user_profile.html) open these with no `items`, so the
+    content is static and informational rather than anyone's live counts.
+  {% endcomment %}
+  {% include "v3/includes/_achievements_modal.html" %}
+  {% include "v3/includes/_badges_modal.html" %}
 {% endblock %}
