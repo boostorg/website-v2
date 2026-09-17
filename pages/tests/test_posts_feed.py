@@ -717,8 +717,10 @@ def test_feed_does_not_scale_queries_with_post_count(
         )
 
     # A full page of posts costs ~14 queries; one query per post for the author
-    # plus two for the tags would put it past 30.
-    with django_assert_max_num_queries(17):
+    # plus two for the tags would put it past 30. +2 fixed for the static
+    # achievements dialog now included on this page (achievement_dialog_rows(),
+    # no member: one query for the catalogue, one for Bronze thresholds).
+    with django_assert_max_num_queries(19):
         response = get_feed(tp, feed_url, **params)
 
     # Guards the search case against passing on an empty result set.
