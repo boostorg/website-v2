@@ -3,7 +3,7 @@
 
   Card listing contributors as .user-profile rows inside .contributors-list__body
   (the scroll region). Release variant is a single column; .all-contributors is a
-  responsive grid.
+  5/4/1-column grid (desktop/tablet/mobile).
 */
 
 .contributors-list :is(h2, h3, h4, h5, h6) {
@@ -24,13 +24,26 @@
     max-width: 100%;
 }
 
+/* Counts are fixed per breakpoint rather than derived from the container. An
+   auto-fill track list made the count a function of whatever width the card
+   landed in, so the same component drew 6 columns on the release and library
+   pages (1374px of track) and 5 inside the demo page's example box (1164px).
+   Counts come from #2212; see #2369. minmax(0, 1fr) keeps a track from being
+   floored at its content's min-content size, so a long name cannot widen the
+   grid past the card. */
 .contributors-list.all-contributors .card__column {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: var(--space-medium);
 }
 
-@media (max-width: 768px) {
+@media (min-width: 768px) and (max-width: 1279px) {
+    .contributors-list.all-contributors .card__column {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
     .contributors-list.all-contributors .card__column {
         grid-template-columns: 1fr;
     }
