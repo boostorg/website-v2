@@ -37,17 +37,22 @@ function saveColorMode(colorMode) {
   );
 }
 
-// here we handle the picking up of the change in color mode from the storage event
-// which is then handled differently for iframes with very slight delay for the
-// parent so there's minimal disparity between iframe and parent changing
+// here we handle the picking up of the change in color mode from the storage event.
+// The doc iframe is same-origin (srcdoc inherits the parent's origin), but the
+// browser's native cross-frame storage-event propagation into that nested
+// document is not synchronous and visibly lags behind the parent repainting its
+// own (much smaller) chrome - so the parent applies the change to the iframe
+// directly, in the same tick, instead of waiting for that native event to land.
 window.addEventListener('storage', function (e) {
   if (e.key === 'colorMode' && e.newValue) {
     let isIframe = window.location.pathname === "srcdoc";
-    if (isIframe) {
-      setColorElements(e.newValue);
-    }
-    else {
-      setTimeout(() => setColorElements(e.newValue), 1);
+    setColorElements(e.newValue);
+    if (!isIframe) {
+      const docsIframe = document.getElementById('docsiframe');
+      const iframeWindow = docsIframe && docsIframe.contentWindow;
+      if (iframeWindow && typeof iframeWindow.setColorElements === 'function') {
+        iframeWindow.setColorElements(e.newValue);
+      }
     }
     const geckoSearchButton = document.getElementById("gecko-search-button");
     if (geckoSearchButton) {
@@ -73,6 +78,13 @@ function setColorElements(colorMode) {
     docElement.classList.remove("dark");
   }
   docElement.classList.add(colorMode);
+  // Keep the color-scheme/theme-color <meta> tags (native scrollbar and
+  // browser-chrome theming) in sync on every toggle, not just on initial
+  // page load - otherwise they stay stuck at whatever they were set to when
+  // the document was first rendered.
+  document.head.querySelectorAll('.meta-theme').forEach((el) => {
+    el.setAttribute('content', el.getAttribute('data-' + colorMode));
+  });
 }
 
 

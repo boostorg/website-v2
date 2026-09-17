@@ -112,6 +112,30 @@ def _insert_head(result, head_adding):
         result.head.head.unwrap()
 
 
+# Applies the stored/preferred color mode before anything else in the merged
+# head gets a chance to run. The merged head (see _insert_head) carries
+# blocking, non-deferred <script> tags (htmx, apexcharts) ahead of
+# theme_handling.js, so the parser stalls on those fetches before the class
+# that drives dark-mode styling is ever applied - this iframe document would
+# otherwise flash its default light background for as long as that takes.
+THEME_INIT_SCRIPT = (
+    "(function(){"
+    "var m=localStorage.getItem('colorMode');"
+    "if(!m){m=(window.matchMedia&&window.matchMedia("
+    "'(prefers-color-scheme: dark)').matches)?'dark':'light';}"
+    "document.documentElement.classList.add(m);"
+    "})();"
+)
+
+
+def _insert_theme_init_script(soup):
+    if soup.head is None:
+        return
+    script = soup.new_tag("script")
+    script.string = THEME_INIT_SCRIPT
+    soup.head.insert(0, script)
+
+
 def _replace_body(result, original_body, base_body):
     base_body_content = base_body.find("div", {"id": "boost-legacy-docs-body"})
     if base_body_content is not None:
@@ -207,6 +231,7 @@ def modernize_legacy_page(
     if target_head:
         # Append the <head> taken from the base HTML to the existing (legacy) head
         _insert_head(soup, target_head)
+        _insert_theme_init_script(soup)
 
     original_body = soup.body
     if original_body is None:

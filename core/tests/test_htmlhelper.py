@@ -6,6 +6,7 @@ from core.htmlhelper import (
     REMOVE_ALL,
     REMOVE_CSS_CLASSES,
     REMOVE_TAGS,
+    THEME_INIT_SCRIPT,
     convert_h1_to_h2,
     get_library_documentation_urls,
     modernize_legacy_page,
@@ -20,6 +21,8 @@ from core.htmlhelper import (
     style_links,
     modernize_release_notes,
 )
+
+THEME_INIT_SCRIPT_TAG = f"<script>{THEME_INIT_SCRIPT}</script>"
 
 BASE_HEAD = """
     <link rel="stylesheet" href="mystyle.css" />
@@ -145,6 +148,7 @@ def test_modernize_legacy_page_adds_head_if_missing():
     expected = f"""<!DOCTYPE html>
     <html>
     <head>
+      {THEME_INIT_SCRIPT_TAG}
       <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
       <!-- END Manually appending items -->
@@ -169,6 +173,7 @@ def test_modernize_legacy_page_appends_head_if_existing():
     expected = f"""<!DOCTYPE html>
     <html>
     <head>
+      {THEME_INIT_SCRIPT_TAG}
       {LEGACY_HEAD}
       <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
@@ -194,6 +199,7 @@ def test_modernize_legacy_page_mangles_body():
     expected = f"""<!DOCTYPE html>
     <html>
     <head>
+      {THEME_INIT_SCRIPT_TAG}
       <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
       <!-- END Manually appending items -->
@@ -231,6 +237,7 @@ def test_modernize_legacy_page_remove_first_tag_found(tag_name, tag_attrs):
     expected = f"""<!DOCTYPE html>
     <html>
     <head>
+      {THEME_INIT_SCRIPT_TAG}
       <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
       <!-- END Manually appending items -->
@@ -266,6 +273,7 @@ def test_modernize_legacy_page_remove_all_tags_found(tag_name, tag_attrs):
     expected = f"""<!DOCTYPE html>
     <html>
     <head>
+      {THEME_INIT_SCRIPT_TAG}
       <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
       <!-- END Manually appending items -->
@@ -318,6 +326,7 @@ def test_modernize_legacy_page_remove_only_css_class(tag_name, tag_attrs):
     expected = f"""<!DOCTYPE html>
     <html>
     <head>
+      {THEME_INIT_SCRIPT_TAG}
       <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
       <!-- END Manually appending items -->
