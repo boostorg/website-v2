@@ -111,7 +111,7 @@ a.user-card__username:hover {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-default);
-  letter-spacing: -0.16px;
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .user-card__badge-icon {
@@ -126,7 +126,7 @@ a.user-card__username:hover {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-default);
-  letter-spacing: -0.16px;
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .user-card .btn-row {
@@ -234,7 +234,7 @@ html.dark .user-card--logged-out.card {
   font-size: var(--font-size-large);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-display-regular);
+  letter-spacing: var(--letter-spacing-tight);
   margin: 0;
 }
 
@@ -243,7 +243,7 @@ html.dark .user-card--logged-out.card {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-default);
-  letter-spacing: -0.16px;
+  letter-spacing: var(--letter-spacing-tight);
   margin: 0;
 }
 
