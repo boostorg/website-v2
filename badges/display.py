@@ -22,7 +22,7 @@ from django.db.models import Prefetch
 from django.utils import timezone
 
 from badges.enums import BadgeLabel, TierRank, label_order, rank_order
-from badges.models import Achievement, UserBadge
+from badges.models import Achievement, BadgeTier, UserBadge
 from badges.summary import user_badge_summary
 from core.constants import BadgeToken
 
@@ -405,15 +405,18 @@ def _rank_key(user_badge):
 # standing, so their rows take no user.
 #
 # The Achievements dialog names each achievement type, which is catalogue data.
-# The Badges dialog names the two kinds of badge instead, and neither is a
-# ``Badge`` row: one stands for the whole catalogue, the other for tenure stars,
-# which are not badges.
+# The Badges dialog names the two kinds of badge instead, plus Boost Day, and
+# none of the three is a ``Badge`` row: one stands for the whole achievement
+# catalogue, one for tenure stars, and one for the anniversary icon - none of
+# which are badges themselves.
 #
-# Boost Day is design-owned for a different reason: it and the tenure stars are
-# applied automatically from a date rather than accumulated from grants, so they
-# are display states rather than earned records and no ``Achievement`` exists.
+# Boost Day lives here rather than in the Achievements dialog because it and
+# the tenure stars are applied automatically from a date rather than
+# accumulated from grants, so they are display states rather than earned
+# records and no ``Achievement`` exists for either.
 BOOST_DAY_ROW = {
     "token": BadgeToken.BOOST_DAY,
+    "size": "large",
     "name": "Boost day celebration",
     "description": (
         "A celebration of the day you joined Boost. Awarded annually to mark "
@@ -452,56 +455,154 @@ BADGES_DIALOG_DESCRIPTION = (
 )
 
 
+# Last-resort fallback only: an achievement with no badge, or no active Bronze
+# tier, has no threshold to read at all. Every seeded achievement has one, so
+# this is only reached for a registry entry an admin created ahead of wiring
+# it to a badge.
 PLACEHOLDER_ACHIEVEMENT_COUNT = 1
 
 
-def achievement_dialog_rows(user=None, rows=None):
-    """Every achievement type as a dialog row, Boost Day last.
+def achievement_dialog_rows(user=None, rows=None, show_progress=False):
+    """Every achievement type as a dialog row, ordered by name.
 
-    Each row carries a counter, which is what the design asks for: the tally is
-    the point, the artwork being the same for every achievement type.
+    Three callers, three different rows:
 
-    Given a member, the counters are that member's own valid grants.
+    - No ``user`` (a non-profile surface - a badge beside a name on a post,
+      the component gallery): static, informational content. Nothing here
+      queries anyone's grants. Each row's counter is that achievement's own
+      Bronze threshold - the count a brand-new member would need - and the
+      description spells that out, per the empty-state spec: "Commits
+      authored to any Boost repository. With 1 contribution, you will earn
+      the bronze badge for Code Commits."
 
-    Nothing earned shows the placeholder rather than a zero, whether or not
-    there is a member to count: the dialog explains how achievements work, and
-    the counter is artwork carrying an example figure. A wall of ``00`` reads as
-    a broken counter instead.
+    - ``user`` given, ``show_progress=False`` (a visitor on someone else's
+      profile): the member's real valid-grant count, including zero, paired
+      with the achievement's own definition. No "what's needed next" - that
+      reads as this dialog knowing your business, and it is only opened here
+      because the profile is not yours.
+
+    - ``user`` given, ``show_progress=True`` (the profile's own owner): the
+      same real count, but the description instead names what is still
+      needed for the next tier not yet reached - Bronze first, then Silver
+      once Bronze is held, then Gold once Silver is held, and on up the
+      ladder. An achievement already at its highest tier, or fed into no
+      badge at all, falls back to the plain definition - there being nothing
+      left to work toward.
 
     Ordered by name, ``Achievement`` being an admin-editable registry with no
     catalogue ordering of its own.
 
     ``rows`` takes summary rows already read for this member; see
-    ``achievement_cards``. Ignored without a member, there being nothing to count.
+    ``achievement_cards``. Ignored without a member, there being nothing to
+    read them for.
     """
-    counts = {} if user is None else _valid_grant_counts(user, rows=rows)
-    rows = [
-        {
-            "token": BadgeToken.ACHIEVEMENT_COUNT,
-            "count": counts.get(achievement.pk) or PLACEHOLDER_ACHIEVEMENT_COUNT,
-            "name": achievement.name,
-            "description": achievement.description,
-        }
+    if user is None:
+        thresholds = _bronze_thresholds()
+        return [
+            _static_achievement_row(achievement, thresholds.get(achievement.pk))
+            for achievement in Achievement.objects.all()
+        ]
+
+    summary_rows = rows if rows is not None else user_badge_summary(user)
+    by_achievement = {}
+    for row in summary_rows:
+        # An achievement feeding several badges gets several summary rows; the
+        # dialog shows one, so the first is kept and the rest are redundant.
+        by_achievement.setdefault(row.achievement.pk, row)
+    return [
+        _live_achievement_row(
+            achievement, by_achievement.get(achievement.pk), show_progress
+        )
         for achievement in Achievement.objects.all()
     ]
-    return rows + [BOOST_DAY_ROW]
 
 
-def _valid_grant_counts(user, rows=None):
-    """How many valid grants the member holds of each achievement, by pk.
+def _static_achievement_row(achievement, bronze_threshold):
+    """The empty-state row for a caller holding no member: Bronze's own ask."""
+    count = (
+        bronze_threshold
+        if bronze_threshold is not None
+        else PLACEHOLDER_ACHIEVEMENT_COUNT
+    )
+    return {
+        "token": BadgeToken.ACHIEVEMENT_COUNT,
+        "count": count,
+        "name": achievement.name,
+        "description": _bronze_explainer(achievement, bronze_threshold),
+    }
 
-    Read through ``user_badge_summary`` so "a valid grant" keeps one definition
-    across the app. It counts ``is_valid`` rows and leaves invalidated ones out.
+
+def _live_achievement_row(achievement, summary_row, show_progress):
+    """One member's row: their real tally, plus progress text for the owner."""
+    count = summary_row.valid_grants if summary_row else 0
+    if show_progress:
+        description = _progress_description(achievement, summary_row)
+    else:
+        description = achievement.description
+    return {
+        "token": BadgeToken.ACHIEVEMENT_COUNT,
+        "count": count,
+        "name": achievement.name,
+        "description": description,
+    }
+
+
+def _contributions(count):
+    """ "1 contribution" / "3 contributions" - singular only ever means one."""
+    noun = "contribution" if count == 1 else "contributions"
+    return f"{count} {noun}"
+
+
+def _progress_description(achievement, summary_row):
+    """What the profile owner still needs for the next tier they have not
+    reached. Falls back to the plain definition once there is nothing left to
+    climb toward - maxed out, or never fed into a badge at all.
     """
-    if rows is None:
-        rows = user_badge_summary(user)
-    return {row.achievement.pk: row.valid_grants for row in rows}
+    if summary_row is None or summary_row.next_tier is None or not summary_row.gap:
+        return achievement.description
+    return (
+        f"{achievement.description} With {_contributions(summary_row.gap)} more, "
+        f"you will earn the {summary_row.next_tier.get_rank_display().lower()} "
+        f"badge for {achievement.name}."
+    )
+
+
+def _bronze_explainer(achievement, bronze_threshold):
+    """The achievement's definition plus what its Bronze tier takes to earn.
+
+    Matches the ticket spec's example syntax verbatim in shape: "<definition>
+    With <threshold> contributions, you will earn the bronze badge for
+    <achievement>." Falls back to the bare definition when there is no active
+    Bronze tier to read a number from.
+    """
+    if bronze_threshold is None:
+        return achievement.description
+    return (
+        f"{achievement.description} With {_contributions(bronze_threshold)}, you "
+        f"will earn the bronze badge for {achievement.name}."
+    )
+
+
+def _bronze_thresholds():
+    """Bronze threshold per achievement id, from whichever badge it feeds.
+
+    One query, independent of how many achievement types exist. Achievements
+    with no badge, or no active Bronze tier, are simply absent from the
+    mapping rather than raising.
+    """
+    return dict(
+        BadgeTier.objects.filter(rank=TierRank.BRONZE, is_active=True).values_list(
+            "badge__achievement_id", "threshold"
+        )
+    )
 
 
 def badge_dialog_rows():
-    """The two kinds of badge, as dialog rows.
+    """The two kinds of badge, plus Boost Day, as dialog rows.
 
     Fixed copy rather than catalogue rows: "Achievement-based" covers the whole
-    catalogue at once, and tenure stars are not badges at all.
+    achievement catalogue at once, tenure stars are not badges at all, and
+    neither is the Boost Day anniversary icon - all three are display states
+    the dialog explains as a group.
     """
-    return [ACHIEVEMENT_BASED_ROW, TENURE_ROW]
+    return [ACHIEVEMENT_BASED_ROW, TENURE_ROW, BOOST_DAY_ROW]

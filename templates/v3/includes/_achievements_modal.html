@@ -13,8 +13,14 @@
     title       (optional): Default "Achievements".
     description (optional): Default is the Figma copy.
     items       (optional): Rows to list, see _recognition_list.html. Defaults to
-                            every achievement type plus Boost Day, read from the
-                            catalogue by badges.display.achievement_dialog_rows.
+                            every achievement type, read from the catalogue by
+                            badges.display.achievement_dialog_rows. That
+                            function is also what varies this dialog's content
+                            by viewer and entry point: no member gets static,
+                            informational rows (a non-profile surface); a
+                            member gets their own live counts, with "what's
+                            needed next" added only for that member's own view
+                            of their own profile.
 
   Usage:
     {% include "v3/includes/_achievements_modal.html" %}

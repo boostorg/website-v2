@@ -88,13 +88,26 @@ def test_a_single_digit_count_is_padded(owner, grant_achievement):
     assert ">03<" in row
 
 
-def test_an_untouched_achievement_shows_the_placeholder(owner):
-    """Never ``00`` on the owner's page - the counter is the dialog's artwork."""
+def test_an_untouched_achievement_shows_a_real_zero(owner):
+    """A live member's own page shows their real tally, zero included.
+
+    Only a caller holding no member - a non-profile surface - falls back to
+    the Bronze-threshold placeholder.
+    """
     body = render_profile(owner)
     dialog = body[body.index('id="achievements-modal"') :]
 
-    assert ">00<" not in dialog
-    assert ">01<" in dialog
+    assert ">00<" in dialog
+
+
+def test_an_untouched_achievement_names_what_bronze_takes(owner):
+    """The owner's own view says what's needed for the next tier not reached."""
+    review = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
+
+    body = render_profile(owner)
+    dialog = body[body.index('id="achievements-modal"') :]
+
+    assert f"bronze badge for {review.name}" in dialog
 
 
 def test_a_filled_achievements_card_drops_the_cta(decorated_profile_body):
