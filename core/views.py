@@ -1468,12 +1468,19 @@ def wysiwyg_image_upload(request):
     return JsonResponse({"url": upload.image.url})
 
 
+@method_decorator(never_cache, name="dispatch")
 @method_decorator(staff_member_required, name="dispatch")
 class StorybookView(View):
     """Serve the pre-built Storybook static bundle, restricted to staff only.
 
     Build the bundle first: yarn build-storybook  (outputs to var/storybook/).
     Then visit /storybook/ while logged in as a staff user.
+
+    never_cache is required here: this site sits behind a shared CDN that
+    caches responses by default. Without it, the first staff user to load a
+    bundle URL gets it cached at the edge, and every later visitor - staff or
+    not - is served that cached copy directly, bypassing staff_member_required
+    entirely.
     """
 
     def get(self, request, path=""):
