@@ -535,6 +535,7 @@ class CurrentUserProfileView(
         forms. Each section has its own <form>/submit button; only the
         fields owned by that section are validated and persisted."""
         edit_url = self.get_v3_edit_url()
+        print(request.POST)
 
         section_key = next(
             (key for key in self.V3_EDIT_SECTIONS if key in request.POST),

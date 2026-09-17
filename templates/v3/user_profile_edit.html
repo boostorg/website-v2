@@ -14,6 +14,7 @@
 {% endblock %}
 
 {% block content %}
+<form method="post" action="{{ profile_account_edit_url }}" enctype="multipart/form-data" novalidate @submit="handleSubmit($event)">
   <div class="user-profile__container">
     <div class="user-profile__profile-content-area">
       <div class="user-profile__col">
@@ -21,10 +22,7 @@
           {% comment %} novalidate: this form still contains required fields (tagline, bio, links) with
           no save handler yet; native constraint validation would silently block "Save changes" for
           sections that are otherwise ready. Server-side validation is authoritative. {% endcomment %}
-          <form method="post" action="{{ profile_account_edit_url }}" class="card__form" enctype="multipart/form-data" novalidate
-                x-data="{...createSectionForm({{ saved_sections.v3_update_profile|yesno:'true,false' }}), ...profileForm()}"
-                @submit="handleSubmit($event)"
-                @input="saved = false" @change="saved = false">
+          <div x-data="{...createSectionForm({{ saved_sections.v3_update_profile|yesno:'true,false' }}), ...profileForm()}" class="card__form">
           {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Profile</span>
@@ -162,7 +160,7 @@
             {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_profile' label='Save changes' label_x_text="saved ? 'Changes Saved' : 'Save changes'" alpine_disabled='saved || saving' only %}
             <span class="field__error" x-show="saveError" x-text="saveError" x-cloak></span>
           </div>
-          </form>
+        </div>
         </div>
         <div class="user-profile-edit__mailing-list-card">
           {% include "v3/includes/_mailing_list_card.html" with subscribe_url=mailing_list_card_subscribe_url modal_subscribe_url=mailing_list_card_modal_subscribe_url list_id=mailing_list_card_list_id state=mailing_list_card_state user_email=mailing_list_card_user_email manage_url=mailing_list_card_manage_url subscription_count=mailing_list_card_subscription_count error_message=mailing_list_card_error_message mailing_lists=mailing_list_card_lists subscribed_ids=mailing_list_card_subscribed_ids %}
@@ -170,9 +168,8 @@
       </div>
       <div class="user-profile__col">
         <div class="basic-card card user-profile__update-details">
-          <form method="post" action="{{ profile_account_edit_url }}" class="card__form"
+          <div class="card__form"
                 x-data="createSectionForm({{ saved_sections.v3_update_details|yesno:'true,false' }})"
-                @submit="handleSubmit($event)"
                 @input="saved = false" @change="saved = false">
           {% csrf_token %}
           <div class="card__header">
@@ -190,13 +187,12 @@
           <div class="card__cta_section">
             {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_details' label='Save details' label_x_text="saved ? 'Changes Saved' : 'Save details'" alpine_disabled='saved' only %}
           </div>
-          </form>
+        </div>
         </div>
         {% include 'v3/includes/_commit_email_card.html' with commit_email_addresses=commit_email_addresses commit_email_form=commit_email_form commit_email_card_error=commit_email_card_error csrf_token=csrf_token only %}
         <div class="basic-card card user-profile__email-preferences-card">
-          <form method="post" action="{{ profile_account_edit_url }}" class="card__form"
+          <div class="card__form"
                 x-data="createSectionForm({{ saved_sections.v3_update_email_preferences|yesno:'true,false' }})"
-                @submit="handleSubmit($event)"
                 @input="saved = false" @change="saved = false">
           {% csrf_token %}
           <div class="card__header">
@@ -219,7 +215,7 @@
           <div class="card__cta_section">
             {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_email_preferences' label='Update' label_x_text="saved ? 'Changes Saved' : 'Update'" alpine_disabled='saved' only %}
           </div>
-          </form>
+          </div>
         </div>
         <div class="user-profile-edit__connections-card">
           {% include 'v3/includes/_account_connections_card.html' with connections=account_connections %}
@@ -260,6 +256,7 @@
       </div>
     </div>
   </div>
+</form>
 {% endblock %}
 
 {% block footer_js %}
