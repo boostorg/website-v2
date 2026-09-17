@@ -58,6 +58,7 @@ from .acl import can_approve
 from .constants import (
     NEWS_APPROVAL_SALT,
     MAGIC_LINK_EXPIRATION,
+    DESCRIPTION_DISABLED_MESSAGE,
     DESCRIPTION_RATE_LIMIT_MESSAGE,
     DESCRIPTION_SUMMARY_MAX_LENGTH,
 )
@@ -85,8 +86,10 @@ from .models import (
     Video,
 )
 from .services import (
+    DescriptionGenerationDisabled,
     DescriptionQuotaExceeded,
     consume_description_generation_quota,
+    description_generation_disabled,
     description_generation_limit_reached,
     ensure_description_generation_quota,
     news_type_label,
@@ -563,6 +566,7 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
     def _v3_create_context(self):
         """Shared context variables needed by the v3 create-post template."""
+        generation_disabled = description_generation_disabled(self.request)
         return {
             "post_type_options": [
                 ("blogpost", "Blog"),
@@ -580,10 +584,15 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
             "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
             "title": "Create Post",
             "edit": False,
+            "description_generation_disabled": generation_disabled,
+            # Beside the point once the feature is off, and the template shows
+            # the disabled note instead, so the two never both read true.
             "description_generation_limit_reached": (
-                description_generation_limit_reached(self.request)
+                not generation_disabled
+                and description_generation_limit_reached(self.request)
             ),
             "description_rate_limit_message": DESCRIPTION_RATE_LIMIT_MESSAGE,
+            "description_disabled_message": DESCRIPTION_DISABLED_MESSAGE,
         }
 
     def get_v3_context_data(self, **kwargs):
@@ -999,6 +1008,24 @@ def _rate_limited_response(request, input_type, exc, input_size):
     )
 
 
+def _disabled_response(request, input_type):
+    """JSON 503 for a request made while generation is switched off.
+
+    503 rather than 403. The feature is unavailable, not forbidden to this
+    user, and a 403 would be indistinguishable from the CSRF rejection the
+    browser can also get here.
+    """
+    logger.info(
+        "description_generation.disabled",
+        user_id=request.user.pk,
+        input_type=input_type,
+    )
+    return JsonResponse(
+        {"error": DESCRIPTION_DISABLED_MESSAGE, "disabled": True},
+        status=503,
+    )
+
+
 def _resolve_generation_attempt(attempt, summary):
     """Close out a reserved attempt and build the response for it.
 
@@ -1039,7 +1066,8 @@ def generate_description(request):
     browser can drop it into the Description field.
 
     Login-gated and capped per user per day; see
-    `consume_description_generation_quota`.
+    `consume_description_generation_quota`. Returns 503 when the CMS has
+    switched generation off site-wide.
     """
     title = request.POST.get("title", "").strip()
     content = request.POST.get("content", "").strip()
@@ -1057,6 +1085,8 @@ def generate_description(request):
         attempt = consume_description_generation_quota(
             request, DescriptionInputType.CONTENT, len(content)
         )
+    except DescriptionGenerationDisabled:
+        return _disabled_response(request, DescriptionInputType.CONTENT)
     except DescriptionQuotaExceeded as exc:
         return _rate_limited_response(
             request, DescriptionInputType.CONTENT, exc, len(content)
@@ -1099,7 +1129,8 @@ def generate_link_description(request):
       - Summarization failed or returned empty (502, "couldn't generate").
 
     Login-gated and capped per user per day; see
-    `consume_description_generation_quota`.
+    `consume_description_generation_quota`. Returns 503 when the CMS has
+    switched generation off site-wide, before the outbound fetch.
     """
     url = request.POST.get("url", "").strip()
     if not url:
@@ -1110,6 +1141,8 @@ def generate_link_description(request):
     # the extracted body length, which isn't known yet here.
     try:
         ensure_description_generation_quota(request, DescriptionInputType.LINK)
+    except DescriptionGenerationDisabled:
+        return _disabled_response(request, DescriptionInputType.LINK)
     except DescriptionQuotaExceeded as exc:
         return _rate_limited_response(request, DescriptionInputType.LINK, exc, 0)
 
@@ -1133,6 +1166,8 @@ def generate_link_description(request):
         attempt = consume_description_generation_quota(
             request, DescriptionInputType.LINK, len(body)
         )
+    except DescriptionGenerationDisabled:
+        return _disabled_response(request, DescriptionInputType.LINK)
     except DescriptionQuotaExceeded as exc:
         return _rate_limited_response(
             request, DescriptionInputType.LINK, exc, len(body)

@@ -3,7 +3,6 @@ from pathlib import Path
 from structlog import get_logger
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Case, ExpressionWrapper, FloatField, F, Func, Value, When
 from django.db.models.functions import Greatest, Now, Power
@@ -28,7 +27,6 @@ from .constants import (
     AI_DESCRIPTION_LIMIT_CHANGED_ACTION,
     BYPASS_DESCRIPTION_LIMIT_PERMISSION,
     CONTENT_SUMMARIZATION_THRESHOLD,
-    DAILY_LIMIT_MIN_MESSAGE,
     RATELIMIT_EXEMPT_GROUP,
 )
 from .panels import AIDescriptionUsagePanel
@@ -439,7 +437,7 @@ class DescriptionGenerationAttempt(models.Model):
 
 
 class AIDescriptionSettingsForm(WagtailAdminModelForm):
-    """Validates the limit and records who changed it, from what, to what.
+    """Records who changed the limit, from what, to what.
 
     Wagtail's settings edit view logs a bare `wagtail.edit` entry with no field
     values, and registers no history UI for settings, so the old -> new pair is
@@ -452,17 +450,6 @@ class AIDescriptionSettingsForm(WagtailAdminModelForm):
         # which would otherwise overwrite the value we want to report.
         self._original_daily_limit = (
             self.instance.daily_limit if self.instance.pk else None
-        )
-        # `PositiveIntegerField.formfield()` hands the form a minimum of 0 and
-        # does not carry the model's `MinValueValidator(1)` across, so a
-        # negative value would be refused in Django's default wording while 0
-        # got ours. Rebuild the field at the real minimum so every value below
-        # one reads the same and the widget stops at 1 too.
-        self.fields["daily_limit"] = self.instance._meta.get_field(
-            "daily_limit"
-        ).formfield(
-            min_value=1,
-            error_messages={"min_value": DAILY_LIMIT_MIN_MESSAGE},
         )
 
     def save(self, *args, **kwargs):
@@ -499,12 +486,12 @@ class AIDescriptionSettings(BaseGenericSetting):
     # is what changes it after that.
     daily_limit = models.PositiveIntegerField(
         default=20,
-        validators=[MinValueValidator(1)],
         help_text=(
             "Maximum AI description generations per user per day. Resets at "
             "midnight UTC. Applies to both the content and link generators. "
             "Superusers and members of the "
-            f"'{RATELIMIT_EXEMPT_GROUP}' group are exempt."
+            f"'{RATELIMIT_EXEMPT_GROUP}' group are exempt. Set to 0 to turn "
+            "generation off for everyone, exempt users included."
         ),
     )
 

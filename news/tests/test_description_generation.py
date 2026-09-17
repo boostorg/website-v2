@@ -10,6 +10,7 @@ from model_bakery import baker
 
 from ..constants import (
     BYPASS_DESCRIPTION_LIMIT_PERMISSION,
+    DESCRIPTION_DISABLED_MESSAGE,
     DESCRIPTION_RATE_LIMIT_MESSAGE,
 )
 from ..models import (
@@ -293,6 +294,75 @@ class TestExemptions:
         ).exists()
 
 
+class TestKillSwitch:
+    """A daily limit of 0 turns generation off site-wide, for everyone."""
+
+    def test_the_content_generator_refuses(
+        self, client, regular_user, set_limit, generate
+    ):
+        """503 with the switched-off copy, not the daily-limit copy."""
+        set_limit(0)
+        client.force_login(regular_user)
+
+        response = generate()
+
+        assert response.status_code == 503
+        assert response.json()["error"] == DESCRIPTION_DISABLED_MESSAGE
+        assert response.json()["disabled"] is True
+
+    def test_an_exempt_user_is_refused_too(
+        self, client, superuser, set_limit, generate
+    ):
+        """The point of the switch: exemptions do not survive it."""
+        set_limit(0)
+        client.force_login(superuser)
+
+        assert generate().status_code == 503
+
+    def test_the_link_generator_refuses_before_the_outbound_fetch(
+        self, client, regular_user, set_limit, monkeypatch
+    ):
+        """Switched off means no model call and no fetch, not a cheaper one."""
+        set_limit(0)
+        client.force_login(regular_user)
+        fetched = []
+        monkeypatch.setattr(
+            "news.views.safe_get",
+            lambda *a, **kw: fetched.append(a) or _FakeResponse(),
+        )
+
+        response = client.post(
+            reverse("v3-news-generate-link-description"),
+            {"url": "https://example.com/post"},
+        )
+
+        assert response.status_code == 503
+        assert response.json()["disabled"] is True
+        assert fetched == []
+
+    def test_no_attempt_is_recorded(self, client, regular_user, set_limit, generate):
+        """Blocked clicks are not a signal the cap should be tuned from, so
+        they stay out of the usage panel's figures."""
+        set_limit(0)
+        client.force_login(regular_user)
+
+        generate()
+
+        assert not DescriptionGenerationAttempt.objects.exists()
+
+    def test_raising_the_limit_turns_it_back_on(
+        self, client, regular_user, set_limit, generate
+    ):
+        """The switch is reversible from the CMS, with no deploy."""
+        set_limit(0)
+        client.force_login(regular_user)
+        assert generate().status_code == 503
+
+        set_limit(5)
+
+        assert generate().status_code == 200
+
+
 class TestEndpointAccess:
     def test_anonymous_is_redirected_to_login(self, client):
         """The cap is not the only gate: the endpoint requires a session."""
@@ -400,3 +470,28 @@ class TestCreatePageState:
         response = self.get_page(client, superuser)
 
         assert response.context["description_generation_limit_reached"] is False
+
+    def test_the_switch_replaces_the_button_with_its_own_note(
+        self, client, regular_user, set_limit
+    ):
+        """Switched off, the page says so on load rather than on a failed click."""
+        set_limit(0)
+
+        response = self.get_page(client, regular_user)
+
+        content = response.content.decode()
+        assert response.context["description_generation_disabled"] is True
+        assert "generationDisabled: true" in content
+        assert escape(DESCRIPTION_DISABLED_MESSAGE) in content
+        # The cap note would otherwise stack under the switched-off one: with
+        # the feature off, how many generations are left is beside the point.
+        assert response.context["description_generation_limit_reached"] is False
+        assert "rateLimited: false" in content
+
+    def test_an_exempt_user_also_sees_the_switch(self, client, superuser, set_limit):
+        """The seeded state matches what the endpoint would do to them."""
+        set_limit(0)
+
+        response = self.get_page(client, superuser)
+
+        assert response.context["description_generation_disabled"] is True

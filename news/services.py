@@ -102,6 +102,10 @@ def get_latest_post_cards(
     ]
 
 
+class DescriptionGenerationDisabled(Exception):
+    """Raised when generation is switched off site-wide (`daily_limit` of 0)."""
+
+
 class DescriptionQuotaExceeded(Exception):
     """Raised when a user has spent their daily description generations."""
 
@@ -131,6 +135,15 @@ def counted_attempts_today():
     return DescriptionGenerationAttempt.objects.filter(
         created_at__gte=utc_day_start()
     ).exclude(outcome=DescriptionGenerationOutcome.RATE_LIMITED)
+
+
+def description_generation_disabled(request):
+    """Whether generation is switched off site-wide.
+
+    A `daily_limit` of 0 is the kill switch: it stops everyone, exempt users
+    included, so the feature can be pulled from the CMS without a deploy.
+    """
+    return AIDescriptionSettings.load(request_or_site=request).daily_limit == 0
 
 
 def is_exempt_from_description_limit(user):
@@ -164,7 +177,13 @@ def ensure_description_generation_quota(request, input_type, input_size=0):
     `consume_description_generation_quota`: nothing is reserved here, so two
     concurrent requests can both pass this check. The reservation is still what
     settles the count.
+
+    Raises `DescriptionGenerationDisabled` first when the feature is switched
+    off site-wide, so that check lands ahead of the exemption.
     """
+    if description_generation_disabled(request):
+        raise DescriptionGenerationDisabled()
+
     user = request.user
     if is_exempt_from_description_limit(user):
         return
@@ -187,7 +206,14 @@ def consume_description_generation_quota(request, input_type, input_size):
     so two concurrent requests from a scripted loop serialize instead of both
     reading a stale count. The lock is released before the model call, never
     held across it.
+
+    Raises `DescriptionGenerationDisabled` first when the feature is switched
+    off site-wide. No attempt row is written in that case: nothing reached the
+    model, and a blocked click is not a signal the cap should be tuned from.
     """
+    if description_generation_disabled(request):
+        raise DescriptionGenerationDisabled()
+
     user = request.user
     limit = AIDescriptionSettings.load(request_or_site=request).daily_limit
     used = None

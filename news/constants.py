@@ -13,10 +13,12 @@ DESCRIPTION_RATE_LIMIT_MESSAGE = (
     "— your draft is saved."
 )
 
-# Shown when someone tries to save a limit below one generation.
-DAILY_LIMIT_MIN_MESSAGE = (
-    "Enter a positive number of generations. To stop generation entirely, "
-    "remove access to the create-post page instead."
+# Shown when the daily limit is set to 0, which turns generation off for
+# everyone. Returned by both generation endpoints so the copy can't drift
+# between them and the template.
+DESCRIPTION_DISABLED_MESSAGE = (
+    "AI description generation is currently turned off. You can write the "
+    "description yourself."
 )
 
 # Wagtail log action recording a limit change with its old and new values.
