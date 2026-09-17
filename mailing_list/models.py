@@ -102,3 +102,19 @@ class ListPosting(models.Model):
     class Meta:
         managed = False
         db_table = "hyperkitty_email"
+
+
+class MailingListActivity(models.Model):
+    """
+    Records the count of User activity from hyperkitty. Updated daily, each user
+    is uniquely recorded.
+    """
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    count = models.PositiveBigIntegerField()
+
+    def __str__(self):
+        return f"{self.user.display_name} - {self.count}"
+
+    class Meta:
+        verbose_name_plural = "Mailing List Activities"

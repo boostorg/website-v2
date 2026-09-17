@@ -158,3 +158,11 @@ def setup_periodic_tasks(sender, **kwargs):
         crontab(hour=9, minute=0),
         app.signature("users.tasks.recompute_displayed_profile_roles"),
     )
+
+    # Daily recalculatin of mailing list activity. Safely recalculates each
+    # users mailing list count based on hyperkitty data.
+    # Runs at 9:05AM
+    sender.add_periodic_task(
+        crontab(hour=9, minute=5),
+        app.signature("mailing_list.tasks.calculate_mailing_list_activity"),
+    )
