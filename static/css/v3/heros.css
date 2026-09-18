@@ -1114,31 +1114,28 @@ html.dark .hero__links .btn-icon-library:hover {
   }
 }
 
-/* Flagship library, mobile: the background's crop, for art that cannot take
-   `cover` at phone width. A landscape painting whose subject sits off-centre
-   loses it to the shared centred slice, and `cover` cannot go below the block
-   height, so the painting cannot be made smaller without leaving a gap. An
-   artwork opts out by setting `mobile_background` in LIBRARY_HERO_ART, which
-   arrives inline: `size` and `position` place the painting, the three `sky`
-   stops fill what that leaves uncovered, and `fade` runs the top colour down
-   over the painting's cut edge so it does not read as a straight line. At these
-   crops the top row is usually canopy or roof rather than sky, and a fill butted
-   against it slices it flat.
+/* Flagship library, narrow frames: an alternate crop of the background, for art
+   whose composition does not survive `cover` when the frame is narrow. An
+   artwork opts in with `mobile_background` in LIBRARY_HERO_ART, which arrives
+   inline; unset, every property below falls back and this rule paints exactly
+   what the shared `.hero` rule does.
+
+   The breakpoint is empirical, not conventional, and it is about how the crop
+   reads rather than about a cover axis change. Measured against the desktop
+   composition, background scale over figure scale sits at 1.15 at 768 with the
+   crop and 1.15 to 1.29 above with the wide file, and the house occupies a
+   similar share of the frame either way. The crop wins below ~845 because its
+   framing survives a shallow frame; the wide file wins above because it carries
+   enough width. Re-measure rather than re-derive if the block height, a crop's
+   aspect, or the art changes: the useful checks are that ratio and the house's
+   share of the frame, both against the same figures at 1280.
+
    Three layers always, because a layer count is not something a custom property
-   can carry. The defaults below make the two gradients paint nothing and leave
-   the middle layer at `cover center center`, which is the base `.hero` rule
-   verbatim, so an artwork that sets none of this renders exactly as before.
-   Declared on the element rather than as `var()` fallbacks, which v3 forbids and
-   which the `--scrim-*` block above already avoids: the inline values land on
-   this same element and beat a declaration made here.
-   The ramp's middle stop is 60% for everyone, being the shape of a sky rather
-   than a property of one painting. MQTT5 is the only current user and its own
-   reasoning sits beside its entry in constants.py. Properly this wants art
-   composed for a portrait frame, the way Beast has a mobile crop of its figure:
-   a 3:1 painting with its subject in the right 45% cannot be cropped to a phone
-   without compromise. */
-@media (max-width: 767px) {
+   can carry. The sky gradients default to transparent and the size to `cover`,
+   so art that sets only an image and an anchor gets a plain cover paint. */
+@media (max-width: 844px) {
   .hero--library.hero--with-background-image {
+    --hero-fg-library-narrow-scale: 1;
     /* Defaults to the wide file, so art without a portrait crop is unchanged. */
     --hero-bg-library-mobile-image: var(--hero-bg-image);
     --hero-bg-library-mobile-size: cover;
@@ -1172,6 +1169,14 @@ html.dark .hero__links .btn-icon-library:hover {
       center center,
       var(--hero-bg-library-mobile-position-x) var(--hero-bg-library-mobile-position-y),
       center center;
+  }
+
+  /* Scaled about the bottom-right so the feet stay on the ground line and the
+     right anchor holds; it shrinks in place rather than drifting. Default 1, so
+     art that does not ask for this is unscaled. */
+  .hero--library.hero--with-background-image .hero-fg__img {
+    transform-origin: right bottom;
+    transform: scale(var(--hero-fg-library-narrow-scale));
   }
 }
 
