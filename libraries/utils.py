@@ -854,3 +854,73 @@ def library_filter_options() -> list[tuple[str, str]]:
         .filter(slug__in=tagged_slugs)
         .order_by("name")
     ]
+
+
+# LIBRARY_HERO_ART values are written into a style attribute, so each is matched
+# against what it is allowed to look like rather than trusted. The property names
+# below come from this module and never from the data, so an entry can only ever
+# fill one of these slots.
+_HERO_WORD = r"auto|cover|contain|center|top|bottom|left|right|-?\d+(?:\.\d+)?(?:%|px)"
+HERO_PLACEMENT_RE = re.compile(_HERO_WORD)
+HERO_SIZE_RE = re.compile(rf"(?:{_HERO_WORD})(?: (?:{_HERO_WORD}))?")
+HERO_COLOR_RE = re.compile(r"#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})")
+HERO_MOBILE_BG_PREFIX = "--hero-bg-library-mobile"
+
+
+def _hero_checked(pattern, value, where):
+    value = str(value)
+    if not pattern.fullmatch(value):
+        raise ValueError(f"LIBRARY_HERO_ART {where} is not a valid value: {value!r}")
+    return value
+
+
+def hero_art_custom_properties(art):
+    """The custom properties one LIBRARY_HERO_ART entry sets on its hero.
+
+    Returns {property_name: value}, holding only what the entry actually sets, so
+    an artwork that tunes nothing renders the shared rules untouched. How an
+    illustration wants its scrim and its phone-width crop is a property of the
+    illustration, so it lives beside the paths rather than as a per-slug CSS rule.
+    """
+    props = {}
+
+    scrim = art.get("scrim") or {}
+    for key, name in (("near", "--scrim-near"), ("mid", "--scrim-mid")):
+        if scrim.get(key) is not None:
+            props[name] = f"{float(scrim[key]):.2f}"
+
+    figure = art.get("figure") or {}
+    scale = figure.get("narrow_scale")
+    if scale is not None:
+        scale = float(scale)
+        if not 0 < scale <= 1:
+            raise ValueError(
+                f"LIBRARY_HERO_ART figure.narrow_scale must be over 0 and at "
+                f"most 1: {scale!r}"
+            )
+        props["--hero-fg-library-narrow-scale"] = f"{scale:.2f}"
+
+    mobile = art.get("mobile_background") or {}
+    prefix = HERO_MOBILE_BG_PREFIX
+    if mobile.get("size") is not None:
+        props[f"{prefix}-size"] = _hero_checked(
+            HERO_SIZE_RE, mobile["size"], "mobile_background.size"
+        )
+    position = mobile.get("position") or {}
+    for axis in ("x", "y"):
+        if position.get(axis) is not None:
+            props[f"{prefix}-position-{axis}"] = _hero_checked(
+                HERO_PLACEMENT_RE, position[axis], f"mobile_background.position.{axis}"
+            )
+    sky = mobile.get("sky") or {}
+    for slot in ("top", "mid", "bottom"):
+        if sky.get(slot) is not None:
+            props[f"{prefix}-sky-{slot}"] = _hero_checked(
+                HERO_COLOR_RE, sky[slot], f"mobile_background.sky.{slot}"
+            )
+    fade = mobile.get("fade") or {}
+    for edge in ("hold", "clear"):
+        if fade.get(edge) is not None:
+            props[f"{prefix}-fade-{edge}"] = f"{int(fade[edge])}%"
+
+    return props

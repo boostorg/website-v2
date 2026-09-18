@@ -407,6 +407,15 @@ LIBRARY_GITHUB_URL_OVERRIDES = {
 # what is painted behind them. LibraryDetail passes it through as custom
 # properties so a new illustration stays a dict entry rather than a CSS rule; see
 # `--scrim-near` in heros.css. Omit it to take the shared ramp.
+#
+# "mobile_background" is optional and opts the background out of `cover` below
+# 768px, for a landscape painting whose subject sits too far off-centre to
+# survive a phone-width crop. "size" and "position" place it; "sky" fills what
+# that leaves uncovered, as a three-stop vertical ramp whose first colour is also
+# faded down over the artwork's cut top edge so it does not read as a straight
+# line; "fade" is where that fade holds and where it clears, in percent of the
+# block. Same reasoning as "scrim": how to crop a painting is a property of the
+# painting. See `--hero-bg-library-mobile-size` in heros.css.
 # key: Library.slug
 LIBRARY_HERO_ART = {
     "beast": {
@@ -428,6 +437,34 @@ LIBRARY_HERO_ART = {
         # No mobile export: this figure is wide rather than tall, so a tighter
         # crop of it would scale to the same thing. Omitting the key drops the
         # <source> and uses the desktop image at every width.
+    },
+    "mqtt5": {
+        "background": "img/v3/library-heros/mqtt5-background.webp",
+        "illustration": "img/v3/library-heros/mqtt5.webp",
+        # Level: this artwork runs the other way to Beast's, open sky under the
+        # left of the description and shrubs under its right, where the rising
+        # ramp reads 2.96:1 against the 3.0:1 its type needs. Flat at the far
+        # value reads 3.31:1; the far end has no headroom to give back, because
+        # the shared falloff starts there.
+        "scrim": {"near": 0.40, "mid": 0.40},
+        # Portrait crop of the same scene, with the roof and canopy the wide
+        # file clips. Plain `cover` at every phone width; only the horizontal
+        # anchor is tuned, to put the house behind the figure.
+        # The figure is sized by the block height, so in a narrow frame it keeps
+        # its height but takes far more of the width: 38% at 768 against 25% on
+        # desktop. Scaled about its bottom-right so the feet stay on the ground.
+        "figure": {"narrow_scale": 0.8},
+        "mobile_background": {
+            "image": "img/v3/library-heros/mqtt5-background-mobile.webp",
+            # Bottom, not centred: the crop is taller than the frame here, so
+            # centring trims the foreground and the figure loses the ground it
+            # stands on. Anchoring to the bottom keeps the path under its feet.
+            "position": {"x": "88%", "y": "bottom"},
+        },
+        # No mobile export: this figure is narrow enough that its desktop layer
+        # is already a tight crop, so the tighter one Beast needs would scale to
+        # the same thing. Omitting the key drops the <source> and uses the
+        # desktop image at every width.
     },
 }
 

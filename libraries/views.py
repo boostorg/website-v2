@@ -50,6 +50,7 @@ from .models import (
 )
 from .utils import (
     address_already_proven_by,
+    hero_art_custom_properties,
     apply_collective_author_overrides,
     patch_commit_authors,
     prefer_boost_profile_links,
@@ -759,19 +760,24 @@ class LibraryDetail(
             path = art.get(key)
             return large_static(path) if path else ""
 
-        # The scrim's plateau, rendered as custom properties on the hero rather
-        # than as a per-slug CSS rule: how dark it has to be is a property of the
-        # artwork, so it belongs beside the paths. Coerced through float so a bad
-        # entry fails here rather than reaching the style attribute.
-        scrim = art.get("scrim") or {}
-
-        def alpha(key):
-            value = scrim.get(key)
-            return f"{float(value):.2f}" if value is not None else ""
+        css_vars = hero_art_custom_properties(art)
+        # The mobile crop is a path rather than a value, so it resolves here
+        # where large_static lives rather than in the pure mapper.
+        mobile_image = (art.get("mobile_background") or {}).get("image")
+        if mobile_image:
+            # Unquoted: the value lands in a style attribute, where Django
+            # escapes quotes to entities. large_static() returns a bare path, so
+            # there is nothing here that needs quoting.
+            css_vars["--hero-bg-library-mobile-image"] = (
+                f"url({large_static(mobile_image)})"
+            )
 
         return {
-            "library_hero_scrim_near": alpha("near"),
-            "library_hero_scrim_mid": alpha("mid"),
+            # One dict rather than a key per property: how an artwork tunes its
+            # hero is open-ended, and the include should not grow a parameter
+            # every time one of them needs a new knob. See
+            # hero_art_custom_properties for what may appear in it.
+            "library_hero_css_vars": css_vars,
             "library_hero_image_url_light": url("illustration"),
             "library_hero_image_url_dark": "",
             "library_hero_image_url_mobile": url("illustration_mobile"),
