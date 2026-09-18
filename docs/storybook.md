@@ -83,15 +83,15 @@ docker run --rm -v "$PWD:/code" -w /code node:22-slim sh -c "yarn install && yar
 
 The `web` service bind-mounts this whole directory (`.:/code` in `docker-compose.yml`), so the output lands straight into `var/storybook/` and the already-running `web` container picks it up immediately — no rebuild or restart of `web` itself needed. (If you already have Node.js installed locally, `yarn install && npm run build-storybook` on the host does the same thing.)
 
-**2. Enable the pattern-library endpoint**
+**2. Pattern-library endpoint**
 
-By default, the pattern-library is enabled when `DEBUG=True`. To enable it in a non-debug environment (e.g. staging), set the environment variable:
+The pattern-library is enabled by default in every environment, including production - access is fully gated by staff auth (see below), so there's nothing to opt into. If you need to disable the interactive template-rendering entirely (i.e. you only want the Storybook UI itself for browsing), set:
 
 ```bash
-ENABLE_PATTERN_LIBRARY=true
+ENABLE_PATTERN_LIBRARY=false
 ```
 
-In production, if you don't need the interactive template-rendering (i.e. you only need the Storybook UI itself for browsing), you can leave this unset — the `/storybook/` page will load but story renders will return errors. Typically you want both.
+With it disabled, the `/storybook/` page will still load but story renders will return errors.
 
 **3. Visit `/storybook/`**
 
@@ -101,7 +101,7 @@ Log in as a staff user and navigate to `/storybook/`. The full Storybook UI load
 
 | Variable | Default | Effect |
 |---|---|---|
-| `ENABLE_PATTERN_LIBRARY` | `DEBUG` value | Enable/disable the `/pattern-library/` endpoint and app registration |
+| `ENABLE_PATTERN_LIBRARY` | `true` | Enable/disable the `/pattern-library/` endpoint and app registration |
 
 ### How the protection works
 
@@ -145,7 +145,7 @@ var/storybook/         # Pre-built bundle output (gitignored)
 
 In **dev server** mode, the `.storybook/middleware.js` proxy handles routing these requests to Django on port 8000. In **Django-served** mode, requests go to the same origin with no proxy needed.
 
-The dev server proxy runs server-side and never forwards a browser session cookie, so its requests to `/pattern-library/` are always anonymous. `PatternLibraryStaffMiddleware` skips its staff check whenever `DEBUG=True` for this reason - dev server mode only ever runs locally with `DEBUG=True`, where `ENABLE_PATTERN_LIBRARY` is already on by default, so this doesn't open up anything that isn't already reachable in that environment. Any `DEBUG=False` environment (including a staging app with `ENABLE_PATTERN_LIBRARY` explicitly turned on) keeps the staff-only requirement.
+The dev server proxy runs server-side and never forwards a browser session cookie, so its requests to `/pattern-library/` are always anonymous. `PatternLibraryStaffMiddleware` skips its staff check whenever `DEBUG=True` for this reason - dev server mode only ever runs locally with `DEBUG=True`, where `ENABLE_PATTERN_LIBRARY` is already on by default, so this doesn't open up anything that isn't already reachable in that environment. Any `DEBUG=False` environment (staging, production, or anywhere else) keeps the staff-only requirement, since `ENABLE_PATTERN_LIBRARY` being on by default there too doesn't change what the middleware enforces.
 
 ---
 

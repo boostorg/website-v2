@@ -117,10 +117,11 @@ INSTALLED_APPS += [
     "taggit",
 ]
 
-# Pattern Library (for Storybook) — only when installed AND explicitly enabled.
-# Defaults to True in DEBUG mode; set ENABLE_PATTERN_LIBRARY=false in production
-# unless you intentionally want to expose the endpoint.
-ENABLE_PATTERN_LIBRARY = env.bool("ENABLE_PATTERN_LIBRARY", default=DEBUG)
+# Pattern Library (for Storybook) — on by default in every environment.
+# Access is already fully gated by PatternLibraryStaffMiddleware (staff-only
+# outside DEBUG), so this flag is just a kill switch, not an access control -
+# set ENABLE_PATTERN_LIBRARY=false to disable Storybook's live rendering.
+ENABLE_PATTERN_LIBRARY = env.bool("ENABLE_PATTERN_LIBRARY", default=True)
 
 try:
     if ENABLE_PATTERN_LIBRARY:

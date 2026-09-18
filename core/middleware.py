@@ -16,10 +16,10 @@ class PatternLibraryStaffMiddleware:
     The check is skipped when DEBUG is on: Storybook's dev proxy
     (.storybook/middleware.js) renders components server-side and never
     carries a browser session, so it would otherwise always be treated as
-    anonymous. ENABLE_PATTERN_LIBRARY is already off by default outside
-    DEBUG, so this doesn't expose anything not already gated off in any
-    real deployment - a DEBUG=False environment keeps the staff check
-    exactly as before.
+    anonymous. ENABLE_PATTERN_LIBRARY defaults to True in every environment
+    now (Storybook ships everywhere, including production), so this staff
+    check is the only thing gating the endpoint - any DEBUG=False
+    environment always enforces it.
 
     Must appear in MIDDLEWARE after AuthenticationMiddleware.
     """
