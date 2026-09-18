@@ -157,14 +157,18 @@ class V3UserProfileContextMixin:
             "bio": user.biography or None,
             "top_links": self.get_v3_profile_link_buttons(user),
         }
-        # Owner-only, and keyed on who is looking rather than which URL was
-        # used: `/users/me/` and your own `/users/<routing-key>/` page are the
-        # same page, so both show your real tallies. A visitor gets no rows at
-        # all and the dialog falls back to the catalogue, another member's
-        # tallies not being this dialog's to show.
-        if is_owner:
+        # Keyed on `show_recognition` rather than `is_owner` alone: a visitor
+        # gets this member's real tallies too now, just without "what's needed
+        # next" - `show_progress` is the only thing that differs between the
+        # owner's own view and a visitor's. `/users/me/` and your own
+        # `/users/<routing-key>/` page are the same page, so both show your
+        # real tallies the same way. A profile that hid its badges gives a
+        # visitor no rows at all, and the dialog falls back to the same static
+        # catalogue a non-profile surface shows - another member's tallies
+        # they chose to hide are not this dialog's to show either.
+        if show_recognition:
             context["achievement_dialog_items"] = badge_display.achievement_dialog_rows(
-                user, rows=summary_rows
+                user, rows=summary_rows, show_progress=is_owner
             )
         # Rendered on anyone's profile, not just your own, and omitted entirely
         # without a linked GitHub account so a profile with no data stays the

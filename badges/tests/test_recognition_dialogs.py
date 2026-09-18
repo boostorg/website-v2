@@ -5,17 +5,17 @@ import re
 import pytest
 from django.template.loader import render_to_string
 from django.test import override_settings
+from model_bakery import baker
 
 from badges.display import (
     ACHIEVEMENT_BASED_ROW,
     BOOST_DAY_ROW,
-    PLACEHOLDER_ACHIEVEMENT_COUNT,
     TENURE_ROW,
     achievement_dialog_rows,
     badge_dialog_rows,
 )
-from badges.enums import AchievementSlug
-from badges.models import Achievement, UserAchievement
+from badges.enums import AchievementSlug, BadgeLabel, TierRank
+from badges.models import Achievement, Badge, BadgeTier, UserAchievement
 from core.constants import BadgeToken
 
 ACHIEVEMENTS = "v3/includes/_achievements_modal.html"
@@ -26,27 +26,26 @@ DIALOG = "v3/includes/_dialog.html"
 def test_achievement_rows_come_from_the_catalogue(catalogue):
     rows = achievement_dialog_rows()
 
-    assert [row["name"] for row in rows[:-1]] == list(
+    assert [row["name"] for row in rows] == list(
         Achievement.objects.values_list("name", flat=True)
     )
     for row, achievement in zip(rows, Achievement.objects.all()):
-        assert row["description"] == achievement.description
+        assert row["description"].startswith(achievement.description)
 
 
-def test_achievement_rows_end_with_boost_day(catalogue):
-    """Boost Day is a display state, so it has no catalogue row to read."""
+def test_achievement_rows_do_not_include_boost_day(catalogue):
+    """Boost Day moved to the Badges dialog; it is not an achievement type."""
     rows = achievement_dialog_rows()
 
-    assert rows[-1] == BOOST_DAY_ROW
-    assert len(rows) == Achievement.objects.count() + 1
+    assert len(rows) == Achievement.objects.count()
+    assert all(row["token"] == BadgeToken.ACHIEVEMENT_COUNT for row in rows)
 
 
 def test_achievement_rows_carry_a_counter(catalogue):
     """Per Figma the achievement icon is a tally, not tier artwork."""
-    rows = achievement_dialog_rows()[:-1]
+    rows = achievement_dialog_rows()
 
     assert {row["token"] for row in rows} == {BadgeToken.ACHIEVEMENT_COUNT}
-    assert {row["count"] for row in rows} == {PLACEHOLDER_ACHIEVEMENT_COUNT}
 
 
 def test_single_digit_counts_render_padded(catalogue):
@@ -66,9 +65,10 @@ def test_counts_are_the_members_own_valid_grants(
     rows = {row["name"]: row for row in achievement_dialog_rows(plain_user)}
 
     assert rows[review.name]["count"] == 3
-    # An untouched achievement shows the placeholder, not this row's count.
+    # A zero is shown as a zero, not the empty-state placeholder: the member
+    # has a real answer, and it is "none yet".
     commits = Achievement.objects.get(slug=AchievementSlug.CODE_COMMITS)
-    assert rows[commits.name]["count"] == PLACEHOLDER_ACHIEVEMENT_COUNT
+    assert rows[commits.name]["count"] == 0
 
 
 def test_invalidated_grants_do_not_count(catalogue, plain_user, grant_achievement):
@@ -82,32 +82,105 @@ def test_invalidated_grants_do_not_count(catalogue, plain_user, grant_achievemen
     assert rows[review.name]["count"] == 1
 
 
-def test_a_member_with_no_grants_gets_the_placeholder(catalogue, plain_user):
-    """The placeholder, not a zero, so the dialog reads the same as the demo.
+def test_a_member_with_no_grants_gets_zeroes(catalogue, plain_user):
+    """A live member always shows their real tally, zero included.
 
-    A member who has earned nothing would otherwise see every row at ``00``,
-    which reads as a broken counter rather than as an explainer.
+    Only a caller holding no member at all (the empty-state / non-profile
+    case) falls back to the Bronze-threshold placeholder.
     """
-    rows = achievement_dialog_rows(plain_user)[:-1]
+    rows = achievement_dialog_rows(plain_user)
 
-    assert {row["count"] for row in rows} == {PLACEHOLDER_ACHIEVEMENT_COUNT}
-
-
-def test_without_a_member_the_placeholder_stands(catalogue):
-    """The showcase page and any caller holding no user get this."""
-    rows = achievement_dialog_rows()[:-1]
-
-    assert {row["count"] for row in rows} == {PLACEHOLDER_ACHIEVEMENT_COUNT}
+    assert {row["count"] for row in rows} == {0}
 
 
-def test_achievement_rows_cost_one_query(catalogue, django_assert_num_queries):
-    with django_assert_num_queries(1):
+def test_visitor_rows_carry_no_progress_text(catalogue, plain_user, grant_achievement):
+    """``show_progress=False`` is the visitor's view: counts, no "needed next"."""
+    review = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
+    grant_achievement(plain_user, review, count=1)
+
+    rows = {row["name"]: row for row in achievement_dialog_rows(plain_user)}
+
+    assert rows[review.name]["description"] == review.description
+    commits = Achievement.objects.get(slug=AchievementSlug.CODE_COMMITS)
+    assert rows[commits.name]["description"] == commits.description
+
+
+def test_owner_rows_carry_progress_toward_the_next_tier(
+    catalogue, plain_user, grant_achievement
+):
+    """``show_progress=True`` names what is needed for the next un-earned tier."""
+    review = Achievement.objects.get(slug=AchievementSlug.LIBRARY_REVIEW)
+    grant_achievement(plain_user, review, count=1)
+
+    rows = {
+        row["name"]: row
+        for row in achievement_dialog_rows(plain_user, show_progress=True)
+    }
+
+    # Bronze (threshold 1) is already met, so the message names Silver next.
+    assert "silver badge for Library Review" in rows[review.name]["description"]
+    # Nothing earned yet: Bronze is what is named.
+    commits = Achievement.objects.get(slug=AchievementSlug.CODE_COMMITS)
+    assert "bronze badge for Code Commits" in rows[commits.name]["description"]
+
+
+def test_without_a_member_counts_are_the_bronze_threshold(catalogue):
+    """The empty-state spec: the counter is what Bronze takes, never a placeholder."""
+    rows = {row["name"]: row for row in achievement_dialog_rows()}
+    for badge in Badge.objects.select_related("achievement"):
+        bronze = BadgeTier.objects.get(
+            badge=badge, rank=TierRank.BRONZE, is_active=True
+        )
+        row = rows[badge.achievement.name]
+        assert row["count"] == bronze.threshold
+        noun = "contribution" if bronze.threshold == 1 else "contributions"
+        assert f"With {bronze.threshold} {noun}" in row["description"]
+        assert f"bronze badge for {badge.achievement.name}" in row["description"]
+
+
+def test_two_badges_for_one_achievement_agree_on_the_bronze_ladder(
+    achievement, plain_user
+):
+    """An achievement fed by two badges must pick one ladder consistently.
+
+    ``Badge.Meta.ordering`` sorts "commits_master" before "reviewer", which
+    has nothing to do with either badge's threshold. The static empty-state
+    row and the owner's own progress row have to agree on the lower
+    threshold regardless.
+    """
+    high = baker.make(Badge, label=BadgeLabel.COMMITS_MASTER, achievement=achievement)
+    baker.make(BadgeTier, badge=high, rank=TierRank.BRONZE, threshold=10)
+    low = baker.make(Badge, label=BadgeLabel.REVIEWER, achievement=achievement)
+    baker.make(BadgeTier, badge=low, rank=TierRank.BRONZE, threshold=5)
+
+    static_row = {row["name"]: row for row in achievement_dialog_rows()}[
+        achievement.name
+    ]
+    owner_row = {
+        row["name"]: row
+        for row in achievement_dialog_rows(plain_user, show_progress=True)
+    }[achievement.name]
+
+    assert static_row["count"] == 5
+    assert (
+        "With 5 contributions, you will earn the bronze badge"
+        in static_row["description"]
+    )
+    assert (
+        "With 5 contributions more, you will earn the bronze badge"
+        in owner_row["description"]
+    )
+
+
+def test_achievement_rows_cost_two_queries(catalogue, django_assert_num_queries):
+    """One for the catalogue, one for every achievement's Bronze threshold."""
+    with django_assert_num_queries(2):
         achievement_dialog_rows()
 
 
-def test_badge_rows_are_the_two_kinds_of_badge():
+def test_badge_rows_are_the_two_kinds_of_badge_plus_boost_day():
     """Per Figma the dialog names the kinds of badge, not the catalogue."""
-    assert badge_dialog_rows() == [ACHIEVEMENT_BASED_ROW, TENURE_ROW]
+    assert badge_dialog_rows() == [ACHIEVEMENT_BASED_ROW, TENURE_ROW, BOOST_DAY_ROW]
 
 
 def test_badge_rows_need_no_database(django_assert_num_queries):
@@ -119,7 +192,11 @@ def test_badge_rows_use_the_cluster_icons():
     """Each row stands for a whole kind of badge, not one tier of one badge."""
     tokens = [row["token"] for row in badge_dialog_rows()]
 
-    assert tokens == [BadgeToken.ACHIEVEMENT_BASED, BadgeToken.TENURE_BASED]
+    assert tokens == [
+        BadgeToken.ACHIEVEMENT_BASED,
+        BadgeToken.TENURE_BASED,
+        BadgeToken.BOOST_DAY,
+    ]
 
 
 @pytest.mark.parametrize("local_development", [True, False], ids=["local", "s3"])
@@ -155,18 +232,20 @@ def test_cluster_tokens_point_at_their_artwork(token, filename, local_developmen
 def test_achievements_modal_renders_every_row(catalogue):
     out = render_to_string(ACHIEVEMENTS, {})
 
-    assert out.count("recognition-list__row") == Achievement.objects.count() + 1
+    assert out.count("recognition-list__row") == Achievement.objects.count()
     for achievement in Achievement.objects.all():
         assert achievement.name in out
-    assert "Boost day celebration" in out
+    # Boost Day moved to the Badges dialog; it is not an achievement type.
+    assert "Boost day celebration" not in out
 
 
-def test_badges_modal_renders_both_kinds():
+def test_badges_modal_renders_all_three_kinds():
     out = render_to_string(BADGES, {})
 
-    assert out.count("recognition-list__row") == 2
+    assert out.count("recognition-list__row") == 3
     assert "Achievement-based" in out
     assert "Tenure-based" in out
+    assert "Boost day celebration" in out
 
 
 def test_modals_render_title_and_description(catalogue):
@@ -228,7 +307,7 @@ def test_row_icons_are_decorative(catalogue):
     out = render_to_string(ACHIEVEMENTS, {})
     icons = out.count("badge-v3 ")
 
-    assert icons == Achievement.objects.count() + 1
+    assert icons == Achievement.objects.count()
     assert out.count('aria-hidden="true"') >= icons
     assert 'role="tooltip"' not in out
 
@@ -262,11 +341,46 @@ def test_badge_keeps_its_hover_label_when_not_decorative():
     assert 'aria-label="Gold badge"' in out
 
 
+def test_badge_href_renders_a_link_instead_of_a_span():
+    """`href` is the entry-point wiring: the icon becomes a real link."""
+    out = render_to_string(
+        "v3/includes/_badge_v3.html",
+        {
+            "token": BadgeToken.TIER_3,
+            "label": "Gold badge",
+            "href": "#achievements-modal",
+        },
+    )
+
+    assert '<a class="badge-v3' in out
+    assert 'href="#achievements-modal"' in out
+    assert 'aria-label="Gold badge"' in out
+    # The hover tooltip still works: same class, same sibling label.
+    assert 'role="tooltip"' in out
+    assert 'role="img"' not in out
+
+
+def test_badge_href_is_ignored_when_decorative():
+    """A decorative icon has nothing of its own to link - the caller's wrapper does."""
+    out = render_to_string(
+        "v3/includes/_badge_v3.html",
+        {
+            "token": BadgeToken.TIER_3,
+            "label": "Gold badge",
+            "href": "#achievements-modal",
+            "decorative": True,
+        },
+    )
+
+    assert "<a " not in out
+    assert 'aria-hidden="true"' in out
+
+
 @pytest.mark.parametrize(
-    "template,rows", [(ACHIEVEMENTS, 1), (BADGES, 2)], ids=["achievements", "badges"]
+    "template,rows", [(ACHIEVEMENTS, 0), (BADGES, 3)], ids=["achievements", "badges"]
 )
 def test_modals_render_on_an_empty_catalogue(db, template, rows):
-    """Achievements falls back to Boost Day alone; Badges never read the table."""
+    """Achievements has nothing to name with no catalogue; Badges never reads it."""
     out = render_to_string(template, {})
 
     assert out.count("recognition-list__row") == rows

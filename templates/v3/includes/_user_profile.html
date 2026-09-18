@@ -27,6 +27,15 @@
   Other variables:
     - new_tab (bool, optional) — when True, profile links open in a new tab
 
+  Entry points: every icon here is clickable, independently of its hover
+  tooltip. A badge or the achievement counter opens the Achievements dialog;
+  a tenure star or the Boost Day icon opens the Badges dialog. This is a
+  non-profile surface (a byline on a post, a testimonial, a library card), so
+  whichever page includes this partial must also include
+  v3/includes/_achievements_modal.html and v3/includes/_badges_modal.html
+  once each, with no `items` - the static, informational content is what a
+  non-profile entry point shows, never this author's own live counts.
+
   Usage:
     {% include "v3/includes/_user_profile.html" with author=author %}
 {% endcomment %}
@@ -52,24 +61,24 @@
         {% if author.tenure_stamp or author.boost_day_stamp %}
           <span class="user-profile__stamps">
             {% if author.tenure_stamp %}
-              {% include "v3/includes/_badge_v3.html" with token=author.tenure_stamp.token label=author.tenure_stamp.label size="small" only %}
+              {% include "v3/includes/_badge_v3.html" with token=author.tenure_stamp.token label=author.tenure_stamp.label size="small" href="#badges-modal" only %}
             {% endif %}
             {% if author.boost_day_stamp %}
-              {% include "v3/includes/_badge_v3.html" with token=author.boost_day_stamp.token label=author.boost_day_stamp.label size="small" only %}
+              {% include "v3/includes/_badge_v3.html" with token=author.boost_day_stamp.token label=author.boost_day_stamp.label size="small" href="#badges-modal" only %}
             {% endif %}
           </span>
         {% elif author.badge|slice:":5" == "star-" %}
-          {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size="small" only %}
+          {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size="small" href="#badges-modal" only %}
         {% endif %}
       </span>
       {% if author.role %}
         <span class="user-profile__role">{{ author.role }}</span>
       {% endif %}
       {% if author.badge and author.badge|slice:":5" != "star-" %}
-        {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size="small" only %}
+        {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size="small" href="#achievements-modal" only %}
       {% endif %}
       {% if author.achievement_count %}
-        {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=author.achievement_count label=author.achievement_label size="medium" only %}
+        {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=author.achievement_count label=author.achievement_label size="medium" href="#achievements-modal" only %}
       {% endif %}
     </div>
     {% if author.bio %}

@@ -34,11 +34,25 @@
     decorative  (optional) — True when the icon sits beside its own name in
                   visible text. Drops the hover label and the tab stop and
                   marks the icon aria-hidden, so the name is announced once.
+    href        (optional) — makes the icon clickable: the wrapper renders as
+                  an <a href="{{ href }}"> instead of a <span>, e.g.
+                  "#achievements-modal" or "#badges-modal" to open one of the
+                  recognition dialogs. Ignored when `decorative` is set - a
+                  decorative icon has no hover label of its own to expose, and
+                  its caller supplies whatever click target applies. The hover
+                  tooltip works identically either way: the same
+                  .badge-v3:hover / :focus-visible CSS rules fire regardless
+                  of whether the wrapper is a link or a plain span, so click
+                  behaviour and the hover label are independent of each other.
 
   A11y / no-JS:
-    - Wrapper carries role="img" + aria-label with the resolved hover label.
+    - Wrapper carries role="img" + aria-label with the resolved hover label,
+      or, when `href` is set, is a plain <a> whose aria-label is that same
+      resolved label (a link's accessible name, not an image's).
     - Hover label is rendered as a sibling <span role="tooltip"> shown via
       :hover / :focus-within (pure CSS, no JS).
-    - Wrapper is focusable (tabindex="0") so keyboard users can reveal it.
+    - Wrapper is focusable - tabindex="0" for the plain icon, natively for the
+      link - so keyboard users can reveal the tooltip and, with `href` set,
+      activate it with Enter.
 {% endcomment %}
 {% if size == "small" %}{% with px=16 size_class="badge-v3--small" %}{% include "v3/includes/_badge_v3_render.html" %}{% endwith %}{% elif size == "large" %}{% with px=32 size_class="badge-v3--large" %}{% include "v3/includes/_badge_v3_render.html" %}{% endwith %}{% else %}{% with px=24 size_class="" %}{% include "v3/includes/_badge_v3_render.html" %}{% endwith %}{% endif %}

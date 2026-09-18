@@ -172,14 +172,37 @@ def test_both_routes_to_your_own_profile_show_the_same_counts(plain_user, tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_a_visitor_gets_no_dialog_rows_of_the_members_own(plain_user, tp):
-    """Another member's tallies are not this dialog's to show."""
-    _grant(plain_user, "library-review", count=7)
+def test_a_visitor_sees_the_members_own_live_counts(plain_user, tp):
+    """A visitor's dialog shows this member's real tallies, zero included."""
+    achievement = _grant(plain_user, "library-review", count=7)
 
     response = tp.get(plain_user.get_absolute_url())
 
     tp.response_200(response)
-    assert "achievement_dialog_items" not in response.context
+    rows = {
+        row["name"]: row
+        for row in response.context["achievement_dialog_items"]
+        if "count" in row
+    }
+    assert rows[achievement.name]["count"] == 7
+    untouched = Achievement.objects.exclude(pk=achievement.pk).first()
+    assert rows[untouched.name]["count"] == 0
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_a_visitor_gets_no_progress_toward_the_next_tier(plain_user, tp):
+    """The "what's needed next" framing is the owner's own, not a visitor's."""
+    achievement = _grant(plain_user, "library-review", count=7)
+
+    response = tp.get(plain_user.get_absolute_url())
+
+    tp.response_200(response)
+    rows = {
+        row["name"]: row
+        for row in response.context["achievement_dialog_items"]
+        if "count" in row
+    }
+    assert rows[achievement.name]["description"] == achievement.description
 
 
 def test_hide_badges_hides_achievements_too(plain_user):
