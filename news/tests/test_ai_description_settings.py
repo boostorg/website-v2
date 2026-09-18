@@ -8,7 +8,7 @@ from model_bakery import baker
 from wagtail.contrib.settings.views import get_setting_edit_handler
 from wagtail.log_actions import registry as log_registry
 
-from ..constants import AI_DESCRIPTION_LIMIT_CHANGED_ACTION, DAILY_LIMIT_MIN_MESSAGE
+from ..constants import AI_DESCRIPTION_LIMIT_CHANGED_ACTION
 from ..models import (
     AIDescriptionSettings,
     DescriptionGenerationAttempt,
@@ -46,17 +46,19 @@ def make_attempt(user, outcome, **kwargs):
 
 
 class TestValidation:
-    @pytest.mark.parametrize("value", [0, -1])
-    def test_non_positive_limits_are_rejected(self, value):
-        """A limit of 0 reads as "disabled" but would lock everyone out.
-
-        Both values get the same guidance: the generated form field would
-        otherwise stop at 0 and refuse -1 in Django's default wording.
-        """
-        form = build_form({"daily_limit": value})
+    def test_a_negative_limit_is_rejected(self):
+        """Below zero means nothing; the field stops at the kill switch."""
+        form = build_form({"daily_limit": -1})
 
         assert not form.is_valid()
-        assert form.errors["daily_limit"] == [DAILY_LIMIT_MIN_MESSAGE]
+        assert form.errors["daily_limit"]
+
+    def test_zero_is_accepted_as_the_kill_switch(self):
+        """0 is a real setting - it turns generation off site-wide."""
+        form = build_form({"daily_limit": 0})
+
+        assert form.is_valid(), form.errors
+        assert form.save().daily_limit == 0
 
     def test_a_positive_limit_is_accepted(self):
         """The happy path still saves."""
