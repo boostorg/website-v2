@@ -35,7 +35,7 @@ export const WithNavigation = () => (
       className="btn btn-primary"
       onClick={(e) => {
         e.preventDefault();
-        window.location.hash = "content-modal-nav-demo";
+        window.location.hash = "content-modal-nav-2";
       }}
     >
       Open modal
@@ -43,12 +43,32 @@ export const WithNavigation = () => (
     <Pattern
       template="v3/includes/_content_modal.html"
       context={{
-        modal_id: "content-modal-nav-demo",
+        modal_id: "content-modal-nav-1",
+        title: "Release Notes",
+        subtitle: "Boost 1.88.0",
+        content: "<p>First entry in a series - only next is enabled.</p>",
+        next_url: "#content-modal-nav-2",
+      }}
+    />
+    <Pattern
+      template="v3/includes/_content_modal.html"
+      context={{
+        modal_id: "content-modal-nav-2",
         title: "Release Notes",
         subtitle: "Boost 1.89.0",
         content: "<p>Middle entry in a series - both prev and next are enabled.</p>",
-        prev_url: "#content-modal-nav-demo",
-        next_url: "#content-modal-nav-demo",
+        prev_url: "#content-modal-nav-1",
+        next_url: "#content-modal-nav-3",
+      }}
+    />
+    <Pattern
+      template="v3/includes/_content_modal.html"
+      context={{
+        modal_id: "content-modal-nav-3",
+        title: "Release Notes",
+        subtitle: "Boost 1.90.0",
+        content: "<p>Last entry in a series - only prev is enabled.</p>",
+        prev_url: "#content-modal-nav-2",
       }}
     />
   </div>
