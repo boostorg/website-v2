@@ -429,6 +429,20 @@ LIBRARY_HERO_ART = {
         # crop of it would scale to the same thing. Omitting the key drops the
         # <source> and uses the desktop image at every width.
     },
+    "pfr": {
+        "background": "img/v3/library-heros/pfr-background.webp",
+        "illustration": "img/v3/library-heros/pfr.webp",
+        # Level rather than ascending: the scanner room is lit evenly, and the
+        # wall behind the description is brighter than Beast's savanna at the
+        # same stop (18% of that band above 0.85 relative luminance against
+        # Beast's 1%). Held at the shared plateau's far end so the falloff still
+        # descends from `--scrim-far`.
+        "scrim": {"near": 0.44, "mid": 0.42},
+        # Same 574-tall canvas as Beast's. `contain` scales to the box height, so
+        # a shorter canvas is what makes the figure bigger in the short mobile
+        # block, not a tighter crop of the animal.
+        "illustration_mobile": "img/v3/library-heros/pfr-mobile.webp",
+    },
 }
 
 DEFAULT_LIBRARIES_LANDING_VIEW = "list"
