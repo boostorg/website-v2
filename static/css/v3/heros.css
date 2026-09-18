@@ -1114,53 +1114,64 @@ html.dark .hero__links .btn-icon-library:hover {
   }
 }
 
-/* MQTT5, mobile: size the painting to the figure and stand the figure on it.
-   Two problems below 768, both from `cover`. The shared `center` slice lands on
-   open lawn and clips the leading shrub of the house planting, so the figure
-   stands in an empty field beside a stray bush; and the block stacks, which drops
-   `.hero-fg` to `flex: 1` and leaves the figure only the height the text does not
-   use. Measured as background-scale over figure-scale, the layers sit at 1.16 on
-   desktop and 1.19-1.28 across tablet, but 2.15 at 425 and 2.37 at 390 — the
-   house painted at twice the size the artwork intends, a door towering over the
-   mail carrier.
-   `cover` cannot go below the block height and geometry cannot win it either:
-   with ~320px of text in a 600px block, matching desktop would need a block
-   ~2300px tall. So size the painting explicitly. `80% bottom` is the important
-   half: bottom-anchored, the painted road ends exactly where the figure's feet
-   are, so the mailbox is planted on the ground rather than floating 258px below
-   it on fill, which is what the earlier top-anchored version did. `auto 96%` is
-   then chosen against the mailbox — the planting behind it meets the bush it
-   carries, and the house reads at the size a mailbox implies.
-   The strip that leaves uncovered is at the top and is filled with sky. The
-   painting's own sky is #8dd3fa at its top row, so over the left of the crop the
-   fill is the same colour and there is no seam; over the right it sits behind the
-   treetops, which is where sky belongs anyway.
-   Properly this wants art composed for a portrait frame, the way Beast has a
-   mobile crop of its figure. A 3:1 painting with its only subject in the right
-   45% cannot be cropped to a phone without compromise. Note also that desktop's
-   figure fills 87% of its block against 53% here: reproducing that needs the
-   figure absolute and full-height with the text over it, as it is from 768 up,
-   and at phone width the title lands on the animal's face. Hence the stack. */
+/* Flagship library, mobile: the background's crop, for art that cannot take
+   `cover` at phone width. A landscape painting whose subject sits off-centre
+   loses it to the shared centred slice, and `cover` cannot go below the block
+   height, so the painting cannot be made smaller without leaving a gap. An
+   artwork opts out by setting `mobile_background` in LIBRARY_HERO_ART, which
+   arrives inline: `size` and `position` place the painting, the three `sky`
+   stops fill what that leaves uncovered, and `fade` runs the top colour down
+   over the painting's cut edge so it does not read as a straight line. At these
+   crops the top row is usually canopy or roof rather than sky, and a fill butted
+   against it slices it flat.
+   Three layers always, because a layer count is not something a custom property
+   can carry. The defaults below make the two gradients paint nothing and leave
+   the middle layer at `cover center center`, which is the base `.hero` rule
+   verbatim, so an artwork that sets none of this renders exactly as before.
+   Declared on the element rather than as `var()` fallbacks, which v3 forbids and
+   which the `--scrim-*` block above already avoids: the inline values land on
+   this same element and beat a declaration made here.
+   The ramp's middle stop is 60% for everyone, being the shape of a sky rather
+   than a property of one painting. MQTT5 is the only current user and its own
+   reasoning sits beside its entry in constants.py. Properly this wants art
+   composed for a portrait frame, the way Beast has a mobile crop of its figure:
+   a 3:1 painting with its subject in the right 45% cannot be cropped to a phone
+   without compromise. */
 @media (max-width: 767px) {
-  .hero--library-mqtt5.hero--with-background-image {
+  .hero--library.hero--with-background-image {
+    /* Defaults to the wide file, so art without a portrait crop is unchanged. */
+    --hero-bg-library-mobile-image: var(--hero-bg-image);
+    --hero-bg-library-mobile-size: cover;
+    --hero-bg-library-mobile-position-x: center;
+    --hero-bg-library-mobile-position-y: center;
+    --hero-bg-library-mobile-sky-top: transparent;
+    --hero-bg-library-mobile-sky-mid: transparent;
+    --hero-bg-library-mobile-sky-bottom: transparent;
+    --hero-bg-library-mobile-fade-hold: 0%;
+    --hero-bg-library-mobile-fade-clear: 100%;
+
     background-image:
-      /* Painted over the artwork's top edge, not under it. Bottom-anchoring
-         leaves 150px uncovered at the top, and at this crop the painting's top
-         row is treetops and roof rather than sky, so a fill butted against it
-         slices the canopy in a dead-straight line. Measured as mean row-to-row
-         luminance delta that edge reads 33; fading sky down over it takes it to
-         22, which is under the 24 the artwork's own detail measures in the same
-         band, so it stops being findable. The fade stops track the gap: at 96%
-         it is 24px, so hold to 2% and clear by 24%.
-         96 rather than 100 because at 100 the painting is drawn at exactly the
-         scale `cover` would give it (0.698 either way at 425), which is the
-         treatment this rule exists to replace. */
-      linear-gradient(180deg, #8dd3fa 0%, #8dd3fa 2%, rgba(141, 211, 250, 0) 24%),
-      var(--hero-bg-image),
-      linear-gradient(180deg, #8dd3fa 0%, #a9dcf5 60%, #bfe3f2 100%);
+      linear-gradient(
+        180deg,
+        var(--hero-bg-library-mobile-sky-top) 0%,
+        var(--hero-bg-library-mobile-sky-top) var(--hero-bg-library-mobile-fade-hold),
+        transparent var(--hero-bg-library-mobile-fade-clear)
+      ),
+      var(--hero-bg-library-mobile-image),
+      linear-gradient(
+        180deg,
+        var(--hero-bg-library-mobile-sky-top) 0%,
+        var(--hero-bg-library-mobile-sky-mid) 60%,
+        var(--hero-bg-library-mobile-sky-bottom) 100%
+      );
     background-repeat: no-repeat, no-repeat, no-repeat;
-    background-size: 100% 100%, auto 96%, 100% 100%;
-    background-position: center center, 80% bottom, center center;
+    /* `100% 100%` on the gradients rather than `cover`: gradients have no
+       intrinsic size, and the fade stops have to line up with the block. */
+    background-size: 100% 100%, var(--hero-bg-library-mobile-size), 100% 100%;
+    background-position:
+      center center,
+      var(--hero-bg-library-mobile-position-x) var(--hero-bg-library-mobile-position-y),
+      center center;
   }
 }
 
