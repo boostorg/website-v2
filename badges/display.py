@@ -504,17 +504,49 @@ def achievement_dialog_rows(user=None, rows=None, show_progress=False):
         ]
 
     summary_rows = rows if rows is not None else user_badge_summary(user)
-    by_achievement = {}
+    grouped = {}
     for row in summary_rows:
         # An achievement feeding several badges gets several summary rows; the
-        # dialog shows one, so the first is kept and the rest are redundant.
-        by_achievement.setdefault(row.achievement.pk, row)
+        # dialog shows one, chosen below rather than kept in arrival order.
+        grouped.setdefault(row.achievement.pk, []).append(row)
+    by_achievement = {pk: _lowest_bronze_row(group) for pk, group in grouped.items()}
     return [
         _live_achievement_row(
             achievement, by_achievement.get(achievement.pk), show_progress
         )
         for achievement in Achievement.objects.all()
     ]
+
+
+def _lowest_bronze_row(rows):
+    """Among one achievement's summary rows, the one fed by the badge with the
+    lowest active Bronze threshold - the same ladder ``_bronze_thresholds()``
+    picks for the no-member static row, so the two never disagree on which of
+    an achievement's badges is "the" one being described.
+
+    ``rows`` arrival order is ``Badge.Meta.ordering`` (by label), which has no
+    relationship to threshold, so it is never used to pick. A badge with no
+    active Bronze tier cannot be ranked and is skipped unless it is all there
+    is, in which case the first row stands in.
+    """
+
+    def bronze_threshold(row):
+        if row.badge is None:
+            return None
+        return next(
+            (
+                tier.threshold
+                for tier in row.badge.active_tiers
+                if tier.rank == TierRank.BRONZE
+            ),
+            None,
+        )
+
+    ranked = [(bronze_threshold(row), row) for row in rows]
+    ranked = [pair for pair in ranked if pair[0] is not None]
+    if ranked:
+        return min(ranked, key=lambda pair: pair[0])[1]
+    return rows[0]
 
 
 def _static_achievement_row(achievement, bronze_threshold):
@@ -584,17 +616,22 @@ def _bronze_explainer(achievement, bronze_threshold):
 
 
 def _bronze_thresholds():
-    """Bronze threshold per achievement id, from whichever badge it feeds.
+    """Lowest active Bronze threshold per achievement id, across every badge
+    it feeds.
 
     One query, independent of how many achievement types exist. Achievements
     with no badge, or no active Bronze tier, are simply absent from the
-    mapping rather than raising.
+    mapping rather than raising. Built explicitly rather than via query
+    ordering, since a plain ``dict()`` over an ascending-threshold queryset
+    would keep the *last*, i.e. highest, threshold per achievement.
     """
-    return dict(
-        BadgeTier.objects.filter(rank=TierRank.BRONZE, is_active=True).values_list(
-            "badge__achievement_id", "threshold"
-        )
-    )
+    thresholds = {}
+    for achievement_id, threshold in BadgeTier.objects.filter(
+        rank=TierRank.BRONZE, is_active=True
+    ).values_list("badge__achievement_id", "threshold"):
+        if achievement_id not in thresholds or threshold < thresholds[achievement_id]:
+            thresholds[achievement_id] = threshold
+    return thresholds
 
 
 def badge_dialog_rows():

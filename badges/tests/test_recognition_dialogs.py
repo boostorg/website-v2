@@ -5,6 +5,7 @@ import re
 import pytest
 from django.template.loader import render_to_string
 from django.test import override_settings
+from model_bakery import baker
 
 from badges.display import (
     ACHIEVEMENT_BASED_ROW,
@@ -13,7 +14,7 @@ from badges.display import (
     achievement_dialog_rows,
     badge_dialog_rows,
 )
-from badges.enums import AchievementSlug, TierRank
+from badges.enums import AchievementSlug, BadgeLabel, TierRank
 from badges.models import Achievement, Badge, BadgeTier, UserAchievement
 from core.constants import BadgeToken
 
@@ -135,6 +136,40 @@ def test_without_a_member_counts_are_the_bronze_threshold(catalogue):
         noun = "contribution" if bronze.threshold == 1 else "contributions"
         assert f"With {bronze.threshold} {noun}" in row["description"]
         assert f"bronze badge for {badge.achievement.name}" in row["description"]
+
+
+def test_two_badges_for_one_achievement_agree_on_the_bronze_ladder(
+    achievement, plain_user
+):
+    """An achievement fed by two badges must pick one ladder consistently.
+
+    ``Badge.Meta.ordering`` sorts "commits_master" before "reviewer", which
+    has nothing to do with either badge's threshold. The static empty-state
+    row and the owner's own progress row have to agree on the lower
+    threshold regardless.
+    """
+    high = baker.make(Badge, label=BadgeLabel.COMMITS_MASTER, achievement=achievement)
+    baker.make(BadgeTier, badge=high, rank=TierRank.BRONZE, threshold=10)
+    low = baker.make(Badge, label=BadgeLabel.REVIEWER, achievement=achievement)
+    baker.make(BadgeTier, badge=low, rank=TierRank.BRONZE, threshold=5)
+
+    static_row = {row["name"]: row for row in achievement_dialog_rows()}[
+        achievement.name
+    ]
+    owner_row = {
+        row["name"]: row
+        for row in achievement_dialog_rows(plain_user, show_progress=True)
+    }[achievement.name]
+
+    assert static_row["count"] == 5
+    assert (
+        "With 5 contributions, you will earn the bronze badge"
+        in static_row["description"]
+    )
+    assert (
+        "With 5 contributions more, you will earn the bronze badge"
+        in owner_row["description"]
+    )
 
 
 def test_achievement_rows_cost_two_queries(catalogue, django_assert_num_queries):
