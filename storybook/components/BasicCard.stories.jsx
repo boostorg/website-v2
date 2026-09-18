@@ -25,9 +25,9 @@ export const WithTwoButtons = (args) => (
 WithTwoButtons.args = {
   title: "Found a Bug?",
   text: "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
-  primary_button_url: "www.example.com",
+  primary_button_url: "https://www.example.com",
   primary_button_label: "Primary Button",
-  secondary_button_url: "www.example.com",
+  secondary_button_url: "https://www.example.com",
   secondary_button_label: "Secondary Button",
 };
 
