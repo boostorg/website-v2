@@ -447,16 +447,19 @@ LIBRARY_HERO_ART = {
         # value reads 3.31:1; the far end has no headroom to give back, because
         # the shared falloff starts there.
         "scrim": {"near": 0.40, "mid": 0.40},
-        # A 3:1 painting whose only subject sits in its right 45%, so the shared
-        # centred `cover` slice lands on open lawn and clips the leading shrub of
-        # the house planting. Bottom-anchored at 96% the painted road ends where
-        # the figure's feet are; the 4% that leaves at the top is sky.
         # Portrait crop of the same scene, with the roof and canopy the wide
         # file clips. Plain `cover` at every phone width; only the horizontal
         # anchor is tuned, to put the house behind the figure.
+        # The figure is sized by the block height, so in a narrow frame it keeps
+        # its height but takes far more of the width: 38% at 768 against 25% on
+        # desktop. Scaled about its bottom-right so the feet stay on the ground.
+        "figure": {"narrow_scale": 0.8},
         "mobile_background": {
             "image": "img/v3/library-heros/mqtt5-background-mobile.webp",
-            "position": {"x": "88%"},
+            # Bottom, not centred: the crop is taller than the frame here, so
+            # centring trims the foreground and the figure loses the ground it
+            # stands on. Anchoring to the bottom keeps the path under its feet.
+            "position": {"x": "88%", "y": "bottom"},
         },
         # No mobile export: this figure is narrow enough that its desktop layer
         # is already a tight crop, so the tighter one Beast needs would scale to

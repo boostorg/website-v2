@@ -889,6 +889,17 @@ def hero_art_custom_properties(art):
         if scrim.get(key) is not None:
             props[name] = f"{float(scrim[key]):.2f}"
 
+    figure = art.get("figure") or {}
+    scale = figure.get("narrow_scale")
+    if scale is not None:
+        scale = float(scale)
+        if not 0 < scale <= 1:
+            raise ValueError(
+                f"LIBRARY_HERO_ART figure.narrow_scale must be over 0 and at "
+                f"most 1: {scale!r}"
+            )
+        props["--hero-fg-library-narrow-scale"] = f"{scale:.2f}"
+
     mobile = art.get("mobile_background") or {}
     prefix = HERO_MOBILE_BG_PREFIX
     if mobile.get("size") is not None:
