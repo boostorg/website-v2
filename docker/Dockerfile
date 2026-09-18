@@ -39,6 +39,7 @@ COPY . /code/
 WORKDIR /code/
 RUN yarn install
 RUN yarn build
+RUN yarn build-storybook
 
 
 # Final image.
@@ -75,6 +76,7 @@ COPY --from=builder-py /venv/ /venv/
 COPY --from=builder-py /code/ /code/
 COPY . /code/
 COPY --from=builder-js /code/static/css/styles.css /code/static/css/styles.css
+COPY --from=builder-js /code/var/storybook /code/var/storybook
 
 WORKDIR /code
 

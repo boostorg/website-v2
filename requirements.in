@@ -70,6 +70,10 @@ responses
 # Packaging
 uv
 
+# Storybook - renders real Django templates via /pattern-library/, staff-gated,
+# ships to every environment (see docs/storybook.md)
+django-pattern-library>=1.5,<2
+
 # Parsing content from external sources (like S3)
 mistletoe
 python-frontmatter

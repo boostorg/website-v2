@@ -1,6 +1,8 @@
+import mimetypes
 import os
 import random
 import re
+from pathlib import Path
 
 import requests
 from django.db.models import Count
@@ -15,10 +17,12 @@ import chardet
 from dateutil.parser import parse
 from django.conf import settings
 from django.db.models import Exists, OuterRef
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
 from django.contrib.auth.decorators import login_required
 from django.http import (
+    FileResponse,
     Http404,
     HttpResponse,
     HttpResponseNotFound,
@@ -1462,6 +1466,49 @@ def wysiwyg_image_upload(request):
         uploaded_by=request.user,
     )
     return JsonResponse({"url": upload.image.url})
+
+
+@method_decorator(never_cache, name="dispatch")
+@method_decorator(staff_member_required, name="dispatch")
+class StorybookView(View):
+    """Serve the pre-built Storybook static bundle, restricted to staff only.
+
+    Build the bundle first: yarn build-storybook  (outputs to var/storybook/).
+    Then visit /storybook/ while logged in as a staff user.
+
+    never_cache is required here: this site sits behind a shared CDN that
+    caches responses by default. Without it, the first staff user to load a
+    bundle URL gets it cached at the edge, and every later visitor - staff or
+    not - is served that cached copy directly, bypassing staff_member_required
+    entirely.
+    """
+
+    def get(self, request, path=""):
+        root = Path(settings.STORYBOOK_ROOT)
+
+        if not root.exists():
+            return HttpResponse(
+                "Storybook has not been built yet.\n\nRun: yarn build-storybook",
+                status=503,
+                content_type="text/plain",
+            )
+
+        target = (root / path) if path else (root / "index.html")
+
+        # Prevent path traversal
+        try:
+            target.resolve().relative_to(root.resolve())
+        except ValueError:
+            raise Http404
+
+        if not target.exists() or not target.is_file():
+            raise Http404
+
+        content_type, _ = mimetypes.guess_type(str(target))
+        return FileResponse(
+            open(target, "rb"),
+            content_type=content_type or "application/octet-stream",
+        )
 
 
 class V3ComponentDemoView(V3Mixin, TemplateView):

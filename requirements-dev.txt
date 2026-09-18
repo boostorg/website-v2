@@ -4,7 +4,7 @@ asgiref==3.11.1
     # via
     #   -c ./requirements.txt
     #   django
-django==6.0.2
+django==6.0.7
     # via
     #   -c ./requirements.txt
     #   django-debug-toolbar

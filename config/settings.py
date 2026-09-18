@@ -53,6 +53,10 @@ SECRET_KEY = env("SECRET_KEY")
 host_list = env.list("ALLOWED_HOSTS", default="localhost")
 ALLOWED_HOSTS = [el.strip() for el in host_list]
 
+# Add 'web' for Docker container-to-container communication (Storybook -> Django)
+if "web" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("web")
+
 
 INSTALLED_APPS = [
     "django_admin_env_notice",  # Third-party
@@ -113,6 +117,24 @@ INSTALLED_APPS += [
     "taggit",
 ]
 
+# Pattern Library (for Storybook) — on by default in every environment.
+# Access is already fully gated by PatternLibraryStaffMiddleware (staff-only
+# outside DEBUG), so this flag is just a kill switch, not an access control -
+# set ENABLE_PATTERN_LIBRARY=false to disable Storybook's live rendering.
+ENABLE_PATTERN_LIBRARY = env.bool("ENABLE_PATTERN_LIBRARY", default=True)
+
+try:
+    if ENABLE_PATTERN_LIBRARY:
+        import pattern_library  # noqa: F401
+
+        INSTALLED_APPS += ["pattern_library"]
+except ImportError:
+    ENABLE_PATTERN_LIBRARY = False
+
+# Pre-built Storybook static bundle (output of `yarn build-storybook`).
+# Served at /storybook/ by StorybookView, staff-only.
+STORYBOOK_ROOT = BASE_DIR / "var" / "storybook"
+
 # Our Apps
 INSTALLED_APPS += [
     "ak",
@@ -134,6 +156,18 @@ INSTALLED_APPS += [
     "release_tools",
 ]
 
+# django-pattern-library settings (used by storybook-django)
+PATTERN_LIBRARY = {
+    "SECTIONS": (
+        ("v3/includes", ["v3/includes"]),
+        ("v3/examples", ["v3/examples"]),
+        ("includes", ["includes"]),
+    ),
+    "TEMPLATE_SUFFIX": ".html",
+    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
+    "BASE_TEMPLATE_NAMES": ["patterns/base.html"],
+}
+
 AUTH_USER_MODEL = "users.User"
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = "Lax"
@@ -151,6 +185,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "core.middleware.PatternLibraryStaffMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
