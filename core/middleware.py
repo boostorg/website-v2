@@ -28,7 +28,7 @@ class PatternLibraryStaffMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.path.startswith(_PATTERN_LIBRARY_PREFIX) and not settings.DEBUG:
+        if request.path_info.startswith(_PATTERN_LIBRARY_PREFIX) and not settings.DEBUG:
             if not request.user.is_authenticated:
                 return redirect_to_login(request.get_full_path())
             if not request.user.is_staff:
