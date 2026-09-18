@@ -4,13 +4,11 @@ asgiref==3.11.1
     # via
     #   -c ./requirements.txt
     #   django
-django==6.0.2
+django==6.0.7
     # via
     #   -c ./requirements.txt
     #   django-debug-toolbar
 django-debug-toolbar==6.2.0
-    # via -r ./requirements-dev.in
-django-pattern-library==1.5.0
     # via -r ./requirements-dev.in
 pydevd-pycharm==253.29346.308
     # via -r ./requirements-dev.in
