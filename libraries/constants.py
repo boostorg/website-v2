@@ -407,6 +407,15 @@ LIBRARY_GITHUB_URL_OVERRIDES = {
 # what is painted behind them. LibraryDetail passes it through as custom
 # properties so a new illustration stays a dict entry rather than a CSS rule; see
 # `--scrim-near` in heros.css. Omit it to take the shared ramp.
+#
+# "mobile_background" is optional and opts the background out of `cover` below
+# 768px, for a landscape painting whose subject sits too far off-centre to
+# survive a phone-width crop. "size" and "position" place it; "sky" fills what
+# that leaves uncovered, as a three-stop vertical ramp whose first colour is also
+# faded down over the artwork's cut top edge so it does not read as a straight
+# line; "fade" is where that fade holds and where it clears, in percent of the
+# block. Same reasoning as "scrim": how to crop a painting is a property of the
+# painting. See `--hero-bg-library-mobile-size` in heros.css.
 # key: Library.slug
 LIBRARY_HERO_ART = {
     "beast": {
@@ -438,6 +447,17 @@ LIBRARY_HERO_ART = {
         # value reads 3.31:1; the far end has no headroom to give back, because
         # the shared falloff starts there.
         "scrim": {"near": 0.40, "mid": 0.40},
+        # A 3:1 painting whose only subject sits in its right 45%, so the shared
+        # centred `cover` slice lands on open lawn and clips the leading shrub of
+        # the house planting. Bottom-anchored at 96% the painted road ends where
+        # the figure's feet are; the 4% that leaves at the top is sky.
+        # Portrait crop of the same scene, with the roof and canopy the wide
+        # file clips. Plain `cover` at every phone width; only the horizontal
+        # anchor is tuned, to put the house behind the figure.
+        "mobile_background": {
+            "image": "img/v3/library-heros/mqtt5-background-mobile.webp",
+            "position": {"x": "88%"},
+        },
         # No mobile export: this figure is narrow enough that its desktop layer
         # is already a tight crop, so the tighter one Beast needs would scale to
         # the same thing. Omitting the key drops the <source> and uses the
