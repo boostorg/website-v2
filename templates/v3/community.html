@@ -42,4 +42,13 @@
         </div>
       </div>
     </div>
+
+    {% comment %}
+      Non-profile surface: the badge/star icons rendered here (via
+      _help_card.html / _post_card.html / _user_profile.html) open these with
+      no `items`, so the content is static and informational rather than
+      anyone's live counts.
+    {% endcomment %}
+    {% include "v3/includes/_achievements_modal.html" %}
+    {% include "v3/includes/_badges_modal.html" %}
   {% endblock %}

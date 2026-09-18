@@ -49,6 +49,14 @@ and community/resource cards. Context is supplied by versions.views.VersionDetai
       {% include "v3/includes/_media_text_card.html" with text="Boost is publicly released three times a year in April, August, and December. Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." image_url=image_url button_url=release_process_url button_label="Read release process" %}
     </section>
 
+    {% comment %}
+      Non-profile surface: the badge/star icons rendered here (via
+      _contributors_list.html / _user_profile.html) open these with no
+      `items`, so the content is static and informational rather than
+      anyone's live counts.
+    {% endcomment %}
+    {% include "v3/includes/_achievements_modal.html" %}
+    {% include "v3/includes/_badges_modal.html" %}
   </div>
   {% endif %}
 {% endblock %}

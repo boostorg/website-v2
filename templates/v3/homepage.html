@@ -65,4 +65,13 @@
   {% if show_ml_post_auth_modal %}
     {% include "v3/includes/_mailing_list_post_auth_modal.html" with post_auth_modal_subscribe_url=post_auth_modal_subscribe_url post_auth_modal_mailing_lists=post_auth_modal_mailing_lists post_auth_modal_user_email=post_auth_modal_user_email %}
   {% endif %}
+
+  {% comment %}
+    Non-profile surface: the badge/star icons rendered here (via
+    _library_intro_card.html / _testimonial_card.html / _user_profile.html)
+    open these with no `items`, so the content is static and informational
+    rather than anyone's live counts.
+  {% endcomment %}
+  {% include "v3/includes/_achievements_modal.html" %}
+  {% include "v3/includes/_badges_modal.html" %}
 {% endblock %}

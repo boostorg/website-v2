@@ -94,6 +94,15 @@
         {% include "v3/includes/_contributors_list.html" with title="All Contributors" variant="all" contributors=all_time_contributors heading_level="2" %}
       </div>
     {% endif %}
+
+    {% comment %}
+      Non-profile surface: the badge/star icons rendered here (via
+      _contributors_list.html / _user_profile.html) open these with no
+      `items`, so the content is static and informational rather than
+      anyone's live counts.
+    {% endcomment %}
+    {% include "v3/includes/_achievements_modal.html" %}
+    {% include "v3/includes/_badges_modal.html" %}
   </div>
 {% endif %}
 {% endblock %}
