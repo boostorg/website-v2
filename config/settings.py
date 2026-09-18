@@ -128,7 +128,7 @@ try:
 
         INSTALLED_APPS += ["pattern_library"]
 except ImportError:
-    pass
+    ENABLE_PATTERN_LIBRARY = False
 
 # Pre-built Storybook static bundle (output of `yarn build-storybook`).
 # Served at /storybook/ by StorybookView, staff-only.
