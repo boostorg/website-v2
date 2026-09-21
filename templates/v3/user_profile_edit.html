@@ -342,10 +342,10 @@
                 el.remove()
               })
             }
-          } catch (err) {console.error(err)}
+          } catch (_) {}
           if (!succeeded) {
-            //this._bypassFetch = true
-            //form.requestSubmit(submitter)
+            this._bypassFetch = true
+            form.requestSubmit(submitter)
           }
         },
       }
