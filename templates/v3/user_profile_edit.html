@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-<form method="post" action="{{ profile_account_edit_url }}" enctype="multipart/form-data" novalidate @submit="handleSubmit($event)">
+<form x-data="{...createSectionForm({{ saved_sections.v3_update_profile|yesno:'true,false' }}, {{ saved_sections.v3_update_details|yesno:'true,false' }}, {{ saved_sections.v3_update_email_preferences|yesno:'true,false' }}), ...profileForm()}" method="post" action="{{ profile_account_edit_url }}" enctype="multipart/form-data" novalidate @submit="handleSubmit($event)">
   <div class="user-profile__container">
     <div class="user-profile__profile-content-area">
       <div class="user-profile__col">
@@ -22,7 +22,7 @@
           {% comment %} novalidate: this form still contains required fields (tagline, bio, links) with
           no save handler yet; native constraint validation would silently block "Save changes" for
           sections that are otherwise ready. Server-side validation is authoritative. {% endcomment %}
-          <div x-data="{...createSectionForm({{ saved_sections.v3_update_profile|yesno:'true,false' }}), ...profileForm()}" class="card__form">
+          <div class="card__form" @input="profileSaved = false" @change="profileSaved = false" >
           {% csrf_token %}
           <div class="card__header">
             <span class="card__title">Profile</span>
@@ -40,7 +40,7 @@
                   <span class="user-profile__save-text">Saving to draft</span>
                   {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
                 </span>
-                <span class="user-profile__save-state" x-show="taglineSaveStatus === 'saved'" x-cloak>
+                <span class="user-profile__save-state" x-show="taglineSaveStatus === 'profileSaved'" x-cloak>
                   <span class="user-profile__save-text">Saved to draft</span>
                   {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
                 </span>
@@ -74,7 +74,7 @@
                   <span class="user-profile__save-text">Saving to draft</span>
                   {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
                 </span>
-                <span class="user-profile__save-state" x-show="contentSaveStatus === 'saved'" x-cloak>
+                <span class="user-profile__save-state" x-show="contentSaveStatus === 'profileSaved'" x-cloak>
                   <span class="user-profile__save-text">Saved to draft</span>
                   {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
                 </span>
@@ -157,7 +157,7 @@
           form submits the visibility settings, so one click covers both; a validation/save failure
           blocks the section submit and the button stays "Save changes". {% endcomment %}
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_profile' label='Save changes' label_x_text="saved ? 'Changes Saved' : 'Save changes'" alpine_disabled='saved || saving' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_profile' label='Save changes' label_x_text="profileSaved ? 'Changes Saved' : 'Save changes'" alpine_disabled='profileSaved || saving' only %}
             <span class="field__error" x-show="saveError" x-text="saveError" x-cloak></span>
           </div>
         </div>
@@ -168,10 +168,7 @@
       </div>
       <div class="user-profile__col">
         <div class="basic-card card user-profile__update-details">
-          <div class="card__form"
-                x-data="createSectionForm({{ saved_sections.v3_update_details|yesno:'true,false' }})"
-                @input="saved = false" @change="saved = false">
-          {% csrf_token %}
+          <div class="card__form" @input="detailsSaved = false" @change="detailsSaved = false">
           <div class="card__header">
             <span class="card__title">Update Details</span>
           </div>
@@ -185,16 +182,13 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_details' label='Save details' label_x_text="saved ? 'Changes Saved' : 'Save details'" alpine_disabled='saved' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_details' label='Save details' label_x_text="detailsSaved ? 'Changes Saved' : 'Save details'" alpine_disabled='detailsSaved' only %}
           </div>
         </div>
         </div>
         {% include 'v3/includes/_commit_email_card.html' with commit_email_addresses=commit_email_addresses commit_email_form=commit_email_form commit_email_card_error=commit_email_card_error csrf_token=csrf_token only %}
         <div class="basic-card card user-profile__email-preferences-card">
-          <div class="card__form"
-                x-data="createSectionForm({{ saved_sections.v3_update_email_preferences|yesno:'true,false' }})"
-                @input="saved = false" @change="saved = false">
-          {% csrf_token %}
+          <div class="card__form" @input="emailSaved = false" @change="emailSaved = false">
           <div class="card__header">
             <span class="card__title">Email Preferences</span>
           </div>
@@ -213,7 +207,7 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
-            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_email_preferences' label='Update' label_x_text="saved ? 'Changes Saved' : 'Update'" alpine_disabled='saved' only %}
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' name='v3_update_email_preferences' label='Update' label_x_text="emailSaved ? 'Changes Saved' : 'Update'" alpine_disabled='emailSaved' only %}
           </div>
           </div>
         </div>
@@ -303,9 +297,11 @@
     // non-success outcome (validation error, network failure, JS/fetch
     // unsupported) it falls back to a real form submission, which the
     // server renders/redirects exactly as it did before this existed.
-    window.createSectionForm = function (initialSaved) {
+    window.createSectionForm = function (initialProfile, initialDetails, initialEmail) {
       return {
-        saved: initialSaved,
+        profileSaved: initialProfile,
+        detailsSaved: initialDetails,
+        emailSaved: initialEmail,
         _bypassFetch: false,
         async handleSubmit(event) {
           if (this._bypassFetch) {
@@ -313,15 +309,16 @@
             return
           }
           event.preventDefault()
+          const form = event.target
+          const submitter = event.submitter
+          const submissionName = submitter.name
           // Only the Profile form mixes in profileForm(); other sections
           // (Update Details, Email Preferences) have no saveLinks and skip
           // straight to their own submit.
-          if (typeof this.saveLinks === 'function') {
+          if (typeof this.saveLinks === 'function' && submissionName === 'v3_update_profile') {
             const linksSaved = await this.saveLinks()
             if (!linksSaved) return
           }
-          const form = event.target
-          const submitter = event.submitter
           let succeeded = false
           try {
             const response = await fetch(form.action, {
@@ -331,7 +328,9 @@
             })
             const contentType = response.headers.get('content-type') || ''
             if (response.ok && contentType.includes('application/json')) {
-              this.saved = true
+              if( submissionName === 'v3_update_profile' ) this.profileSaved = true;
+              else if( submissionName === 'v3_update_details') this.detailsSaved = true;
+              else if( submissionName === 'v3_update_email_preferences') this.emailSaved = true;
               succeeded = true
               // Static, server-rendered field errors (left over from a prior
               // failed submit) don't clear themselves on a successful AJAX
@@ -343,10 +342,10 @@
                 el.remove()
               })
             }
-          } catch (_) {}
+          } catch (err) {console.error(err)}
           if (!succeeded) {
-            this._bypassFetch = true
-            form.requestSubmit(submitter)
+            //this._bypassFetch = true
+            //form.requestSubmit(submitter)
           }
         },
       }
