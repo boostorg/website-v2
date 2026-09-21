@@ -509,7 +509,14 @@ class CurrentUserProfileView(
     # chains keyed on the same button names.
     V3_EDIT_SECTIONS = {
         "v3_update_profile": (
-            ["display_badge", "hide_github", "hide_ml", "hide_ach"],
+            [
+                "tagline",
+                "bio",
+                "display_badge",
+                "hide_github",
+                "hide_ml",
+                "hide_ach",
+            ],
             "_save_v3_visibility_section",
         ),
         "v3_update_details": (

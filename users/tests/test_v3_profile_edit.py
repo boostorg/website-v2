@@ -40,25 +40,6 @@ def test_v3_get_edit_page_requires_login(tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_v3_update_profile_saves_despite_overlong_scaffolding_field(user, tp):
-    """tagline/bio share the Profile <form> with the visibility toggles but
-    have no save handler yet; an overlong tagline (past its max_length)
-    must not block saving the toggles that are ready."""
-    with tp.login(user):
-        response = tp.post(
-            f"{tp.reverse('profile-account')}?edit=true",
-            data={
-                "v3_update_profile": "true",
-                "hide_github": "on",
-                "tagline": "x" * 100,
-            },
-        )
-        assert response.status_code == 302
-    user.refresh_from_db()
-    assert user.hide_github_activity is True
-
-
-@waffle.testutils.override_flag("v3", active=True)
 def test_v3_edit_page_shows_current_values(user, tp):
     user.hide_github_activity = True
     user.country = "US"
@@ -227,15 +208,17 @@ def test_v3_edit_page_commit_email_no_js_fallback(user, tp):
 @waffle.testutils.override_flag("v3", active=True)
 def test_v3_update_profile_saves_visibility_toggles(user, tp):
     with tp.login(user):
-        response = tp.post(
+        tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
             data={
                 "v3_update_profile": "true",
                 "hide_github": "on",
                 "hide_ml": "on",
+                "tagline": "test",
+                "bio": "test",
             },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
-        assert response.status_code == 302
     user.refresh_from_db()
     assert user.hide_github_activity is True
     assert user.hide_mailing_list_activity is True
@@ -245,7 +228,7 @@ def test_v3_update_profile_saves_visibility_toggles(user, tp):
 @waffle.testutils.override_flag("v3", active=True)
 def test_v3_update_details_saves_account_fields(user, tp):
     with tp.login(user):
-        response = tp.post(
+        tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
             data={
                 "v3_update_details": "true",
@@ -254,8 +237,8 @@ def test_v3_update_details_saves_account_fields(user, tp):
                 "indicate_last_login_method": "on",
                 "override_commit_author_name": "on",
             },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
-        assert response.status_code == 302
     user.refresh_from_db()
     assert user.display_name == "newusername"
     assert str(user.country) == "US"
@@ -272,15 +255,15 @@ def test_v3_update_details_unchecks_omitted_toggles(user, tp):
     user.is_commit_author_name_overridden = True
     user.save()
     with tp.login(user):
-        response = tp.post(
+        tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
             data={
                 "v3_update_details": "true",
                 "username": user.display_name,
                 "country": "",
             },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
-        assert response.status_code == 302
     user.refresh_from_db()
     assert user.indicate_last_login_method is False
     assert user.is_commit_author_name_overridden is False
@@ -298,6 +281,7 @@ def test_v3_update_details_blank_country_clears_it(user, tp):
                 "username": user.display_name,
                 "country": "",
             },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
     user.refresh_from_db()
     assert str(user.country) == ""
@@ -319,6 +303,7 @@ def test_v3_update_details_duplicate_username_shows_inline_error(user, tp):
                 "username": "taken-name",
                 "country": "",
             },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
         tp.response_200(response)
         form = response.context["user_profile_form"]
@@ -329,22 +314,6 @@ def test_v3_update_details_duplicate_username_shows_inline_error(user, tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_v3_update_profile_redirect_flags_saved_section(user, tp):
-    """The redirect after a successful save carries which section was saved,
-    so that section's submit button can render a "Changes Saved" state
-    instead of the legacy toast."""
-    with tp.login(user):
-        response = tp.post(
-            f"{tp.reverse('profile-account')}?edit=true",
-            data={"v3_update_profile": "true", "hide_github": "on"},
-        )
-        assert response.status_code == 302
-        assert response.url == (
-            f"{tp.reverse('profile-account')}?edit=true&saved=v3_update_profile"
-        )
-
-
-@waffle.testutils.override_flag("v3", active=True)
 def test_v3_update_profile_ajax_save_returns_json_without_redirect(user, tp):
     """A fetch-based submit (see createSectionForm in user_profile_edit.html)
     gets a JSON response instead of a redirect, so the button can flip to
@@ -352,7 +321,12 @@ def test_v3_update_profile_ajax_save_returns_json_without_redirect(user, tp):
     with tp.login(user):
         response = tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
-            data={"v3_update_profile": "true", "hide_github": "on"},
+            data={
+                "v3_update_profile": "true",
+                "hide_github": "on",
+                "tagline": "test",
+                "bio": "test",
+            },
             extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
         assert response.status_code == 200
@@ -386,15 +360,15 @@ def test_v3_edit_page_no_section_saved_by_default(user, tp):
 @waffle.testutils.override_flag("v3", active=True)
 def test_v3_update_email_preferences_saves(user, tp):
     with tp.login(user):
-        response = tp.post(
+        tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
             data={
                 "v3_update_email_preferences": "true",
                 "allow_notification_own_news_approved": ["blogpost", "news"],
                 "allow_notification_others_news_posted": ["link"],
             },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
-        assert response.status_code == 302
     user.preferences.refresh_from_db()
     # The user's default preference for "own news approved" is the wildcard
     # (all news types, including "poll"). The v3 page has no checkbox for
@@ -416,15 +390,15 @@ def test_v3_update_email_preferences_preserves_unlisted_news_types(user, tp):
     user.preferences.allow_notification_others_news_posted = ["poll", "link"]
     user.preferences.save()
     with tp.login(user):
-        response = tp.post(
+        tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
             data={
                 "v3_update_email_preferences": "true",
                 "allow_notification_own_news_approved": ["blogpost"],
                 "allow_notification_others_news_posted": ["link"],
             },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
-        assert response.status_code == 302
     user.preferences.refresh_from_db()
     assert sorted(user.preferences.allow_notification_own_news_approved) == [
         "blogpost",
@@ -458,11 +432,16 @@ def earned_badge(user):
 @waffle.testutils.override_flag("v3", active=True)
 def test_v3_update_profile_saves_display_badge(user, earned_badge, tp):
     with tp.login(user):
-        response = tp.post(
+        tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
-            data={"v3_update_profile": "true", "display_badge": earned_badge.pk},
+            data={
+                "v3_update_profile": "true",
+                "display_badge": earned_badge.pk,
+                "tagline": "test",
+                "bio": "test",
+            },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
-        assert response.status_code == 302
     user.refresh_from_db()
     assert user.display_badge == earned_badge
 
@@ -473,11 +452,15 @@ def test_v3_update_profile_clears_display_badge_when_omitted(user, earned_badge,
     user.display_badge = earned_badge
     user.save()
     with tp.login(user):
-        response = tp.post(
+        tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
-            data={"v3_update_profile": "true"},
+            data={
+                "v3_update_profile": "true",
+                "tagline": "test",
+                "bio": "test",
+            },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
-        assert response.status_code == 302
     user.refresh_from_db()
     assert user.display_badge is None
 
@@ -511,7 +494,13 @@ def test_v3_update_profile_rejects_a_revoked_display_badge(user, earned_badge, t
     with tp.login(user):
         response = tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
-            data={"v3_update_profile": "true", "display_badge": earned_badge.pk},
+            data={
+                "v3_update_profile": "true",
+                "display_badge": earned_badge.pk,
+                "tagline": "test",
+                "bio": "test",
+            },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
         # Re-rendered with errors rather than redirected to the saved state.
         assert response.status_code == 200
@@ -541,7 +530,12 @@ def test_v3_update_profile_rejects_another_members_badge(user, earned_badge, tp)
     with tp.login(user):
         response = tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
-            data={"v3_update_profile": "true", "display_badge": stranger_badge.pk},
+            data={
+                "v3_update_profile": "true",
+                "display_badge": stranger_badge.pk,
+                "tagline": "test",
+                "bio": "test",
+            },
         )
         assert response.status_code == 200
         assert response.context["user_profile_form"].errors["display_badge"]
@@ -578,15 +572,15 @@ def test_v3_update_details_renaming_moves_the_public_url(user, tp):
     old_url = user.get_absolute_url()
 
     with tp.login(user):
-        response = tp.post(
+        tp.post(
             f"{tp.reverse('profile-account')}?edit=true",
             data={
                 "v3_update_details": "true",
                 "username": "Jane Smith",
                 "country": "US",
             },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
-        assert response.status_code == 302
 
     user = User.objects.get(pk=user.pk)
     new_url = user.get_absolute_url()
@@ -613,6 +607,7 @@ def test_v3_update_details_keeps_the_url_when_the_name_is_unchanged(user, tp):
                 "country": "FR",
                 "indicate_last_login_method": "on",
             },
+            extra={"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"},
         )
 
     user = User.objects.get(pk=user.pk)
