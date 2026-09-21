@@ -573,6 +573,9 @@ class CurrentUserProfileView(
                 else:
                     data[field_name] = value
 
+        else:
+            save_method_name = "_save_v3_full_save"
+
         form = V3UserProfileForm(
             data,
             user=request.user,
@@ -605,11 +608,11 @@ class CurrentUserProfileView(
         # saved state on reload.
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return JsonResponse({"saved": section_key})
-        return HttpResponseRedirect(f"{edit_url}&saved={section_key}")
+        return HttpResponseRedirect(f"{edit_url}")
 
     def _save_v3_visibility_section(self, user: User, form):
         user.tagline = form.cleaned_data["tagline"]
-        user.biography = form.cleaned_data["biography"]
+        user.biography = form.cleaned_data["bio"]
         user.hide_github_activity = form.cleaned_data["hide_github"]
         user.hide_mailing_list_activity = form.cleaned_data["hide_ml"]
         user.hide_badges = form.cleaned_data["hide_ach"]
@@ -652,6 +655,11 @@ class CurrentUserProfileView(
             ]
             setattr(preferences, field_name, preserved + form.cleaned_data[field_name])
         preferences.save()
+
+    def _save_v3_full_save(self, user: User, form):
+        self._save_v3_visibility_section(user, form)
+        self._save_v3_details_section(user, form)
+        self._save_v3_email_preferences_section(user, form)
 
     def change_password(self, form, request):
         """Change the password of the user."""
