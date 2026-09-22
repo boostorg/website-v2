@@ -35,6 +35,70 @@ echo "It's recommended to not modify anything in this directory." > README.md
 echo "It will be reserved for automation scripts." >> README.md
 echo "During day to day work use any other directories such as $HOME/github, /opt/, $HOME/opt/ etc." >> README.md
 
+#
+# Preflight check: verify required executables are available.
+#
+
+executables="git gh"
+for executable in ${executables}; do
+    if ! which "${executable}" > /dev/null 2>&1 ; then
+        echo "This script requires ${executable} to run, however it's missing. Please install that, and then re-run this script. Exiting."
+        exit 1
+    fi
+done
+
+#
+# Preflight check: verify the latest 'develop' CI is green, and that no
+# workflows are currently in-progress on 'develop' or 'master'.
+#
+
+echo ""
+echo "Preflight check: verifying CI status"
+for repo in ${list_of_repos}; do
+    echo ""
+    echo "-------------------------------------"
+    echo "PREFLIGHT: ${repo}"
+    echo "-------------------------------------"
+    echo ""
+
+    # Wait for any in-progress workflows on 'develop' or 'master' to finish.
+    # Every 5 minutes (then 10, then 20, ...) offer to skip the wait.
+    for branch in develop master; do
+        elapsed=0
+        next_prompt=300
+        backoff=300
+        while [ "$(gh run list -R "${repo}" -b "${branch}" --status in_progress --json databaseId -q length)" != "0" ]; do
+            echo "Workflow in progress on ${repo} ${branch}; waiting..."
+            sleep 30
+            elapsed=$((elapsed + 30))
+            if [ "${elapsed}" -ge "${next_prompt}" ]; then
+                echo "Workflow in progress on ${repo} ${branch}; it has been running for $((elapsed / 60)) minutes."
+                echo "Type \"continue anyway\" to proceed anyway. Type yes (or no, or anything at all) to continue waiting (recommended)."
+                read -r -p "Response: " response
+                if [[ "${response,,}" = "continue anyway" ]]; then
+                    echo "Proceeding anyway."
+                    break
+                fi
+                backoff=$((backoff * 2))
+                next_prompt=$((elapsed + backoff))
+            fi
+        done
+    done
+
+    # Verify the most recent 'develop' workflow concluded successfully.
+    conclusion=$(gh run list -R "${repo}" -b develop -L 1 --json conclusion -q '.[0].conclusion')
+    if [ "${conclusion}" != "success" ]; then
+        echo "Latest develop CI on ${repo} concluded '${conclusion}'. It is very much recommended to investigate and fix that before proceeding."
+        echo "Type yes (or no, or anything at all) to exit this script. Type \"continue anyway\" to proceed with publishing."
+        read -r -p "Response: " response
+        if [[ "${response,,}" != "continue anyway" ]]; then
+            echo "Not proceeding. Exiting."
+            exit 1
+        fi
+        echo "Proceeding anyway."
+    fi
+done
+
 for repo in ${list_of_repos}; do
     echo ""
     echo "====================================="
