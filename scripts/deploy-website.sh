@@ -29,8 +29,8 @@ github_organization="boostorg"
 list_of_repos="${github_organization}/boostlook ${github_organization}/website-v2-docs ${github_organization}/website-v2"
 list_of_repos_verify_tag="${github_organization}/website-v2"
 
-mkdir -p ${base_folder}/${github_organization}
-cd ${base_folder}/${github_organization}
+mkdir -p "${base_folder}/${github_organization}"
+cd "${base_folder}/${github_organization}"
 echo "It's recommended to not modify anything in this directory." > README.md
 echo "It will be reserved for automation scripts." >> README.md
 echo "During day to day work use any other directories such as $HOME/github, /opt/, $HOME/opt/ etc." >> README.md
@@ -105,10 +105,10 @@ for repo in ${list_of_repos}; do
     echo "REPOSITORY: ${repo}"
     echo "====================================="
     echo ""
-    cd ${base_folder}/${github_organization}
+    cd "${base_folder}/${github_organization}"
     repo_dir="${base_folder}/${repo}"
     if [ ! -d "${repo_dir}" ]; then
-        git clone -b develop https://github.com/$repo
+        git clone -b develop "https://github.com/$repo"
     fi
     cd "${repo_dir}"
 
