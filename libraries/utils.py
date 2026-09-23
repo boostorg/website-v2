@@ -878,9 +878,7 @@ def hero_art_custom_properties(art):
     """The custom properties one LIBRARY_HERO_ART entry sets on its hero.
 
     Returns {property_name: value}, holding only what the entry actually sets, so
-    an artwork that tunes nothing renders the shared rules untouched. How an
-    illustration wants its scrim and its phone-width crop is a property of the
-    illustration, so it lives beside the paths rather than as a per-slug CSS rule.
+    an artwork that tunes nothing renders the shared rules untouched.
     """
     props = {}
 

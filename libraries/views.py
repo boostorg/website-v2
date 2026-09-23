@@ -761,22 +761,16 @@ class LibraryDetail(
             return large_static(path) if path else ""
 
         css_vars = hero_art_custom_properties(art)
-        # The mobile crop is a path rather than a value, so it resolves here
-        # where large_static lives rather than in the pure mapper.
+        # A path rather than a value, so it resolves here through large_static.
         mobile_image = (art.get("mobile_background") or {}).get("image")
         if mobile_image:
-            # Unquoted: the value lands in a style attribute, where Django
-            # escapes quotes to entities. large_static() returns a bare path, so
-            # there is nothing here that needs quoting.
+            # Unquoted: Django escapes quotes in the style attribute, and
+            # large_static() returns a bare path.
             css_vars["--hero-bg-library-mobile-image"] = (
                 f"url({large_static(mobile_image)})"
             )
 
         return {
-            # One dict rather than a key per property: how an artwork tunes its
-            # hero is open-ended, and the include should not grow a parameter
-            # every time one of them needs a new knob. See
-            # hero_art_custom_properties for what may appear in it.
             "library_hero_css_vars": css_vars,
             "library_hero_image_url_light": url("illustration"),
             "library_hero_image_url_dark": "",

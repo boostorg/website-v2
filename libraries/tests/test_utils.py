@@ -562,15 +562,7 @@ class TestBuildLibraryIntroContextQueries:
         assert len(self.routing_key_queries(queries)) == 1
 
 
-# ---------------------------------------------------------------------------
 # hero_art_custom_properties
-#
-# The values it returns are written straight into a style attribute, so these
-# cover both halves of its job: emitting only what an entry actually sets, and
-# refusing anything that is not a plain placement or colour. The last test walks
-# every shipped entry so a typo in LIBRARY_HERO_ART fails here rather than as a
-# 500 on that library's page.
-# ---------------------------------------------------------------------------
 
 HERO_MOBILE = "--hero-bg-library-mobile"
 
@@ -649,12 +641,8 @@ def test_hero_art_custom_properties_property_names_are_closed():
 
 
 def test_every_shipped_hero_art_entry_is_valid():
-    """Walk LIBRARY_HERO_ART itself, so a typo fails CI rather than production.
-
-    The mapper raises on a bad value, and a library page renders through it, so
-    an unnoticed typo here is a 500 on that library rather than a hero that
-    quietly falls back.
-    """
+    """Walk LIBRARY_HERO_ART itself, so a typo fails CI rather than a 500 in
+    production."""
     from libraries.constants import LIBRARY_HERO_ART
 
     for slug, art in LIBRARY_HERO_ART.items():
