@@ -80,6 +80,7 @@ def get_commit_data_for_repo_versions(key, min_version=""):
     Get commits from one x.x.0 release to the next x.x.0 release. Commits
     to and from patches or beta versions are ignored.
 
+    min_version is a version name, e.g. boost-1.92.0
     """
     library = Library.objects.get(key=key)
     parser = re.compile(
@@ -95,6 +96,10 @@ def get_commit_data_for_repo_versions(key, min_version=""):
         r"(?:(?P<files_changed>\d+) files changed)?.*?"
         r"(?:(?P<insertions>\d+) insertions)?.*?(?:(?P<deletions>\d+) deletions)?",
     )
+
+    min_version_re = re.compile(r"^boost-(\d+)\.(\d+)\.(\d+)$")
+    # Tuple in the form of (major, minor, patch)
+    parsed_mv = min_version_re.match(min_version).groups()
 
     retry_count = 0
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -127,15 +132,13 @@ def get_commit_data_for_repo_versions(key, min_version=""):
             + list(
                 Version.objects.minor_versions()
                 .filter(library_version__library__key=library.key)
+                .filter(version_array__gte=parsed_mv)
                 .order_by("version_array")
                 .values_list("name", flat=True)
             )
             + ["master"]
         )
         for a, b in zip(versions, versions[1:]):
-            if a < min_version and b < min_version:
-                # Don't bother comparing two versions we don't care about
-                continue
             shortstat = subprocess.run(
                 ["git", "--git-dir", str(git_dir), "diff", f"{a}..{b}", "--shortstat"],
                 capture_output=True,

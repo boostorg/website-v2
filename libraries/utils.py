@@ -4,6 +4,7 @@ import re
 from itertools import islice
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
+from typing import Iterable
 
 import boto3
 import structlog
@@ -181,14 +182,69 @@ def format_duration(seconds: int) -> str:
 def version_within_range(
     version: str, min_version: str = None, max_version: str = None
 ):
-    """Direct string comparison, assuming 'version', 'min_version', and 'max_version'
+    """Parses parts of versions and compares them, assuming 'version', 'min_version', and 'max_version'
     follow the same format.
 
-    Expects format `boost-1.84.0`
+    Expects format `boost-1.84.0` or 'boost_1_84_0' (name or slug)
     """
-    if min_version and version < min_version:
+
+    _name_re = re.compile("^boost-(\d+)\.(\d+)\.(\d+)$")
+    _slug_re = re.compile("^boost_(\d+)_(\d+)_(\d+)$")
+
+    def _parse_name(s: str):
+        if parsed_name := _name_re.match(s):
+            if len(parsed_name.groups()) == 3:
+                return parsed_name.groups()
+        return None
+
+    def _parse_slug(s: str):
+        if parsed_slug := _slug_re.match(s):
+            if len(parsed_slug.groups()) == 3:
+                return parsed_slug.groups()
+        return None
+
+    def _parse_values(con_func: callable, version, min_version, max_version):
+        v_parts = max_parts = min_parts = None
+        v_parts = con_func(version)
+        if v_parts:
+            if min_version:
+                min_parts = con_func(min_version)
+                if not min_parts:
+                    """Incorrectly formatted version."""
+                    raise ValueError("Version incorrectly formatted.")
+            if max_version:
+                max_parts = con_func(max_version)
+                if not max_parts:
+                    """Incorrectly formatted version."""
+                    raise ValueError("Version incorrectly formatted.")
+        return v_parts, min_parts, max_parts
+
+    def _compare_parts(less: Iterable, more: Iterable):
+        if len(less) != 3 or len(more) != 3:
+            raise ValueError("Values not made of 3 parts")
+        for a, b in zip(less, more):
+            if int(a) < int(b):
+                return True
+            elif int(a) > int(b):
+                return False
+
         return False
-    if max_version and version > max_version:
+
+    v_parts, min_parts, max_parts = _parse_values(
+        _parse_name, version, min_version, max_version
+    )
+    if not v_parts:
+        v_parts, min_parts, max_parts = _parse_values(
+            _parse_slug, version, min_version, max_version
+        )
+
+    if not v_parts:
+        """Incorrectly formatted version."""
+        raise ValueError("Version incorrectly formatted.")
+
+    if min_parts and _compare_parts(v_parts, min_parts):
+        return False
+    if max_parts and _compare_parts(max_parts, v_parts):
         return False
     return True
 
