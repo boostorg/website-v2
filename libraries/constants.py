@@ -443,6 +443,10 @@ LIBRARY_HERO_ART = {
         # block, not a tighter crop of the animal.
         "illustration_mobile": "img/v3/library-heros/pfr-mobile.webp",
     },
+    "regex": {
+        "background": "img/v3/library-heros/regex-background.webp",
+        "illustration": "img/v3/library-heros/regex.webp",
+    },
 }
 
 DEFAULT_LIBRARIES_LANDING_VIEW = "list"
