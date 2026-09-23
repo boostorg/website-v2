@@ -860,9 +860,15 @@ def library_filter_options() -> list[tuple[str, str]]:
 # against what it is allowed to look like rather than trusted. The property names
 # below come from this module and never from the data, so an entry can only ever
 # fill one of these slots.
-_HERO_WORD = r"auto|cover|contain|center|top|bottom|left|right|-?\d+(?:\.\d+)?(?:%|px)"
-HERO_PLACEMENT_RE = re.compile(_HERO_WORD)
-HERO_SIZE_RE = re.compile(rf"(?:{_HERO_WORD})(?: (?:{_HERO_WORD}))?")
+_HERO_LENGTH = r"\d+(?:\.\d+)?(?:%|px)"
+_HERO_SIZE_WORD = rf"auto|{_HERO_LENGTH}"
+HERO_SIZE_RE = re.compile(
+    rf"cover|contain|(?:{_HERO_SIZE_WORD})(?: (?:{_HERO_SIZE_WORD}))?"
+)
+HERO_POSITION_RE = {
+    "x": re.compile(rf"left|center|right|-?{_HERO_LENGTH}"),
+    "y": re.compile(rf"top|center|bottom|-?{_HERO_LENGTH}"),
+}
 HERO_COLOR_RE = re.compile(r"#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})")
 HERO_MOBILE_BG_PREFIX = "--hero-bg-library-mobile"
 
@@ -885,7 +891,13 @@ def hero_art_custom_properties(art):
     scrim = art.get("scrim") or {}
     for key, name in (("near", "--scrim-near"), ("mid", "--scrim-mid")):
         if scrim.get(key) is not None:
-            props[name] = f"{float(scrim[key]):.2f}"
+            alpha = float(scrim[key])
+            # Also rejects NaN, which fails every comparison.
+            if not 0 <= alpha <= 1:
+                raise ValueError(
+                    f"LIBRARY_HERO_ART scrim.{key} must be from 0 to 1: {alpha!r}"
+                )
+            props[name] = f"{alpha:.2f}"
 
     figure = art.get("figure") or {}
     scale = figure.get("narrow_scale")
@@ -908,7 +920,9 @@ def hero_art_custom_properties(art):
     for axis in ("x", "y"):
         if position.get(axis) is not None:
             props[f"{prefix}-position-{axis}"] = _hero_checked(
-                HERO_PLACEMENT_RE, position[axis], f"mobile_background.position.{axis}"
+                HERO_POSITION_RE[axis],
+                position[axis],
+                f"mobile_background.position.{axis}",
             )
     sky = mobile.get("sky") or {}
     for slot in ("top", "mid", "bottom"):

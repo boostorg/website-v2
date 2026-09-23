@@ -623,6 +623,18 @@ def test_hero_art_custom_properties_mobile_background():
         {"mobile_background": {"sky": {"top": "red"}}},
         {"mobile_background": {"sky": {"top": "rgb(1, 2, 3)"}}},
         {"mobile_background": {"sky": {"top": "#8dd3f"}}},
+        # Valid words in the wrong property or on the wrong axis.
+        {"mobile_background": {"size": "center"}},
+        {"mobile_background": {"size": "-10%"}},
+        {"mobile_background": {"size": "cover cover"}},
+        {"mobile_background": {"position": {"x": "cover"}}},
+        {"mobile_background": {"position": {"x": "top"}}},
+        {"mobile_background": {"position": {"y": "left"}}},
+        # Scrim alphas outside 0-1, or not a number at all.
+        {"scrim": {"near": -0.1}},
+        {"scrim": {"mid": 1.5}},
+        {"scrim": {"near": float("nan")}},
+        {"scrim": {"near": float("inf")}},
     ],
 )
 def test_hero_art_custom_properties_rejects_bad_values(entry):
