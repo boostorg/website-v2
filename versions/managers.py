@@ -28,8 +28,9 @@ class VersionQuerySet(models.QuerySet):
         """Return most recent active non-beta version"""
         return (
             self.active()
+            .with_version_split()
             .filter(beta=False, full_release=True)
-            .order_by("-name")
+            .order_by("-major", "-minor", "-patch")
             .first()
         )
 
@@ -38,7 +39,13 @@ class VersionQuerySet(models.QuerySet):
 
         Note: There should only ever be one beta version in the database, as
         old ones are generally deleted. But just in case."""
-        return self.active().filter(beta=True).order_by("-name").first()
+        return (
+            self.active()
+            .filter(beta=True)
+            ._with_beta_version_split()
+            .order_by("-major", "-minor", "-patch")
+            .first()
+        )
 
     def with_version_split(self):
         """Separates name into an array of [major, minor, patch].
@@ -66,6 +73,50 @@ class VersionQuerySet(models.QuerySet):
             major=models.F("version_array__0"),
             minor=models.F("version_array__1"),
             patch=models.F("version_array__2"),
+        )
+
+    def _with_beta_version_split(self):
+        """Separates name into an array of [major, minor, patch]. Only works for beta releases.
+
+        Anything not matching the regex is removed from the queryset.
+
+        Example:
+            name = boost-1.85.beta1
+            version_array -> [1, 85, 1]
+            major -> 1
+            minor -> 85
+            patch -> 1
+
+        """
+
+        pattern = Value(r"\.beta\d+$")  # the regex
+        replacement = Value(r"")  # replacement string
+        flags = Value("g")  # regex flags
+        return (
+            self.filter(beta=True)
+            .filter(name__regex=r"^(boost-)?\d+\.\d+\.\d+\.beta\d+$")
+            .annotate(
+                simple_initial=Replace("name", Value("boost-"), Value("")),
+                simple_version=Func(
+                    "simple_initial",
+                    pattern,
+                    replacement,
+                    flags,
+                    function="REGEXP_REPLACE",
+                    output_field=models.TextField(),
+                ),
+                version_array=Func(
+                    "simple_version",
+                    Value(r"\."),
+                    function="regexp_split_to_array",
+                    template="(%(function)s(%(expressions)s)::int[])",
+                    arity=2,
+                    output_field=ArrayField(models.IntegerField()),
+                ),
+                major=models.F("version_array__0"),
+                minor=models.F("version_array__1"),
+                patch=models.F("version_array__2"),
+            )
         )
 
 
