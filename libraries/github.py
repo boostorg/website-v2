@@ -99,7 +99,10 @@ def get_commit_data_for_repo_versions(key, min_version=""):
 
     min_version_re = re.compile(r"^boost-(\d+)\.(\d+)\.(\d+)$")
     # Tuple in the form of (major, minor, patch)
-    parsed_mv = min_version_re.match(min_version).groups()
+    if match := min_version_re.match(min_version):
+        parsed_mv = match.groups()
+    else:
+        parsed_mv = []
 
     retry_count = 0
     with tempfile.TemporaryDirectory() as temp_dir:

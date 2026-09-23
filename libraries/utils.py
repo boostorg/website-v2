@@ -187,6 +187,8 @@ def version_within_range(
 
     Expects format `boost-1.84.0` or 'boost_1_84_0' (name or slug)
     """
+    # Strip trailing -number from patches
+    version = re.sub("-\d+$", "", version, 1)
 
     _name_re = re.compile("^boost-(\d+)\.(\d+)\.(\d+)$")
     _slug_re = re.compile("^boost_(\d+)_(\d+)_(\d+)$")
