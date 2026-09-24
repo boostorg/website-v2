@@ -9,7 +9,7 @@ spec:
   - resource:
       name: cpu
       target:
-        averageUtilization: 18
+        averageUtilization: 25
         type: Utilization
     type: Resource
   scaleTargetRef:
