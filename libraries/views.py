@@ -1,6 +1,7 @@
 import datetime
 import uuid
 from urllib.parse import urlencode, urlparse
+from textwrap import dedent
 
 import structlog
 
@@ -667,6 +668,14 @@ class LibraryDetail(
             return self.get_missing_version_context(context)
 
         version_str = context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
+        if version_str in ("develop", "master"):
+            context["in_progress_text"] = dedent(f"""
+                You are viewing the {version_str} version of this library.
+
+                The master and develop pages are shown here to provide access to the newest in-development in-progress documentation. See the "Documentation" link on this page.
+
+                Other aspects of the page will reflect the previous official version, or not be available until the next release.
+            """)
 
         library_version = context.get("library_version")
         context["website_adoc"] = getattr(library_version, "website_adoc", None) or {}

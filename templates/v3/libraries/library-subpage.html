@@ -47,6 +47,10 @@
       <div class="item-e">
         {% include "v3/includes/_dependencies_card.html" with dependencies=dependencies_list %}
       </div>
+      {% elif version_str == "master" or version_str == "develop" %}
+      <div class="item-e">
+        {% include "v3/includes/_markdown_card.html" with title="In Progress Branch" markdown=in_progress_text %}
+      </div>
       {% endif %}
 
       {% if website_adoc.designed_for %}
