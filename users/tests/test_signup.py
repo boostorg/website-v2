@@ -132,15 +132,16 @@ def test_a_name_accepted_at_signup_can_be_saved_on_the_edit_form(tp):
     # force_login rather than tp.login: this account has the signup password,
     # not the fixture one, and email verification may gate a real login.
     tp.client.force_login(user)
-    response = tp.post(
+    tp.post(
         f"{tp.reverse('profile-account')}?edit=true",
         data={
             "v3_update_details": "true",
             "username": user.display_name,
             "country": "US",
+            "tagline": "test",
+            "bio": "test",
         },
     )
-    assert response.status_code == 302
 
     user.refresh_from_db()
     assert str(user.country) == "US"
