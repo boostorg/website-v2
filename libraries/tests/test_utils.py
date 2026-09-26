@@ -8,6 +8,7 @@ from model_bakery import baker
 
 from libraries.utils import (
     conditional_batched,
+    hero_art_custom_properties,
     decode_content,
     generate_fake_email,
     generate_release_report_filename,
@@ -559,3 +560,107 @@ class TestBuildLibraryIntroContextQueries:
         assert len(context["authors"]) == 3
         assert all(a["profile_url"].startswith("/users/") for a in context["authors"])
         assert len(self.routing_key_queries(queries)) == 1
+
+
+# hero_art_custom_properties
+
+HERO_MOBILE = "--hero-bg-library-mobile"
+
+
+def test_hero_art_custom_properties_empty_entry_sets_nothing():
+    """Art that tunes nothing renders the shared rules untouched."""
+    assert hero_art_custom_properties({}) == {}
+    assert hero_art_custom_properties({"illustration": "a.webp"}) == {}
+
+
+def test_hero_art_custom_properties_scrim_only():
+    """A scrim entry emits the plateau and nothing else, coerced to 2dp."""
+    props = hero_art_custom_properties({"scrim": {"near": 0.46, "mid": 0.44}})
+    assert props == {"--scrim-near": "0.46", "--scrim-mid": "0.44"}
+
+
+def test_hero_art_custom_properties_partial_scrim():
+    """Half a scrim emits half the properties; the other keeps its default."""
+    assert hero_art_custom_properties({"scrim": {"near": 0.4}}) == {
+        "--scrim-near": "0.40"
+    }
+
+
+def test_hero_art_custom_properties_mobile_background():
+    """Every mobile slot maps to its own property, with percent units added."""
+    props = hero_art_custom_properties(
+        {
+            "mobile_background": {
+                "size": "auto 96%",
+                "position": {"x": "80%", "y": "bottom"},
+                "sky": {"top": "#8dd3fa", "mid": "#a9dcf5", "bottom": "#bfe3f2"},
+                "fade": {"hold": 2, "clear": 24},
+            }
+        }
+    )
+    assert props == {
+        f"{HERO_MOBILE}-size": "auto 96%",
+        f"{HERO_MOBILE}-position-x": "80%",
+        f"{HERO_MOBILE}-position-y": "bottom",
+        f"{HERO_MOBILE}-sky-top": "#8dd3fa",
+        f"{HERO_MOBILE}-sky-mid": "#a9dcf5",
+        f"{HERO_MOBILE}-sky-bottom": "#bfe3f2",
+        f"{HERO_MOBILE}-fade-hold": "2%",
+        f"{HERO_MOBILE}-fade-clear": "24%",
+    }
+
+
+@pytest.mark.parametrize(
+    "entry",
+    [
+        # Anything that would close the declaration and start another one.
+        {"mobile_background": {"size": "auto 96%; background: url(x)"}},
+        {"mobile_background": {"position": {"x": '80%" onload=alert(1)'}}},
+        # Functions and keywords the grammar does not allow.
+        {"mobile_background": {"size": "url(x)"}},
+        {"mobile_background": {"size": "expression(1)"}},
+        # Colours have to be hex; named colours and rgb() are rejected.
+        {"mobile_background": {"sky": {"top": "red"}}},
+        {"mobile_background": {"sky": {"top": "rgb(1, 2, 3)"}}},
+        {"mobile_background": {"sky": {"top": "#8dd3f"}}},
+        # Valid words in the wrong property or on the wrong axis.
+        {"mobile_background": {"size": "center"}},
+        {"mobile_background": {"size": "-10%"}},
+        {"mobile_background": {"size": "cover cover"}},
+        {"mobile_background": {"position": {"x": "cover"}}},
+        {"mobile_background": {"position": {"x": "top"}}},
+        {"mobile_background": {"position": {"y": "left"}}},
+        # Scrim alphas outside 0-1, or not a number at all.
+        {"scrim": {"near": -0.1}},
+        {"scrim": {"mid": 1.5}},
+        {"scrim": {"near": float("nan")}},
+        {"scrim": {"near": float("inf")}},
+    ],
+)
+def test_hero_art_custom_properties_rejects_bad_values(entry):
+    """A bad entry fails here rather than reaching the style attribute."""
+    with pytest.raises(ValueError):
+        hero_art_custom_properties(entry)
+
+
+def test_hero_art_custom_properties_property_names_are_closed():
+    """Names come from this module, never from the data, so an entry cannot
+    invent a property. Unknown keys are ignored rather than passed through."""
+    props = hero_art_custom_properties(
+        {"mobile_background": {"size": "cover", "--evil": "1", "opacity": "0"}}
+    )
+    assert set(props) == {f"{HERO_MOBILE}-size"}
+
+
+def test_every_shipped_hero_art_entry_is_valid():
+    """Walk LIBRARY_HERO_ART itself, so a typo fails CI rather than a 500 in
+    production."""
+    from libraries.constants import LIBRARY_HERO_ART
+
+    for slug, art in LIBRARY_HERO_ART.items():
+        props = hero_art_custom_properties(art)
+        assert all(k.startswith("--") for k in props), slug
+        # Art is all-or-nothing: a background with no illustration would add the
+        # composite class and leave nothing to composite over it.
+        if art.get("background"):
+            assert art.get("illustration"), slug

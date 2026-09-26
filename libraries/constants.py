@@ -407,6 +407,13 @@ LIBRARY_GITHUB_URL_OVERRIDES = {
 # what is painted behind them. LibraryDetail passes it through as custom
 # properties so a new illustration stays a dict entry rather than a CSS rule; see
 # `--scrim-near` in heros.css. Omit it to take the shared ramp.
+#
+# "mobile_background" is optional and swaps in an alternate crop of the
+# background at widths up to 844px, for art whose subject does not survive a
+# narrow `cover` crop. "size" and "position" place it; "sky" is a three-stop
+# ramp filling what it leaves uncovered, and "fade" (percent of the block) is
+# where the top colour holds and clears over the artwork's cut top edge. See
+# `--hero-bg-library-mobile-size` in heros.css.
 # key: Library.slug
 LIBRARY_HERO_ART = {
     "beast": {
@@ -428,6 +435,23 @@ LIBRARY_HERO_ART = {
         # No mobile export: this figure is wide rather than tall, so a tighter
         # crop of it would scale to the same thing. Omitting the key drops the
         # <source> and uses the desktop image at every width.
+    },
+    "mqtt5": {
+        "background": "img/v3/library-heros/mqtt5-background.webp",
+        "illustration": "img/v3/library-heros/mqtt5.webp",
+        # Level: the shared rising ramp reads 2.96:1 over the sky here against
+        # the 3.0:1 the type needs; flat at 0.40 reads 3.31:1.
+        "scrim": {"near": 0.40, "mid": 0.40},
+        # In narrow frames the figure takes 38% of the width at 768 against 25%
+        # on desktop, so it is scaled down there.
+        "figure": {"narrow_scale": 0.8},
+        # Portrait crop with the roof and canopy the wide file clips, anchored
+        # to the bottom so the figure keeps the path under its feet.
+        "mobile_background": {
+            "image": "img/v3/library-heros/mqtt5-background-mobile.webp",
+            "position": {"x": "88%", "y": "bottom"},
+        },
+        # No illustration_mobile: the desktop figure is already a tight crop.
     },
     "pfr": {
         "background": "img/v3/library-heros/pfr-background.webp",
