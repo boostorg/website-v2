@@ -447,6 +447,10 @@ LIBRARY_HERO_ART = {
         "background": "img/v3/library-heros/regex-background.webp",
         "illustration": "img/v3/library-heros/regex.webp",
     },
+    "variant2": {
+        "background": "img/v3/library-heros/variant2-background.webp",
+        "illustration": "img/v3/library-heros/variant2.webp",
+    },
 }
 
 DEFAULT_LIBRARIES_LANDING_VIEW = "list"
