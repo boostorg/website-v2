@@ -196,6 +196,25 @@ def test_generate_library_docs_url_string_view():
         ("boost-1.110.0", "boost-1.99.0", "boost-1.120.0", True),
         # Case: Names are slugs
         ("boost_1_110_0", "boost_1_99_0", "boost_1_120_0", True),
+        # Special cases for master and develop
+        # Case: Develop is min, version is not master
+        ("boost_1_100_0", "develop", None, False),
+        # Case: Develop is min, version is master
+        ("master", "develop", None, True),
+        # Case: Master is min
+        ("boost_1_100_0", "master", None, False),
+        # Case: Develop is min
+        ("boost_1_100_0", "develop", None, False),
+        # Case: Develop is min, version is master
+        ("master", "develop", None, True),
+        # Case: Master is max, version is not master
+        ("boost_1_100_0", None, "master", True),
+        # Case: Master is max, version is master
+        ("master", None, "master", False),
+        # Case: Develop is max, version is not master or develop
+        ("boost_1_100_0", None, "develop", True),
+        # Case: Develop is max, version is master
+        ("master", None, "develop", False),
     ],
 )
 def test_version_within_range(version, min_version, max_version, expected):

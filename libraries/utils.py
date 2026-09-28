@@ -186,12 +186,51 @@ def version_within_range(
     follow the same format.
 
     Expects format `boost-1.84.0` or 'boost_1_84_0' (name or slug)
+
+    Special Cases:
+
+    'develop' and 'master' are also acceptable version strings.
+
+    'master' is newer than 'develop' which is newer than anything else.
     """
+
+    SPECIAL_CASES = ["master", "develop"]
+
+    def _test_special_case(case_name: str):
+        # nothing is newer than a special case, other than another special case
+        if min_version == case_name:
+            return False
+        # special is newer than everything except itself
+        if max_version == case_name:
+            if version == max_version:
+                return False
+            else:
+                return True
+        # A version of special case is newer than any min, but outside of any max
+        if version == case_name:
+            if min_version and not max_version and not version == min_version:
+                return True
+            else:
+                return False
+        return None
+
+    if (
+        version in SPECIAL_CASES
+        or max_version in SPECIAL_CASES
+        or min_version in SPECIAL_CASES
+    ):
+        # the logic for both special cases are the same, if we test for master first
+        value = _test_special_case("master")
+        if value is not None:
+            return value
+        else:
+            return _test_special_case("develop")
+
     # Strip trailing -number from patches
     version = re.sub("-\d+$", "", version, 1)
 
-    _name_re = re.compile("^boost-(\d+)\.(\d+)\.(\d+)$")
-    _slug_re = re.compile("^boost_(\d+)_(\d+)_(\d+)$")
+    _name_re = re.compile(r"^boost-(\d+)\.(\d+)\.(\d+)$")
+    _slug_re = re.compile(r"^boost_(\d+)_(\d+)_(\d+)$")
 
     def _parse_name(s: str):
         if parsed_name := _name_re.match(s):
