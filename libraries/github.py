@@ -518,6 +518,14 @@ class LibraryUpdater:
             .filter(library=library, version_array__gte=parsed_mv)
             .select_related("version")
         }
+        library_versions.update(
+            {
+                x.version.name: x
+                for x in LibraryVersion.objects.filter(
+                    library=library, version__name__in=["master", "develop"]
+                ).select_related("version")
+            }
+        )
         library_version_updates = []
 
         def handle_commit(commit: ParsedCommit):
@@ -591,8 +599,15 @@ class LibraryUpdater:
                     library_version__library=library,
                     version_array__gte=parsed_mv,
                 )
-                doomed_ids = list(doomed.values_list("pk", flat=True))
+                doomed_non_standard = Commit.objects.filter(
+                    library_version__library=library,
+                    library_version__version__name__in=["master", "develop"],
+                )
+                doomed_ids = list(doomed.values_list("pk", flat=True)) + list(
+                    doomed_non_standard.values_list("pk", flat=True)
+                )
                 doomed.delete()
+                doomed_non_standard.delete()
             Commit.objects.bulk_create(
                 commits,
                 update_conflicts=True,
