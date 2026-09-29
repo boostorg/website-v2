@@ -209,6 +209,8 @@ def test_generate_library_docs_url_string_view():
         ("master", "develop", None, True),
         # Case: Master is max, version is not master
         ("boost_1_100_0", None, "master", True),
+        # Case: Master is max, version is not master, but version is less than min
+        ("boost_1_90_0", "boost_1_100_0", "master", False),
         # Case: Master is max, version is master
         ("master", None, "master", False),
         # Case: Develop is max, version is not master or develop

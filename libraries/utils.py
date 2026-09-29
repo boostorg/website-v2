@@ -194,9 +194,16 @@ def version_within_range(
     'master' is newer than 'develop' which is newer than anything else.
     """
 
-    SPECIAL_CASES = ["master", "develop"]
+    SPECIAL_CASES = ("master", "develop")
 
     def _test_special_case(case_name: str):
+        """
+        Tests the "special" cases of master and develop. Returns three possible outcomes:
+
+        True - the value is definitely in the range, no more evaluation needed
+        False - the value is definitely outside the range, no more evaluation needed
+        None - no conclusion can be drawn from the case, continue evaluation
+        """
         # nothing is newer than a special case, other than another special case
         if min_version == case_name:
             return False
@@ -204,7 +211,7 @@ def version_within_range(
         if max_version == case_name:
             if version == max_version:
                 return False
-            else:
+            elif not min_version:
                 return True
         # A version of special case is newer than any min, but outside of any max
         if version == case_name:
@@ -220,11 +227,14 @@ def version_within_range(
         or min_version in SPECIAL_CASES
     ):
         # the logic for both special cases are the same, if we test for master first
-        value = _test_special_case("master")
-        if value is not None:
-            return value
-        else:
-            return _test_special_case("develop")
+        for case in SPECIAL_CASES:
+            value = _test_special_case(case)
+            if value is not None:
+                return value
+
+        # if a conclusion wasn't drawn, then we have a special case max and a normal min, so set
+        # max to none and perform normal evaluation
+        max_version = None
 
     # Strip trailing -number from patches
     version = re.sub("-\d+$", "", version, 1)
