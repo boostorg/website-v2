@@ -273,6 +273,67 @@ def test_docs_libs_gateway_404(tp, mock_get_file_data):
     tp.response_302(response)
 
 
+BETA_DOC_PATH = "1_83_0_beta1/libs/json/index.html"
+
+
+@pytest.fixture
+def s3_keys(monkeypatch):
+    """Records each S3 key fetched; every key holds an HTML page."""
+    keys = []
+
+    def get_file_data(client, bucket_name, s3_key):
+        keys.append(s3_key)
+        return {"content": b"<html></html>", "content_type": "text/html"}
+
+    monkeypatch.setattr("core.boostrenderer.get_file_data", get_file_data)
+    return keys
+
+
+@pytest.mark.parametrize(
+    "content_path",
+    [BETA_DOC_PATH, "1_56_0_b1/libs/json/index.html", "1_55_0b1/index.html"],
+)
+def test_docs_libs_404_for_a_beta_not_in_the_database(
+    tp, s3_keys, version, content_path
+):
+    """Superseded betas are deleted from the database; their docs are gone too.
+
+    The request is refused before any S3 lookup, so it stays cheap.
+    """
+    response = tp.get("docs-libs-page", content_path=content_path)
+
+    tp.response_404(response)
+    assert s3_keys == []
+
+
+def test_docs_libs_release_not_in_the_database_is_passed_through(tp, s3_keys, version):
+    """Only betas are checked against the database, so release docs skip the lookup."""
+    response = tp.get("docs-libs-page", content_path="1_80_0/libs/json/index.html")
+
+    tp.response_200(response)
+    assert s3_keys == ["/archives/boost_1_80_0/libs/json/index.html"]
+
+
+def test_docs_libs_200_for_a_beta_still_in_the_database(
+    tp, mock_get_file_data, version
+):
+    baker.make(
+        "versions.Version",
+        name="boost-1.83.0.beta1",
+        beta=True,
+        full_release=False,
+        fully_imported=True,
+    )
+    mock_get_file_data(
+        b"<html><body><p>Beta docs.</p></body></html>", f"boost_{BETA_DOC_PATH}"
+    )
+
+    response = tp.get("docs-libs-page", content_path=BETA_DOC_PATH)
+
+    tp.response_200(response)
+    tp.assertResponseContains("Beta docs.", response, html=False)
+
+
 @pytest.mark.skip(reason="Redirects broke these tests.")
 def test_docs_libs_gateway_200_non_html(tp, mock_get_file_data):
     s3_content = b"Content does not matter"

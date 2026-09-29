@@ -21,7 +21,7 @@ from libraries.models import (
     LibraryVersion,
 )
 from libraries.path_matcher.utils import determine_latest_url
-from libraries.utils import patch_commit_authors
+from libraries.utils import get_version_for_docs_path, patch_commit_authors
 from versions.models import Version
 
 logger = structlog.get_logger()
@@ -65,14 +65,7 @@ class VersionAlertMixin:
             #  1_90_beta1 so we need to retrieve and set the selected_version
             #  specifically for this use, db slug = "boost-1-90-0-beta1"
             # path_slug = 1_90_beta1
-            path_slug = content_path.split("/")[0]
-            if path_slug == LATEST_RELEASE_URL_PATH_STR:
-                context["selected_version"] = Version.objects.most_recent()
-            elif path_slug in ("master", "develop"):
-                context["selected_version"] = Version.objects.get(slug=path_slug)
-            else:
-                version_slug = f"boost-{path_slug.replace('_', '-')}"
-                context["selected_version"] = Version.objects.get(slug=version_slug)
+            context["selected_version"] = get_version_for_docs_path(content_path)
             # end of hack
             current_version_kwargs.update(
                 {

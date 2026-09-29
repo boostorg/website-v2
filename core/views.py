@@ -57,6 +57,7 @@ from libraries.utils import (
     generate_canonical_library_uri,
     get_prioritized_library_view,
     get_prioritized_version,
+    get_version_for_docs_path,
     set_selected_boost_version,
     modernize_boost_slug,
     designed_for_html,
@@ -85,6 +86,7 @@ from .constants import (
     SourceDocType,
     BOOST_LIB_PATH_RE,
     BOOST_VERSION_REGEX,
+    DOCS_BETA_VERSION_PATH_RE,
     SLACK_MEMBER_COUNT,
     STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES,
 )
@@ -1018,6 +1020,13 @@ class DocLibsTemplateView(VersionAlertMixin, BaseStaticContentTemplateView):
         """Return content from database (cache) or S3."""
         # For now at least we're only going to cache docs this way, user guides and
         #  will continue to be cached as they were
+
+        # Superseded betas are deleted from the database. Only beta paths are
+        #  checked, so release docs don't pay for the lookup.
+        if DOCS_BETA_VERSION_PATH_RE.match(
+            content_path
+        ) and not get_version_for_docs_path(content_path):
+            raise ContentNotFoundException("Version not found")
 
         result = None
         if ENABLE_DB_CACHE:
