@@ -506,11 +506,17 @@ class LibraryUpdater:
         """Import a record of all commits between LibraryVersions."""
         authors = {}
         commits = []
+        min_version_re = re.compile(r"^boost-(\d+)\.(\d+)\.(\d+)$")
+        # Tuple in the form of (major, minor, patch)
+        if match := min_version_re.match(min_version):
+            parsed_mv = match.groups()
+        else:
+            parsed_mv = []
         library_versions = {
             x.version.name: x
-            for x in LibraryVersion.objects.filter(
-                library=library, version__name__gte=min_version
-            ).select_related("version")
+            for x in LibraryVersion.objects.with_version_split()
+            .filter(library=library, version_array__gte=parsed_mv)
+            .select_related("version")
         }
         library_version_updates = []
 
@@ -581,9 +587,9 @@ class LibraryUpdater:
                 # Unscoped, a run with a floor deletes the whole library and
                 # rebuilds only the top of it, and the commits below the floor
                 # are gone from the table until someone runs a full import.
-                doomed = Commit.objects.filter(
+                doomed = Commit.objects.with_version_split().filter(
                     library_version__library=library,
-                    library_version__version__name__gte=min_version,
+                    version_array__gte=parsed_mv,
                 )
                 doomed_ids = list(doomed.values_list("pk", flat=True))
                 doomed.delete()
