@@ -218,6 +218,8 @@ def test_generate_library_docs_url_string_view():
         ("boost_1_100_0", None, "develop", True),
         # Case: Develop is max, version is master
         ("master", None, "develop", False),
+        # Case: master is max, develop is version, and we set a minimum
+        ("develop", "boost_1_90_0", "master", True),
     ],
 )
 def test_version_within_range(version, min_version, max_version, expected):

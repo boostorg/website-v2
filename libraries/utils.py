@@ -211,6 +211,9 @@ def version_within_range(
         if max_version == case_name:
             if version == max_version:
                 return False
+            # covers the case that max = master and version = develop
+            elif version in SPECIAL_CASES and min_version not in SPECIAL_CASES:
+                return True
             elif not min_version:
                 return True
         # A version of special case is newer than any min, but outside of any max
