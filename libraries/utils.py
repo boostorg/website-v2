@@ -299,6 +299,19 @@ def modernize_boost_slug(version_slug: str) -> str:
     return f"boost-{rejoined_slug}"
 
 
+def get_version_for_docs_path(content_path: str) -> Version | None:
+    """Return the Version a /doc/libs/ content path belongs to, or None.
+
+    e.g. "1_90_0_beta1/libs/json/index.html" -> Version "boost-1-90-0-beta1"
+    """
+    path_slug = content_path.split("/", 1)[0]
+    if path_slug == LATEST_RELEASE_URL_PATH_STR:
+        return Version.objects.most_recent()
+    if path_slug in (MASTER_RELEASE_URL_PATH_STR, DEVELOP_RELEASE_URL_PATH_STR):
+        return Version.objects.filter(slug=path_slug).first()
+    return Version.objects.filter(slug=modernize_boost_slug(path_slug)).first()
+
+
 def set_selected_boost_version(version_slug: str, response) -> None:
     """Update the selected version in the cookies."""
     versions_kwargs = {}
