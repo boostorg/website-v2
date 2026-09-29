@@ -3,6 +3,8 @@ from datetime import date
 from django.db import models
 from django.db.models import Q, Count
 
+from versions.managers import VersionArrayMixin
+
 from libraries.bots import is_bot_name
 
 
@@ -24,6 +26,22 @@ CommitAuthorManager = models.Manager.from_queryset(CommitAuthorQuerySet)
 class HumanCommitAuthorManager(CommitAuthorManager):
     def get_queryset(self):
         return super().get_queryset().exclude_bots()
+
+
+class LibraryVersionQueryset(VersionArrayMixin):
+    _version_field_name = "version__name"
+    _version_field_beta = "version__beta"
+
+
+LibraryVersionManager = models.Manager.from_queryset(LibraryVersionQueryset)
+
+
+class CommitQueryset(VersionArrayMixin):
+    _version_field_name = "library_version__version__name"
+    _version_field_beta = "library_version__version__beta"
+
+
+CommitManager = models.Manager.from_queryset(CommitQueryset)
 
 
 class IssueQuerySet(models.QuerySet):
