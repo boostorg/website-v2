@@ -2,6 +2,9 @@
 
 {% block title %}Server Error{% endblock %}
 
+{# Django renders this page without a request, which the widget needs. #}
+{% block feedback_widget %}{% endblock %}
+
 {% block content_wrapper %}
 <div class="flex justify-center items-center mb-4 bg-red-600">
     <h1 class="m-10 text-5xl text-white">500 - Server Error</h1>

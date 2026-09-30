@@ -20,6 +20,7 @@ from django.db import transaction
 from django.template import Context, Template
 from django.test import Client
 from django.urls import reverse
+from django.views.defaults import server_error
 from PIL import Image
 
 from feedback.diagnostics import RING_BUFFER_LIMIT, recent_server_errors
@@ -554,6 +555,21 @@ def test_a_submission_without_a_token_is_refused(url, payload):
 
     assert response.status_code == 403
     assert not Feedback.objects.exists()
+
+
+def test_the_server_error_page_renders_without_the_widget(rf):
+    """Django renders 500.html with no request in the context, so the widget
+    must stay off it or the error page itself raises."""
+    response = server_error(rf.get("/"))
+
+    assert response.status_code == 500
+    assert 'class="feedback-widget"' not in response.content.decode()
+
+
+def test_a_page_rendered_without_a_request_omits_the_widget():
+    html = Template('{% extends "base.html" %}').render(Context())
+
+    assert 'class="feedback-widget"' not in html
 
 
 def test_widget_is_suppressed_on_the_standalone_form(client, url):
