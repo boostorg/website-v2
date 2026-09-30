@@ -292,6 +292,30 @@ def test_doc_libs_version_redirect(tp):
     assert response["Location"] == "/libraries/"
 
 
+@pytest.mark.parametrize(
+    "filename,content_type,sets_cookie",
+    [
+        ("index.html", "text/html", True),
+        ("logo.png", "image/png", False),
+        ("style.css", "text/css; charset=utf-8", False),
+    ],
+)
+def test_docs_libs_sets_the_version_cookie_on_pages_only(
+    client, mock_get_file_data, version, filename, content_type, sets_cookie
+):
+    """A page's images and CSS don't repeat the cookie the page itself sets."""
+    mock_get_file_data(
+        b"<html></html>",
+        f"boost_1_79_0/libs/json/{filename}",
+        content_type=content_type,
+    )
+
+    response = client.get(f"/doc/libs/1_79_0/libs/json/{filename}")
+
+    assert response.status_code == 200
+    assert (SELECTED_BOOST_VERSION_COOKIE_NAME in response.cookies) is sets_cookie
+
+
 @pytest.mark.skip(reason="Currently not using iframes for libs docs.")
 def test_docs_libs_gateway_200_lib_number_iframe(
     tp, mock_get_file_data, mock_get_leaf_data
