@@ -42,6 +42,8 @@ spec:
 {{ toYaml .Values.VolumeMounts | indent 12 }}
           env:
 {{ toYaml .Values.Env | indent 12 }}
+            - name: GUNICORN_WORKERS
+              value: {{ .Values.gunicornWorkers | quote }}
           ports:
             -
               protocol: TCP

@@ -9,7 +9,9 @@ spec:
   - resource:
       name: cpu
       target:
-        averageUtilization: 25
+        # Percent of the pod's CPU request. Each gunicorn worker uses at most
+        # one core, so keep this in step with gunicornWorkers and wsgiResources.
+        averageUtilization: 40
         type: Utilization
     type: Resource
   scaleTargetRef:

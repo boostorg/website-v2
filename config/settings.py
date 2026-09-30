@@ -258,7 +258,7 @@ except (ImproperlyConfigured, environs.EnvError):
             "PORT": env.int("PGPORT", default=5432),
             "USER": env("PGUSER"),
             "CONN_MAX_AGE": 0,
-            "OPTIONS": {"MAX_CONNS": env("MAX_CONNECTIONS", default=20)},
+            "OPTIONS": {"MAX_CONNS": env.int("MAX_CONNECTIONS", default=20)},
         },
         "hyperkitty": {
             "ENGINE": "django_db_geventpool.backends.postgresql_psycopg2",
@@ -268,7 +268,8 @@ except (ImproperlyConfigured, environs.EnvError):
             "PORT": env.int("PGPORT", default=5432),
             "USER": env("PGUSER"),
             "CONN_MAX_AGE": 0,
-            "OPTIONS": {"MAX_CONNS": env("MAX_CONNECTIONS", default=20)},
+            # Web requests only read this database from the ListPosting admin.
+            "OPTIONS": {"MAX_CONNS": 3},
         },
     }
 

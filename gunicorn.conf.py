@@ -8,7 +8,7 @@ BASE_DIR = os.environ["H"] if os.environ.get("H", None) else "/code"
 accesslog = "-"
 bind = "unix:/run/gunicorn.sock"
 log_level = "INFO"
-workers = 1
+workers = int(os.environ.get("GUNICORN_WORKERS") or 1)
 
 worker_class = "gevent"
 keepalive = 32
