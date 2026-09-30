@@ -186,6 +186,11 @@ Env:
   - name: ENABLE_DB_CACHE
     value: "true"
 
+# robots.txt is served by the nginx pod (see configmap-robots.yaml).
+robotsTxt: |
+  User-agent: *
+  Disallow: /
+
 # Volumes
 Volumes:
   - name: run
