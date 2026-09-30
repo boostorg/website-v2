@@ -44,7 +44,11 @@ from core.forms import WysiwygImageUploadForm
 from news.services import get_latest_post_cards
 from core.templatetags.custom_static import large_static
 from config.settings import ENABLE_DB_CACHE
-from libraries.constants import LATEST_RELEASE_URL_PATH_STR
+from libraries.constants import (
+    DEVELOP_RELEASE_URL_PATH_STR,
+    LATEST_RELEASE_URL_PATH_STR,
+    MASTER_RELEASE_URL_PATH_STR,
+)
 from libraries.mixins import VersionAlertMixin
 from libraries.utils import (
     legacy_path_transform,
@@ -931,8 +935,13 @@ class DocLibsTemplateView(VersionAlertMixin, BaseStaticContentTemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
-        old_version_slug = self.kwargs.get("content_path").split("/", 1)[0]
-        version_slug = modernize_boost_slug(old_version_slug)
+        version_slug = self.kwargs.get("content_path").split("/", 1)[0]
+        if version_slug not in (
+            LATEST_RELEASE_URL_PATH_STR,
+            MASTER_RELEASE_URL_PATH_STR,
+            DEVELOP_RELEASE_URL_PATH_STR,
+        ):
+            version_slug = modernize_boost_slug(version_slug)
         set_selected_boost_version(version_slug, response)
         return response
 
