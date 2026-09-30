@@ -210,6 +210,12 @@ def test_library_list_select_category(library_version, category, tp):
     assert new_lib_version not in res.context["object_list"]
 
 
+@pytest.mark.parametrize("view_str", ["list", "grid", "categorized"])
+def test_library_list_unknown_category_is_404(library_version, tp, view_str):
+    res = tp.get(f"/libraries/latest/{view_str}/None/")
+    tp.response_404(res)
+
+
 @pytest.mark.skip(
     reason="This test is failing due to the way the library list is being filtered"
 )
