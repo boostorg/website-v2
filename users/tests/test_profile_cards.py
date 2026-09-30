@@ -1,9 +1,13 @@
 from datetime import timedelta
 from unittest.mock import patch
+import pytest
 
 from django.core.cache import cache
 from django.utils import timezone
 from model_bakery import baker
+
+from libraries.models import CommitAuthor, CommitAuthorEmail
+from mailing_list.models import ListPosting
 
 from users.constants import (
     GITHUB_ACTIVITY_POLL_MAX_ATTEMPTS,
@@ -363,13 +367,29 @@ def test_mailing_list_card_is_withheld_when_hidden(user, db):
     assert mailing_list_activity_card_context(user) is None
 
 
+@pytest.mark.django_db(databases=["default", "hyperkitty"])
 def test_mailing_list_card_is_offered_when_not_hidden(user, db):
+    test_email = "example@example.com"
+    ca = baker.make(CommitAuthor, user=user)
+    baker.make(
+        CommitAuthorEmail,
+        author=ca,
+        email=test_email,
+    )
+
+    for i in range(1, 6):
+        ListPosting.objects.create(
+            id=i,
+            date=timezone.now(),
+            sender_id=test_email,
+            subject="Test",
+            thread_id=12345,
+        )
+
     context = mailing_list_activity_card_context(user)
 
     assert context is not None
-    # TODO: Make sure to retrieve mailing_list_items once data is
-    # available.
-    assert context["mailing_list_items"] == []
+    assert len(context["mailing_list_items"]) == 5
 
 
 def test_mailing_list_card_reaches_its_owner_while_hidden(user, db):
