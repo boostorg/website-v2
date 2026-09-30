@@ -11,6 +11,9 @@ boostLatestRelease: "master"
 
 replicaCount: "2"
 
+# Processes per pod. Each uses at most one core, and has its own database pool.
+gunicornWorkers: 1
+
 wsgiResources:
   limits:
     cpu: "1"

@@ -11,15 +11,28 @@ boostLatestRelease: "master"
 
 replicaCount: "2"
 
+# Processes per pod. Each uses at most one core, and has its own database pool.
+gunicornWorkers: 2
+
 wsgiResources:
   limits:
-    cpu: "1"
+    cpu: "2500m"
     ephemeral-storage: 1Gi
-    memory: 2Gi
+    memory: 2500Mi
   requests:
-    cpu: "1"
+    cpu: "2500m"
     ephemeral-storage: 1Gi
-    memory: 2Gi
+    memory: 2500Mi
+
+# wsgiResources:
+#   limits:
+#     cpu: "1"
+#     ephemeral-storage: 1Gi
+#     memory: 2Gi
+#   requests:
+#     cpu: "1"
+#     ephemeral-storage: 1Gi
+#     memory: 2Gi
 
 ## NOTE ##
 # set publcFqdn to the target domain. `www` will be prepended to the domain
