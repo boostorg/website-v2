@@ -5,8 +5,10 @@ from django.core.cache import caches
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.http import Http404
+from model_bakery import baker
 
 from core.views import StaticContentTemplateView
+from libraries.constants import SELECTED_BOOST_VERSION_COOKIE_NAME
 
 TEST_CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
@@ -599,3 +601,36 @@ def test_static_content_context_defers_the_header_auth_state(request_factory):
     view.content_dict = {"content": b"= Title", "content_type": "text/asciidoc"}
 
     assert view.get_context_data()["defer_auth_state"] is True
+
+
+@pytest.mark.parametrize(
+    "path_version,s3_version,cookie",
+    [("1_79_0", "boost_1_79_0", "boost-1-79-0"), ("master", "master", "master")],
+)
+def test_docs_libs_sets_the_selected_version_cookie(
+    client, mock_get_file_data, version, path_version, s3_version, cookie
+):
+    baker.make(
+        "versions.Version", name="master", full_release=False, fully_imported=True
+    )
+    mock_get_file_data(b"<html></html>", f"{s3_version}/libs/json/index.html")
+
+    response = client.get(f"/doc/libs/{path_version}/libs/json/index.html")
+
+    assert response.status_code == 200
+    assert response.cookies[SELECTED_BOOST_VERSION_COOKIE_NAME].value == cookie
+
+
+def test_docs_libs_latest_clears_the_selected_version_cookie(
+    client, mock_get_file_data, version
+):
+    """Following an old page's link to the latest docs puts the site back on latest."""
+    mock_get_file_data(b"<html></html>", "boost_1_79_0/libs/json/index.html")
+    client.cookies[SELECTED_BOOST_VERSION_COOKIE_NAME] = "boost-1-78-0"
+
+    response = client.get("/doc/libs/latest/libs/json/index.html")
+
+    assert response.status_code == 200
+    cleared = response.cookies[SELECTED_BOOST_VERSION_COOKIE_NAME]
+    assert cleared.value == ""
+    assert cleared["max-age"] == 0
