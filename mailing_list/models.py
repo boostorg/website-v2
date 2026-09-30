@@ -101,7 +101,7 @@ class ListPosting(models.Model):
 
     @property
     def thread_url(self):
-        thread = ListThreads.objects.get(id=self.thread_id)
+        thread = ListThread.objects.get(id=self.thread_id)
         return f"https://lists.boost.org/archives/list/boost@lists.boost.org/thread/{thread.thread_id}/"
 
     objects = ListPostingManager()
@@ -111,9 +111,16 @@ class ListPosting(models.Model):
         db_table = "hyperkitty_email"
 
 
-class ListThreads(models.Model):
+class ListThreadManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().using("hyperkitty")
+
+
+class ListThread(models.Model):
     id = models.IntegerField(primary_key=True, blank=False, null=False)
     thread_id = models.CharField(blank=False, null=False)
+
+    objects = ListThreadManager()
 
     class Meta:
         managed = False
