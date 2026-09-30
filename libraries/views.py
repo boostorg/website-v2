@@ -408,8 +408,8 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         context["categories"] = self.get_categories(context["selected_version"])
         # todo: add tests for sort order
         if self.kwargs.get("category_slug"):
-            context["category"] = Category.objects.get(
-                slug=self.kwargs.get("category_slug")
+            context["category"] = get_object_or_404(
+                Category, slug=self.kwargs.get("category_slug")
             )
 
         return context
