@@ -237,6 +237,11 @@ Env:
   - name: WAGTAILADMIN_BASE_URL
     value: https://www.boost.org
 
+# robots.txt is served by the nginx pod (see configmap-robots.yaml).
+robotsTxt: |
+  User-agent: *
+  Disallow:
+
 # Volumes
 Volumes:
   - name: run

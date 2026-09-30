@@ -30,6 +30,9 @@ spec:
       {{- end }}
       volumes:
 {{ toYaml .Values.Volumes | indent 8 }}
+        - name: robots
+          configMap:
+            name: nginx-robots--boost
       # imagePullSecrets:
       #  - name: revsys-docker-registry
       containers:
@@ -59,6 +62,9 @@ spec:
             -
               name: ngx
               mountPath: /etc/nginx/conf.d
+            -
+              name: robots
+              mountPath: /etc/nginx/robots.d
 {{ toYaml .Values.NginxVolumeMounts | indent 12 }}
           env:
 {{ toYaml .Values.Env | indent 12 }}
