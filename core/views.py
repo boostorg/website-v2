@@ -942,6 +942,9 @@ class DocLibsTemplateView(VersionAlertMixin, BaseStaticContentTemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
+        # The page sets the cookie, so its images and CSS needn't repeat it.
+        if not response.get("Content-Type", "").startswith("text/html"):
+            return response
         version_slug = self.kwargs.get("content_path").split("/", 1)[0]
         if version_slug not in (
             LATEST_RELEASE_URL_PATH_STR,
