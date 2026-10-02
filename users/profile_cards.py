@@ -4,9 +4,13 @@ from urllib.parse import quote
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
+
+from mailing_list.models import ListPosting
 
 from users.constants import (
     GITHUB_ACTIVITY_CARD_TITLE,
@@ -214,7 +218,23 @@ def mailing_list_activity_card_context(user, include_hidden=False):
     if user.hide_mailing_list_activity and not include_hidden:
         return None
 
+    User = get_user_model()
+    emails = (
+        User.objects.filter(is_active=True, pk=user.pk)
+        .prefetch_related("commitauthor_set__commitauthoremail_set")
+        .first()
+        .commitauthor_set.all()
+        .aggregate(emails=ArrayAgg("commitauthoremail__email"))
+        .get("emails", [])
+    )
+
+    if not isinstance(emails, list):
+        emails = []
+
     return {
         "title": MAILING_LIST_ACTIVITY_CARD_TITLE,
-        "mailing_list_items": [],
+        "mailing_list_items": ListPosting.objects.filter(sender_id__in=emails).order_by(
+            "-date"
+        )[:5],
+        "primary_button_url": "https://lists.boost.org/archives/list/boost@lists.boost.org/latest",
     }
