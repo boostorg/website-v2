@@ -14,7 +14,8 @@ from wagtail.admin.forms.models import WagtailAdminModelForm
 from wagtail.admin.panels import FieldPanel
 from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
 
-from libraries.path_matcher.utils import determine_latest_url
+from libraries.path_matcher import PathMatchResult
+from libraries.path_matcher.utils import get_path_match_from_chain
 from versions.models import Version
 from .managers import PopularSearchTermManager, RenderedContentManager
 
@@ -86,20 +87,25 @@ class RenderedContent(TimeStampedModel):
 
     @property
     def latest_path(self) -> str | None:
+        return self.latest_path_match().latest_path
+
+    def latest_path_match(self) -> PathMatchResult:
         indicator = self.latest_path_matched_indicator
         if indicator == LatestPathMatchIndicator.DIRECT_MATCH:
-            return re.sub(
-                r"static_content_[\d_]+/(?P<content_path>[^/]\S+)",
-                "doc/libs/latest/\g<content_path>",
+            latest_path = re.sub(
+                r"static_content_[^/]+/(?P<content_path>[^/]\S+)",
+                r"doc/libs/latest/\g<content_path>",
                 self.cache_key,
             )
-        elif indicator == LatestPathMatchIndicator.CUSTOM_MATCH:
-            return self.latest_docs_path
-        elif indicator == LatestPathMatchIndicator.UNDETERMINED:
-            return determine_latest_url(
-                self.cache_key.replace("static_content_", ""),
-                Version.objects.most_recent(),
+            return PathMatchResult(True, latest_path, self.latest_path_match_class)
+        if indicator == LatestPathMatchIndicator.CUSTOM_MATCH:
+            return PathMatchResult(
+                False, self.latest_docs_path, self.latest_path_match_class
             )
+        return get_path_match_from_chain(
+            self.cache_key.replace("static_content_", ""),
+            Version.objects.most_recent(),
+        )
 
     def save(self, *args, **kwargs):
         if isinstance(self.content_original, bytes):

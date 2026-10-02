@@ -321,14 +321,10 @@ def library_doc_latest_transform(url):
     return url
 
 
-def generate_canonical_library_uri(uri):
-    matches = re.match(
-        r"https?://(?P<domainpath>[^/]+(?:/[^/]+){2}/?)(?P<version>[^/]+)(?P<docpath>/[\S]+)",
-        uri,
-    )
-    if matches.group("version") == LATEST_RELEASE_URL_PATH_STR:
-        return uri
-    return f"https://{matches.group('domainpath')}{LATEST_RELEASE_URL_PATH_STR}{matches.group('docpath')}"
+def build_canonical_uri(request, path: str) -> str:
+    # The pods are reached over http behind the load balancer, so
+    # request.build_absolute_uri() would give an http link.
+    return f"https://{request.get_host()}{path}"
 
 
 def get_documentation_url(library_version, latest):

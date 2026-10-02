@@ -1,12 +1,16 @@
 from unittest.mock import patch
 
 import pytest
+from bs4 import BeautifulSoup
 from django.core.cache import caches
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.http import Http404
+from model_bakery import baker
 
+from core.models import LatestPathMatchIndicator
 from core.views import StaticContentTemplateView
+from libraries.path_matcher import BasePathMatcher
 
 TEST_CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
@@ -599,3 +603,198 @@ def test_static_content_context_defers_the_header_auth_state(request_factory):
     view.content_dict = {"content": b"= Title", "content_type": "text/asciidoc"}
 
     assert view.get_context_data()["defer_auth_state"] is True
+
+
+DOCS_HTML = b"""<html><head><title>Doc</title></head>
+<body><div id="content"><p>Hello docs</p></div></body></html>"""
+
+
+def canonical_hrefs(response):
+    soup = BeautifulSoup(response.content, "html.parser")
+    return [link["href"] for link in soup.find_all("link", rel="canonical")]
+
+
+@pytest.fixture
+def docs_versions(version):
+    # boost-1.89.0 is the latest release.
+    for name in ("1.86.0", "1.89.0"):
+        baker.make(
+            "versions.Version",
+            name=f"boost-{name}",
+            slug=f"boost-{name.replace('.', '-')}",
+            fully_imported=True,
+        )
+
+
+def get_docs_page(tp, monkeypatch, content_path, latest_pages=()):
+    """Request a docs page, where `latest_pages` are the content paths that exist
+    in the latest release."""
+    latest_keys = {f"static_content_1_89_0/{page}" for page in latest_pages}
+    monkeypatch.setattr(
+        BasePathMatcher, "confirm_db_path_exists", lambda self, path: False
+    )
+    monkeypatch.setattr(
+        BasePathMatcher,
+        "confirm_s3_path_exists",
+        lambda self, path: path in latest_keys,
+    )
+    with patch(
+        "core.views.get_content_from_s3",
+        return_value={"content": DOCS_HTML, "content_type": "text/html"},
+    ), patch("core.views.ENABLE_DB_CACHE", False):
+        return tp.get("docs-libs-page", content_path=content_path)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "library_path",
+    [
+        "libs/algorithm/doc/html/index.html",
+        # No-process libs get the link inserted into their own HTML.
+        "libs/hana/doc/html/index.html",
+    ],
+)
+def test_docs_libs_older_version_is_canonical_to_the_same_latest_page(
+    tp, monkeypatch, docs_versions, library_path
+):
+    response = get_docs_page(
+        tp, monkeypatch, f"1_86_0/{library_path}", latest_pages=[library_path]
+    )
+
+    tp.response_200(response)
+    assert canonical_hrefs(response) == [
+        f"https://testserver/doc/libs/latest/{library_path}"
+    ]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("branch", ["develop", "master"])
+def test_docs_libs_branch_page_links_to_the_same_latest_page(
+    tp, monkeypatch, docs_versions, branch
+):
+    baker.make(
+        "versions.Version",
+        name=branch,
+        slug=branch,
+        fully_imported=True,
+        full_release=False,
+        beta=False,
+    )
+    page = "libs/json/doc/html/json/dom/numbers.html"
+    response = get_docs_page(tp, monkeypatch, f"{branch}/{page}", latest_pages=[page])
+
+    tp.response_200(response)
+    assert response.context["version_alert_url"] == f"/doc/libs/latest/{page}"
+    assert canonical_hrefs(response) == [f"https://testserver/doc/libs/latest/{page}"]
+
+
+@pytest.mark.django_db
+def test_docs_libs_fully_modernized_page_is_canonical_to_latest(
+    tp, monkeypatch, docs_versions
+):
+    page = "libs/charconv/doc/html/charconv.html"
+    response = get_docs_page(tp, monkeypatch, f"1_89_0/{page}", latest_pages=[page])
+
+    tp.response_200(response)
+    assert canonical_hrefs(response) == [f"https://testserver/doc/libs/latest/{page}"]
+
+
+@pytest.mark.django_db
+def test_docs_libs_moved_page_is_canonical_to_where_it_moved(
+    tp, monkeypatch, docs_versions
+):
+    response = get_docs_page(
+        tp,
+        monkeypatch,
+        "1_86_0/libs/url/doc/html/url/urls/segments.html",
+        latest_pages=["doc/antora/url/urls/segments.html"],
+    )
+
+    tp.response_200(response)
+    assert canonical_hrefs(response) == [
+        "https://testserver/doc/libs/latest/doc/antora/url/urls/segments.html"
+    ]
+    assert canonical_hrefs(response)[0].endswith(response.context["version_alert_url"])
+
+
+@pytest.mark.django_db
+def test_docs_libs_index_fallback_has_alert_link_but_no_canonical_link(
+    tp, monkeypatch, docs_versions
+):
+    response = get_docs_page(
+        tp, monkeypatch, "1_86_0/libs/algorithm/doc/html/removed_page.html"
+    )
+
+    tp.response_200(response)
+    assert canonical_hrefs(response) == []
+    assert (
+        response.context["version_alert_url"]
+        == "/doc/libs/latest/libs/algorithm/index.html"
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "rendered_content,expected_canonical",
+    [
+        (
+            {
+                "latest_path_matched_indicator": LatestPathMatchIndicator.DIRECT_MATCH,
+                "latest_path_match_class": "DirectMatcher",
+            },
+            "https://testserver/doc/libs/latest/libs/algorithm/doc/html/index.html",
+        ),
+        (
+            {
+                "latest_path_matched_indicator": LatestPathMatchIndicator.CUSTOM_MATCH,
+                "latest_docs_path": "doc/libs/latest/doc/antora/algorithm/index.html",
+                "latest_path_match_class": "LibsToAntoraPathDirectMatcher",
+            },
+            "https://testserver/doc/libs/latest/doc/antora/algorithm/index.html",
+        ),
+        (
+            {
+                "latest_path_matched_indicator": LatestPathMatchIndicator.CUSTOM_MATCH,
+                "latest_docs_path": "doc/libs/latest/libs/algorithm/index.html",
+                "latest_path_match_class": "LibsPathToLatestFallbackMatcher",
+            },
+            None,
+        ),
+    ],
+)
+def test_docs_libs_canonical_link_uses_the_stored_match(
+    tp, monkeypatch, docs_versions, rendered_content, expected_canonical
+):
+    content_path = "1_86_0/libs/algorithm/doc/html/index.html"
+    baker.make(
+        "core.RenderedContent",
+        cache_key=f"static_content_{content_path}",
+        **rendered_content,
+    )
+    s3_checks = []
+    monkeypatch.setattr(
+        BasePathMatcher,
+        "confirm_s3_path_exists",
+        lambda self, path: s3_checks.append(path),
+    )
+
+    with patch(
+        "core.views.get_content_from_s3",
+        return_value={"content": DOCS_HTML, "content_type": "text/html"},
+    ), patch("core.views.ENABLE_DB_CACHE", False):
+        response = tp.get("docs-libs-page", content_path=content_path)
+
+    tp.response_200(response)
+    assert canonical_hrefs(response) == (
+        [expected_canonical] if expected_canonical else []
+    )
+    assert s3_checks == []
+
+
+@pytest.mark.django_db
+def test_docs_libs_latest_has_no_canonical_link(tp, monkeypatch, docs_versions):
+    page = "libs/algorithm/doc/html/index.html"
+    response = get_docs_page(tp, monkeypatch, f"latest/{page}", latest_pages=[page])
+
+    tp.response_200(response)
+    assert canonical_hrefs(response) == []
