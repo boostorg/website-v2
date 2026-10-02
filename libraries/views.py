@@ -290,16 +290,16 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "width": "narrow",
                 "deselectable": True,
             },
-            # {
-            #     "type": "dropdown",
-            #     "name": "max_cpp",
-            #     "label": "Max. C++ Version",
-            #     "options": cpp_options,
-            #     "selected": request_get.get("max_cpp", "all"),
-            #     "default": "all",
-            #     "width": "narrow",
-            #     "deselectable": True,
-            # },
+            {
+                "type": "dropdown",
+                "name": "max_cpp",
+                "label": "Max. C++ Version",
+                "options": cpp_options,
+                "selected": request_get.get("max_cpp", "all"),
+                "default": "all",
+                "width": "narrow",
+                "deselectable": True,
+            },
             {
                 "type": "combo_multi",
                 "name": "category",
@@ -361,6 +361,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
             }
             for lv in (queryset or [])
         ]
+        print(context.get("library_dataset"))
         context["library_search_query"] = self.request.GET.get("q", "")
         return context
 

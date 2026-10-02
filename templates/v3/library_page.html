@@ -74,6 +74,7 @@ Inputs:
         { key: '17', year: 2017, label: 'C++17' },
         { key: '20', year: 2020, label: 'C++20' },
         { key: '23', year: 2023, label: 'C++23' },
+        { key: '26', year: 2026, label: 'C++26' },
       ];
       const CPP_OPTION_VALUES = CPP_STANDARDS.map((s) => s.key);
       const CPP_LABEL_MAP = Object.fromEntries(
@@ -348,7 +349,8 @@ Inputs:
           if (this.searchHits && !this.searchHits.has(data.slug)) return false;
           if (this.grading !== 'all' && data.tier !== this.grading) return false;
           // Overlap filter: reject only when the library range falls entirely outside the filter range.
-          if (this.minCpp !== 'all' && data.cpp_min && cppRank(data.cpp_min) >= cppRank(this.minCpp)) return false;
+          if (this.minCpp !== 'all' && data.cpp_min && cppRank(data.cpp_min) > cppRank(this.minCpp)) return false;
+          if (this.maxCpp !== 'all' && data.cpp_max && cppRank(data.cpp_max) < cppRank(this.maxCpp)) return false;
           if (this.categories.length > 0) {
             const hit = data.category_slugs.some((s) => this.categories.includes(s));
             if (!hit) return false;
@@ -430,10 +432,11 @@ Inputs:
           <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Category</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Author</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div class="library-page__list-header-flex library-page__list-header-justify"><span class="library-page__list-header-text">Min. C++ Version</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
+          <div class="library-page__list-header-flex library-page__list-header-justify"><span class="library-page__list-header-text">Max. C++ Version</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div class="library-page__list-header-flex library-page__list-header-justify"><span class="library-page__list-header-text">Docs</span></div>
         </li>
         {% for item in object_list %}
-          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url description=item.description categories=item.library.category_tags min_cpp_version=item.get_cpp_standard_minimum_display max_cpp_version=item.get_cpp_standard_maximum_display author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
         {% endfor %}
         <li id="library-empty-state"
             class="library-page__empty-state library-page__empty-state--in-list"
@@ -447,7 +450,7 @@ Inputs:
       </div>
       <div class="library-item-card-grid" x-cloak>
         {% for item in object_list %}
-          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url description=item.description categories=item.library.category_tags min_cpp_version=item.get_cpp_standard_minimum_display max_cpp_version=item.get_cpp_standard_maximum_display author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
         {% endfor %}
       </div>
     {% elif library_view_str == 'categorized' or library_view_str == 'grading' %}
@@ -456,7 +459,7 @@ Inputs:
         <h2 class="library-page__category-header">{{ result.category }} {% if result.icon %}{% include "includes/icon.html" with icon_name=result.icon only %}{% endif %}</h2>
         <ul class="library-item-list grouped">
           {% for item in result.library_version_list %}
-            {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+            {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url description=item.description categories=item.library.category_tags min_cpp_version=item.get_cpp_standard_minimum_display max_cpp_version=item.get_cpp_standard_maximum_display author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
           {% endfor %}
         </ul>
       </section>
