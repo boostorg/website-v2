@@ -2,7 +2,7 @@ from typing import NamedTuple
 
 from django.db import models
 from django.db.models import Func, Value, Count, Q
-from django.db.models.functions import Replace
+from django.db.models.functions import Replace, Coalesce
 from django.contrib.postgres.fields import ArrayField
 
 from libraries.constants import (
@@ -120,7 +120,7 @@ class VersionQuerySet(VersionArrayMixin):
             self.active()
             .with_version_split()
             .filter(beta=False, full_release=True)
-            .order_by("-major", "-minor", "-patch")
+            .order_by("-major", "-minor", "-patch", "-release")
             .first()
         )
 
@@ -150,22 +150,11 @@ class VersionQuerySet(VersionArrayMixin):
             patch -> 0
 
         """
-        pattern = Value(r"-\d+$")  # the regex
-        replacement = Value(r"")  # replacement string
-        flags = Value("g")  # regex flags
-        return self.filter(name__regex=r"^(boost-)?\d+\.\d+\.\d+(\-\d+)?$").annotate(
-            simple_initial=Replace("name", Value("boost-"), Value("")),
-            simple_version=Func(
-                "simple_initial",
-                pattern,
-                replacement,
-                flags,
-                function="REGEXP_REPLACE",
-                output_field=models.TextField(),
-            ),
+        return self.filter(name__regex=r"^(boost-)?\d+\.\d+\.\d+\-?\d*$").annotate(
+            simple_version=Replace("name", Value("boost-"), Value("")),
             version_array=Func(
                 "simple_version",
-                Value(r"\."),
+                Value(r"[\.-]"),
                 function="regexp_split_to_array",
                 template="(%(function)s(%(expressions)s)::int[])",
                 arity=2,
@@ -174,6 +163,7 @@ class VersionQuerySet(VersionArrayMixin):
             major=models.F("version_array__0"),
             minor=models.F("version_array__1"),
             patch=models.F("version_array__2"),
+            release=Coalesce(models.F("version_array__3"), 0),
         )
 
     def _with_beta_version_split(self):
@@ -247,7 +237,7 @@ class VersionManager(models.Manager):
         Beta versions are removed.
 
         """
-        return self.get_queryset().with_version_split().filter(patch=0)
+        return self.get_queryset().with_version_split().filter(patch=0, release=0)
 
     def get_dropdown_versions(
         self,
@@ -347,7 +337,7 @@ class VersionManager(models.Manager):
             .exclude(name__in=name_exclusions)
             .defer("data")
             .with_version_split()
-            .order_by("-major", "-minor", "-patch")
+            .order_by("-major", "-minor", "-patch", "-release")
         )
 
         most_recent = next((v for v in versions if not v.beta and v.full_release), None)
