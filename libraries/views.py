@@ -361,7 +361,6 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
             }
             for lv in (queryset or [])
         ]
-        print(context.get("library_dataset"))
         context["library_search_query"] = self.request.GET.get("q", "")
         return context
 
