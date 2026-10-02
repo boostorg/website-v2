@@ -5,6 +5,9 @@ from core.constants import BOOST_VERSION_REGEX
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.path_matcher import BasePathMatcher, PathSegments
 
+# Release folders like 1_86_0 or 1_92_beta1, and the master and develop branches.
+DOCS_VERSION_REGEX = rf"(?:{BOOST_VERSION_REGEX}|master|develop)"
+
 
 class DirectMatcher(BasePathMatcher):
     # pseudo-example 1_84_0/*/CXX11.html
@@ -12,7 +15,7 @@ class DirectMatcher(BasePathMatcher):
     # pseudo-expected final path = doc/libs/latest/*/CXX11.html
     has_equivalent = True
     path_re = re.compile(
-        rf"{BOOST_VERSION_REGEX}/(?P<content_path>(?P<library_name>\S+))"
+        rf"{DOCS_VERSION_REGEX}/(?P<content_path>(?P<library_name>\S+))"
     )
 
     def generate_latest_s3_path(self, path: str, segments: PathSegments):
@@ -30,7 +33,7 @@ class LibsPathToLatestDirectMatcher(BasePathMatcher):
     # expected final path = doc/libs/latest/libs/algorithm/doc/html/algorithm/CXX11.html
     has_equivalent = False
     path_re = re.compile(
-        rf"{BOOST_VERSION_REGEX}/libs/(?P<library_name>[\w]+)/(?P<content_path>\S+)"
+        rf"{DOCS_VERSION_REGEX}/libs/(?P<library_name>[\w]+)/(?P<content_path>\S+)"
     )
 
     def generate_latest_s3_path(self, path: str, segments: PathSegments):
@@ -61,7 +64,7 @@ class LibsPathToLatestFallbackMatcher(BasePathMatcher):
     # expected s3 dest = static_content_1_79_0/libs/algorithm/index.html
     # expected final path = doc/libs/latest/libs/algorithm/index.html
     path_re = re.compile(
-        rf"{BOOST_VERSION_REGEX}/libs/(?P<library_name>[\w]+)/(?P<content_path>\S+)"
+        rf"{DOCS_VERSION_REGEX}/libs/(?P<library_name>[\w]+)/(?P<content_path>\S+)"
     )
     is_index_fallback = True
 
@@ -98,7 +101,7 @@ class LibsToAntoraPathDirectMatcher(BasePathMatcher):
     # needed to be more generic, all other things being equal.
     # path_re = re.compile(rf"{BOOST_VERSION_REGEX}/libs/(?P<library_name>[\w]+)/(?P<content_path>\S+)")
     path_re = re.compile(
-        rf"{BOOST_VERSION_REGEX}/libs/(?P<library_name>url)/(?P<content_path>\S+)"
+        rf"{DOCS_VERSION_REGEX}/libs/(?P<library_name>url)/(?P<content_path>\S+)"
     )
 
     def generate_latest_s3_path(self, path: str, segments: PathSegments) -> str:
@@ -131,7 +134,7 @@ class DocHtmlBoostPathToFallbackMatcher(BasePathMatcher):
     # expected s3 dest = static_content_1_79_0/libs/process/index.html
     # expected final path = doc/libs/latest/libs/process/index.html
     path_re = re.compile(
-        rf"{BOOST_VERSION_REGEX}/doc/html/boost_(?P<library_name>[\w]+)/(?P<content_path>\S+)"
+        rf"{DOCS_VERSION_REGEX}/doc/html/boost_(?P<library_name>[\w]+)/(?P<content_path>\S+)"
     )
     is_index_fallback = True
 
@@ -163,7 +166,7 @@ class DocHtmlPathToDirectMatcher(BasePathMatcher):
     # expected s3 dest = static_content_1_79_0/doc/html/interprocess.html
     # expected final path = doc/libs/latest/doc/html/interprocess.html
     path_re = re.compile(
-        rf"{BOOST_VERSION_REGEX}/(?P<content_path>doc/html/(?!boost_)(?P<library_name>[\w]+.html))"
+        rf"{DOCS_VERSION_REGEX}/(?P<content_path>doc/html/(?!boost_)(?P<library_name>[\w]+.html))"
     )
 
     def generate_latest_s3_path(self, path: str, segments: PathSegments) -> str:
@@ -180,7 +183,7 @@ class DocHtmlBoostHtmlFallbackPathMatcher(BasePathMatcher):
     # expected s3 dest = static_content_1_79_0/libs/math/doc/html/index.html
     # expected final path = doc/libs/latest/libs/math/doc/html/index.html
     path_re = re.compile(
-        rf"{BOOST_VERSION_REGEX}/(?P<content_path>doc/html)/boost_(?P<library_name>[\w]+).html"
+        rf"{DOCS_VERSION_REGEX}/(?P<content_path>doc/html)/boost_(?P<library_name>[\w]+).html"
     )
     is_index_fallback = True
 
