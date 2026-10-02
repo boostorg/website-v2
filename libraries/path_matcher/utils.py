@@ -12,24 +12,40 @@ from libraries.path_matcher.matchers import (
 from libraries.utils import get_s3_client
 from versions.models import Version
 
+# matcher chain in order
+MATCHER_CLASSES = [
+    DirectMatcher,
+    LibsPathToLatestDirectMatcher,
+    LibsToAntoraPathDirectMatcher,
+    LibsPathToLatestFallbackMatcher,
+    DocHtmlBoostPathToFallbackMatcher,
+    DocHtmlPathToDirectMatcher,
+    DocHtmlBoostHtmlFallbackPathMatcher,
+    ToLibsLatestRootFallbackMatcher,
+]
+
+EQUIVALENT_MATCHER_NAMES = {
+    matcher_class.__name__
+    for matcher_class in MATCHER_CLASSES
+    if not matcher_class.is_index_fallback
+}
+
+
+def is_equivalent_page_match(matcher_name: str) -> bool:
+    """Whether the matcher found the same page in the latest docs, rather than
+    falling back to an index page.
+
+    Unknown names, e.g. from a matcher that has since been removed, count as
+    not equivalent.
+    """
+    return matcher_name in EQUIVALENT_MATCHER_NAMES
+
 
 def get_path_match_from_chain(url: str, latest_version: Version) -> PathMatchResult:
     s3_client = get_s3_client()
 
-    # matcher chain in order
-    matcher_classes = [
-        DirectMatcher,
-        LibsPathToLatestDirectMatcher,
-        LibsToAntoraPathDirectMatcher,
-        LibsPathToLatestFallbackMatcher,
-        DocHtmlBoostPathToFallbackMatcher,
-        DocHtmlPathToDirectMatcher,
-        DocHtmlBoostHtmlFallbackPathMatcher,
-        ToLibsLatestRootFallbackMatcher,
-    ]
-
     matchers = [
-        matcher_class(latest_version, s3_client) for matcher_class in matcher_classes
+        matcher_class(latest_version, s3_client) for matcher_class in MATCHER_CLASSES
     ]
     for current, next_matcher in zip(matchers, matchers[1:]):
         current.set_next(next_matcher)
