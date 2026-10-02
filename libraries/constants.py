@@ -426,6 +426,10 @@ LIBRARY_HERO_ART = {
         "background": "img/v3/library-heros/bloom-background.webp",
         "illustration": "img/v3/library-heros/bloom.webp",
     },
+    "cobalt": {
+        "background": "img/v3/library-heros/cobalt-background.webp",
+        "illustration": "img/v3/library-heros/cobalt.webp",
+    },
     "describe": {
         "background": "img/v3/library-heros/describe-background.webp",
         "illustration": "img/v3/library-heros/describe.webp",
