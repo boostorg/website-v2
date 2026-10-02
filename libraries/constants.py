@@ -422,6 +422,10 @@ LIBRARY_HERO_ART = {
         # Narrower export of the same animal, swapped in below 768px.
         "illustration_mobile": "img/v3/library-heros/beast-mobile.png",
     },
+    "bloom": {
+        "background": "img/v3/library-heros/bloom-background.webp",
+        "illustration": "img/v3/library-heros/bloom.webp",
+    },
     "describe": {
         "background": "img/v3/library-heros/describe-background.webp",
         "illustration": "img/v3/library-heros/describe.webp",
