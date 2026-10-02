@@ -475,6 +475,10 @@ LIBRARY_HERO_ART = {
         "background": "img/v3/library-heros/regex-background.webp",
         "illustration": "img/v3/library-heros/regex.webp",
     },
+    "test": {
+        "background": "img/v3/library-heros/test-background.webp",
+        "illustration": "img/v3/library-heros/test.webp",
+    },
     "variant2": {
         "background": "img/v3/library-heros/variant2-background.webp",
         "illustration": "img/v3/library-heros/variant2.webp",
