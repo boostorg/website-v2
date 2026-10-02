@@ -336,6 +336,48 @@ def test_library_detail_missing_version(library, old_version, tp):
     )
 
 
+@pytest.mark.parametrize("v3", [True, False])
+def test_library_detail_older_version_is_canonical_to_latest(
+    library_version, old_version, tp, v3
+):
+    library = library_version.library
+    baker.make("libraries.LibraryVersion", library=library, version=old_version)
+    url = tp.reverse("library-detail", old_version.display_name, library.slug)
+
+    with waffle.testutils.override_flag("v3", active=v3):
+        response = tp.get(url)
+
+    tp.response_200(response)
+    assert (
+        f'<link rel="canonical" href="https://testserver/library/latest/{library.slug}/">'
+        in response.content.decode("utf-8")
+    )
+
+
+@pytest.mark.parametrize("v3", [True, False])
+def test_library_detail_latest_has_no_canonical_link(library_version, tp, v3):
+    url = tp.reverse("library-detail", "latest", library_version.library.slug)
+
+    with waffle.testutils.override_flag("v3", active=v3):
+        response = tp.get(url)
+
+    tp.response_200(response)
+    assert b'rel="canonical"' not in response.content
+
+
+@waffle.testutils.override_flag("v3", active=True)
+def test_library_detail_missing_version_has_no_canonical_link(
+    library_version, old_version, tp
+):
+    url = tp.reverse(
+        "library-detail", old_version.display_name, library_version.library.slug
+    )
+
+    response = tp.get(url)
+
+    assert b'rel="canonical"' not in response.content
+
+
 @waffle.testutils.override_flag("v3", active=True)
 def test_library_detail_missing_version_v3_empty_state(
     library_version, old_version, tp

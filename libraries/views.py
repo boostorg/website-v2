@@ -69,6 +69,7 @@ from .utils import (
     group_libraries_by_tier,
     designed_for_html,
     benchmark_sets,
+    build_canonical_uri,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
@@ -630,6 +631,15 @@ class LibraryDetail(
             return context
 
         context["library_version"] = library_version
+        canonical_path = reverse(
+            "library-detail",
+            kwargs={
+                "version_slug": LATEST_RELEASE_URL_PATH_STR,
+                "library_slug": self.object.slug,
+            },
+        )
+        if canonical_path != self.request.path:
+            context["canonical_uri"] = build_canonical_uri(self.request, canonical_path)
         context["documentation_url"] = get_documentation_url(
             library_version, context["version_str"] == LATEST_RELEASE_URL_PATH_STR
         )

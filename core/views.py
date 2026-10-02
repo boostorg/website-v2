@@ -48,7 +48,7 @@ from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import VersionAlertMixin
 from libraries.utils import (
     legacy_path_transform,
-    generate_canonical_library_uri,
+    build_canonical_uri,
     get_prioritized_library_view,
     get_prioritized_version,
     set_selected_boost_version,
@@ -952,8 +952,12 @@ class DocLibsTemplateView(VersionAlertMixin, BaseStaticContentTemplateView):
         ):
             return content
         # everything from this point should be html
-        req_uri = self.request.build_absolute_uri()
-        canonical_uri = generate_canonical_library_uri(req_uri)
+        canonical_path = context.get("docs_canonical_path")
+        canonical_uri = (
+            build_canonical_uri(self.request, canonical_path)
+            if canonical_path
+            else None
+        )
 
         soup = BeautifulSoup(content, "html.parser")
 
@@ -967,7 +971,7 @@ class DocLibsTemplateView(VersionAlertMixin, BaseStaticContentTemplateView):
         context.update(
             {
                 "content": str(soup),
-                "canonical_uri": canonical_uri if canonical_uri != req_uri else None,
+                "canonical_uri": canonical_uri,
             }
         )
         template_name = "original_docs.html"

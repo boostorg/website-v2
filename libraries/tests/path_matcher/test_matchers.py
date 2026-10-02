@@ -12,7 +12,11 @@ from libraries.path_matcher import (
     DocHtmlBoostHtmlFallbackPathMatcher,
     ToLibsLatestRootFallbackMatcher,
 )
-from libraries.path_matcher.utils import get_path_match_from_chain, determine_latest_url
+from libraries.path_matcher.utils import (
+    determine_latest_url,
+    get_path_match_from_chain,
+    is_equivalent_page_match,
+)
 
 test_params = [
     (
@@ -174,6 +178,24 @@ chain_data = [
         False,
         ToLibsLatestRootFallbackMatcher,
     ),
+    (
+        "1_92_beta1/libs/json/doc/html/json/dom/numbers.html",
+        "doc/libs/latest/libs/json/doc/html/json/dom/numbers.html",
+        True,
+        DirectMatcher,
+    ),
+    (
+        "develop/libs/json/doc/html/json/dom/numbers.html",
+        "doc/libs/latest/libs/json/doc/html/json/dom/numbers.html",
+        True,
+        DirectMatcher,
+    ),
+    (
+        "master/libs/json/doc/html/json/new_page.html",
+        "doc/libs/latest/libs/json/index.html",
+        False,
+        LibsPathToLatestFallbackMatcher,
+    ),
 ]
 
 
@@ -200,6 +222,28 @@ def test_handoff(
     assert (
         match_result.matcher == matching_class(version, mock_s3_client).get_class_name()
     )
+
+
+@pytest.mark.parametrize(
+    "matcher_class,expected",
+    [
+        (DirectMatcher, True),
+        (LibsPathToLatestDirectMatcher, True),
+        (LibsToAntoraPathDirectMatcher, True),
+        (DocHtmlPathToDirectMatcher, True),
+        (LibsPathToLatestFallbackMatcher, False),
+        (DocHtmlBoostPathToFallbackMatcher, False),
+        (DocHtmlBoostHtmlFallbackPathMatcher, False),
+        (ToLibsLatestRootFallbackMatcher, False),
+    ],
+)
+def test_is_equivalent_page_match(matcher_class, expected):
+    assert is_equivalent_page_match(matcher_class.__name__) is expected
+
+
+@pytest.mark.parametrize("matcher_name", ["", "RemovedMatcher"])
+def test_unknown_matcher_is_not_an_equivalent_page_match(matcher_name):
+    assert is_equivalent_page_match(matcher_name) is False
 
 
 def test_determine_latest_url(monkeypatch, version):

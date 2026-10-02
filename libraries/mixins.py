@@ -20,7 +20,10 @@ from libraries.models import (
     Library,
     LibraryVersion,
 )
-from libraries.path_matcher.utils import determine_latest_url
+from libraries.path_matcher.utils import (
+    get_path_match_from_chain,
+    is_equivalent_page_match,
+)
 from libraries.utils import patch_commit_authors
 from versions.models import Version
 
@@ -50,15 +53,21 @@ class VersionAlertMixin:
                     cache_key=f"static_content_{content_path}"
                 ).first()
 
-                version_alert_url = (
-                    content.latest_path
+                match = (
+                    content.latest_path_match()
                     if content
-                    else determine_latest_url(
+                    else get_path_match_from_chain(
                         content_path,
                         Version.objects.most_recent(),
                     )
                 )
-                context["version_alert_url"] = f"/{version_alert_url}"
+                context["version_alert_url"] = f"/{match.latest_path}"
+                # Index-page fallbacks are fine for the alert link, but would be
+                # a misleading canonical link.
+                if match.is_direct_equivalent or is_equivalent_page_match(
+                    match.matcher
+                ):
+                    context["docs_canonical_path"] = f"/{match.latest_path}"
 
             # TODO: this hack is here because the BoostVersionMixin only handles the
             #  libraries format (boost-1-90-0-beta-1) for betas, while this path uses
