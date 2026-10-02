@@ -242,8 +242,8 @@ def version_within_range(
     # Strip trailing -number from patches
     version = re.sub("-\d+$", "", version, 1)
 
-    _name_re = re.compile(r"^boost-(\d+)\.(\d+)\.(\d+)$")
-    _slug_re = re.compile(r"^boost_(\d+)_(\d+)_(\d+)$")
+    _name_re = re.compile(r"^boost-(\d+)\.(\d+)\.(\d+).?[\d\w]*$")
+    _slug_re = re.compile(r"^boost_(\d+)_(\d+)_(\d+)_?[\d\w]*$")
 
     def _parse_name(s: str):
         if parsed_name := _name_re.match(s):
