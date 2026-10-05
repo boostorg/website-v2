@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 import requests
+from django.db import connection
 from django.db.models import Count
 from django.utils import timezone
 
@@ -803,6 +804,11 @@ class BaseStaticContentTemplateView(TemplateView):
             return None
 
     def get_from_s3(self, content_path):
+        # Let other requests use this request's database connection while it
+        # waits on S3. Closing returns it to the pool, and the next query takes
+        # one again. Inside a transaction, closing would roll it back.
+        if not connection.in_atomic_block:
+            connection.close()
         result = get_content_from_s3(key=content_path)
         if not result:
             return None

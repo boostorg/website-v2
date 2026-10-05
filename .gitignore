@@ -218,3 +218,6 @@ extract_links.py
 
 # Large static images
 static/static-large/*
+
+# Scratch space for notes and pasted documents
+/tmp/
