@@ -28,8 +28,6 @@ from libraries.managers import (
     CommitAuthorManager,
     HumanCommitAuthorManager,
     IssueManager,
-    LibraryVersionManager,
-    CommitManager,
 )
 from mailing_list.models import EmailData
 from mailing_list.tasks import calculate_mailing_list_activity
@@ -448,8 +446,6 @@ class CommitAuthorEmail(models.Model):
 
 
 class Commit(models.Model):
-    objects = CommitManager()
-
     author = models.ForeignKey(CommitAuthor, on_delete=models.CASCADE)
     library_version = models.ForeignKey("LibraryVersion", on_delete=models.CASCADE)
     sha = models.CharField(max_length=40)
@@ -767,8 +763,6 @@ class LibraryVersion(models.Model):
         "20": "C++20",
         "23": "C++23",
     }
-
-    objects = LibraryVersionManager()
 
     version = models.ForeignKey(
         "versions.Version",

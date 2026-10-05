@@ -47,12 +47,10 @@ def command(release: str, new: bool, min_version: str):
             processed.
     """
     click.secho("Saving links to version-specific library docs...", fg="green")
-    min_version_parts = [int(part) for part in min_version.split(".")]
     version_qs = (
         Version.objects.with_partials()
         .active()
-        .with_version_split()
-        .filter(version_array__gte=min_version_parts)
+        .filter(name__gte=f"boost-{min_version}")
     )
     if release:
         versions = version_qs.filter(name__icontains=release).order_by("-name")

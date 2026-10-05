@@ -17,7 +17,7 @@ def beta_version(db):
     # Make version
     v = baker.make(
         "versions.Version",
-        name="boost-1.79.0.beta1",
+        name="boost-1.79.0-beta",
         description="Some awesome description of the library",
         release_date=datetime.date.today(),
         beta=True,
