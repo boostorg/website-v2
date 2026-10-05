@@ -253,7 +253,7 @@ def import_development_versions():
         import_version_tasks.append(
             import_version.s(
                 branch,
-                branch,
+                {"name": branch},
                 beta=False,
                 full_release=False,
                 get_release_date=False,
