@@ -2,7 +2,7 @@ from typing import NamedTuple
 
 from django.db import models
 from django.db.models import Func, Value, Count, Q
-from django.db.models.functions import Replace, Coalesce
+from django.db.models.functions import Replace
 from django.contrib.postgres.fields import ArrayField
 
 from libraries.constants import (
@@ -19,25 +19,42 @@ class HeaderVersionData(NamedTuple):
     most_recent_beta: "Version | None"  # noqa: F821
 
 
-class VersionArrayMixin(models.QuerySet):
-    _version_field_name = None
-    _version_field_beta = None
+class VersionQuerySet(models.QuerySet):
+    def active(self):
+        """Return active versions"""
+        return self.filter(active=True)
 
-    def _version_split_annotated_queryset(
-        self, filter_params, pattern, replacement, flags
-    ):
-        return self.filter(**filter_params).annotate(
-            simple_initial=Replace(
-                f"{self._version_field_name}", Value("boost-"), Value("")
-            ),
-            simple_version=Func(
-                "simple_initial",
-                pattern,
-                replacement,
-                flags,
-                function="REGEXP_REPLACE",
-                output_field=models.TextField(),
-            ),
+    def most_recent(self):
+        """Return most recent active non-beta version"""
+        return (
+            self.active()
+            .filter(beta=False, full_release=True)
+            .order_by("-name")
+            .first()
+        )
+
+    def most_recent_beta(self):
+        """Return most recent active beta version.
+
+        Note: There should only ever be one beta version in the database, as
+        old ones are generally deleted. But just in case."""
+        return self.active().filter(beta=True).order_by("-name").first()
+
+    def with_version_split(self):
+        """Separates name into an array of [major, minor, patch].
+
+        Anything not matching the regex is removed from the queryset.
+
+        Example:
+            name = boost-1.85.0
+            version_array -> [1, 85, 0]
+            major -> 1
+            minor -> 85
+            patch -> 0
+
+        """
+        return self.filter(name__regex=r"^(boost-)?\d+\.\d+\.\d+$").annotate(
+            simple_version=Replace("name", Value("boost-"), Value("")),
             version_array=Func(
                 "simple_version",
                 Value(r"\."),
@@ -49,165 +66,6 @@ class VersionArrayMixin(models.QuerySet):
             major=models.F("version_array__0"),
             minor=models.F("version_array__1"),
             patch=models.F("version_array__2"),
-        )
-
-    def with_version_split(self):
-        """Separates name into an array of [major, minor, patch].
-
-        Anything not matching the regex is removed from the queryset.
-
-        Example:
-            name = boost-1.85.0
-            version_array -> [1, 85, 0]
-            major -> 1
-            minor -> 85
-            patch -> 0
-
-        """
-        if not self._version_field_name:
-            return self.none()
-
-        pattern = Value(r"-\d+$")  # the regex
-        replacement = Value(r"")  # replacement string
-        flags = Value("g")  # regex flags
-        filter_params = {
-            f"{self._version_field_name}__regex": r"^(boost-)?\d+\.\d+\.\d+(\-\d+)?$"
-        }
-        return self._version_split_annotated_queryset(
-            filter_params, pattern, replacement, flags
-        )
-
-    def _with_beta_version_split(self):
-        """Separates name into an array of [major, minor, patch]. Only works for beta releases.
-
-        Anything not matching the regex is removed from the queryset.
-
-        Example:
-            name = boost-1.85.beta1
-            version_array -> [1, 85, 1]
-            major -> 1
-            minor -> 85
-            patch -> 1
-
-        """
-        if not self._version_field_name or not self._version_field_beta:
-            return self.none()
-
-        pattern = Value(r"\.beta\d+$")  # the regex
-        replacement = Value(r"")  # replacement string
-        flags = Value("g")  # regex flags
-
-        filter_params = {
-            f"{self._version_field_beta}": True,
-            f"{self._version_field_name}__regex": r"^(boost-)?\d+\.\d+\.\d+\.beta\d+$",
-        }
-        return self._version_split_annotated_queryset(
-            filter_params, pattern, replacement, flags
-        )
-
-
-class VersionQuerySet(VersionArrayMixin):
-    _version_field_name = "name"
-    _version_field_beta = "beta"
-
-    def active(self):
-        """Return active versions"""
-        return self.filter(active=True)
-
-    def most_recent(self):
-        """Return most recent active non-beta version"""
-        return (
-            self.active()
-            .with_version_split()
-            .filter(beta=False, full_release=True)
-            .order_by("-major", "-minor", "-patch", "-release")
-            .first()
-        )
-
-    def most_recent_beta(self):
-        """Return most recent active beta version.
-
-        Note: There should only ever be one beta version in the database, as
-        old ones are generally deleted. But just in case."""
-        return (
-            self.active()
-            .filter(beta=True)
-            ._with_beta_version_split()
-            .order_by("-major", "-minor", "-patch")
-            .first()
-        )
-
-    def with_version_split(self):
-        """Separates name into an array of [major, minor, patch].
-
-        Anything not matching the regex is removed from the queryset.
-
-        Example:
-            name = boost-1.85.0
-            version_array -> [1, 85, 0]
-            major -> 1
-            minor -> 85
-            patch -> 0
-
-        """
-        return self.filter(name__regex=r"^(boost-)?\d+\.\d+\.\d+\-?\d*$").annotate(
-            simple_version=Replace("name", Value("boost-"), Value("")),
-            version_array=Func(
-                "simple_version",
-                Value(r"[\.-]"),
-                function="regexp_split_to_array",
-                template="(%(function)s(%(expressions)s)::int[])",
-                arity=2,
-                output_field=ArrayField(models.IntegerField()),
-            ),
-            major=models.F("version_array__0"),
-            minor=models.F("version_array__1"),
-            patch=models.F("version_array__2"),
-            release=Coalesce(models.F("version_array__3"), 0),
-        )
-
-    def _with_beta_version_split(self):
-        """Separates name into an array of [major, minor, patch]. Only works for beta releases.
-
-        Anything not matching the regex is removed from the queryset.
-
-        Example:
-            name = boost-1.85.beta1
-            version_array -> [1, 85, 1]
-            major -> 1
-            minor -> 85
-            patch -> 1
-
-        """
-
-        pattern = Value(r"\.beta\d+$")  # the regex
-        replacement = Value(r"")  # replacement string
-        flags = Value("g")  # regex flags
-        return (
-            self.filter(beta=True)
-            .filter(name__regex=r"^(boost-)?\d+\.\d+\.\d+\.beta\d+$")
-            .annotate(
-                simple_initial=Replace("name", Value("boost-"), Value("")),
-                simple_version=Func(
-                    "simple_initial",
-                    pattern,
-                    replacement,
-                    flags,
-                    function="REGEXP_REPLACE",
-                    output_field=models.TextField(),
-                ),
-                version_array=Func(
-                    "simple_version",
-                    Value(r"\."),
-                    function="regexp_split_to_array",
-                    template="(%(function)s(%(expressions)s)::int[])",
-                    arity=2,
-                    output_field=ArrayField(models.IntegerField()),
-                ),
-                major=models.F("version_array__0"),
-                minor=models.F("version_array__1"),
-                patch=models.F("version_array__2"),
-            )
         )
 
 
@@ -237,7 +95,7 @@ class VersionManager(models.Manager):
         Beta versions are removed.
 
         """
-        return self.get_queryset().with_version_split().filter(patch=0, release=0)
+        return self.get_queryset().with_version_split().filter(patch=0)
 
     def get_dropdown_versions(
         self,
@@ -336,8 +194,7 @@ class VersionManager(models.Manager):
             .filter(Q(full_release=True) | Q(beta=True))
             .exclude(name__in=name_exclusions)
             .defer("data")
-            .with_version_split()
-            .order_by("-major", "-minor", "-patch", "-release")
+            .order_by("-name")
         )
 
         most_recent = next((v for v in versions if not v.beta and v.full_release), None)
