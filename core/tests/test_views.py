@@ -2,13 +2,15 @@ from unittest.mock import patch
 
 import pytest
 from django.core.cache import caches
+from django.db import connection
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.http import Http404
 from model_bakery import baker
 
-from core.views import StaticContentTemplateView
+from core.views import BaseStaticContentTemplateView, StaticContentTemplateView
 from libraries.constants import SELECTED_BOOST_VERSION_COOKIE_NAME
+from versions.models import Version
 
 TEST_CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
@@ -660,3 +662,28 @@ def test_flower_auth_staff_user(tp, staff_user):
 def test_flower_auth_only_allows_get(tp, staff_user):
     tp.login(staff_user)
     tp.response_405(tp.post("flower-auth"))
+
+
+@pytest.mark.django_db(transaction=True)
+def test_docs_libs_releases_the_db_connection_while_fetching_from_s3(client, version):
+    connection_held_during_s3 = []
+
+    def get_content_from_s3(key=None):
+        connection_held_during_s3.append(connection.connection is not None)
+        return {"content": b"<html></html>", "content_type": "text/html"}
+
+    with patch("core.views.ENABLE_DB_CACHE", True), patch(
+        "core.views.get_content_from_s3", side_effect=get_content_from_s3
+    ), patch("core.views.save_rendered_content"):
+        response = client.get("/doc/libs/1_79_0/libs/json/index.html")
+
+    assert response.status_code == 200
+    assert connection_held_during_s3 == [False]
+
+
+def test_get_from_s3_keeps_the_db_connection_inside_a_transaction(version):
+    """Closing the connection here would roll back the open transaction."""
+    with patch("core.views.get_content_from_s3", return_value={}):
+        assert BaseStaticContentTemplateView().get_from_s3("missing.html") is None
+
+    assert Version.objects.filter(pk=version.pk).exists()
