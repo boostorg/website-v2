@@ -303,8 +303,11 @@ def get_version_for_docs_path(content_path: str) -> Version | None:
     """Return the Version a /doc/libs/ content path belongs to, or None.
 
     e.g. "1_90_0_beta1/libs/json/index.html" -> Version "boost-1-90-0-beta1"
+
+    Both "1_90_0_beta1/..." and "boost_1_90_0_beta1/..." name the same version, and
+    S3 serves them from the same archive.
     """
-    path_slug = content_path.split("/", 1)[0]
+    path_slug = content_path.split("/", 1)[0].removeprefix("boost_")
     if path_slug == LATEST_RELEASE_URL_PATH_STR:
         return Version.objects.most_recent()
     if path_slug in (MASTER_RELEASE_URL_PATH_STR, DEVELOP_RELEASE_URL_PATH_STR):

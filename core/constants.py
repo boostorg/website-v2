@@ -37,8 +37,10 @@ STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES = ("releases/",)
 # possible library versions are: boost_1_53_0_beta1, 1_82_0, 1_55_0b1
 BOOST_LIB_PATH_RE = re.compile(r"^(boost_){0,1}([0-9_]*[0-9]+[^/]*)/(.*)")
 BOOST_VERSION_REGEX = r"(boost_){0,1}([0-9_]*[0-9]+[^/]*)"
-# A /doc/libs/ path for a beta, e.g. "1_90_0_beta1/...", "1_56_0_b1/..." or "1_55_0b1/..."
-DOCS_BETA_VERSION_PATH_RE = re.compile(r"^\d+_\d+_\d+_?b(eta)?\d")
+# A /doc/libs/ path for a beta, e.g. "1_90_0_beta1/...", "1_56_0_b1/..." or "1_55_0b1/...".
+# The boost_ prefix is optional because nginx only redirects it away for releases,
+# whose version is all digits and underscores.
+DOCS_BETA_VERSION_PATH_RE = re.compile(r"^(boost_)?\d+_\d+_\d+_?b(eta)?\d")
 NO_PROCESS_LIBS = [
     # Do nothing with these - just render contents directly
     "libs/filesystem",

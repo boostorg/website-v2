@@ -288,7 +288,16 @@ def s3_keys(monkeypatch):
 
 @pytest.mark.parametrize(
     "content_path",
-    [BETA_DOC_PATH, "1_56_0_b1/libs/json/index.html", "1_55_0b1/index.html"],
+    [
+        BETA_DOC_PATH,
+        "1_56_0_b1/libs/json/index.html",
+        "1_55_0b1/index.html",
+        # nginx redirects the boost_ prefix away for releases but not for betas,
+        # and S3 serves the prefixed path from the same archive.
+        f"boost_{BETA_DOC_PATH}",
+        "boost_1_56_0_b1/libs/json/index.html",
+        "boost_1_55_0b1/index.html",
+    ],
 )
 def test_docs_libs_404_for_a_beta_not_in_the_database(
     tp, s3_keys, version, content_path
@@ -311,8 +320,9 @@ def test_docs_libs_release_not_in_the_database_is_passed_through(tp, s3_keys, ve
     assert s3_keys == ["/archives/boost_1_80_0/libs/json/index.html"]
 
 
+@pytest.mark.parametrize("content_path", [BETA_DOC_PATH, f"boost_{BETA_DOC_PATH}"])
 def test_docs_libs_200_for_a_beta_still_in_the_database(
-    tp, mock_get_file_data, version
+    tp, mock_get_file_data, version, content_path
 ):
     baker.make(
         "versions.Version",
@@ -325,7 +335,7 @@ def test_docs_libs_200_for_a_beta_still_in_the_database(
         b"<html><body><p>Beta docs.</p></body></html>", f"boost_{BETA_DOC_PATH}"
     )
 
-    response = tp.get("docs-libs-page", content_path=BETA_DOC_PATH)
+    response = tp.get("docs-libs-page", content_path=content_path)
 
     tp.response_200(response)
     tp.assertResponseContains("Beta docs.", response, html=False)
