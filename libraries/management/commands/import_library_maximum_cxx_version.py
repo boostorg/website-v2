@@ -29,8 +29,9 @@ def command(filename):
         except Library.DoesNotExist:
             libs_not_updated.append(obj.get("Library"))
             continue
-        lib.cpp_standard_maximum = obj.get("CI max tested")
-        libs_to_update.append(lib)
+        if lib_max := obj.get("CI max tested"):
+            lib.cpp_standard_maximum = lib_max
+            libs_to_update.append(lib)
     click.echo(f"Was able to match {len(libs_to_update)} libraries.")
     if len(libs_not_updated) > 0:
         click.echo(f"Was unable to match libraries: {(', ').join(libs_not_updated)}.")

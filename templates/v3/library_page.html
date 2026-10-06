@@ -348,7 +348,7 @@ Inputs:
         matches(data) {
           if (this.searchHits && !this.searchHits.has(data.slug)) return false;
           if (this.grading !== 'all' && data.tier !== this.grading) return false;
-          // Overlap filter: reject only when the library range falls entirely outside the filter range.
+          // Overlap filter: reject when the library falls within the range. We want to scope outside the range for compatability.
           if (this.minCpp !== 'all' && data.cpp_min && cppRank(data.cpp_min) > cppRank(this.minCpp)) return false;
           if (this.maxCpp !== 'all' && data.cpp_max && cppRank(data.cpp_max) < cppRank(this.maxCpp)) return false;
           if (this.categories.length > 0) {
