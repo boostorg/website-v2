@@ -6,7 +6,8 @@
   Inputs:
     - title: str, required - top title of card
     - variant: str, required - choice of release or all, determines display layout
-    - contributors: list, required - List of contributors, matching the author input of _user_profile.html
+    - contributors: list, required - List of contributors, matching the author input of _user_profile.html.
+      An optional "group" key on each item draws a divider where the group changes (admins vs contributors).
     - heading_level: int, optional - Set the semantic leve of the heading, defaults to 2, does not allow for h1
 
   Usage:
@@ -30,6 +31,7 @@
   <div class="contributors-list__body">
     <div class="card__column px-large">
       {% for contributor in contributors %}
+          {% ifchanged contributor.group %}{% if not forloop.first %}<hr class="card__hr" />{% endif %}{% endifchanged %}
           {% include "v3/includes/_user_profile.html" with author=contributor only %}
       {% endfor %}
     </div>
