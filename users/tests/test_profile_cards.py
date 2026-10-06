@@ -384,6 +384,7 @@ def test_mailing_list_card_is_offered_when_not_hidden(user, db):
             sender_id=test_email,
             subject="Test",
             thread_id=12345,
+            mailinglist_id=1,
         )
 
     context = mailing_list_activity_card_context(user)

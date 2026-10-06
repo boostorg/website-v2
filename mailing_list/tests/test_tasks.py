@@ -100,6 +100,7 @@ def test_one_commit_author_email(user):
             sender_id=test_email,
             subject="Test",
             thread_id=12345,
+            mailinglist_id=1,
         )
 
     calculate_mailing_list_activity()
@@ -136,6 +137,7 @@ def test_two_commit_author_email(user):
             sender_id=test_email,
             subject="Test",
             thread_id=12345,
+            mailinglist_id=1,
         )
 
     for i in range(6, 11):
@@ -145,6 +147,7 @@ def test_two_commit_author_email(user):
             sender_id=test_email_2,
             subject="Test",
             thread_id=12345,
+            mailinglist_id=1,
         )
 
     for i in range(11, 16):
@@ -154,6 +157,7 @@ def test_two_commit_author_email(user):
             sender_id=test_email_3,
             subject="Test",
             thread_id=12345,
+            mailinglist_id=1,
         )
 
     calculate_mailing_list_activity()
