@@ -98,17 +98,35 @@ class ListPosting(models.Model):
     sender_id = models.CharField(blank=False, null=False)
     subject = models.CharField(blank=False, null=False)
     thread_id = models.IntegerField(blank=False, null=False)
+    mailinglist_id = models.IntegerField(blank=False, null=False)
 
     @property
     def thread_url(self):
         thread = ListThread.objects.get(id=self.thread_id)
-        return f"https://lists.boost.org/archives/list/boost@lists.boost.org/thread/{thread.thread_id}/"
+        mailing_list = ListMailingList.objects.get(id=self.mailinglist_id)
+        return f"https://lists.boost.org/archives/list/{mailing_list.name}/thread/{thread.thread_id}/"
 
     objects = ListPostingManager()
 
     class Meta:
         managed = False
         db_table = "hyperkitty_email"
+
+
+class ListMailingListManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().using("hyperkitty")
+
+
+class ListMailingList(models.Model):
+    id = models.IntegerField(primary_key=True, blank=False, null=False)
+    name = models.CharField(blank=False, null=False)
+
+    objects = ListMailingListManager()
+
+    class Meta:
+        managed = False
+        db_table = "hyperkitty_mailinglist"
 
 
 class ListThreadManager(models.Manager):
