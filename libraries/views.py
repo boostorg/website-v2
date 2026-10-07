@@ -133,19 +133,21 @@ def _build_dependencies_list(current_dependencies, version_str):
 def _build_release_contributors(context):
     """Build the "Contributors: This Release" profile list from the context
     populated by ContributorMixin: authors + maintainers + new and returning
-    commit contributors, each tagged with its display role."""
-    return (
-        [u.to_v3_profile_dict("Author") for u in context.get("authors", [])]
-        + [u.to_v3_profile_dict("Maintainer") for u in context.get("maintainers", [])]
-        + [
-            a.to_v3_profile_dict("New Contributor")
-            for a in context.get("top_contributors_release_new", [])
-        ]
-        + [
-            a.to_v3_profile_dict("Contributor")
-            for a in context.get("top_contributors_release_old", [])
-        ]
-    )
+    commit contributors, each tagged with its display role. `group` lets the
+    card draw a divider between the admins and this release's contributors."""
+    admins = [u.to_v3_profile_dict("Author") for u in context.get("authors", [])] + [
+        u.to_v3_profile_dict("Maintainer") for u in context.get("maintainers", [])
+    ]
+    contributors = [
+        a.to_v3_profile_dict("New Contributor")
+        for a in context.get("top_contributors_release_new", [])
+    ] + [
+        a.to_v3_profile_dict("Contributor")
+        for a in context.get("top_contributors_release_old", [])
+    ]
+    return [{**p, "group": "admin"} for p in admins] + [
+        {**p, "group": "contributor"} for p in contributors
+    ]
 
 
 def _build_compiler_explorer_link(website_adoc, selected_version):

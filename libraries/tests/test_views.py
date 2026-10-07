@@ -4,13 +4,19 @@ import pytest
 import waffle.testutils
 
 from django.db import connection
+from django.template.loader import render_to_string
 from django.test.utils import CaptureQueriesContext
 from model_bakery import baker
 
 from ..constants import README_MISSING, SELECTED_LIBRARY_VIEW_COOKIE_NAME
 from ..models import Library
 from ..utils import benchmark_sets, designed_for_html
-from ..views import LibraryListBase, _build_quick_start_links, _is_boost_url
+from ..views import (
+    LibraryListBase,
+    _build_quick_start_links,
+    _build_release_contributors,
+    _is_boost_url,
+)
 from versions.models import Version
 
 
@@ -95,6 +101,56 @@ def test_benchmark_sets_normalizes_widths():
 def test_benchmark_sets_all_zero_values():
     sets = benchmark_sets([{"title": "T", "data": [{"label": "a", "value": 0}]}])
     assert sets[0]["rows"][0]["width_pct"] == 0
+
+
+class _Person:
+    def __init__(self, name):
+        self.name = name
+
+    def to_v3_profile_dict(self, role=None):
+        return {"name": self.name, "role": role}
+
+
+def test_build_release_contributors_groups_admins_before_contributors():
+    profiles = _build_release_contributors(
+        {
+            "authors": [_Person("a")],
+            "maintainers": [_Person("m")],
+            "top_contributors_release_new": [_Person("n")],
+            "top_contributors_release_old": [_Person("c")],
+        }
+    )
+    assert [(p["name"], p["group"]) for p in profiles] == [
+        ("a", "admin"),
+        ("m", "admin"),
+        ("n", "contributor"),
+        ("c", "contributor"),
+    ]
+
+
+@pytest.mark.parametrize(
+    "groups, expected_dividers",
+    [
+        (["admin", "admin", "contributor"], 1),
+        (["admin"], 0),
+        (["contributor", "contributor"], 0),
+        ([None, None], 0),
+    ],
+)
+def test_contributors_list_divides_admins_from_contributors(groups, expected_dividers):
+    html = render_to_string(
+        "v3/includes/_contributors_list.html",
+        {
+            "title": "Contributors: This Release",
+            "variant": "release",
+            "contributors": [
+                {"name": f"p{i}", "role": "Contributor", "group": group}
+                for i, group in enumerate(groups)
+            ],
+        },
+    )
+    # One hr always separates the header from the body.
+    assert html.count('class="card__hr"') == 1 + expected_dividers
 
 
 def test_build_quick_start_links_no_adoc_links_uses_docs():
