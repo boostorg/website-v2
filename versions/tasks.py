@@ -368,7 +368,6 @@ def gc_removed_submodules(library_keys: list[str], branch: str) -> None:
 def import_library_versions(version_name, token=None, version_type="tag"):
     """For a specific version, imports all LibraryVersions using GitHub data"""
     # todo: this needs to be refactored and tests added
-    logger.info(f"{version_name=}, {token=}, {version_type=}")
     try:
         version = Version.objects.with_partials().get(name=version_name)
     except Version.DoesNotExist:
