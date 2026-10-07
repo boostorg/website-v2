@@ -213,6 +213,7 @@ TEMPLATES = [
         "DIRS": [
             str(BASE_DIR.joinpath("templates")),
         ],
+        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 # Django Admin Env Notice
@@ -228,10 +229,6 @@ TEMPLATES = [
                 "core.context_processors.header_context",
                 "core.context_processors.footer_context",
                 "core.context_processors.debug",
-            ],
-            "loaders": [
-                "django.template.loaders.filesystem.Loader",
-                "django.template.loaders.app_directories.Loader",
             ],
         },
     }
