@@ -283,3 +283,10 @@ def debug(request):
     Adds settings.DEBUG to the context.
     """
     return {"DEBUG": settings.DEBUG}
+
+
+def css_bundle(request):
+    """
+    Adds settings.USE_CSS_BUNDLE to the context.
+    """
+    return {"USE_CSS_BUNDLE": settings.USE_CSS_BUNDLE}

@@ -1,0 +1,16 @@
+/*
+ * Entry point for `yarn build:css`, which inlines these sheets and everything
+ * they @import into static/css/bundles/v3.min.css.
+ *
+ * Keep this list and its order identical to the v3 stylesheet links in
+ * templates/base.html: the bundle replaces those links, and order decides the
+ * cascade.
+ *
+ * The output must stay two directories below static/, like static/css/v3/, so
+ * the relative font URLs in boostlook-v3.css resolve to the same place.
+ */
+@import "../static/css/styles.css";
+@import "../static/css/components.css";
+@import "../static/css/v3/boostlook-v3.css";
+@import "../static/css/v3/v3-style-overrides.css";
+@import "../static/css/v3/components.css";

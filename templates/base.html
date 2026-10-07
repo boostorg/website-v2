@@ -62,17 +62,22 @@
     <script src="{% static 'js/boost-gecko/main.D1bdgn0u.js' %}" defer></script>
     {% endflag %}
     {% block extra_head %}
-      <link href="{% static 'css/styles.css' %}" rel="stylesheet">
-      <link href="{% static 'css/components.css' %}" rel="stylesheet">
       {% comment %} <link rel="preload" as="style" href="{% static 'css/fonts.css' %}" rel="stylesheet"> {% endcomment %}
       {% flag "v3" %}
-      <link href="{% static 'css/v3/boostlook-v3.css' %}" rel="stylesheet">
+      {% if USE_CSS_BUNDLE %}
+      {% comment %} Built from frontend/v3-bundle.css, which must list the five sheets below in the same order. {% endcomment %}
+      <link href="{% static 'css/bundles/v3.min.css' %}" rel="stylesheet">
       {% else %}
-      <link href="{% static 'css/boostlook.css' %}" rel="stylesheet">
-      {% endflag %}
-      {% flag "v3" %}
+      <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+      <link href="{% static 'css/components.css' %}" rel="stylesheet">
+      <link href="{% static 'css/v3/boostlook-v3.css' %}" rel="stylesheet">
       <link href="{% static 'css/v3/v3-style-overrides.css' %}" rel="stylesheet">
       <link href="{% static 'css/v3/components.css' %}" rel="stylesheet">
+      {% endif %}
+      {% else %}
+      <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+      <link href="{% static 'css/components.css' %}" rel="stylesheet">
+      <link href="{% static 'css/boostlook.css' %}" rel="stylesheet">
       {% endflag %}
     {% endblock %}
 

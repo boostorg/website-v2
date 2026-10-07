@@ -228,6 +228,7 @@ TEMPLATES = [
                 "core.context_processors.header_context",
                 "core.context_processors.footer_context",
                 "core.context_processors.debug",
+                "core.context_processors.css_bundle",
             ],
             "loaders": [
                 "django.template.loaders.filesystem.Loader",
@@ -325,6 +326,11 @@ STATICFILES_DIRS = [
 
 # Directory where collectstatic puts static files
 STATIC_ROOT = str(BASE_DIR.joinpath("static_deploy"))
+
+# Serve v3 pages the one stylesheet built by `yarn build:css` rather than the
+# files it combines. Off by default in development, where the bind-mounted
+# checkout only has the bundle if someone has run the build.
+USE_CSS_BUNDLE = env.bool("USE_CSS_BUNDLE", default=not DEBUG)
 
 # Directory where uploaded media is saved.
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")

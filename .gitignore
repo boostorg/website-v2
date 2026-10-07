@@ -165,6 +165,7 @@ mailman/web/static/
 
 # static files, rendered by docker.
 static/css/styles.css
+static/css/bundles/
 
 # dev
 *.code-workspace

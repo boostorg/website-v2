@@ -9,6 +9,7 @@
     "dev": "tailwindcss -i frontend/styles.css -o static/css/styles.css --watch",
     "dev-windows": "tailwindcss -i frontend/styles.css -o static/css/styles.css",
     "build": "NODE_ENV=production tailwindcss -i frontend/styles.css -o static/css/styles.css --minify",
+    "build:css": "esbuild frontend/v3-bundle.css --bundle --minify --external:'*.woff2' --external:'*.woff' --external:'*.ttf' --external:'*.otf' --external:'*.eot' --external:'*.svg' --external:'*.png' --external:'*.jpg' --external:'*.jpeg' --external:'*.gif' --external:'*.webp' --outfile=static/css/bundles/v3.min.css",
     "builddocs": "NODE_ENV=production tailwindcss -c ./docstailwind.config.js -i frontend/docsstyles.css -o static/css/docsstyles.css --minify",
     "builduserguide": "NODE_ENV=production tailwindcss -c ./userguidetailwind.config.js -i frontend/userguidestyles.css -o static/css/userguidestyles.css --minify",
     "build:wysiwyg": "esbuild frontend/wysiwyg-editor.js --bundle --minify --format=esm --outfile=static/js/v3/wysiwyg-editor.js --external:mermaid",
