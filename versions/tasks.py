@@ -209,6 +209,7 @@ def import_version(
     base_url="https://github.com/boostorg/boost/releases/tag/",
     get_release_date=True,
     perform_upsert=True,
+    version_type="tag",
 ):
     """Imports a single Boost version from Github and updates the local
     database. Also runs import_release_downloads and import_library_versions
@@ -228,7 +229,7 @@ def import_version(
         version = Version.objects.with_partials().get(name=name)
         created = False
 
-    logger.info(f"import_versions_version {created=} {name=} {version.pk} ")
+    logger.info(f"import_versions_version {created=} {version.name=} {version.pk} ")
 
     # Get the release date for the version
     if get_release_date and not version.release_date:
@@ -239,7 +240,9 @@ def import_version(
     import_release_downloads(version.pk)
 
     # Load library-versions
-    import_library_versions(version.name, token=token)
+    import_library_versions(
+        version_name=version.name, token=token, version_type=version_type
+    )
 
 
 @app.task
@@ -251,24 +254,27 @@ def import_development_versions():
     import_library_version_tasks = []
     for branch in settings.BOOST_BRANCHES:
         import_version_tasks.append(
-            import_version.s(
+            import_version.si(
                 branch,
                 {"name": branch},
                 beta=False,
                 full_release=False,
                 get_release_date=False,
                 base_url=base_url,
+                version_type="branch",
             )
         )
 
         import_library_version_tasks.append(
-            import_library_versions.s(branch, version_type="branch")
+            import_library_versions.si(
+                version_name=branch, token=None, version_type="branch"
+            )
         )
 
     task_chain = chain(
         group(*import_version_tasks),
         group(*import_library_version_tasks),
-        mark_fully_completed.s(),
+        mark_fully_completed.si(),
     )
     task_chain()
 
@@ -362,6 +368,7 @@ def gc_removed_submodules(library_keys: list[str], branch: str) -> None:
 def import_library_versions(version_name, token=None, version_type="tag"):
     """For a specific version, imports all LibraryVersions using GitHub data"""
     # todo: this needs to be refactored and tests added
+    logger.info(f"{version_name=}, {token=}, {version_type=}")
     try:
         version = Version.objects.with_partials().get(name=version_name)
     except Version.DoesNotExist:
