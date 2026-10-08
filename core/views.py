@@ -1782,14 +1782,14 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "selected": "all",
                 "width": "narrow",
             },
-            {
-                "type": "dropdown",
-                "name": "max_cpp",
-                "label": "Max. C++ Version",
-                "options": cpp_options,
-                "selected": "all",
-                "width": "narrow",
-            },
+            # {
+            #     "type": "dropdown",
+            #     "name": "max_cpp",
+            #     "label": "Max. C++ Version",
+            #     "options": cpp_options,
+            #     "selected": "all",
+            #     "width": "narrow",
+            # },
             {
                 "type": "combo_multi",
                 "name": "category",
