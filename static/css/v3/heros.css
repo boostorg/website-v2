@@ -981,10 +981,12 @@ html.dark .hero__links .btn-icon-library:hover {
    10% of the art at desktop, 13% at tablet, where the header stays 64 while the
    block drops to 400. Inset the top by the header's own footprint and let
    `inset-block-end: 0` size it, so `contain` fits the animal into the visible band.
-   Costs ~13% of its size; art with headroom baked in could drop this. */
+   Costs ~13% of its size; art with headroom baked in could drop this.
+   `figure.full_height` in LIBRARY_HERO_ART does: it sets the top to 0 for art
+   that has to run behind the header (Cobalt's vent duct). */
 @media (min-width: 768px) {
   .hero--library .hero-fg {
-    top: var(--v3-header-footprint);
+    top: var(--hero-fg-library-top, var(--v3-header-footprint));
     height: auto;
   }
 }
