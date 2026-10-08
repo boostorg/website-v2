@@ -909,6 +909,14 @@ def hero_art_custom_properties(art):
                 f"most 1: {scale!r}"
             )
         props["--hero-fg-library-narrow-scale"] = f"{scale:.2f}"
+    full_height = figure.get("full_height")
+    if full_height is not None:
+        if not isinstance(full_height, bool):
+            raise ValueError(
+                f"LIBRARY_HERO_ART figure.full_height must be a bool: {full_height!r}"
+            )
+        if full_height:
+            props["--hero-fg-library-top"] = "0px"
 
     mobile = art.get("mobile_background") or {}
     prefix = HERO_MOBILE_BG_PREFIX

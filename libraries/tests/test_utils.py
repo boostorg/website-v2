@@ -635,6 +635,9 @@ def test_hero_art_custom_properties_mobile_background():
         {"scrim": {"mid": 1.5}},
         {"scrim": {"near": float("nan")}},
         {"scrim": {"near": float("inf")}},
+        # full_height is a flag, not a length that could reach the style.
+        {"figure": {"full_height": "0px; color: red"}},
+        {"figure": {"full_height": 1}},
     ],
 )
 def test_hero_art_custom_properties_rejects_bad_values(entry):
@@ -664,3 +667,11 @@ def test_every_shipped_hero_art_entry_is_valid():
         # composite class and leave nothing to composite over it.
         if art.get("background"):
             assert art.get("illustration"), slug
+
+
+def test_hero_art_custom_properties_full_height():
+    """full_height drops the header inset; False or absent keeps it."""
+    assert hero_art_custom_properties({"figure": {"full_height": True}}) == {
+        "--hero-fg-library-top": "0px"
+    }
+    assert hero_art_custom_properties({"figure": {"full_height": False}}) == {}

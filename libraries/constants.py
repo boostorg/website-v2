@@ -429,6 +429,13 @@ LIBRARY_HERO_ART = {
     "cobalt": {
         "background": "img/v3/library-heros/cobalt-background.webp",
         "illustration": "img/v3/library-heros/cobalt.webp",
+        # The vent duct runs behind the header to the top of the hero, so the
+        # figure spans the full block. The art carries headroom to match the
+        # header inset it skips, keeping the squid its usual size.
+        "figure": {"full_height": True},
+        # Original crop without the headroom: the mobile figure stacks under
+        # the text, where the extra canvas would only shrink the squid.
+        "illustration_mobile": "img/v3/library-heros/cobalt-mobile.webp",
     },
     "describe": {
         "background": "img/v3/library-heros/describe-background.webp",
