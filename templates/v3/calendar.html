@@ -13,10 +13,14 @@
 
 
 {% block content %}
-  <div class="px-large">
-    <div class="calendar__hero">
-      <h1>Boost Calendar</h1>
-      <p>Stay up to date with Boost events, releases, and community happenings. Release-related entries are maintained by the Boost release managers.</p>
+  <div class="px-large" style="position: relative;">
+    <div class="calendar__hero-row">
+      <div class="calendar__hero">
+        <h1>Boost Calendar</h1>
+        <p>Stay up to date with Boost events, releases, and community happenings. Release-related entries are maintained by the Boost release managers.</p>
+      </div>
+      {% url 'docs-user-guide' content_path='formal-reviews/review-results.html' as past_releases_url %}
+      {% include "v3/includes/_button.html" with label="Past Releases" icon_html='<span class="btn-icon" aria-hidden><i class="fas fa-arrow-right"></i></span>' style="secondary" extra_classes="btn-flex" url=past_releases_url %}
     </div>
     <iframe src="https://www.google.com/calendar/embed?src={{ boost_calendar }}&amp;ctz={{ timezone }}" class="c1" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
   </div>

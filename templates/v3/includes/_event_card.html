@@ -24,6 +24,14 @@
   Usage:
     {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=events variant="card" theme="teal" primary_cta_label="View events" primary_cta_url="/events/" %}
 {% endcomment %}
+{% block card_header %}
+  <div class="card-group__heading-row">
+    <h2 class="card-group__heading" id="card-group-{{ heading|slugify }}">{% if heading_url %}<a href="{{ heading_url }}">{{ heading }}</a>{% else %}{{ heading }}{% endif %}</h2>
+    {% url 'docs-user-guide' content_path='formal-reviews/review-results.html' as past_releases_url %}
+    {% include "v3/includes/_button.html" with label="Past Releases" icon_html='<span class="btn-icon" aria-hidden><i class="fas fa-arrow-right"></i></span>' style="secondary" extra_classes="btn-flex" url=past_releases_url %}
+  </div>
+{% endblock card_header %}
+
 {% block card_list %}
 {% if items %}
   <ul class="card-group__list">

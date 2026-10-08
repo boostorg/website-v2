@@ -1,5 +1,13 @@
-.calendar__hero {
+.calendar__hero-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
     padding: var(--space-xlarge) 0 var(--space-avatar) 0;
+}
+
+.calendar__hero {
     display: flex;
     max-width: 662px;
     width: 100%;
@@ -34,4 +42,12 @@
     /* 21.6px */
     letter-spacing: -0.18px;
     padding: 0;
+}
+
+@media (max-width: 1279px) {
+    .calendar__hero-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-xlarge);
+    }
 }
