@@ -57,6 +57,19 @@
   color: var(--color-text-primary);
 }
 
+.card-group__heading-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 var(--space-card);
+  align-items: center;
+
+  .card-group__heading {
+    padding: 0;
+    width: fit-content;
+  }
+}
+
 .card-group--list .card-group__list {
   border-top: 1px solid var(--color-stroke-weak);
 }
