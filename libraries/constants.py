@@ -490,6 +490,13 @@ LIBRARY_HERO_ART = {
         "background": "img/v3/library-heros/test-background.webp",
         "illustration": "img/v3/library-heros/test.webp",
     },
+    "uuid": {
+        "background": "img/v3/library-heros/uuid-background.webp",
+        "illustration": "img/v3/library-heros/uuid.webp",
+        # At 768 the white name tag sits under the description and drops it
+        # below legible; scaled down there it clears the text.
+        "figure": {"narrow_scale": 0.8},
+    },
     "variant2": {
         "background": "img/v3/library-heros/variant2-background.webp",
         "illustration": "img/v3/library-heros/variant2.webp",
