@@ -545,6 +545,9 @@ class Library(models.Model):
     cpp_standard_minimum = models.CharField(
         max_length=50, blank=True, null=True
     )  # deprecated for LibraryVersion.cpp_standard_minimum
+    cpp_standard_maximum = models.CharField(
+        max_length=50, blank=True, null=True
+    )  # fallback for LibraryVersion.cpp_standard_maximum
     categories = models.ManyToManyField(Category, related_name="libraries")
 
     authors = models.ManyToManyField("users.User", related_name="authors")
@@ -762,6 +765,7 @@ class LibraryVersion(models.Model):
         "17": "C++17",
         "20": "C++20",
         "23": "C++23",
+        "26": "C++26",
     }
 
     version = models.ForeignKey(
@@ -863,9 +867,9 @@ class LibraryVersion(models.Model):
 
     def get_cpp_standard_maximum_display(self):
         """Returns the display name for the maximum C++ standard, or the value if not found."""
-        return self.CPP_STANDARD_DISPLAY_NAMES.get(
-            self.cpp_standard_maximum, self.cpp_standard_maximum
-        )
+        cpp_max = self.cpp_standard_maximum or self.library.cpp_standard_maximum
+
+        return self.CPP_STANDARD_DISPLAY_NAMES.get(cpp_max, cpp_max)
 
 
 class Issue(models.Model):
