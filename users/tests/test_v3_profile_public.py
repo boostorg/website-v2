@@ -376,18 +376,12 @@ def test_hidden_github_activity_still_shows_to_its_owner(user, tp):
 
 
 def _with_one_item(user, include_hidden=False):
-    """Stand in for a populated mailing list card.
-
-    TODO: The real card has no data source yet, so the gate always returns an empty
-    item list and the section never renders. Wrapping the real gate - rather
-    than replacing it - keeps the hide switch under test while giving the
-    template something to draw.
-    """
+    """Stand in for a populated mailing list card."""
     context = mailing_list_activity_card_context(user, include_hidden=include_hidden)
     if context is None:
         return None
     context["mailing_list_items"] = [
-        {"date": None, "headline": "Re: [boost] a thread", "url": "https://x.test/1"}
+        {"date": None, "subject": "Re: [boost] a thread", "url": "https://x.test/1"}
     ]
     return context
 
