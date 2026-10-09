@@ -133,7 +133,7 @@ Inputs:
           const params = new URLSearchParams(window.location.search);
           this.grading = params.get('grading') || this.defaults.grading;
           this.minCpp = params.get('min_cpp') || this.defaults.min_cpp;
-          this.maxCpp = params.get('max_cpp') || this.defaults.max_cpp;
+          {% comment %} this.maxCpp = params.get('max_cpp') || this.defaults.max_cpp; {% endcomment %}
           this.categories = params.getAll('category');
           this.query = params.get('q') || '';
           this.sort = params.get('sort') || this.defaults.sort;
@@ -151,6 +151,7 @@ Inputs:
               }
               this.updateCppConstraints();
             }
+            {% comment %}
             else if (name === 'max_cpp') {
               this.maxCpp = value || 'all';
               if (this.maxCpp !== 'all' && this.minCpp !== 'all'
@@ -158,7 +159,7 @@ Inputs:
                 this.resetField('min_cpp', 'all');
               }
               this.updateCppConstraints();
-            }
+            } {% endcomment %}
             else if (name === 'q') this.query = value || '';
             else if (name === 'sort') this.sort = value || this.defaults.sort;
             else if (name === 'view') {
@@ -171,7 +172,7 @@ Inputs:
           // Auto-correct invalid combinations loaded from URL params, then push
           // initial disabled-value constraints to both cpp dropdowns. Defer to
           // $nextTick so the dropdown components have mounted their listeners.
-          if (this.minCpp !== 'all' && this.maxCpp !== 'all'
+          {% comment %} if (this.minCpp !== 'all' && this.maxCpp !== 'all'
               && cppRank(this.minCpp) > cppRank(this.maxCpp)) {
             this.maxCpp = 'all';
           }
@@ -181,7 +182,7 @@ Inputs:
                 { detail: { name: 'max_cpp', value: 'all', label: 'All' } }));
             }
             this.updateCppConstraints();
-          });
+          }); {% endcomment %}
 
           this.observeCategorySelections();
           document.querySelectorAll('[data-slug]').forEach((el) => {
@@ -269,7 +270,7 @@ Inputs:
           // writes the same URL and there's no flicker.
           this.grading = this.defaults.grading;
           this.minCpp = this.defaults.min_cpp;
-          this.maxCpp = this.defaults.max_cpp;
+          {% comment %} this.maxCpp = this.defaults.max_cpp; {% endcomment %}
           this.categories = [];
           this.sort = this.defaults.sort;
           this.apply();
@@ -280,7 +281,7 @@ Inputs:
           return (
             this.grading !== this.defaults.grading ||
             this.minCpp !== this.defaults.min_cpp ||
-            this.maxCpp !== this.defaults.max_cpp ||
+            {% comment %} this.maxCpp !== this.defaults.max_cpp || {% endcomment %}
             this.categories.length > 0 ||
             this.sort !== this.defaults.sort
           );
@@ -290,7 +291,7 @@ Inputs:
           const params = new URLSearchParams();
           if (this.grading !== this.defaults.grading) params.set('grading', this.grading);
           if (this.minCpp !== this.defaults.min_cpp) params.set('min_cpp', this.minCpp);
-          if (this.maxCpp !== this.defaults.max_cpp) params.set('max_cpp', this.maxCpp);
+          {% comment %} if (this.maxCpp !== this.defaults.max_cpp) params.set('max_cpp', this.maxCpp); {% endcomment %}
           this.categories.forEach((c) => params.append('category', c));
           if (this.query) params.set('q', this.query);
           if (this.sort !== this.defaults.sort) params.set('sort', this.sort);
@@ -347,9 +348,8 @@ Inputs:
         matches(data) {
           if (this.searchHits && !this.searchHits.has(data.slug)) return false;
           if (this.grading !== 'all' && data.tier !== this.grading) return false;
-          // Overlap filter: reject only when the library range falls entirely outside the filter range.
-          if (this.maxCpp !== 'all' && data.cpp_min && cppRank(data.cpp_min) > cppRank(this.maxCpp)) return false;
-          if (this.minCpp !== 'all' && data.cpp_max && cppRank(data.cpp_max) < cppRank(this.minCpp)) return false;
+          // Overlap filter: reject only when the library range falls entirely inside the filter range.
+          if (this.minCpp !== 'all' && data.cpp_min && cppRank(data.cpp_min) > cppRank(this.minCpp)) return false;
           if (this.categories.length > 0) {
             const hit = data.category_slugs.some((s) => this.categories.includes(s));
             if (!hit) return false;
@@ -375,7 +375,7 @@ Inputs:
           const hasFilters =
             this.grading !== this.defaults.grading ||
             this.minCpp !== this.defaults.min_cpp ||
-            this.maxCpp !== this.defaults.max_cpp ||
+            {% comment %} this.maxCpp !== this.defaults.max_cpp || {% endcomment %}
             this.categories.length > 0;
           if (hasSearch && hasFilters) return 'both';
           if (hasSearch) return 'search';
