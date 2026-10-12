@@ -1,3 +1,7 @@
+# Notes:
+# Nearly all the benefits of gzip compression are accrued at the last hop between the CDN and the browser.
+# The link from the web server to the CDN is presumably quite fast.
+# Therefore, gzip is mostly not needed in nginx. keywords: gzip GZIP COMPRESSION compression
 apiVersion: v1
 kind: ConfigMap
 metadata:
