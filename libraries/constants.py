@@ -441,6 +441,10 @@ LIBRARY_HERO_ART = {
         "background": "img/v3/library-heros/describe-background.webp",
         "illustration": "img/v3/library-heros/describe.webp",
     },
+    "hash2": {
+        "background": "img/v3/library-heros/hash2-background.webp",
+        "illustration": "img/v3/library-heros/hash2.webp",
+    },
     "json": {
         "background": "img/v3/library-heros/json-background.webp",
         "illustration": "img/v3/library-heros/json.webp",
