@@ -155,8 +155,7 @@ class VersionAlertMixin:
 
 class BoostVersionMixin:
     def dispatch(self, request, *args, **kwargs):
-        if not hasattr(request, "extra_context"):
-            self.set_extra_context(request)
+        self.set_extra_context(request)
         return super().dispatch(request, *args, **kwargs)
 
     def set_extra_context(self, request):
