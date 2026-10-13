@@ -164,7 +164,7 @@ def _build_compiler_explorer_link(website_adoc, selected_version):
     return {"label": "Edit in Compiler Explorer", "url": url}
 
 
-class LibraryListDispatcher(View):
+class LibraryListDispatcher(BoostVersionMixin, View):
     def dispatch(self, request, *args, **kwargs):
         if view_str := request.GET.get("view", None):
             return redirect(
@@ -186,10 +186,12 @@ class LibraryListDispatcher(View):
         else:
             # covers both /libraries and /libraries/.../grid[/...]
             view = LibraryListBase.as_view()
+
+        if not hasattr(self, "extra_content"):
+            self.extra_context = {}
+            self.set_extra_context(request)
         version_str = (
-            determine_selected_boost_version(
-                self.kwargs.get("version_slug"), self.request
-            )
+            determine_selected_boost_version(self.kwargs.get("version_slug"), request)
             or LATEST_RELEASE_URL_PATH_STR
         )
         if not self.kwargs.get("version_slug"):
