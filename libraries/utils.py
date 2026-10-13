@@ -561,7 +561,9 @@ def patch_commit_authors(users):
     from libraries.models import CommitAuthor
 
     user_ids = [x.id for x in users]
-    commit_authors = {x.id: x for x in CommitAuthor.objects.filter(user__in=user_ids)}
+    commit_authors = {
+        x.user_id: x for x in CommitAuthor.objects.filter(user__in=user_ids)
+    }
     for user in users:
         if author := commit_authors.get(user.id, None):
             user.commitauthor = author

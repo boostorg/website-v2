@@ -21,7 +21,11 @@ from libraries.models import (
     LibraryVersion,
 )
 from libraries.path_matcher.utils import determine_latest_url
-from libraries.utils import get_version_for_docs_path, patch_commit_authors
+from libraries.utils import (
+    get_version_for_docs_path,
+    patch_commit_authors,
+    get_version_from_cookie,
+)
 from versions.models import Version
 
 logger = structlog.get_logger()
@@ -151,7 +155,8 @@ class VersionAlertMixin:
 
 class BoostVersionMixin:
     def dispatch(self, request, *args, **kwargs):
-        self.set_extra_context(request)
+        if not hasattr(request.extra_context):
+            self.set_extra_context(request)
         return super().dispatch(request, *args, **kwargs)
 
     def set_extra_context(self, request):
@@ -161,7 +166,8 @@ class BoostVersionMixin:
             self.extra_context["current_version"] = Version.objects.most_recent()
         self.extra_context.update(
             {
-                "version_str": self.kwargs.get("version_slug"),
+                "version_str": self.kwargs.get("version_slug")
+                or get_version_from_cookie(request),
                 "LATEST_RELEASE_URL_PATH_STR": LATEST_RELEASE_URL_PATH_STR,
             }
         )
