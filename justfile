@@ -117,6 +117,10 @@ alias shell := console
 @up:  ## starts containers in detached mode
     docker compose up -d
 
+@restart: ## restarts the containers in detached mode
+    docker compose down
+    docker compose up -d
+
 @makemigrations:  ## creates new database migrations
     docker compose run --rm web /code/manage.py makemigrations
 

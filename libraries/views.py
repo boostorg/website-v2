@@ -29,14 +29,12 @@ from mailing_list.mixins import MailingListCardMixin
 from news.services import get_latest_post_cards
 from pages.routing import post_index_url
 from core.mock_data import SharedResources
-from core.templatetags.custom_static import large_static
 from users.models import User
 from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
 from .constants import (
     COMMIT_EMAIL_STALE_ACTION_ERROR,
-    LIBRARY_HERO_ART,
     README_MISSING,
 )
 from .forms import CommitAuthorEmailForm, V3CommitAuthorEmailForm
@@ -51,7 +49,6 @@ from .models import (
 )
 from .utils import (
     address_already_proven_by,
-    hero_art_custom_properties,
     apply_collective_author_overrides,
     patch_commit_authors,
     prefer_boost_profile_links,
@@ -763,36 +760,7 @@ class LibraryDetail(
         dark URL is what puts `.hero-fg` in theme-aware mode, which hides the light
         image under `html.dark` and would blank the hero.
         """
-        art = LIBRARY_HERO_ART.get(self.object.slug or "", {})
-        # All or nothing: a background with no illustration would still add
-        # `hero--with-bg-and-image` and leave nothing to composite over it.
-        if not art.get("illustration"):
-            art = {}
-
-        def url(key):
-            path = art.get(key)
-            return large_static(path) if path else ""
-
-        css_vars = hero_art_custom_properties(art)
-        # A path rather than a value, so it resolves here through large_static.
-        mobile_image = (art.get("mobile_background") or {}).get("image")
-        if mobile_image:
-            # Unquoted: Django escapes quotes in the style attribute, and
-            # large_static() returns a bare path.
-            css_vars["--hero-bg-library-mobile-image"] = (
-                f"url({large_static(mobile_image)})"
-            )
-
-        return {
-            "library_hero_css_vars": css_vars,
-            "library_hero_image_url_light": url("illustration"),
-            "library_hero_image_url_dark": "",
-            "library_hero_image_url_mobile": url("illustration_mobile"),
-            "library_hero_background_image_url": url("background"),
-            # Empty so the include's small-box `.hero__image` stays unused; the
-            # flagship hero paints through the full-bleed `.hero-fg`.
-            "hero_image_url": "",
-        }
+        return self.object.get_hero_art_context()
 
     def get_missing_version_context(self, context):
         """Add the copy and CTA for the "no records for this version" empty state.
