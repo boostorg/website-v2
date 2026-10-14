@@ -171,6 +171,7 @@ def _make_linked_author(name, email):
         is_bot=False,
         avatar_url="https://example.com/a.png",
         github_profile_url="https://github.com/x",
+        user=user,
     )
     baker.make("libraries.CommitAuthorEmail", author=author, email=email)
     return user, author

@@ -558,19 +558,15 @@ def patch_commit_authors(users):
     display_name) as user.commitauthor. Falls back to a SimpleNamespace
     stub when no match is found.
     """
-    from libraries.models import CommitAuthorEmail
+    from libraries.models import CommitAuthor
 
+    user_ids = [x.id for x in users]
     commit_authors = {
-        author_email.email: author_email
-        for author_email in CommitAuthorEmail.objects.annotate(
-            email_lower=Lower("email")
-        )
-        .filter(email_lower__in=[u.email.lower() for u in users])
-        .select_related("author")
+        x.user_id: x for x in CommitAuthor.objects.filter(user__in=user_ids)
     }
     for user in users:
-        if author_email := commit_authors.get(user.email.lower(), None):
-            user.commitauthor = author_email.author
+        if author := commit_authors.get(user.id, None):
+            user.commitauthor = author
         else:
             user.commitauthor = SimpleNamespace(
                 github_profile_url="",

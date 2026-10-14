@@ -915,6 +915,7 @@ def test_library_grid_falls_back_to_the_authors_github_profile(version, tp):
         name="Grid Author",
         github_profile_url="https://github.com/gridauthor",
         avatar_url="https://avatars.githubusercontent.com/u/1?v=4",
+        user=author,
     )
     baker.make("libraries.CommitAuthorEmail", author=commit_author, email=author.email)
     library = baker.make("libraries.Library", name="gridlib", slug="gridlib")
@@ -952,12 +953,12 @@ def test_library_grid_patches_authors_in_one_query(version, tp):
         with CaptureQueriesContext(connection) as queries:
             tp.get("libraries-list", version_slug=version.slug, library_view_str="grid")
 
-    email_queries = [
+    author_queries = [
         q["sql"]
         for q in queries.captured_queries
-        if "libraries_commitauthoremail" in q["sql"]
+        if "libraries_commitauthor" in q["sql"]
     ]
-    assert len(email_queries) == 1, email_queries
+    assert len(author_queries) == 1, author_queries
 
 
 @pytest.mark.django_db
