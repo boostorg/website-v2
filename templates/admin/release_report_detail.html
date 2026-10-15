@@ -410,7 +410,7 @@ ul.slack-channels li div a:hover,
               <div class="col-span-3 flex flex-col gap-y-4">
                 <div class="flex flex-col gap-y-4">
                   {% with item.library.get_hero_art_context as hc %}
-                    {% include "v3/includes/_hero_library.html" with title=item.library.display_name description=item.library.description extra_classes="hero--library" hero_css_var=hc.library_hero_css_vars hero_image_url=hc.library_hero_image_url_light hero_background_image_url=hc.library_hero_background_image_url is_flagship_lib=True fullbleed_fg=True only %}
+                    {% include "v3/includes/_hero_library.html" with title=item.library.display_name description=item.library.description extra_classes="hero--library" hero_css_vars=hc.library_hero_css_vars hero_image_url=hc.library_hero_image_url_light hero_background_image_url=hc.library_hero_background_image_url is_flagship_lib=True fullbleed_fg=True only %}
                   {% endwith %}
                 </div>
               </div>
