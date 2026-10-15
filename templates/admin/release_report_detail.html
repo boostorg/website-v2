@@ -64,6 +64,9 @@ ul.slack-channels li div a:hover,
 .col-span-3 {
   grid-column: span 3/span 3;
 }
+.hero-fg {
+  height: 100% !important;
+}
 
   </style>
 {% endblock css %}
@@ -201,40 +204,42 @@ ul.slack-channels li div a:hover,
         {% endif %}
         <div class="flex flex-col pdf-page items-center justify-items-center {{ bg_color }}"
              style="">
-          <div class="flex flex-col mb-4">
-            <h2 class="mx-auto my-1">Git activity for this release</h2>
-            <div class="mx-auto"><span class="font-bold">{{ version_commit_count|intcomma }}</span> Commit{{ version_commit_count|pluralize }} Across <span class="font-bold">{{ library_count }}</span> Repositories</div>
-            {% if global_contributors_new_count %}
-              <div class="mx-auto"><span class="font-bold">{{ global_contributors_new_count|intcomma }}</span> First-time Contributor{{ global_contributors_new_count|pluralize }}</div>
-            {% endif %}
-          </div>
-          <div class="flex gap-x-8 justify-center w-full">
-            <div class="px-8">
-              <div class="mx-auto mb-6">Top Contributors</div>
-              <div class="m-auto grid grid-cols-1 gap-2">
-                {% for author in top_contributors_release_overall %}
-                  <div class="flex flex-row gap-y-2 w-40 items-center">
-                    {% avatar commitauthor=author %}
-                    <div class="w-full flex flex-col ml-2">
-                      <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                        {{ author.display_name }}
-                      </div>
-                      <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
-                    </div>
-                  </div>
-                {% endfor %}
-              </div>
+          <div class="w-full">
+            <div class="flex flex-col mb-4 w-full">
+              <h2 class="mx-auto my-1">Git activity for this release</h2>
+              <div class="mx-auto"><span class="font-bold">{{ version_commit_count|intcomma }}</span> Commit{{ version_commit_count|pluralize }} Across <span class="font-bold">{{ library_count }}</span> Repositories</div>
+              {% if global_contributors_new_count %}
+                <div class="mx-auto"><span class="font-bold">{{ global_contributors_new_count|intcomma }}</span> First-time Contributor{{ global_contributors_new_count|pluralize }}</div>
+              {% endif %}
             </div>
-            <div class="px-8 flex flex-col justify-center">
-              <h3>Most Committed Libraries</h3>
-              <table class="border-separate border-spacing-0" style="width: fit-content;">
-                {% for library in top_libraries_for_version|slice:20 %}
-                  <tr>
-                    <td style="padding-right: 1rem;">{{ library.name }}</td>
-                    <td>{{ library.commit_count }} commits</td>
-                  </tr>
-                {% endfor %}
-              </table>
+            <div class="flex gap-x-8 justify-center w-full">
+              <div class="px-8">
+                <div class="mx-auto mb-6">Top Contributors</div>
+                <div class="m-auto grid grid-cols-1 gap-2">
+                  {% for author in top_contributors_release_overall %}
+                    <div class="flex flex-row gap-y-2 w-40 items-center">
+                      {% avatar commitauthor=author %}
+                      <div class="w-full flex flex-col ml-2">
+                        <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
+                          {{ author.display_name }}
+                        </div>
+                        <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="px-8 flex flex-col justify-center">
+                <h3>Most Committed Libraries</h3>
+                <table class="border-separate border-spacing-0" style="width: fit-content;">
+                  {% for library in top_libraries_for_version|slice:20 %}
+                    <tr>
+                      <td style="padding-right: 1rem;">{{ library.name }}</td>
+                      <td>{{ library.commit_count }} commits</td>
+                    </tr>
+                  {% endfor %}
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -405,7 +410,7 @@ ul.slack-channels li div a:hover,
               <div class="col-span-3 flex flex-col gap-y-4">
                 <div class="flex flex-col gap-y-4">
                   {% with item.library.get_hero_art_context as hc %}
-                    {% include "v3/includes/_hero_library.html" with title=item.library.display_name description=item.library.description extra_classes="hero--library" hero_css_var=hc.library_hero_css_vars hero_image_url=hc.library_hero_image_url_light hero_background_image_url=hc.library_hero_background_image_url is_flagship_lib=True  fullbleed_fg=True only %}
+                    {% include "v3/includes/_hero_library.html" with title=item.library.display_name description=item.library.description extra_classes="hero--library" hero_css_var=hc.library_hero_css_vars hero_image_url=hc.library_hero_image_url_light hero_background_image_url=hc.library_hero_background_image_url is_flagship_lib=True fullbleed_fg=True only %}
                   {% endwith %}
                 </div>
               </div>
