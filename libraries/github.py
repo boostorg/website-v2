@@ -80,6 +80,7 @@ def get_commit_data_for_repo_versions(key, min_version=""):
     Get commits from one x.x.0 release to the next x.x.0 release. Commits
     to and from patches or beta versions are ignored.
 
+    min_version is a version name, e.g. boost-1.92.0
     """
     library = Library.objects.get(key=key)
     parser = re.compile(
@@ -95,6 +96,13 @@ def get_commit_data_for_repo_versions(key, min_version=""):
         r"(?:(?P<files_changed>\d+) files changed)?.*?"
         r"(?:(?P<insertions>\d+) insertions)?.*?(?:(?P<deletions>\d+) deletions)?",
     )
+
+    min_version_re = re.compile(r"^boost-(\d+)\.(\d+)\.(\d+)$")
+    # Tuple in the form of (major, minor, patch)
+    if match := min_version_re.match(min_version):
+        parsed_mv = match.groups()
+    else:
+        parsed_mv = []
 
     retry_count = 0
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -127,15 +135,13 @@ def get_commit_data_for_repo_versions(key, min_version=""):
             + list(
                 Version.objects.minor_versions()
                 .filter(library_version__library__key=library.key)
+                .filter(version_array__gte=parsed_mv)
                 .order_by("version_array")
                 .values_list("name", flat=True)
             )
             + ["master"]
         )
         for a, b in zip(versions, versions[1:]):
-            if a < min_version and b < min_version:
-                # Don't bother comparing two versions we don't care about
-                continue
             shortstat = subprocess.run(
                 ["git", "--git-dir", str(git_dir), "diff", f"{a}..{b}", "--shortstat"],
                 capture_output=True,
@@ -500,12 +506,26 @@ class LibraryUpdater:
         """Import a record of all commits between LibraryVersions."""
         authors = {}
         commits = []
+        min_version_re = re.compile(r"^boost-(\d+)\.(\d+)\.(\d+)$")
+        # Tuple in the form of (major, minor, patch)
+        if match := min_version_re.match(min_version):
+            parsed_mv = match.groups()
+        else:
+            parsed_mv = []
         library_versions = {
             x.version.name: x
-            for x in LibraryVersion.objects.filter(
-                library=library, version__name__gte=min_version
-            ).select_related("version")
+            for x in LibraryVersion.objects.with_version_split()
+            .filter(library=library, version_array__gte=parsed_mv)
+            .select_related("version")
         }
+        library_versions.update(
+            {
+                x.version.name: x
+                for x in LibraryVersion.objects.filter(
+                    library=library, version__name__in=["master", "develop"]
+                ).select_related("version")
+            }
+        )
         library_version_updates = []
 
         def handle_commit(commit: ParsedCommit):
@@ -575,12 +595,19 @@ class LibraryUpdater:
                 # Unscoped, a run with a floor deletes the whole library and
                 # rebuilds only the top of it, and the commits below the floor
                 # are gone from the table until someone runs a full import.
-                doomed = Commit.objects.filter(
+                doomed = Commit.objects.with_version_split().filter(
                     library_version__library=library,
-                    library_version__version__name__gte=min_version,
+                    version_array__gte=parsed_mv,
                 )
-                doomed_ids = list(doomed.values_list("pk", flat=True))
+                doomed_non_standard = Commit.objects.filter(
+                    library_version__library=library,
+                    library_version__version__name__in=["master", "develop"],
+                )
+                doomed_ids = list(doomed.values_list("pk", flat=True)) + list(
+                    doomed_non_standard.values_list("pk", flat=True)
+                )
                 doomed.delete()
+                doomed_non_standard.delete()
             Commit.objects.bulk_create(
                 commits,
                 update_conflicts=True,
