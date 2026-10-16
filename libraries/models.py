@@ -21,6 +21,7 @@ from config import settings
 from core.custom_model_fields import NullableFileField
 from core.markdown import process_md
 from core.models import RenderedContent
+from core.templatetags.custom_static import large_static
 from core.asciidoc import convert_adoc_to_html
 from core.validators import image_validator, max_file_size_validator
 from libraries.bots import is_bot_name
@@ -36,12 +37,14 @@ from .constants import (
     COMMIT_EMAIL_CLAIM_MAX_AGE,
     LATEST_RELEASE_URL_PATH_STR,
     LIBRARY_GITHUB_URL_OVERRIDES,
+    LIBRARY_HERO_ART,
 )
 
 from .utils import (
     generate_random_string,
     write_content_to_tempfile,
     generate_release_report_filename,
+    hero_art_custom_properties,
 )
 
 logger = logging.getLogger(__name__)
@@ -688,6 +691,49 @@ class Library(models.Model):
 
         # If no content was found for any of the files
         return None
+
+    def get_hero_art_context(self):
+        """Resolve this library's hero illustration, if one has been drawn for it.
+
+        Keys are prefixed `library_hero_` rather than matching the include's own
+        `hero_image_url_*` names because `{% include %}` hands the parent context to
+        both the flagship and non-flagship hero; a bare name would light up the
+        branch meant to stay plain. The sub-page maps them on the flagship branch.
+
+        One export serves both themes, so the dark slot stays empty: supplying a
+        dark URL is what puts `.hero-fg` in theme-aware mode, which hides the light
+        image under `html.dark` and would blank the hero.
+        """
+        art = LIBRARY_HERO_ART.get(self.slug or "", {})
+        # All or nothing: a background with no illustration would still add
+        # `hero--with-bg-and-image` and leave nothing to composite over it.
+        if not art.get("illustration"):
+            art = {}
+
+        def url(key):
+            path = art.get(key)
+            return large_static(path) if path else ""
+
+        css_vars = hero_art_custom_properties(art)
+        # A path rather than a value, so it resolves here through large_static.
+        mobile_image = (art.get("mobile_background") or {}).get("image")
+        if mobile_image:
+            # Unquoted: Django escapes quotes in the style attribute, and
+            # large_static() returns a bare path.
+            css_vars["--hero-bg-library-mobile-image"] = (
+                f"url({large_static(mobile_image)})"
+            )
+
+        return {
+            "library_hero_css_vars": css_vars,
+            "library_hero_image_url_light": url("illustration"),
+            "library_hero_image_url_dark": "",
+            "library_hero_image_url_mobile": url("illustration_mobile"),
+            "library_hero_background_image_url": url("background"),
+            # Empty so the include's small-box `.hero__image` stays unused; the
+            # flagship hero paints through the full-bleed `.hero-fg`.
+            "hero_image_url": "",
+        }
 
     def github_properties(self):
         """Returns the owner and repo name for the library"""
