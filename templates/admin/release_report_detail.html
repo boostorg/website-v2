@@ -64,6 +64,17 @@ ul.slack-channels li div a:hover,
 .col-span-3 {
   grid-column: span 3/span 3;
 }
+.hero__block {
+  height: 200px !important;
+  max-height: 200px !important;
+  min-height: 200px !important;
+  padding-bottom: 0px !important;
+  padding-top: 0px !important;
+  flex-direction: row !important;
+}
+.hero--library.hero--with-background-image::before {
+  background: linear-gradient(90deg,#000000b3,#0000 73.12%) !important;
+}
 .hero-fg {
   height: 100% !important;
 }
@@ -405,65 +416,67 @@ ul.slack-channels li div a:hover,
         {# 1. Flagship libraries that were updated: one library per page #}
         {% for item in flagship_library_data %}
           <div class="pdf-page flex flex-col {{ bg_color }}" style="">
-            <div class="grid grid-cols-3 gap-x-8 w-full p-4 h-full"
-                 id="library-{{ item.library.display_name }}">
-              <div class="col-span-3 flex flex-col gap-y-4">
-                <div class="flex flex-col gap-y-4">
-                  {% with item.library.get_hero_art_context as hc %}
-                    {% include "v3/includes/_hero_library.html" with title=item.library.display_name description=item.library.description extra_classes="hero--library" hero_css_vars=hc.library_hero_css_vars hero_image_url=hc.library_hero_image_url_light hero_background_image_url=hc.library_hero_background_image_url is_flagship_lib=True fullbleed_fg=True only %}
-                  {% endwith %}
-                </div>
-              </div>
-              <div class="col-span-2 flex flex-col gap-y-4">
-                <div class="flex gap-x-8 items-center">
-                  <div class="flex flex-col gap-y-1">
-                    <div>
-                      There
-                      {{ item.version_count.commit_count|pluralize:"was,were" }}
-                      <span class="font-bold">{{ item.version_count.commit_count }}</span>
-                      commit{{ item.version_count.commit_count|pluralize }}
-                      in release {{ report_configuration.display_name }}
-                    </div>
-                    {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
-                      <div>
-                        <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
-                      </div>
+            <div class="w-full p-4 h-full">
+              <div class="grid grid-cols-3 gap-x-8 gap-y-4"
+                   id="library-{{ item.library.display_name }}">
+                <div class="col-span-3 flex flex-col gap-y-4">
+                  <div class="flex flex-col gap-y-4">
+                    {% with item.library.get_hero_art_context as hc %}
+                      {% include "v3/includes/_hero_library.html" with title=item.library.display_name description=item.library.description extra_classes="hero--library" hero_css_vars=hc.library_hero_css_vars hero_image_url=hc.library_hero_image_url_light hero_background_image_url=hc.library_hero_background_image_url is_flagship_lib=True fullbleed_fg=True expandable_description=True only %}
                     {% endwith %}
-                    {% with count=item.new_contributors_count.count %}
-                      {% if count >= 1 %}
-                        <div>
-                          There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} for this release!
-                        </div>
-                      {% endif %}
-                    {% endwith %}
-                    <div>
-                      There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
-                      and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
-                    </div>
-                    {% if item.deps.added or item.deps.removed %}
-                      <div>
-                        There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
-                        and
-                        <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
-                      </div>
-                    {% endif %}
                   </div>
                 </div>
-              </div>
-              <div class="px-4">
-                <div class="mx-auto mb-6">Top Contributors</div>
-                <div class="m-auto grid grid-cols-1 gap-2">
-                  {% for author in item.top_contributors_release %}
-                    <div class="flex flex-row gap-y-2 w-40 items-center">
-                      {% avatar commitauthor=author %}
-                      <div class="w-full flex flex-col ml-2">
-                        <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                          {{ author.display_name }}
-                        </div>
-                        <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
+                <div class="col-span-2 flex flex-col gap-y-4">
+                  <div class="flex gap-x-8 items-center">
+                    <div class="flex flex-col gap-y-1">
+                      <div>
+                        There
+                        {{ item.version_count.commit_count|pluralize:"was,were" }}
+                        <span class="font-bold">{{ item.version_count.commit_count }}</span>
+                        commit{{ item.version_count.commit_count|pluralize }}
+                        in release {{ report_configuration.display_name }}
                       </div>
+                      {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
+                        <div>
+                          <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
+                        </div>
+                      {% endwith %}
+                      {% with count=item.new_contributors_count.count %}
+                        {% if count >= 1 %}
+                          <div>
+                            There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} for this release!
+                          </div>
+                        {% endif %}
+                      {% endwith %}
+                      <div>
+                        There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
+                        and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
+                      </div>
+                      {% if item.deps.added or item.deps.removed %}
+                        <div>
+                          There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
+                          and
+                          <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
+                        </div>
+                      {% endif %}
                     </div>
-                  {% endfor %}
+                  </div>
+                </div>
+                <div class="px-4">
+                  <div class="mx-auto mb-6">Top Contributors</div>
+                  <div class="m-auto grid grid-cols-1 gap-2">
+                    {% for author in item.top_contributors_release %}
+                      <div class="flex flex-row gap-y-2 w-40 items-center">
+                        {% avatar commitauthor=author %}
+                        <div class="w-full flex flex-col ml-2">
+                          <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
+                            {{ author.display_name }}
+                          </div>
+                          <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
                 </div>
               </div>
             </div>
