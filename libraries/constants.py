@@ -450,6 +450,10 @@ LIBRARY_HERO_ART = {
             "fade": {"hold": 55, "clear": 70},
         },
     },
+    "decimal": {
+        "background": "img/v3/library-heros/decimal-background.webp",
+        "illustration": "img/v3/library-heros/decimal.webp",
+    },
     "describe": {
         "background": "img/v3/library-heros/describe-background.webp",
         "illustration": "img/v3/library-heros/describe.webp",
