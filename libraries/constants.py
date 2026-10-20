@@ -494,6 +494,10 @@ LIBRARY_HERO_ART = {
         "background": "img/v3/library-heros/test-background.webp",
         "illustration": "img/v3/library-heros/test.webp",
     },
+    "unordered": {
+        "background": "img/v3/library-heros/unordered-background.webp",
+        "illustration": "img/v3/library-heros/unordered.webp",
+    },
     "uuid": {
         "background": "img/v3/library-heros/uuid-background.webp",
         "illustration": "img/v3/library-heros/uuid.webp",
