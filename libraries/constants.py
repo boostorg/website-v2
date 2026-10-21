@@ -468,6 +468,19 @@ LIBRARY_HERO_ART = {
         # crop of it would scale to the same thing. Omitting the key drops the
         # <source> and uses the desktop image at every width.
     },
+    "math": {
+        "background": "img/v3/library-heros/math-background.webp",
+        "illustration": "img/v3/library-heros/math.webp",
+        # Both layers are exported at one height, so sizing the background to
+        # the figure's width (2560 / 1222 = 209.5%) keeps the rocks and kelp
+        # behind the school; the flat teal of its top edge fills above it.
+        "mobile_background": {
+            "size": "209.5% auto",
+            "position": {"x": "right", "y": "bottom"},
+            "sky": {"top": "#49c5d0", "mid": "#49c5d0", "bottom": "#49c5d0"},
+            "fade": {"hold": 55, "clear": 70},
+        },
+    },
     "mqtt5": {
         "background": "img/v3/library-heros/mqtt5-background.webp",
         "illustration": "img/v3/library-heros/mqtt5.webp",
