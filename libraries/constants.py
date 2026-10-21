@@ -437,6 +437,19 @@ LIBRARY_HERO_ART = {
         # the text, where the extra canvas would only shrink the squid.
         "illustration_mobile": "img/v3/library-heros/cobalt-mobile.webp",
     },
+    "container": {
+        "background": "img/v3/library-heros/container-background.webp",
+        "illustration": "img/v3/library-heros/container.webp",
+        # Both layers are exported at one height, so sizing the background to
+        # the figure's width (2560 / 1028 = 249%) keeps the tile and counter
+        # behind the fridge; the flat wall colour of its top edge fills above.
+        "mobile_background": {
+            "size": "249% auto",
+            "position": {"x": "right", "y": "bottom"},
+            "sky": {"top": "#e4dfc7", "mid": "#e4dfc7", "bottom": "#e4dfc7"},
+            "fade": {"hold": 55, "clear": 70},
+        },
+    },
     "describe": {
         "background": "img/v3/library-heros/describe-background.webp",
         "illustration": "img/v3/library-heros/describe.webp",
