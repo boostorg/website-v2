@@ -42,7 +42,7 @@
         {% if mailing_list_activity_card_data %}
         <div class="user-profile__mailing-list">
           {% with data=mailing_list_activity_card_data %}
-            {% include 'v3/includes/_mailing_list_activity_card.html' with title=data.title mailing_list_items=data.mailing_list_items %}
+            {% include 'v3/includes/_mailing_list_activity_card.html' with title=data.title mailing_list_items=data.mailing_list_items primary_button_url=data.primary_button_url %}
           {% endwith %}
         </div>
         {% endif %}
