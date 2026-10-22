@@ -1,0 +1,103 @@
+/* Code Block Colors */
+
+:root {
+    /* Light Mode */
+    --code-text-light: #000;
+    --code-comment-light: #a31515;
+    --code-keyword-light: #00f;
+    --code-string-light: #008000;
+    --code-preprocess-light: #6f008a;
+    /* Dark Mode */
+    --code-text-dark: #abb2bf;
+    --code-comment-dark: #e06c75;
+    --code-keyword-dark: #56b6c2;
+    --code-string-dark: #98c379;
+    ;
+    --code-preprocess-dark: #c678dd;
+    ;
+}
+
+html {
+    --code-text: var(--code-text-light);
+    --code-comment: var(--code-comment-light);
+    --code-keyword: var(--code-keyword-light);
+    --code-string: var(--code-string-light);
+    --code-preprocess: var(--code-preprocess-light);
+}
+
+html.dark {
+    --code-text: var(--code-text-dark);
+    --code-comment: var(--code-comment-dark);
+    --code-keyword: var(--code-keyword-dark);
+    --code-string: var(--code-string-dark);
+    --code-preprocess: var(--code-preprocess-dark);
+}
+
+
+/* Pygments stylings */
+
+/* Rouge Syntax Highlighting */
+html,
+html.dark {
+    .boostlook pre.rouge .k {
+        /* Keywords like const, auto */
+        color: var(--code-keyword, #a626a4);
+    }
+
+    .boostlook pre.rouge .kt {
+        /* Types like char, int */
+        color: var(--code-keyword, #a626a4);
+    }
+
+    .boostlook pre.rouge .n,
+    .boostlook pre.rouge .nf {
+        /* Names, identifiers, functions */
+        color: var(--code-text, #383a42);
+    }
+
+    .boostlook pre.rouge .o {
+        /* Operators */
+        color: var(--code-text, #e45649);
+    }
+
+    .boostlook pre.rouge .s,
+    .boostlook pre.rouge .s1,
+    .boostlook pre.rouge .s2 {
+        /* Strings */
+        color: var(--code-string, #50a14f);
+    }
+
+    .boostlook pre.rouge .mi,
+    .boostlook pre.rouge .mf {
+        /* Numbers */
+        color: var(--code-text, #986801);
+    }
+
+    .boostlook pre.rouge .p {
+        /* Punctuation */
+        color: var(--code-text, #383a42);
+    }
+
+    .boostlook pre.rouge .c,
+    .boostlook pre.rouge .c1,
+    .boostlook pre.rouge .cm {
+        /* Comments */
+        color: var(--code-comment, #a0a1a7);
+        font-family: "Monaspace Xenon", monospace;
+        font-style: italic;
+    }
+
+    .boostlook pre.rouge .cp,
+    .boostlook pre.rouge .cpf {
+        /* preprocess */
+        font-style: italic;
+    }
+
+    .boostlook pre.rouge .cp {
+        color: var(--code-preprocess);
+    }
+
+    .boostlook pre.rouge .cpf {
+        color: var(--code-text);
+    }
+}
