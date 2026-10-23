@@ -67,6 +67,7 @@ from .mixins import V3UserProfileContextMixin
 from .models import (
     NO_PUBLIC_ROLE_OPTION,
     User,
+    UserBiography,
     UserProfileRoutingKey,
     encode_role_option,
 )
@@ -265,7 +266,7 @@ class CurrentUserProfileView(
             "username": user.display_name,
             "email": user.email,
             "tagline": user.tagline,
-            "bio": user.biography,
+            "bio": user.bio,
             "role": encoded_role if encoded_role in offered else "",
             "country": user.country.code,
             "indicate_last_login_method": user.indicate_last_login_method,
@@ -619,12 +620,19 @@ class CurrentUserProfileView(
 
     def _save_v3_visibility_section(self, user: User, form):
         user.tagline = form.cleaned_data["tagline"]
-        user.biography = form.cleaned_data["bio"]
         user.hide_github_activity = form.cleaned_data["hide_github"]
         user.hide_mailing_list_activity = form.cleaned_data["hide_ml"]
         user.hide_badges = form.cleaned_data["hide_ach"]
         user.display_badge = form.cleaned_data["display_badge"]
         user.save()
+
+        # The Biography goes through a moderation queue, so must be submitted slightly differently
+        if bio := form.cleaned_data["bio"]:
+            ub, _ = UserBiography.objects.get_or_create(user=user)
+            if not ub.workflow_in_progress:
+                ub.value = bio
+                ub.save_revision(user=user)
+                ub.get_workflow().start(obj=ub, user=user)
 
     def _save_v3_details_section(self, user: User, form):
         user.display_name = form.cleaned_data["username"]

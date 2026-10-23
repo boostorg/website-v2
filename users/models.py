@@ -24,6 +24,7 @@ from django_extensions.db.models import TimeStampedModel
 from imagekit.exceptions import MissingSource
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
+from wagtail.models.pages import WorkflowMixin, RevisionMixin, DraftStateMixin
 
 from core.validators import (
     image_validator,
@@ -514,12 +515,6 @@ class User(BaseUser):
         default="",
         help_text="Short plain-text tagline shown beside the avatar across the site.",
     )
-    biography = models.TextField(
-        max_length=BIOGRAPHY_MAX_LENGTH,
-        blank=True,
-        default="",
-        help_text="Rich-text biography (stored as Markdown) shown on the public profile.",
-    )
     # If non-null, the user has requested deletion but the grace period has not
     # elapsed.
     delete_permanently_at = models.DateTimeField(null=True, editable=False)
@@ -684,6 +679,13 @@ class User(BaseUser):
     @cached_property
     def name(self):
         return self.display_name
+
+    @property
+    def bio(self):
+        if hasattr(self, "biography"):
+            return self.biography.value
+        else:
+            return ""
 
     @cached_property
     def profile_url(self):
@@ -1034,6 +1036,33 @@ class User(BaseUser):
 
     def __str__(self):
         return f"{self.display_name} <{self.email}>"
+
+
+class UserBiography(WorkflowMixin, DraftStateMixin, RevisionMixin, models.Model):
+    """
+    One to one model to a user, which contains their biography.
+
+    Split into a separate model to allow for wagtail workflow operations
+    without directly affecting the user model
+    """
+
+    BIOGRAPHY_MAX_LENGTH = User.BIOGRAPHY_MAX_LENGTH
+
+    user = models.OneToOneField(
+        "users.User", related_name="biography", on_delete=models.CASCADE
+    )
+    value = models.TextField(
+        max_length=BIOGRAPHY_MAX_LENGTH,
+        blank=True,
+        default="",
+        help_text="Rich-text biography (stored as Markdown) shown on the public profile.",
+    )
+
+    def __str__(self):
+        return f"{self.user}"
+
+    class Meta:
+        verbose_name_plural = "User Biographies"
 
 
 class LastSeen(models.Model):
