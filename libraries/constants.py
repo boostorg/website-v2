@@ -502,6 +502,14 @@ LIBRARY_HERO_ART = {
         },
         # No illustration_mobile: the desktop figure is already a tight crop.
     },
+    "openmethod": {
+        "background": "img/v3/library-heros/openmethod-background.webp",
+        "illustration": "img/v3/library-heros/openmethod.webp",
+        "illustration_mobile": "img/v3/library-heros/openmethod-mobile.webp",
+        "mobile_background": {
+            "image": "img/v3/library-heros/openmethod-background-mobile.webp",
+        },
+    },
     "pfr": {
         "background": "img/v3/library-heros/pfr-background.webp",
         "illustration": "img/v3/library-heros/pfr.webp",
