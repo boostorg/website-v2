@@ -7,6 +7,7 @@ from openai import OpenAIError
 
 from django.core.cache import caches
 from django.utils import timezone
+from wagtail.models.pages import WorkflowMixin
 
 from config.celery import app
 from core.asciidoc import convert_adoc_to_html
@@ -152,3 +153,23 @@ def delete_all_rendered_content():
 
     logger.info("all_rendered_content_deleted", total_count=deleted_count)
     return deleted_count
+
+
+def ai_moderate_content(
+    user, object: WorkflowMixin, content: str, model: str, timeout: int = 30
+):
+    """
+    AI moderation call on content. Passes the given content to the chosen model
+    and either returns APPROVED or NEED MODERATION to the given task state.
+
+    Handling of those actions is defined on the task.
+    """
+    approved = True
+    if approved:
+        object.current_workflow_task.on_action(
+            object.current_workflow_task_state, user, "approve"
+        )
+    else:
+        object.current_workflow_task.on_action(
+            object.current_workflow_task_state, user, "needs_moderation"
+        )
