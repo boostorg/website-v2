@@ -406,14 +406,26 @@ class CallAIModerationTask(Task):
     APPROVED         - Content should be published
     NEEDS MODERATION - Content should be moved to human moderation
 
-    The object being passed in should have a method or property called `ai_moderation_content`
+    The object being passed in should have a method or property called `_ai_moderation_content`
     which will then be passed to the AI moderator.
     """
 
     def start(self, workflow_state, user=None):
+        from core.tasks import ai_moderate_content_task
+
         task_state = super().start(workflow_state, user)
 
         # Enqueue the AI moderation task
+        obj = workflow_state.content_object
+        revision = task_state.revision
+        ct_id = workflow_state.content_type.id
+        ai_moderate_content_task.delay(
+            user.id,
+            obj.id,
+            ct_id,
+            revision.content_object._ai_moderation_content,
+            settings.MODERATION_MODEL,
+        )
 
         return task_state
 

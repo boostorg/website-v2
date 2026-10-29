@@ -1061,6 +1061,10 @@ class UserBiography(WorkflowMixin, DraftStateMixin, RevisionMixin, models.Model)
     def __str__(self):
         return f"{self.user}"
 
+    @property
+    def _ai_moderation_content(self):
+        return self.value
+
     class Meta:
         verbose_name_plural = "User Biographies"
 
