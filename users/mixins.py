@@ -154,7 +154,7 @@ class V3UserProfileContextMixin:
             # None (rather than "") when the user has no biography, so the
             # template renders the bio empty state instead of an empty card.
             # A stored biography is Markdown; the bio card renders it.
-            "bio": user.biography or None,
+            "bio": user.bio or None,
             "top_links": self.get_v3_profile_link_buttons(user),
         }
         # Keyed on `show_recognition` rather than `is_owner` alone: a visitor

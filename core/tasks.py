@@ -1,14 +1,18 @@
 import structlog
 from json import JSONDecodeError
+from textwrap import dedent
+from openai import OpenAI, OpenAIError
 
 from celery import shared_task
 from dateutil.parser import parse
-from openai import OpenAIError
 
 from django.core.cache import caches
 from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
+from wagtail.models.pages import WorkflowMixin
 
 from config.celery import app
+from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL
 from core.asciidoc import convert_adoc_to_html
 from libraries.path_matcher.utils import get_path_match_from_chain
 from versions.models import Version
@@ -152,3 +156,86 @@ def delete_all_rendered_content():
 
     logger.info("all_rendered_content_deleted", total_count=deleted_count)
     return deleted_count
+
+
+def ai_moderate_content(
+    user, obj: WorkflowMixin, content: str, model: str, timeout: int = 30
+):
+    """
+    AI moderation call on content. Passes the given content to the chosen model
+    and either returns APPROVED or NEED MODERATION to the given task state.
+
+    Handling of those actions is defined on the task.
+    """
+    approved = False
+
+    if not content:
+        logger.warning("No content provided to summarize, skipping.")
+        raise ValueError("No content provided to summarize.")
+    system_prompt = dedent("""
+        You are an experienced content moderator tasked with determining if content
+        is safe to publish. Determine if the content after "----" is safe to publish.
+        Only return one of the following options: Approved or Denied. Do not include
+        any summaries or reasoning.
+        You should err on the side of caution, preferring to deny quesitonable content
+        rather than allow it to be published.
+        If no content is provided, do not return anything at all.
+        Do not allow any NSFW content such as profanity, sexual content, or violence to
+        be published.
+        Do not allow slurs, political slogans, or other questionable content to be published.
+        """)
+    user_prompt = dedent(f"""
+        Please moderate the following content:
+        ----
+        Content: {content}
+        """)
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
+    ]
+    logger.debug(f"{messages=}")
+    client = OpenAI(
+        base_url=OPENROUTER_URL, api_key=OPENROUTER_API_KEY, timeout=timeout
+    )
+    response = client.chat.completions.create(model=model, messages=messages)
+    try:
+        decision = response.choices[0].message.content
+    except (AttributeError, IndexError) as e:
+        logger.error(f"Error getting summarized content: {e=}")
+        return None
+    approved = "Approved" in decision
+
+    if approved:
+        obj.current_workflow_task.on_action(
+            obj.current_workflow_task_state, user, "approve"
+        )
+    else:
+        obj.current_workflow_task.on_action(
+            obj.current_workflow_task_state, user, "needs_moderation"
+        )
+
+
+@app.task(max_retries=3, autoretry_for=(OpenAIError,))
+def ai_moderate_content_task(
+    user_id: int, object_id: int, objectcontenttype_id: int, content: str, model: str
+):
+    """
+    Celery wrapper around `ai_moderate_content`.
+
+    Runs in a worker so ``autoretry_for=(OpenAIError,)`` and ``max_retries``
+    apply to transient OpenRouter blips. For synchronous, inline callers, use
+    ``ai_moderate_content`` directly (so retries don't silently no-op and you can
+    set a tight timeout).
+
+    Looks up the object using its content type and id, since we can't pass an
+    object to a task
+    """
+    from django.contrib.auth import get_user_model
+
+    User = get_user_model()
+    user = User.objects.get(pk=user_id)
+
+    object_model = ContentType.objects.get(pk=objectcontenttype_id).model_class()
+    obj = object_model.objects.get(pk=object_id)
+
+    ai_moderate_content(user, obj, content, model)
