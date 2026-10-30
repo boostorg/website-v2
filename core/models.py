@@ -423,7 +423,7 @@ class CallAIModerationTask(Task):
             user.id,
             obj.id,
             ct_id,
-            revision.content_object._ai_moderation_content,
+            revision.as_object()._ai_moderation_content,
             settings.MODERATION_MODEL,
         )
 
