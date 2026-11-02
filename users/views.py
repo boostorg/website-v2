@@ -629,7 +629,7 @@ class CurrentUserProfileView(
         # If the biography is empty on save, we cancel the active workflow and publish.
         # Emptying a biography does not require moderation.
         # Revisions are saved in case of malicious actor or mistaken deletion
-        ub = form.ub
+        ub = form.user_bio
         if bio := form.cleaned_data["bio"]:
             if not ub.workflow_in_progress:
                 ub.value = bio
