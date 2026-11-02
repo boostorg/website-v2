@@ -329,6 +329,15 @@ class V3UserProfileForm(forms.Form):
             exclude_pk=self._user.pk if self._user is not None else None,
         )
 
+    def clean_bio(self):
+        from users.models import UserBiography
+
+        ub, _ = UserBiography.objects.get_or_create(user=self._user)
+        if ub.workflow_in_progress:
+            raise forms.ValidationError("Your biography is awaiting review.")
+        else:
+            self.user_bio = ub
+
     # Left Column Fields
     tagline = forms.CharField(
         max_length=User.TAGLINE_MAX_LENGTH,

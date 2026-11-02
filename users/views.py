@@ -67,7 +67,6 @@ from .mixins import V3UserProfileContextMixin
 from .models import (
     NO_PUBLIC_ROLE_OPTION,
     User,
-    UserBiography,
     UserProfileRoutingKey,
     encode_role_option,
 )
@@ -627,13 +626,22 @@ class CurrentUserProfileView(
         user.save()
 
         # The Biography goes through a moderation queue, so must be submitted slightly differently
+        # If the biography is empty on save, we cancel the active workflow and publish.
+        # Emptying a biography does not require moderation.
+        # Revisions are saved in case of malicious actor or mistaken deletion
+        ub = form.ub
         if bio := form.cleaned_data["bio"]:
-            ub, _ = UserBiography.objects.get_or_create(user=user)
             if not ub.workflow_in_progress:
                 ub.value = bio
                 ub.save_revision(user=user)
                 if workflow := ub.get_workflow():
                     workflow.start(obj=ub, user=user)
+        else:
+            ub.value = ""
+            if workflow_state := ub.current_workflow_state:
+                workflow_state.cancel()
+            rev = ub.save_revision(user=user)
+            ub.publish(revision=rev, user=user)
 
     def _save_v3_details_section(self, user: User, form):
         user.display_name = form.cleaned_data["username"]

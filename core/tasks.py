@@ -171,7 +171,10 @@ def ai_moderate_content(
 
     if not content:
         logger.warning("No content provided to summarize, skipping.")
-        raise ValueError("No content provided to summarize.")
+        obj.current_workflow_task.on_action(
+            obj.current_workflow_task_state, user, "needs_moderation"
+        )
+        return None
     system_prompt = dedent("""
         You are an experienced content moderator tasked with determining if content
         is safe to publish. Determine if the content after "----" is safe to publish.
@@ -200,10 +203,9 @@ def ai_moderate_content(
     response = client.chat.completions.create(model=model, messages=messages)
     try:
         decision = response.choices[0].message.content
+        approved = decision.lower() == "approved"
     except (AttributeError, IndexError) as e:
         logger.error(f"Error getting summarized content: {e=}")
-        return None
-    approved = "Approved" in decision
 
     if approved:
         obj.current_workflow_task.on_action(
@@ -217,7 +219,12 @@ def ai_moderate_content(
 
 @app.task(max_retries=3, autoretry_for=(OpenAIError,))
 def ai_moderate_content_task(
-    user_id: int, object_id: int, objectcontenttype_id: int, content: str, model: str
+    user_id: int,
+    object_id: int,
+    objectcontenttype_id: int,
+    task_state_id: int,
+    content: str,
+    model: str,
 ):
     """
     Celery wrapper around `ai_moderate_content`.
@@ -231,9 +238,17 @@ def ai_moderate_content_task(
     object to a task
     """
     from django.contrib.auth import get_user_model
+    from wagtail.models import TaskState
+
+    ts = TaskState.objects.get(id=task_state_id)
+    if not ts.status == ts.STATUS_IN_PROGRESS:
+        return
 
     User = get_user_model()
-    user = User.objects.get(pk=user_id)
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        user = None
 
     object_model = ContentType.objects.get(pk=objectcontenttype_id).model_class()
     obj = object_model.objects.get(pk=object_id)

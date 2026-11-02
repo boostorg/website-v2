@@ -19,12 +19,13 @@ def reverse(apps, schema_editor):
     UserBiography = apps.get_model("users", "UserBiography")
     db_alias = schema_editor.connection.alias
     updated_users = []
-    for ub in UserBiography.objects.using(db_alias).all():
+    for ub in UserBiography.objects.select_related("user").using(db_alias).all():
         user = ub.user
         user.biography = ub.value
         updated_users.append(user)
     User.objects.using(db_alias).bulk_update(
-        updated_users
+        updated_users,
+        fields=["biography"]
     )
 
 class Migration(migrations.Migration):

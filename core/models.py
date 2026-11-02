@@ -419,12 +419,15 @@ class CallAIModerationTask(Task):
         obj = workflow_state.content_object
         revision = task_state.revision
         ct_id = workflow_state.content_type.id
-        ai_moderate_content_task.delay(
-            user.id,
-            obj.id,
-            ct_id,
-            revision.as_object()._ai_moderation_content,
-            settings.MODERATION_MODEL,
+        transaction.on_commit(
+            ai_moderate_content_task.delay(
+                user.id,
+                obj.id,
+                ct_id,
+                task_state.id,
+                revision.as_object()._ai_moderation_content,
+                settings.MODERATION_MODEL,
+            )
         )
 
         return task_state
@@ -432,6 +435,7 @@ class CallAIModerationTask(Task):
     def on_action(self, task_state: TaskState, user: User, action_name: str, **kwargs):
         if action_name == "approve":
             # On approval, we directly complete the workflow, skipping human moderation
+            task_state.approve(update=False)
             task_state.workflow_state.finish(user=user)
         if action_name == "needs_moderation":
             # If we need moderation, instead we "approve" the step, which moves to additional moderation
