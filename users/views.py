@@ -632,7 +632,8 @@ class CurrentUserProfileView(
             if not ub.workflow_in_progress:
                 ub.value = bio
                 ub.save_revision(user=user)
-                ub.get_workflow().start(obj=ub, user=user)
+                if workflow := ub.get_workflow():
+                    workflow.start(obj=ub, user=user)
 
     def _save_v3_details_section(self, user: User, form):
         user.display_name = form.cleaned_data["username"]
