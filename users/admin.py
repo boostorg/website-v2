@@ -86,7 +86,6 @@ class EmailUserAdmin(UserAdmin):
                     "display_name",
                     "github_username",
                     "tagline",
-                    "biography",
                     "internal_role",
                     "role_eligibility_display",
                     "valid_email",

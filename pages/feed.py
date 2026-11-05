@@ -137,7 +137,12 @@ class PostFeedFilters:
     def _resolve_author(value):
         if not value.isdigit():
             return None
-        return get_user_model().objects.filter(pk=value).first()
+        return (
+            get_user_model()
+            .objects.select_related("biography")
+            .filter(pk=value)
+            .first()
+        )
 
     @property
     def is_active(self):
