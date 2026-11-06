@@ -239,3 +239,26 @@ def test_base_release_url_slug_matches_boost_url_slug_off_point_releases(
     assert version.base_release_url_slug == expected
     if not version.is_point_release:
         assert version.base_release_url_slug == version.boost_url_slug
+
+
+def test_version_100_is_most_recent():
+    from versions.models import Version
+
+    v_100 = baker.make(
+        "versions.Version",
+        name="boost-1.100.0",
+        beta=False,
+        full_release=True,
+        active=True,
+        fully_imported=True,
+    )
+    baker.make(
+        "versions.Version",
+        name="boost-1.99.0",
+        beta=False,
+        full_release=True,
+        active=True,
+        fully_imported=True,
+    )
+    most_recent = Version.objects.most_recent()
+    assert most_recent == v_100
