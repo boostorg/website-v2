@@ -416,6 +416,15 @@ LIBRARY_GITHUB_URL_OVERRIDES = {
 # `--hero-bg-library-mobile-size` in heros.css.
 # key: Library.slug
 LIBRARY_HERO_ART = {
+    "asio": {
+        "background": "img/v3/library-heros/asio-background.webp",
+        "illustration": "img/v3/library-heros/asio.webp",
+        "illustration_mobile": "img/v3/library-heros/asio-mobile.webp",
+        "mobile_background": {
+            "image": "img/v3/library-heros/asio-background-mobile.webp",
+            "position": {"x": "right", "y": "bottom"},
+        },
+    },
     "beast": {
         "background": "img/v3/library-heros/beast-background.png",
         "illustration": "img/v3/library-heros/beast.png",
