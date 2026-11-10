@@ -640,7 +640,7 @@ class CurrentUserProfileView(
                 ) and ws.status == ws.STATUS_NEEDS_CHANGES:
                     ws.cancel()
                 if workflow := ub.get_workflow():
-                    workflow.start(obj=ub)
+                    workflow.start(obj=ub, user=user)
         else:
             ub.value = ""
             if ws := ub.current_workflow_state:

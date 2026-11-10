@@ -410,9 +410,27 @@ class CallAIModerationTask(Task):
     which will then be passed to the AI moderator.
     """
 
-    def start(self, workflow_state, user=None):
+    def _call_ai_moderation(self, user, obj, ct_id, task_state, revision):
         from core.tasks import ai_moderate_content_task
         from celery.exceptions import OperationalError
+
+        try:
+            ai_moderate_content_task.delay(
+                user.id if user else None,
+                obj.id,
+                ct_id,
+                task_state.id,
+                revision.as_object()._ai_moderation_content,
+                settings.MODERATION_MODEL,
+            )
+
+        except OperationalError:
+            # If we fail to start the AI moderation due to an
+            # opertational error (backend not found), we move to
+            # human moderation instead
+            task_state.approve()
+
+    def start(self, workflow_state, user=None):
 
         task_state = super().start(workflow_state, user)
 
@@ -420,22 +438,15 @@ class CallAIModerationTask(Task):
         obj = workflow_state.content_object
         revision = task_state.revision
         ct_id = workflow_state.content_type.id
-        try:
-            transaction.on_commit(
-                lambda: ai_moderate_content_task.delay(
-                    user.id,
-                    obj.id,
-                    ct_id,
-                    task_state.id,
-                    revision.as_object()._ai_moderation_content,
-                    settings.MODERATION_MODEL,
-                )
+        transaction.on_commit(
+            self._call_ai_moderation(
+                user=user,
+                obj=obj,
+                ct_id=ct_id,
+                task_state=task_state,
+                revision=revision,
             )
-        except OperationalError:
-            # If we fail to start the AI moderation due to an
-            # opertational error (backend not found), we move to
-            # human moderation instead
-            task_state.approve()
+        )
 
         return task_state
 
