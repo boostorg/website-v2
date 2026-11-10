@@ -412,6 +412,7 @@ class CallAIModerationTask(Task):
 
     def start(self, workflow_state, user=None):
         from core.tasks import ai_moderate_content_task
+        from celery.exceptions import OperationalError
 
         task_state = super().start(workflow_state, user)
 
@@ -419,16 +420,22 @@ class CallAIModerationTask(Task):
         obj = workflow_state.content_object
         revision = task_state.revision
         ct_id = workflow_state.content_type.id
-        transaction.on_commit(
-            lambda: ai_moderate_content_task.delay(
-                user.id,
-                obj.id,
-                ct_id,
-                task_state.id,
-                revision.as_object()._ai_moderation_content,
-                settings.MODERATION_MODEL,
+        try:
+            transaction.on_commit(
+                lambda: ai_moderate_content_task.delay(
+                    user.id,
+                    obj.id,
+                    ct_id,
+                    task_state.id,
+                    revision.as_object()._ai_moderation_content,
+                    settings.MODERATION_MODEL,
+                )
             )
-        )
+        except OperationalError:
+            # If we fail to start the AI moderation due to an
+            # opertational error (backend not found), we move to
+            # human moderation instead
+            task_state.approve()
 
         return task_state
 

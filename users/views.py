@@ -634,14 +634,17 @@ class CurrentUserProfileView(
             if not ub.workflow_in_progress:
                 ub.value = bio
                 ub.save_revision(user=user)
+                # If changes are requested, cancel the previous workflow and refire it
+                if (
+                    ws := ub.current_workflow_state
+                ) and ws.status == ws.STATUS_NEEDS_CHANGES:
+                    ws.cancel()
                 if workflow := ub.get_workflow():
-                    workflow.start(obj=ub, user=user)
+                    workflow.start(obj=ub)
         else:
             ub.value = ""
-            if (
-                ws := ub.current_workflow_state
-            ) and ws.status == ws.STATUS_NEEDS_CHANGES:
-                ws.cancel(user=user)
+            if ws := ub.current_workflow_state:
+                ws.cancel()
             rev = ub.save_revision(user=user)
             ub.publish(revision=rev, user=user)
 
