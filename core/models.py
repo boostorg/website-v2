@@ -420,7 +420,7 @@ class CallAIModerationTask(Task):
         revision = task_state.revision
         ct_id = workflow_state.content_type.id
         transaction.on_commit(
-            lambda _: ai_moderate_content_task.delay(
+            lambda: ai_moderate_content_task.delay(
                 user.id,
                 obj.id,
                 ct_id,

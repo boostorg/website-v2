@@ -638,8 +638,10 @@ class CurrentUserProfileView(
                     workflow.start(obj=ub, user=user)
         else:
             ub.value = ""
-            if workflow_state := ub.current_workflow_state:
-                workflow_state.cancel()
+            if (
+                ws := ub.current_workflow_state
+            ) and ws.status == ws.STATUS_NEEDS_CHANGES:
+                ws.cancel(user=user)
             rev = ub.save_revision(user=user)
             ub.publish(revision=rev, user=user)
 

@@ -199,7 +199,6 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             "data",
             "profile_links",
             "tagline",
-            "biography",
             "role",
         )
         read_only_fields = (
