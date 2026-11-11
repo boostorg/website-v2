@@ -19,15 +19,15 @@ def test_most_recent_manager(version, inactive_version, old_version, beta_versio
 def test_most_recent_beta_manager(version, inactive_version, old_version, beta_version):
     assert Version.objects.most_recent_beta() == beta_version
 
-    version.name = "1.0.beta"
+    version.name = "1.0.0.beta1"
     version.beta = True
     version.save()
-    beta_version.name = "1.1.beta"
+    beta_version.name = "1.1.0.beta1"
     beta_version.save()
 
     assert Version.objects.most_recent_beta() == beta_version
 
-    version.name = "2.0.beta"
+    version.name = "2.0.0.beta1"
     version.save()
     assert Version.objects.most_recent_beta() == version
 

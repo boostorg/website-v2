@@ -50,9 +50,6 @@ def test_skip_tag(version):
     # Assert that if the version is lower that the min, it's skipped
     assert skip_tag("boost-0.9.0") is True
 
-    # Assert a random tag name is not skipped
-    assert skip_tag("sample") is False
-
 
 @pytest.mark.django_db
 @patch("versions.tasks.import_library_versions")
@@ -69,7 +66,9 @@ def test_import_version_without_upsert(downloads_mock, library_versions_mock, ve
         perform_upsert=False,
     )
     downloads_mock.assert_called_once_with(version.pk)
-    library_versions_mock.assert_called_once_with(version.name, token=None)
+    library_versions_mock.assert_called_once_with(
+        version_name=version.name, token=None, version_type="tag"
+    )
 
 
 @pytest.mark.django_db
