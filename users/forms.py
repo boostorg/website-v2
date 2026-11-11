@@ -333,7 +333,7 @@ class V3UserProfileForm(forms.Form):
         from users.models import UserBiography
 
         ub, _ = UserBiography.objects.get_or_create(user=self._user)
-        if ub.workflow_in_progress and self.cleaned_data["bio"]:
+        if self.cleaned_data.get("bio", "") and ub.workflow_in_progress:
             raise forms.ValidationError("Your biography is awaiting review.")
         else:
             self.user_bio = ub

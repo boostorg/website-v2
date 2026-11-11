@@ -1,4 +1,5 @@
 import re
+from functools import partial
 from pathlib import Path
 from uuid import uuid4
 
@@ -439,7 +440,8 @@ class CallAIModerationTask(Task):
         revision = task_state.revision
         ct_id = workflow_state.content_type.id
         transaction.on_commit(
-            self._call_ai_moderation(
+            partial(
+                self._call_ai_moderation,
                 user=user,
                 obj=obj,
                 ct_id=ct_id,

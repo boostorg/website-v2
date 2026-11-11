@@ -630,6 +630,7 @@ class CurrentUserProfileView(
         # Emptying a biography does not require moderation.
         # Revisions are saved in case of malicious actor or mistaken deletion
         ub = form.user_bio
+        print("before if else")
         if bio := form.cleaned_data["bio"]:
             if not ub.workflow_in_progress:
                 ub.value = bio
