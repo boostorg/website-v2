@@ -1,0 +1,66 @@
+{% load wagtailsettings_tags wagtailcore_tags %}
+{% get_settings %}
+{% with d_settings=settings.core.DonationPopupSettings %}
+    {% if d_settings.popup_active %}
+        <div class="donation__container" x-show="popupOpen" x-data="donationHandler">
+            <div class="donation__popup">
+                <div class="donation__col">
+                    <div class="donation__row">
+                        <div class="donation__col">{{ d_settings.donation_copy|richtext }}</div>
+                        <div>
+                            <input type="checkbox"
+                                   id="donation-popup__close-checkbox"
+                                   name="donation-popup-close"
+                                   class="badge-button__radio" />
+                            <label id="donation-popup__close-checkbox-button"
+                                   for="donation-popup__close-checkbox"
+                                   class="btn donation-popup__close-btn"
+                                   x-on:click="closeDonationPopup"
+                                   >
+                                {% include "includes/icon.html" with icon_name="close" icon_size=24 %}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        {% for button in d_settings.donation_links %}
+                            {% include "v3/includes/_button.html" with label=button.value.label only %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endwith %}
+
+<script>
+    document.addEventListener('alpine:init', ()=> {
+        window.donationHandler = function() {
+            return {
+                popupOpen: false,
+                cname: 'donation_popup_closed',
+                closeDonationPopup() {
+                    const exdays = 7;
+                    const d = new Date();
+                    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+                    let expires = "expires="+ d.toUTCString();
+                    document.cookie = this.cname + "=" + true + ";" + expires + ";path=/";
+                },
+                init() {
+                    let name = this.cname + "=";
+                    let decodedCookie = decodeURIComponent(document.cookie);
+                    let ca = decodedCookie.split(';');
+                    for(let i = 0; i <ca.length; i++) {
+                        let c = ca[i];
+                        while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                        }
+                        if (c.indexOf(name) == 0) {
+                            return;
+                        }
+                    }
+                    this.popupOpen = true;
+                }
+            }
+        }
+    })
+</script>

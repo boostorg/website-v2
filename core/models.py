@@ -12,12 +12,18 @@ from django_extensions.db.models import TimeStampedModel
 from django.db.models.functions import Lower
 from wagtail.admin.forms.models import WagtailAdminModelForm
 from wagtail.admin.panels import FieldPanel
-from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
+from wagtail.contrib.settings.models import (
+    BaseGenericSetting,
+    register_setting,
+    BaseSiteSetting,
+)
+from wagtail.fields import RichTextField, StreamField
 
+from core.managers import PopularSearchTermManager, RenderedContentManager
+from core.blocks import ButtonBlock
 from libraries.path_matcher import PathMatchResult
 from libraries.path_matcher.utils import get_path_match_from_chain
 from versions.models import Version
-from .managers import PopularSearchTermManager, RenderedContentManager
 
 logger = structlog.get_logger()
 
@@ -395,3 +401,15 @@ def delete_wysiwyg_image(sender, instance, **kwargs):
             logger.warning("Could not delete WYSIWYG image from storage", exc_info=True)
 
     transaction.on_commit(remove_from_storage)
+
+
+@register_setting
+class DonationPopupSettings(BaseSiteSetting):
+    donation_copy = RichTextField()
+    donation_links = StreamField(
+        [
+            ("block", ButtonBlock()),
+        ],
+        blank=True,
+    )
+    popup_active = models.BooleanField(default=False)
