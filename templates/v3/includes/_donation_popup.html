@@ -2,7 +2,9 @@
 {% get_settings %}
 {% with d_settings=settings.core.DonationPopupSettings %}
     {% if d_settings.popup_active %}
-        <div class="donation__container" x-show="popupOpen" x-data="donationHandler">
+        <div class="donation__container"
+             x-show="popupOpen"
+             x-data="donationHandler">
             <div class="donation__popup">
                 <div class="donation__col">
                     <div class="donation__row">
@@ -15,15 +17,14 @@
                             <label id="donation-popup__close-checkbox-button"
                                    for="donation-popup__close-checkbox"
                                    class="btn donation-popup__close-btn"
-                                   x-on:click="closeDonationPopup"
-                                   >
+                                   x-on:click="closeDonationPopup">
                                 {% include "includes/icon.html" with icon_name="close" icon_size=24 %}
                             </label>
                         </div>
                     </div>
                     <div class="btn-row">
                         {% for button in d_settings.donation_links %}
-                            {% include "v3/includes/_button.html" with label=button.value.label only %}
+                            {% include "v3/includes/_button.html" with label=button.value.label url=button.value.url only %}
                         {% endfor %}
                     </div>
                 </div>
@@ -31,7 +32,6 @@
         </div>
     {% endif %}
 {% endwith %}
-
 <script>
     document.addEventListener('alpine:init', ()=> {
         window.donationHandler = function() {
