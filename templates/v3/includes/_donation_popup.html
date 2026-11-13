@@ -1,5 +1,6 @@
 {% load wagtailsettings_tags wagtailcore_tags %}
 {% get_settings %}
+{% if request %}
 {% with d_settings=settings.core.DonationPopupSettings %}
     {% if d_settings.popup_active %}
         <div class="donation__container"
@@ -65,3 +66,4 @@
         }
     })
 </script>
+{% endif %}
