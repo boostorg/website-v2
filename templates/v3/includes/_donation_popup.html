@@ -44,6 +44,7 @@
                     d.setTime(d.getTime() + (exdays*24*60*60*1000));
                     let expires = "expires="+ d.toUTCString();
                     document.cookie = this.cname + "=" + true + ";" + expires + ";path=/";
+                    this.popupOpen = false;
                 },
                 init() {
                     let name = this.cname + "=";

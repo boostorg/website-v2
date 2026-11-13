@@ -47,8 +47,10 @@
 }
 
 @media screen and (max-width: 768px) {
-    .btn {
-        width: 100%;
+    .donation__container {
+        .btn {
+            width: 100%;
+        }
     }
 
     .donation__popup {
