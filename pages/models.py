@@ -4,6 +4,7 @@ from html import unescape
 
 from structlog import get_logger
 from wagtail.admin.panels import FieldPanel
+from wagtail.blocks import IntegerBlock
 from wagtail.models import PageManager
 from wagtail.url_routing import RouteResult
 from wagtail.fields import RichTextField, StreamField
@@ -692,3 +693,39 @@ class LegalPage(BasePage):
     @property
     def odd_cards(self):
         return self.cards[1::2]
+
+
+class DonationPage(BasePage):
+    """
+    Simple copy + form page for accepting donations.
+
+    Handles the logic for submitted payments, and allows for
+    customizing page copy as well accepted donation amounts and
+    minimums
+    """
+
+    template = "v3/donation_page.html"
+
+    parent_page_types = ["pages.RoutableHomePage"]
+    subpage_types = []
+
+    body = RichTextField(features=settings.RICH_TEXT_FEATURES, blank=True)
+    image = models.ForeignKey(
+        "wagtailimages.Image",
+        verbose_name=("Image"),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+    min_donation_amount = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text=(
+            "Minimum accepted donation amount in US Dollars. If not set, no minimum enforced."
+        ),
+    )
+    donation_amounts = StreamField(
+        [("donation_amount", IntegerBlock())],
+        "Accepted donation amounts in US Dollars. Will be displayed in a grid on the page, along with a custom amount.",
+    )
