@@ -181,6 +181,9 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "tracer.middleware.RequestID",
     "django.middleware.security.SecurityMiddleware",
+    # Adds an ETag from the final response body and answers conditional GETs
+    #  with 304, so browsers and Fastly can revalidate instead of refetching.
+    "django.middleware.http.ConditionalGetMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
