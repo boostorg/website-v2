@@ -53,6 +53,12 @@ def test_contributor_issues_url(library):
     assert "is%3Aopen" in url
 
 
+def test_github_properties_without_repo_segment():
+    library = baker.make("libraries.Library", github_url="https://github.com/boostorg")
+    assert library.github_properties() == {}
+    assert library.contributor_issues_url == ""
+
+
 def test_contributor_issues_url_without_github_url():
     library = baker.make("libraries.Library", github_url="")
     assert library.contributor_issues_url == ""

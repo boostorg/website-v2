@@ -179,9 +179,20 @@
   vertical-align: middle;
 }
 
-/* Two-column tables (label + description) fill the card, label column a quarter wide */
+/* Two-column tables (label + description) fill the card, label column a quarter wide.
+   Table layout, not block, so the rows fill the bordered box even with short text. */
 .markdown-card .markdown-content table:has(tr > :nth-child(2):last-child) {
+  display: table;
   width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+.markdown-card .markdown-content table:has(tr > :nth-child(2):last-child) td:first-child :is(code, a) {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .markdown-card .markdown-content table:has(tr > :nth-child(2):last-child) :is(th, td):first-child {
