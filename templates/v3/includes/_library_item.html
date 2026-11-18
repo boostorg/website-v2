@@ -13,6 +13,8 @@
     doc_url              (string, required)  - Documentation link URL
     extra_attrs          (string, optional)  - Extra HTML attributes for analytics
     library_slug         (string, optional)  - Library slug — emitted as data-slug for client-side filter targeting
+    contributor_issue_count (int, optional)  - Open GitHub issues labeled for new contributors; shows a Contribute badge under the name when > 0
+    contributor_issues_url  (string, optional) - GitHub search for those issues (the badge links here)
 
   Usage (list):
     {% include "v3/includes/_library_item.html" with variant="list" library_name="Boost.Geometry" library_url="#" description="A library for solving geometry problems." categories=cats cpp_version="C++ 14" author=author doc_url="/libs/geometry/doc/" %}
@@ -23,11 +25,16 @@
 {% if variant == "list" %}<li class="library-item library-item--list" {% if library_slug %}data-slug="{{ library_slug }}"{% endif %} {{ extra_attrs|safe }}>{% else %}<div class="library-item library-item--card" {% if library_slug %}data-slug="{{ library_slug }}"{% endif %} {{ extra_attrs|safe }}>{% endif %}
 
   <div class="library-item__header">
-    {% if library_url %}
-      <a href="{{ library_url }}" class="library-item__name">{{ library_name }}</a>
-    {% else %}
-      <span class="library-item__name">{{ library_name }}</span>
-    {% endif %}
+    <div class="library-item__name-cell">
+      {% if library_url %}
+        <a href="{{ library_url }}" class="library-item__name">{{ library_name }}</a>
+      {% else %}
+        <span class="library-item__name">{{ library_name }}</span>
+      {% endif %}
+      {% if contributor_issue_count and contributor_issues_url %}
+        {% include "v3/includes/_contribute_badge.html" with count=contributor_issue_count url=contributor_issues_url size="small" only %}
+      {% endif %}
+    </div>
     <p class="library-item__description">{{ description }}</p>
     <div class="library-item__tags">
       {% for cat in categories %}

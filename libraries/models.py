@@ -35,6 +35,7 @@ from mailing_list.tasks import calculate_mailing_list_activity
 from versions.models import ReportConfiguration
 from .constants import (
     COMMIT_EMAIL_CLAIM_MAX_AGE,
+    CONTRIBUTOR_ISSUE_LABELS,
     LATEST_RELEASE_URL_PATH_STR,
     LIBRARY_GITHUB_URL_OVERRIDES,
     LIBRARY_HERO_ART,
@@ -784,6 +785,17 @@ class Library(models.Model):
         return LIBRARY_GITHUB_URL_OVERRIDES.get(
             self.slug,
             f"https://github.com/{self.github_owner}/{self.github_repo}/issues",
+        )
+
+    @cached_property
+    def contributor_issues_url(self):
+        """GitHub search for this repo's open issues labeled for new contributors."""
+        if not self.github_owner or not self.github_repo:
+            return ""
+        labels = ",".join(f'"{label}"' for label in CONTRIBUTOR_ISSUE_LABELS)
+        query = urlencode({"q": f"is:issue is:open label:{labels}"})
+        return (
+            f"https://github.com/{self.github_owner}/{self.github_repo}/issues?{query}"
         )
 
     @cached_property

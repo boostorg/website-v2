@@ -7,6 +7,7 @@ from django.test.utils import CaptureQueriesContext
 from model_bakery import baker
 
 from libraries.utils import (
+    get_contributor_issue_counts,
     conditional_batched,
     hero_art_custom_properties,
     decode_content,
@@ -675,3 +676,35 @@ def test_hero_art_custom_properties_full_height():
         "--hero-fg-library-top": "0px"
     }
     assert hero_art_custom_properties({"figure": {"full_height": False}}) == {}
+
+
+def test_get_contributor_issue_counts(library):
+    from django.core.cache import cache
+
+    cache.delete("contributor_issue_counts")
+    other = baker.make("libraries.Library")
+    labeled = {"labels": [{"name": "Help Wanted"}, {"name": "bug"}]}
+    baker.make("libraries.Issue", library=library, is_open=True, data=labeled)
+    baker.make(
+        "libraries.Issue",
+        library=library,
+        is_open=True,
+        data={"labels": [{"name": "good first issue"}]},
+    )
+    # closed, unlabeled and look-alike labels don't count
+    baker.make("libraries.Issue", library=library, is_open=False, data=labeled)
+    baker.make(
+        "libraries.Issue",
+        library=other,
+        is_open=True,
+        data={"labels": [{"name": "bug"}]},
+    )
+    baker.make(
+        "libraries.Issue",
+        library=other,
+        is_open=True,
+        data={"labels": [{"name": "no help wanted"}]},
+    )
+
+    assert get_contributor_issue_counts() == {library.id: 2}
+    cache.delete("contributor_issue_counts")

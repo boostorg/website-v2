@@ -46,6 +46,18 @@ def test_get_issues_link(library):
     assert expected == result
 
 
+def test_contributor_issues_url(library):
+    url = library.contributor_issues_url
+    assert url.startswith("https://github.com/boostorg/multi_array/issues?q=")
+    assert "help+wanted" in url
+    assert "is%3Aopen" in url
+
+
+def test_contributor_issues_url_without_github_url():
+    library = baker.make("libraries.Library", github_url="")
+    assert library.contributor_issues_url == ""
+
+
 def test_get_issues_link_override():
     outcome_library = baker.make(
         "libraries.Library",

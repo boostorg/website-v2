@@ -45,6 +45,7 @@
    ============================================ */
 .feedback-widget__launcher {
   display: inline-flex;
+  box-shadow: 0 6px 18px rgb(5 8 22 / 0.22), 0 1px 3px rgb(5 8 22 / 0.12);
   align-items: center;
   gap: var(--space-xs);
   padding: var(--space-large) var(--space-large);
@@ -83,9 +84,29 @@
   overflow-y: auto;
   padding: var(--space-large);
   margin-top: var(--space-default);
-  background-color: var(--color-surface-page);
-  border: 1px solid var(--color-stroke-weak);
+  /* Teal panel so the widget stands out. The form fields read these tokens,
+     so they're retuned for the teal surface. */
+  --color-text-secondary: var(--color-primary-grey-850);
+  --color-text-tertiary: var(--color-primary-grey-850);
+  --color-surface-weak: var(--color-primary-white);
+  --color-stroke-weak: var(--color-primary-grey-700);
+  --color-stroke-mid: var(--color-primary-grey-800);
+  --color-stroke-strong: var(--color-primary-black);
+  background-color: var(--color-accent-weak-teal);
+  border: 1px solid var(--color-accent-strong-teal);
   border-radius: var(--border-radius-l);
+  box-shadow: 0 16px 40px rgb(5 8 22 / 0.18), 0 2px 8px rgb(5 8 22 / 0.08);
+}
+
+html.dark .feedback-widget__panel {
+  --color-text-secondary: var(--color-primary-grey-400);
+  --color-text-tertiary: var(--color-primary-grey-400);
+  --color-surface-weak: var(--color-primary-grey-950);
+  --color-stroke-weak: var(--color-primary-grey-600);
+  --color-stroke-mid: var(--color-primary-grey-500);
+  --color-stroke-strong: var(--color-primary-white);
+  background-color: var(--color-primary-grey-950);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 0.5);
 }
 
 .feedback-widget__header {
@@ -93,9 +114,9 @@
   flex-direction: row;
   align-items: flex-start;
   gap: var(--space-default);
-  margin: 0 calc(-1 * var(--space-large));
-  padding: 0 var(--space-large) var(--space-large);
-  border-bottom: 1px solid var(--color-stroke-weak);
+  margin: calc(-1 * var(--space-large)) calc(-1 * var(--space-large)) 0;
+  padding: var(--space-large);
+  background-color: var(--color-accent-strong-teal);
 }
 
 .feedback-widget__title {
@@ -108,7 +129,11 @@
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-tight);
-  color: var(--color-text-primary);
+}
+
+/* Two classes to beat Tailwind's `.dark h2`, which would turn the title white on teal */
+.feedback-widget__header .feedback-widget__title {
+  color: var(--color-primary-black);
 }
 
 .feedback-widget__close {
@@ -119,7 +144,7 @@
   padding: 0;
   background: none;
   border: 0;
-  color: var(--color-icon-primary);
+  color: var(--color-primary-black);
   cursor: pointer;
 }
 
@@ -142,6 +167,16 @@
 .feedback-widget__form .btn,
 .feedback-page__form .btn {
   margin-top: var(--space-large);
+}
+
+.feedback-widget__panel .btn-primary {
+  background: var(--color-primary-black);
+  color: var(--color-primary-white);
+}
+
+html.dark .feedback-widget__panel .btn-primary {
+  background: var(--color-accent-strong-teal);
+  color: var(--color-primary-black);
 }
 
 /* ============================================
@@ -186,6 +221,41 @@
   font-size: var(--font-size-small);
   line-height: var(--line-height-default);
   color: var(--color-text-error);
+}
+
+/* Red error text fails contrast on the teal panel, so it sits on its own light tint */
+.feedback-widget__panel :is(.field__error, .feedback-widget__error) {
+  width: fit-content;
+  padding: 2px var(--space-default);
+  border-radius: var(--border-radius-m);
+  background: var(--color-surface-error-weak);
+}
+
+.feedback-widget__panel .field--error .field__label {
+  color: var(--color-text-primary);
+}
+
+.feedback-widget .feedback-widget__panel .field--error :is(.field__control, .dropdown__trigger) {
+  border-color: var(--color-error-strong);
+}
+
+html.dark .feedback-widget__panel :is(.field__error, .feedback-widget__error) {
+  padding: 0;
+  background: transparent;
+}
+
+html.dark .feedback-widget__panel .field--error .field__label {
+  color: var(--color-text-error);
+}
+
+html.dark .feedback-widget .feedback-widget__panel .field--error :is(.field__control, .dropdown__trigger) {
+  border-color: var(--color-error-mid);
+}
+
+/* forms.css paints the textarea's own surface over the error tint in dark mode */
+html.dark .feedback-widget__panel .field__input--textarea,
+html.dark .feedback-widget__panel .field--error .field__control {
+  background-color: transparent;
 }
 
 /* Mobile: the panel spans the viewport rather than floating in a corner. */

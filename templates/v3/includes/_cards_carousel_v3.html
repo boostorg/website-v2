@@ -12,6 +12,9 @@
     infinite (optional) — if True, carousel loops infinitely. Default: False
     autoplay (optional) — if True, carousel scrolls automatically. Default: False
     autoplay_delay (optional) — autoplay interval in milliseconds. Only used when autoplay is True. Default: 4000
+    featured (optional) — if True, a yellow section with 32px arrows, for a carousel that leads a page. Default: False
+    cta_label (optional) — label for a button beside the arrows. Needs cta_url.
+    cta_url (optional) — destination for that button. Needs cta_label.
 
   Usage (custom heading and id):
     {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="libs-carousel" heading="Browse our libraries" %}
@@ -22,14 +25,20 @@
   Usage (from view context with cards list):
     {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="my-carousel" heading="Featured" cards=my_cards_list %}
 
+  Usage (featured, with a button):
+    {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="library-cards-carousel" heading="Browse our libraries" cards=library_cards featured=True cta_label="View all libraries" cta_url="/libraries/" %}
+
   Usage (infinite looping carousel):
     {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="my-carousel" heading="Featured" cards=my_cards_list infinite=True %}
 {% endcomment %}
 {% with carousel_id=carousel_id|default:"cards-carousel" heading=heading|default:"Browse our libraries" track_aria_label=track_aria_label|default:"Detail cards carousel" %}
-<div id="{{ carousel_id }}" data-carousel class="cards-carousel" role="region" aria-labelledby="{{ carousel_id }}-heading"{% if infinite %} data-carousel-infinite{% endif %}{% if autoplay %} data-carousel-autoplay="{{ autoplay_delay|default:4000 }}"{% endif %}>
+<div id="{{ carousel_id }}" data-carousel class="cards-carousel{% if featured %} cards-carousel--featured{% endif %}" role="region" aria-labelledby="{{ carousel_id }}-heading"{% if infinite %} data-carousel-infinite{% endif %}{% if autoplay %} data-carousel-autoplay="{{ autoplay_delay|default:4000 }}"{% endif %}>
   <div class="cards-carousel__header">
     <h2 id="{{ carousel_id }}-heading" class="cards-carousel__heading">{{ heading }}</h2>
     <div class="cards-carousel__controls">
+      {% if cta_label and cta_url %}
+        {% include "v3/includes/_button.html" with url=cta_url label=cta_label style="yellow" only %}
+      {% endif %}
       {% include "v3/includes/_carousel_buttons.html" with carousel_id=carousel_id only %}
     </div>
   </div>

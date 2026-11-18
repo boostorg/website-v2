@@ -12,6 +12,8 @@
     category_tags      (optional) — List of dicts with "label" and "url". Omit to hide tag chips.
     version_tag        (optional) — e.g. "C++ 03". Omit to hide.
     first_boost_version (optional) — Version display name only, e.g. "1.66.0" (rendered as "Added in {version}"). Omit to hide.
+    contributor_issue_count (optional) — Open GitHub issues labeled for new contributors. Shows a Contribute badge after the tags when > 0. Needs contributor_issues_url.
+    contributor_issues_url  (optional) — GitHub search for those issues.
     doc_url            (optional) — Documentation link URL. Omit to hide.
     source_url         (optional) — Source code link URL. Omit to hide.
     slack_url          (optional) — Discuss in Slack URL. Omit to hide.
@@ -48,7 +50,7 @@
   <div class="hero__block">
     <div class="hero__content">
       <div class="hero__meta">
-        {% if category_tags or version_tag or first_boost_version %}
+        {% if category_tags or version_tag or first_boost_version or contributor_issue_count %}
         <div class="hero__tags">
           {% for tag in category_tags %}
           {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url|default:"#" variant="neutral" size="default" %}
@@ -60,6 +62,9 @@
           <div class="hero__added-wrap">
             <span class="hero__added">Added in {{ first_boost_version }}</span>
           </div>
+          {% endif %}
+          {% if contributor_issue_count and contributor_issues_url %}
+          {% include "v3/includes/_contribute_badge.html" with count=contributor_issue_count url=contributor_issues_url only %}
           {% endif %}
         </div>
         {% endif %}

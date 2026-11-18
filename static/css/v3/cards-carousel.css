@@ -122,3 +122,49 @@
   align-self: stretch;
   min-height: 100%;
 }
+
+/* Featured: a yellow section that leads its page (/learn), with 32px arrows to meet the 24px minimum target size (WCAG 2.5.8) */
+.cards-carousel--featured {
+  background: var(--color-surface-weak-accent-yellow);
+}
+
+.cards-carousel--featured .cards-carousel__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-medium);
+}
+
+.cards-carousel--featured .carousel-buttons {
+  width: auto;
+  height: auto;
+}
+
+.cards-carousel--featured .carousel-buttons .btn-carousel {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: var(--border-radius-l);
+  background: var(--color-surface-weak);
+}
+
+.cards-carousel--featured .carousel-buttons .btn-carousel :is(.btn-icon, .btn-icon svg) {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 767px) {
+  .cards-carousel--featured .cards-carousel__header {
+    flex-wrap: wrap;
+    row-gap: var(--space-medium);
+  }
+
+  .cards-carousel--featured .cards-carousel__heading {
+    flex-basis: 100%;
+  }
+
+  .cards-carousel--featured .cards-carousel__controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

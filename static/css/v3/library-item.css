@@ -50,6 +50,15 @@ a.library-item__name:hover {
   text-decoration-line: underline;
 }
 
+/* Name plus the optional Contribute badge under it, in the name's one grid cell */
+.library-item__name-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-medium);
+  min-width: 0;
+}
+
 .library-item p {
   margin: 0;
   padding: 0;
