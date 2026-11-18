@@ -743,6 +743,8 @@ class Library(models.Model):
 
         parts = urlparse(self.github_url)
         path = parts.path.split("/")
+        if len(path) < 3 or not path[1] or not path[2]:
+            return {}
 
         owner = path[1]
         repo = path[2]

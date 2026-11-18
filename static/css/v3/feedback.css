@@ -148,8 +148,12 @@ html.dark .feedback-widget__panel {
   cursor: pointer;
 }
 
+/* The icon stays black on the teal header; a dark tint marks hover */
 .feedback-widget__close:hover {
-  color: var(--color-icon-secondary);
+  color: var(--color-primary-black);
+  background: rgb(5 8 22 / 0.12);
+  box-shadow: 0 0 0 4px rgb(5 8 22 / 0.12);
+  border-radius: var(--border-radius-m);
 }
 
 .feedback-widget__close-icon {
@@ -176,6 +180,16 @@ html.dark .feedback-widget__panel {
 
 html.dark .feedback-widget__panel .btn-primary {
   background: var(--color-accent-strong-teal);
+  color: var(--color-primary-black);
+}
+
+.feedback-widget__panel .btn-primary:is(:hover, [data-hover]) {
+  background: var(--color-primary-grey-850);
+  color: var(--color-primary-white);
+}
+
+html.dark .feedback-widget__panel .btn-primary:is(:hover, [data-hover]) {
+  background: var(--color-accent-weak-teal);
   color: var(--color-primary-black);
 }
 

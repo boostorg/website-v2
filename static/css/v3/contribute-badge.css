@@ -32,7 +32,7 @@
 }
 
 .contribute-badge:focus-visible {
-  outline: 2px solid var(--color-surface-brand-accent-default);
+  outline: 2px solid var(--color-text-primary);
   outline-offset: 2px;
 }
 

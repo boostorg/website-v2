@@ -55,7 +55,7 @@ def cache_or_compute(cache_key, timeout, compute):
 def get_contributor_issue_counts():
     """Return {library_id: count} of open issues labeled for new contributors.
 
-    Cached for an hour: issues are imported nightly.
+    Cached for an hour. Issues are imported weekly by `release_tasks`.
     """
     from .models import Issue
 
