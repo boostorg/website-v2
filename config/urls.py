@@ -482,7 +482,7 @@ urlpatterns = (
         ),
         # Static content (exclude Wagtail paths)
         re_path(
-            r"^(?!__debug__|outreach/|testimonials/|news/|terms-of-use/|privacy/)(?P<content_path>.+)/?",
+            r"^(?!__debug__|outreach/|testimonials/|news/|terms-of-use/|privacy/|donations/)(?P<content_path>.+)/?",
             StaticContentTemplateView.as_view(),
             name="static-content-page",
         ),

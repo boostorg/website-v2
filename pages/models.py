@@ -1,10 +1,11 @@
 import re
 from datetime import timedelta
 from html import unescape
+from operator import itemgetter
+from functools import cmp_to_key
 
 from structlog import get_logger
 from wagtail.admin.panels import FieldPanel
-from wagtail.blocks import IntegerBlock
 from wagtail.models import PageManager
 from wagtail.url_routing import RouteResult
 from wagtail.fields import RichTextField, StreamField
@@ -37,6 +38,7 @@ from waffle import flag_is_active
 
 
 from badges.display import active_badges_prefetch
+from donations.utils import get_prices_for_product
 from libraries.utils import library_filter_options
 from pages.blocks import POST_BLOCKS, LegalPageCardBlock
 from pages.feed import (
@@ -45,6 +47,7 @@ from pages.feed import (
     UNKNOWN_CONTENT_TYPE,
     PostFeedFilters,
 )
+from pages.forms import DonationForm
 from pages.mixins import BasePage
 from pages.notifications import mark_post_seen, mark_posts_seen
 
@@ -83,6 +86,7 @@ class RoutableHomePage(BasePage):
     subpage_types = [
         "pages.PostIndexPage",
         "marketing.OutreachHomePage",
+        "pages.DonationPage",
     ]
     max_count = 1
 
@@ -718,14 +722,45 @@ class DonationPage(BasePage):
         blank=True,
         related_name="+",
     )
-    min_donation_amount = models.PositiveIntegerField(
-        blank=True,
-        null=True,
+    donation_product_id = models.CharField(
+        default="",
         help_text=(
-            "Minimum accepted donation amount in US Dollars. If not set, no minimum enforced."
+            "Stripe Product ID for the donation product. Used to submit the purchase,"
+            " and automatically populates the available donation amounts with the prices from stripe."
+            " A user selects amount price will be presented as a fillable field, and the minimum price"
+            " from stripe will be respected by the form."
         ),
     )
-    donation_amounts = StreamField(
-        [("donation_amount", IntegerBlock())],
-        "Accepted donation amounts in US Dollars. Will be displayed in a grid on the page, along with a custom amount.",
-    )
+
+    content_panels = BasePage.content_panels + [
+        "body",
+        "image",
+        "donation_product_id",
+    ]
+
+    def get_context(self, request, *args, **kwargs):
+        ctx = super().get_context(request, *args, **kwargs)
+        ctx["donation_form"] = DonationForm()
+
+        def cmp(a, b):
+            """
+            Comparison function. Handle null case, and returns class -1, 0, 1. Null is always treated as max value
+            so it will be sorted to the end of the list.
+            """
+            a_val = itemgetter("unit_amount")(a)
+            b_val = itemgetter("unit_amount")(b)
+
+            if not a_val and b_val:
+                return 1
+            elif not b_val and a_val:
+                return -1
+            elif not a_val and not b_val:
+                return 0
+            else:
+                return (int(a_val) > int(b_val)) - (int(a_val) < int(b_val))
+
+        ctx["donation_prices"] = sorted(
+            get_prices_for_product(self.donation_product_id).to_dict().get("data"),
+            key=cmp_to_key(cmp),
+        )
+        return ctx

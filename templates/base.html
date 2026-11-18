@@ -422,7 +422,9 @@
       </div>
       {% endif %}
       {% endflag %}
-      {% include 'v3/includes/_donation_popup.html' %}
+      {% block donation_popup %}
+        {% include "v3/includes/_donation_popup.html" %}
+      {% endblock donation_popup %}
 
       <div class="md:px-0 min-vh-110">
       {% block content_wrapper %}

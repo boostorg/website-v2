@@ -1,8 +1,40 @@
 {% extends "base.html" %}
 {% load static wagtailcore_tags wagtailimages_tags %}
-
 {% block title %}{{ page.title }}{% endblock %}
 {% block description %}{{ page.search_description }}{% endblock %}
-
+{% block donation_popup %}
+{% endblock donation_popup %}
 {% block content %}
+    <div class="donation_page">
+        {{ self.body|richtext }}
+        <form class="donation_form">
+            <div class="donation__prices">
+                {% for price in donation_prices %}
+                    <input type="radio" id="{{ price.id }}" name="price" value="{{ price.id }}" />
+                    <label for="{{ price.id }}">
+                        {% include "v3/includes/_button.html" with label=price.unit_amount style="secondary" %}
+                    </label>
+                {% endfor %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.first_name %}
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.last_name %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.email %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.country %}
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.zip_code %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.cc_number %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.cc_name %}
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.cv_number %}
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.exp_date %}
+            </div>
+        </form>
+    </div>
 {% endblock content %}

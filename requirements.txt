@@ -519,6 +519,7 @@ requests==2.34.2
     #   django-anymail
     #   django-oauth-toolkit
     #   responses
+    #   stripe
     #   wagtail
 responses==0.25.8
     # via -r ./requirements.in
@@ -536,6 +537,8 @@ sqlparse==0.6.0
     # via django
 stack-data==0.6.3
     # via ipython
+stripe==17.0.0
+    # via -r ./requirements.in
 structlog==25.5.0
     # via -r ./requirements.in
 tablib==3.10.0
@@ -570,6 +573,7 @@ typing-extensions==4.15.0
     #   pydantic
     #   pydantic-core
     #   pyee
+    #   stripe
     #   typing-inspection
 typing-inspection==0.4.2
     # via pydantic
