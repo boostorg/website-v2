@@ -18,6 +18,25 @@ def v3_flag():
         yield
 
 
+@pytest.fixture(autouse=True)
+def feedback_flag():
+    """
+    This flag is used in every request, in a real case it is created onced and then never again.
+    In tests, it adds extra fake queries that would not exist in a real scenario, if
+    not created ahead of time.
+    """
+    with waffle.testutils.override_flag("beta_feedback", active=True):
+        yield
+
+
+@pytest.fixture(autouse=True)
+def legal_page_settings():
+    """
+    These are checked on every query as well, but pre exist in a real scenario.
+    """
+    baker.make("core.LegalPageSettings")
+
+
 @pytest.fixture
 def feed_url(post_index_page, wagtail_site):
     """The feed's URL is the index page's own route.

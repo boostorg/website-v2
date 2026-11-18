@@ -34,6 +34,13 @@ def user(db):
 
 
 @pytest.fixture
+def user_biography(db, user):
+    user_bio = baker.make("users.UserBiography", user=user, value="Test Biography")
+
+    return user_bio
+
+
+@pytest.fixture
 def staff_user(db):
     """Staff website user with access to the Django admin"""
     user = baker.make(

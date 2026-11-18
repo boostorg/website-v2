@@ -154,7 +154,7 @@ class PostIndexPage(BasePage):
         posts = (
             PostPage.objects.child_of(self)
             .live()
-            .select_related("owner")
+            .select_related("owner", "owner__biography")
             # tags per card, the author's badge rows for the badge beside their
             # role, and their routing keys for the profile link. The badges are
             # asked for through the path because `owner` is select_related - see
@@ -188,7 +188,7 @@ class PostIndexPage(BasePage):
             return posts
         searchable = (
             PostPage.objects.filter(pk__in=posts.order_by().values("pk"))
-            .select_related("owner")
+            .select_related("owner", "owner__biography")
             .prefetch_related(
                 "tags",
                 active_badges_prefetch("owner__badges"),

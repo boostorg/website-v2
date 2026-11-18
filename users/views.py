@@ -265,7 +265,7 @@ class CurrentUserProfileView(
             "username": user.display_name,
             "email": user.email,
             "tagline": user.tagline,
-            "bio": user.biography,
+            "bio": user.bio,
             "role": encoded_role if encoded_role in offered else "",
             "country": user.country.code,
             "indicate_last_login_method": user.indicate_last_login_method,
@@ -619,12 +619,35 @@ class CurrentUserProfileView(
 
     def _save_v3_visibility_section(self, user: User, form):
         user.tagline = form.cleaned_data["tagline"]
-        user.biography = form.cleaned_data["bio"]
         user.hide_github_activity = form.cleaned_data["hide_github"]
         user.hide_mailing_list_activity = form.cleaned_data["hide_ml"]
         user.hide_badges = form.cleaned_data["hide_ach"]
         user.display_badge = form.cleaned_data["display_badge"]
         user.save()
+
+        # The Biography goes through a moderation queue, so must be submitted slightly differently
+        # If the biography is empty on save, we cancel the active workflow and publish.
+        # Emptying a biography does not require moderation.
+        # Revisions are saved in case of malicious actor or mistaken deletion
+        ub = form.user_bio
+        print("before if else")
+        if bio := form.cleaned_data["bio"]:
+            if not ub.workflow_in_progress:
+                ub.value = bio
+                ub.save_revision(user=user)
+                # If changes are requested, cancel the previous workflow and refire it
+                if (
+                    ws := ub.current_workflow_state
+                ) and ws.status == ws.STATUS_NEEDS_CHANGES:
+                    ws.cancel()
+                if workflow := ub.get_workflow():
+                    workflow.start(obj=ub, user=user)
+        else:
+            ub.value = ""
+            if ws := ub.current_workflow_state:
+                ws.cancel()
+            rev = ub.save_revision(user=user)
+            ub.publish(revision=rev, user=user)
 
     def _save_v3_details_section(self, user: User, form):
         user.display_name = form.cleaned_data["username"]
