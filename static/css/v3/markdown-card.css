@@ -190,6 +190,8 @@
   overflow: hidden;
 }
 
+/* Fixed columns never grow, so headers wrap instead of clipping */
+.markdown-card .markdown-content table:has(tr > :nth-child(2):last-child) th,
 .markdown-card .markdown-content table:has(tr > :nth-child(2):last-child) td:first-child :is(code, a) {
   white-space: normal;
   overflow-wrap: anywhere;
