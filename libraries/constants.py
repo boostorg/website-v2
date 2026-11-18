@@ -384,6 +384,17 @@ SUB_LIBRARIES = {
 # List of versions for which we know docs are missing
 VERSION_DOCS_MISSING = ["boost-1.33.0"]
 
+# GitHub issue labels that mark work open to new contributors (matched case-insensitively)
+CONTRIBUTOR_ISSUE_LABELS = (
+    "help wanted",
+    "good first issue",
+    "good-first-issue",
+    "pr welcome",
+    "pr welcomed",
+    "easy",
+    "status/need-help",
+)
+
 # This constant is for library-versions missing a README
 README_MISSING = (
     "⚠️ This library has no README.md or library-details.adoc; "

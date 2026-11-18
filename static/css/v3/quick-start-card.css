@@ -9,10 +9,12 @@
   quick-start-card__link-text — link label
 */
 
+/* Teal callout in both themes, so it stands apart from the other library cards */
 .quick-start-card {
   padding: var(--space-large);
   gap: var(--space-large);
-  background: var(--color-surface-mid);
+  background: var(--color-accent-strong-teal);
+  border-color: var(--color-accent-strong-teal);
 }
 
 .quick-start-card__heading {
@@ -23,6 +25,11 @@
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-display-regular);
   margin: 0;
+}
+
+/* Two classes to beat Tailwind's `.dark h2`, which would turn the heading white on teal */
+.quick-start-card .quick-start-card__heading {
+  color: var(--color-primary-black);
 }
 
 .quick-start-card__links {
@@ -41,8 +48,9 @@
   height: calc(var(--space-xl) + var(--space-s));
   padding: 0 var(--space-medium);
   border-radius: var(--border-radius-m);
-  background: var(--color-surface-weak);
-  color: var(--color-text-primary);
+  background: var(--color-primary-white);
+  box-shadow: 0 1px 2px rgb(5 8 22 / 0.08);
+  color: var(--color-primary-black);
   text-decoration: none;
   font-family: var(--font-sans);
   font-size: var(--font-size-small);
@@ -53,7 +61,8 @@
 }
 
 .quick-start-card__link:hover {
-  color: var(--color-text-link-accent);
+  color: var(--color-primary-black);
+  box-shadow: 0 0 0 2px var(--color-primary-black);
 }
 
 .quick-start-card__link-text {
@@ -64,5 +73,5 @@
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  color: var(--color-icon-primary);
+  color: var(--color-primary-black);
 }

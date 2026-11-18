@@ -16,7 +16,8 @@ from dateutil.relativedelta import relativedelta
 from dateutil.parser import ParserError, parse
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Count, F, QuerySet, prefetch_related_objects
+from django.db.models import BooleanField, Count, F, QuerySet, prefetch_related_objects
+from django.db.models.expressions import RawSQL
 from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils import timezone as django_timezone
@@ -26,6 +27,7 @@ from django.utils.text import slugify
 from django.utils.timesince import timesince
 
 from libraries.constants import (
+    CONTRIBUTOR_ISSUE_LABELS,
     DEFAULT_LIBRARIES_LANDING_VIEW,
     SELECTED_BOOST_VERSION_COOKIE_NAME,
     SELECTED_LIBRARY_VIEW_COOKIE_NAME,
@@ -48,6 +50,33 @@ if TYPE_CHECKING:
 def cache_or_compute(cache_key, timeout, compute):
     """Return the cached value, or compute, cache, and return it."""
     return cache.get_or_set(cache_key, compute, timeout)
+
+
+def get_contributor_issue_counts():
+    """Return {library_id: count} of open issues labeled for new contributors.
+
+    Cached for an hour: issues are imported nightly.
+    """
+    from .models import Issue
+
+    labels = "|".join(CONTRIBUTOR_ISSUE_LABELS)
+    has_label = RawSQL(
+        "data @? %s::jsonpath",
+        (f'$.labels[*] ? (@.name like_regex "^({labels})$" flag "i")',),
+        output_field=BooleanField(),
+    )
+
+    def compute():
+        rows = (
+            Issue.objects.filter(is_open=True)
+            .alias(has_label=has_label)
+            .filter(has_label=True)
+            .values("library_id")
+            .annotate(count=Count("id"))
+        )
+        return {row["library_id"]: row["count"] for row in rows}
+
+    return cache_or_compute("contributor_issue_counts", 60 * 60, compute)
 
 
 def get_commit_data_by_release_for_library(library, limit=20):

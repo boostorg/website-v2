@@ -74,14 +74,15 @@
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   line-height: var(--line-height-tight);
-  color: var(--color-text-secondary);
-  border: 1px solid var(--color-tag-stroke);
+  /* Same soft teal in both themes, so the C++ version stands apart from the neutral category chips */
+  color: var(--color-primary-black);
+  border: 1px solid transparent;
   border-radius: var(--border-radius-xl);
   box-sizing: border-box;
 }
 
 .version-tag--default {
-  background: var(--color-tag-fill);
+  background: var(--color-accent-weak-teal);
 }
 
 .version-tag--hover {

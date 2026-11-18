@@ -121,3 +121,81 @@
 .markdown-content ol > li {
   padding-left: var(--space-s);
 }
+
+/* README tables: bordered grid. A table wider than the card scrolls sideways on its own. */
+.markdown-card .markdown-content table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  margin: var(--space-large) 0;
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-l);
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-default);
+}
+
+.markdown-card .markdown-content table :is(th, td) {
+  padding: var(--space-medium);
+  vertical-align: top;
+  text-align: left;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.markdown-card .markdown-content table :is(th, td) + :is(th, td) {
+  padding-left: var(--space-large);
+  border-left: 1px solid var(--color-stroke-weak);
+}
+
+.markdown-card .markdown-content table th {
+  background: var(--color-surface-mid);
+  border-bottom: 1px solid var(--color-stroke-weak);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.markdown-card .markdown-content table td {
+  min-width: 8rem;
+  color: var(--color-text-secondary);
+}
+
+.markdown-card .markdown-content table tbody tr + tr td {
+  border-top: 1px solid var(--color-stroke-weak);
+}
+
+.markdown-card .markdown-content table td:first-child :is(code, a) {
+  white-space: nowrap;
+}
+
+.markdown-card .markdown-content table td:not(:first-child) code {
+  overflow-wrap: anywhere;
+}
+
+.markdown-card .markdown-content table td img {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Two-column tables (label + description) fill the card, label column a quarter wide */
+.markdown-card .markdown-content table:has(tr > :nth-child(2):last-child) {
+  width: 100%;
+}
+
+.markdown-card .markdown-content table:has(tr > :nth-child(2):last-child) :is(th, td):first-child {
+  width: 26%;
+  min-width: 11rem;
+}
+
+@media (max-width: 600px) {
+  .markdown-card .markdown-content table:has(tr > :nth-child(2):last-child) :is(th, td):first-child {
+    width: 34%;
+    min-width: 0;
+  }
+
+  .markdown-card .markdown-content table :is(th, td) + :is(th, td) {
+    padding-left: var(--space-medium);
+  }
+}

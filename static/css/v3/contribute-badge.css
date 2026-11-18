@@ -1,0 +1,61 @@
+/*
+  Contribute badge
+  Links a library to its open GitHub issues labeled for new contributors.
+  Template: templates/v3/includes/_contribute_badge.html
+  Fully rounded on purpose: category chips are square-cornered, so the badge
+  never reads as a category. Same box as the chips by default; --small for
+  list rows and cards.
+*/
+
+.contribute-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+  width: fit-content;
+  padding: var(--space-default);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  white-space: nowrap;
+  text-decoration: none;
+  background: var(--color-surface-brand-accent-default);
+  color: var(--color-text-on-accent);
+}
+
+.contribute-badge:hover {
+  background: var(--color-surface-brand-accent-hovered);
+  color: var(--color-text-on-accent);
+  text-decoration: none;
+}
+
+.contribute-badge:focus-visible {
+  outline: 2px solid var(--color-surface-brand-accent-default);
+  outline-offset: 2px;
+}
+
+.contribute-badge__icon {
+  flex: none;
+  /* keeps the 14px icon from growing the line box past the chips' height */
+  margin-block: -2px;
+}
+
+.contribute-badge__separator {
+  opacity: 0.6;
+}
+
+.contribute-badge--small {
+  padding: var(--space-xs) var(--space-default);
+}
+
+.contribute-badge--small .contribute-badge__icon {
+  width: 12px;
+  height: 12px;
+  margin-block: 0;
+}
+
+.hero__tags .contribute-badge {
+  margin-left: var(--space-default);
+}

@@ -1,0 +1,24 @@
+{% comment %}
+  Contribute badge: links to a library's open GitHub issues labeled for new
+  contributors ("help wanted", "good first issue", "PR welcome").
+  Styles: static/css/v3/contribute-badge.css
+
+  Variables:
+    count  (int, required)    - number of open labeled issues
+    url    (string, required) - GitHub search for those issues
+    size   (string, optional) - "small" for list rows and cards; default matches the category chips
+
+  Usage:
+    {% include "v3/includes/_contribute_badge.html" with count=3 url=library.contributor_issues_url size="small" only %}
+{% endcomment %}
+<a href="{{ url }}"
+   class="contribute-badge{% if size == 'small' %} contribute-badge--small{% endif %}"
+   target="_blank"
+   rel="noopener noreferrer"
+   title="{{ count }} open issue{{ count|pluralize }} labeled for contributors on GitHub"
+   aria-label="Contribute: {{ count }} open issue{{ count|pluralize }} labeled for contributors on GitHub (opens in a new tab)">
+  {% include "includes/icon.html" with icon_name="people-group" icon_size=14 icon_class="contribute-badge__icon" %}
+  <span>Contribute</span>
+  <span class="contribute-badge__separator" aria-hidden="true">·</span>
+  <span>{{ count }}</span>
+</a>

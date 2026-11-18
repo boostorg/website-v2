@@ -62,6 +62,7 @@ from .utils import (
     get_prioritized_version,
     get_version_from_cookie,
     get_commit_data_by_release_for_library,
+    get_contributor_issue_counts,
     commit_data_to_stats_bars,
     group_libraries_by_tier,
     designed_for_html,
@@ -440,6 +441,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         """Point every card at the detail page for the version segment of the
         current URL, so a list browsed under "latest" links to
         `/library/latest/<slug>/` rather than pinning the resolved release.
+        Also attaches each library's open contributor-issue count.
 
         Runs on the final context because the categorized and grading views
         rebuild their groups after `get_v3_context_data` has returned.
@@ -448,7 +450,11 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         library_versions = list(context.get("object_list") or [])
         for group in context.get("library_versions_by_category") or []:
             library_versions.extend(group["library_version_list"])
+        contributor_issue_counts = get_contributor_issue_counts()
         for library_version in library_versions:
+            library_version.contributor_issue_count = contributor_issue_counts.get(
+                library_version.library_id, 0
+            )
             library_version.library_detail_url = reverse(
                 "library-detail",
                 kwargs={
@@ -707,6 +713,9 @@ class LibraryDetail(
             or ""
         )
 
+        context["contributor_issue_count"] = get_contributor_issue_counts().get(
+            self.object.id, 0
+        )
         context["category_tags_v3"] = [
             {"label": cat.name, "url": cat.get_filter_url(version_str)}
             for cat in self.object.categories.all().order_by("name")
