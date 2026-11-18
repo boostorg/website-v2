@@ -56,6 +56,9 @@
   margin-block: 0;
 }
 
-.hero__tags .contribute-badge {
-  margin-left: var(--space-default);
+/* In the hero links row, sized to the 32px link buttons beside it */
+.hero__links .contribute-badge {
+  height: 32px;
+  padding: 0 12px;
+  font-size: var(--font-size-small);
 }

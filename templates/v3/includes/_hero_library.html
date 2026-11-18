@@ -50,7 +50,7 @@
   <div class="hero__block">
     <div class="hero__content">
       <div class="hero__meta">
-        {% if category_tags or version_tag or first_boost_version or contributor_issue_count %}
+        {% if category_tags or version_tag or first_boost_version %}
         <div class="hero__tags">
           {% for tag in category_tags %}
           {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url|default:"#" variant="neutral" size="default" %}
@@ -62,9 +62,6 @@
           <div class="hero__added-wrap">
             <span class="hero__added">Added in {{ first_boost_version }}</span>
           </div>
-          {% endif %}
-          {% if contributor_issue_count and contributor_issues_url %}
-          {% include "v3/includes/_contribute_badge.html" with count=contributor_issue_count url=contributor_issues_url only %}
           {% endif %}
         </div>
         {% endif %}
@@ -110,7 +107,7 @@
         {% include "v3/includes/_button_hero.html" with label=cta_label url=cta_url icon_name=cta_icon_name|default:"arrow-right" style="primary" %}
       </div>
       {% endif %}
-      {% if doc_url or source_url or slack_url or github_url or rss_url or show_branch_buttons %}
+      {% if doc_url or source_url or slack_url or github_url or rss_url or show_branch_buttons or contributor_issue_count and contributor_issues_url %}
       <div class="hero__links">
         {% if doc_url %}
         {% include "v3/includes/_button.html" with icon_position="right" label="Documentation" url=doc_url style="icon-library" icon_name="documentation" icon_size=16 icon_viewbox="0 0 16 16" %}
@@ -123,6 +120,9 @@
         {% endif %}
         {% if github_url %}
         {% include "v3/includes/_button.html" with icon_position="right" label="GitHub Issues" url=github_url style="icon-library" icon_name="github-issues" icon_size=16 icon_viewbox="0 0 16 16" %}
+        {% endif %}
+        {% if contributor_issue_count and contributor_issues_url %}
+        {% include "v3/includes/_contribute_badge.html" with count=contributor_issue_count url=contributor_issues_url only %}
         {% endif %}
         {% if rss_url %}
         {% include "v3/includes/_button.html" with icon_position="right" label="RSS" url=rss_url style="icon-library" icon_name="rss" icon_size=16 icon_viewbox="0 0 16 16" %}
