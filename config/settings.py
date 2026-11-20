@@ -111,6 +111,7 @@ INSTALLED_APPS += [
     "wagtail.search",
     "wagtail.admin",
     "wagtail.contrib.routable_page",
+    "wagtail.contrib.table_block",
     "wagtail",
     "wagtailmarkdown",
     "modelcluster",
@@ -154,6 +155,7 @@ INSTALLED_APPS += [
     "pages",
     "asciidoctor_sandbox",
     "release_tools",
+    "donations",
 ]
 
 # django-pattern-library settings (used by storybook-django)
@@ -883,3 +885,7 @@ WAGTAILMARKDOWN = {
 DOWNSCALED_IMAGE_HEIGHT = 720  # Preferred height to downscale to
 DOWNSCALED_IMAGE_WIDTH = 1440  # preferred width to downscale to
 DOWNSCALE_IMAGE_THRESHOLD = 1 * 1024 * 1024  # threshold overwhich to downscale
+
+# STRIPE SETTINGS
+STRIPE_PRIVATE_KEY = env("STRIPE_PRIVATE_KEY", "")
+STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY", "")
