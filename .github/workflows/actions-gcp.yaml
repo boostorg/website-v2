@@ -179,6 +179,7 @@ jobs:
 
           docker build --file ./docker/Dockerfile \
             --build-arg TAG=${TAG} \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
             --cache-from=${DOCKER_IMAGE}:latest \
             --tag ${DOCKER_IMAGE} .
 

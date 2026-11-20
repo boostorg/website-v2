@@ -149,3 +149,4 @@ static_deploy
 Makefile
 README.md
 venv/
+node_modules/

@@ -35,9 +35,12 @@ RUN --mount=type=cache,target=/root/.cache if [ "${LOCAL_DEVELOPMENT}" = "true" 
 # Builder step for JS.
 FROM node:22-slim AS builder-js
 
-COPY . /code/
 WORKDIR /code/
+# Copy only the dependency manifests first so `yarn install` stays cached
+# until they change.
+COPY package.json yarn.lock /code/
 RUN yarn install
+COPY . /code/
 RUN yarn build
 RUN yarn build:css
 RUN yarn build-storybook
