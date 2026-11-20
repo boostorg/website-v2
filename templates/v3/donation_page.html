@@ -4,16 +4,27 @@
 {% block description %}{{ page.search_description }}{% endblock %}
 {% block donation_popup %}
 {% endblock donation_popup %}
+{% block extra_head %}
+    {{ block.super }}
+    <script src="https://js.stripe.com/endive/stripe.js"></script>
+{% endblock %}
 {% block content %}
     <div class="donation_page">
-        {{ self.body|richtext }}
-        <form class="donation_form">
+        {% include_block self.body %}
+        <form class="donation_form" method="post" @submit="onSubmit">
+            {% csrf_token %}
             <div class="donation__prices">
                 {% for price in donation_prices %}
-                    <input type="radio" id="{{ price.id }}" name="price" value="{{ price.id }}" />
-                    <label for="{{ price.id }}">
-                        {% include "v3/includes/_button.html" with label=price.unit_amount style="secondary" %}
-                    </label>
+                    <div class="donation__price-group">
+                        <input type="radio"
+                               id="{{ price.id }}"
+                               name="price"
+                               value="{{ price.id }}"
+                               {% if price.id == default_donation_price %}checked{% endif %} />
+                        <label for="{{ price.id }}">
+                            {% include "v3/includes/_button.html" with label=price.unit_amount style="secondary" %}
+                        </label>
+                    </div>
                 {% endfor %}
             </div>
             <div class="donation__row">
@@ -23,18 +34,27 @@
             <div class="donation__row">
                 {% include "v3/includes/_field_include.html" with bound_field=donation_form.email %}
             </div>
-            <div class="donation__row">
-                {% include "v3/includes/_field_include.html" with bound_field=donation_form.country %}
-                {% include "v3/includes/_field_include.html" with bound_field=donation_form.zip_code %}
-            </div>
-            <div class="donation__row">
-                {% include "v3/includes/_field_include.html" with bound_field=donation_form.cc_number %}
-            </div>
-            <div class="donation__row">
-                {% include "v3/includes/_field_include.html" with bound_field=donation_form.cc_name %}
-                {% include "v3/includes/_field_include.html" with bound_field=donation_form.cv_number %}
-                {% include "v3/includes/_field_include.html" with bound_field=donation_form.exp_date %}
-            </div>
+            <div id="payment-element"></div>
+            {% include "v3/includes/_button.html" with label="Donate" style="primary" type="submit" %}
         </form>
     </div>
+    <script>
+        const stripe = Stripe("{{public_key}}");
+        const elements = stripe.elements({mode: 'setup', currency: 'usd', allowedPaymentMethodTypes: ['card'], paymentMethodCreation: 'manual'});
+        const payment = elements.create('payment');
+        payment.mount("#payment-element");
+
+        const onSubmit = async (event) => {
+            event.preventDefault()
+            const form = event.target;
+
+            const formData = new FormData(form)
+            await elements.submit()
+            const result = await stripe.createPaymentMethod({elements})
+            formData.append('payment_method', result.paymentMethod?.id)
+
+            form.submit()
+        }
+
+    </script>
 {% endblock content %}

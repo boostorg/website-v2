@@ -69,7 +69,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-default);
-    max-width: 650px;
 }
 
 .donation__prices {
@@ -81,6 +80,21 @@
 .donation__prices input {
     display: none;
 }
+
+.donation__prices .btn {
+    pointer-events: none;
+}
+
+.donation__prices label {
+    cursor: pointer;
+}
+
+.donation__price-group:has(input[name='price']:checked) .btn{
+    background-color: var(--color-secondary-dark-blue);
+    border-color: var(--color-stroke-link-accent);
+    color: var(--color-text-reversed);
+}
+
 
 @media screen and (max-width: 768px) {
     .donation__container {

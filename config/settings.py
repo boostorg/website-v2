@@ -111,6 +111,7 @@ INSTALLED_APPS += [
     "wagtail.search",
     "wagtail.admin",
     "wagtail.contrib.routable_page",
+    "wagtail.contrib.table_block",
     "wagtail",
     "wagtailmarkdown",
     "modelcluster",
@@ -884,4 +885,4 @@ DOWNSCALE_IMAGE_THRESHOLD = 1 * 1024 * 1024  # threshold overwhich to downscale
 
 # STRIPE SETTINGS
 STRIPE_PRIVATE_KEY = env("STRIPE_PRIVATE_KEY", "")
-STRIPE_PUBLICE_KEY = env("STRIPE_PUBLIC_KEY", "")
+STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY", "")

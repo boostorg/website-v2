@@ -6,9 +6,12 @@ from functools import cmp_to_key
 
 from structlog import get_logger
 from wagtail.admin.panels import FieldPanel
+from wagtail.blocks import RichTextBlock
+from wagtail.contrib.table_block.blocks import TableBlock
+from wagtail.fields import RichTextField
 from wagtail.models import PageManager
 from wagtail.url_routing import RouteResult
-from wagtail.fields import RichTextField, StreamField
+from wagtail.fields import StreamField
 from wagtail.search import index
 
 from django.conf import settings
@@ -26,6 +29,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce, Greatest, Now, Power
 from django.db import models
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.functional import cached_property
 from django.utils.html import strip_tags
@@ -38,7 +42,8 @@ from waffle import flag_is_active
 
 
 from badges.display import active_badges_prefetch
-from donations.utils import get_prices_for_product
+from core.blocks import ButtonBlock
+from donations.utils import get_prices_for_product, get_default_price_for_product
 from libraries.utils import library_filter_options
 from pages.blocks import POST_BLOCKS, LegalPageCardBlock
 from pages.feed import (
@@ -713,7 +718,13 @@ class DonationPage(BasePage):
     parent_page_types = ["pages.RoutableHomePage"]
     subpage_types = []
 
-    body = RichTextField(features=settings.RICH_TEXT_FEATURES, blank=True)
+    body = StreamField(
+        [
+            ("text", RichTextBlock(features=settings.RICH_TEXT_FEATURES)),
+            ("table", TableBlock()),
+            ("button", ButtonBlock()),
+        ]
+    )
     image = models.ForeignKey(
         "wagtailimages.Image",
         verbose_name=("Image"),
@@ -741,6 +752,7 @@ class DonationPage(BasePage):
     def get_context(self, request, *args, **kwargs):
         ctx = super().get_context(request, *args, **kwargs)
         ctx["donation_form"] = DonationForm()
+        ctx["public_key"] = settings.STRIPE_PUBLIC_KEY
 
         def cmp(a, b):
             """
@@ -763,4 +775,31 @@ class DonationPage(BasePage):
             get_prices_for_product(self.donation_product_id).to_dict().get("data"),
             key=cmp_to_key(cmp),
         )
+        ctx["default_donation_price"] = get_default_price_for_product(
+            self.donation_product_id
+        )
         return ctx
+
+    def serve(self, request):
+        context = self.get_context(request)
+
+        if request.method == "POST":
+            form = DonationForm(request.POST)
+            if form.is_valid():
+                order = form.save()
+                return render(
+                    request,
+                    "donation_thankyou.html",
+                    {
+                        "page": self,
+                        "order": order,
+                    },
+                )
+            else:
+                context["donation_form"] = form
+
+        return render(
+            request,
+            self.get_template(request),
+            context,
+        )
