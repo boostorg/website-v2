@@ -1,10 +1,10 @@
 /**
  * Boostlook documentation behaviour, vendored for the docs iframe.
  *
- * Source: boostlook/boostlook-v3.rb (the `scripts` heredoc). Upstream injects
+ * Source: boostlook/boostlook.rb (the `scripts` heredoc). Upstream injects
  * this at doc build time, but the published library docs were built before it
  * existed, so the site supplies it instead. Keep in sync with that file, the
- * same way static/css/v3/boostlook-v3.css is kept in sync with boostlook-v3.css.
+ * same way static/css/boostlook.css is kept in sync with boostlook.css.
  *
  * Two independent branches, picked by the shape of the navigation tree:
  *
@@ -117,7 +117,7 @@
      * get .nav-item + a .nav-item-toggle caret, branches are collapsed by
      * default (.is-active expands them), the current section's path is
      * expanded, open sections persist, and the section in view is highlighted
-     * via .is-active-link. Caret/collapse styling lives in boostlook-v3.css.
+     * via .is-active-link. Caret/collapse styling lives in boostlook.css.
      */
     (function () {
       function init() {

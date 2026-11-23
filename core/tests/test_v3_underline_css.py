@@ -22,7 +22,11 @@ import pytest
 V3_CSS = Path(__file__).resolve().parents[2] / "static" / "css" / "v3"
 
 # Vendored from the boostlook repo and updated wholesale, so it is not ours to
-# hold to this rule.
+# hold to this rule. It lives outside V3_CSS, so the scans below skip it.
+BOOSTLOOK_CSS = V3_CSS.parent / "boostlook.css"
+
+# The old copy stays for one deploy while cached docs pages still link it.
+# Remove this set when that file is deleted.
 EXCLUDED = {"boostlook-v3.css"}
 
 # The declarations that hand the decision back to the browser. A percentage is
@@ -68,7 +72,7 @@ SHARED_RULES = (
     ),
 )
 
-# Docs pages load boostlook-v3.css without components.css, so foundations.css
+# Docs pages load boostlook.css without components.css, so foundations.css
 # never reaches them and the sheet has to carry its own copy (#2794).
 BOOSTLOOK_RULES = (
     (
@@ -171,9 +175,9 @@ def test_shared_underline_rules_are_present():
 
 
 def test_boostlook_carries_its_own_underline_rules():
-    """boostlook-v3.css is excluded from the scans below, but docs pages load it
+    """boostlook.css is excluded from the scans below, but docs pages load it
     on its own, so it is the only thing pinning underlines there."""
-    _assert_rules_present(V3_CSS / "boostlook-v3.css", BOOSTLOOK_RULES)
+    _assert_rules_present(BOOSTLOOK_CSS, BOOSTLOOK_RULES)
 
 
 @pytest.mark.parametrize("path", _stylesheets(), ids=lambda p: p.name)
