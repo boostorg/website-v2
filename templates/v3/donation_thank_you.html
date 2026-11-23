@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags %}
+{% block title %}Thank You for Donating!{% endblock %}
+{% block donation_popup %}
+{% endblock donation_popup %}
+{% block content %}
+    <div>
+        <p>Hi {{ object.name }},</p>
+        <p>
+            Thank you. Your {{ object.display_amount }} gift funds the testing, releases, and maintenance of 180+ free C++ libraries.
+        </p>
+        <p>
+            Thanks for your support,
+            <br />
+            The Boost Team
+        </p>
+    </div>
+{% endblock %}

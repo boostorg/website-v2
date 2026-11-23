@@ -29,6 +29,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce, Greatest, Now, Power
 from django.db import models
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.functional import cached_property
@@ -43,6 +44,7 @@ from waffle import flag_is_active
 
 from badges.display import active_badges_prefetch
 from core.blocks import ButtonBlock
+from donations.models import CharitableDonation
 from donations.utils import get_prices_for_product, get_default_price_for_product
 from libraries.utils import library_filter_options
 from pages.blocks import POST_BLOCKS, LegalPageCardBlock
@@ -787,13 +789,18 @@ class DonationPage(BasePage):
             form = DonationForm(request.POST)
             if form.is_valid():
                 order = form.save()
-                return render(
-                    request,
-                    "donation_thankyou.html",
+                donation = CharitableDonation.objects.create(
+                    donation_name=f"{order.get("first_name")} {order.get("last_name")}",
+                    email=order.get("email"),
+                    amount=order.get("amount"),
+                    stripe_payment_id=order.get("payment_intent_id"),
+                )
+                return JsonResponse(
                     {
-                        "page": self,
-                        "order": order,
-                    },
+                        "redirect_url": reverse_lazy(
+                            "thank_you", kwargs={"slug": donation.uuid}
+                        )
+                    }
                 )
             else:
                 context["donation_form"] = form

@@ -10,6 +10,7 @@
 {% endblock %}
 {% block content %}
     <div class="donation_page">
+        <h1>{{ page.title }}</h1>
         {% include_block self.body %}
         <form class="donation_form" method="post" @submit="onSubmit">
             {% csrf_token %}
@@ -53,7 +54,17 @@
             const result = await stripe.createPaymentMethod({elements})
             formData.append('payment_method', result.paymentMethod?.id)
 
-            form.submit()
+            await fetch(
+                form.target,
+                {
+                    method: form.method,
+                    body: formData,
+                }
+            ).then(async (response)=> {
+                const json = await response.json()
+                const url = json['redirect_url']
+                window.location.href = url;
+            })
         }
 
     </script>

@@ -47,4 +47,8 @@ class DonationForm(forms.Form):
         payment_intent = create_payment_intent_from_products(
             order_items=order_items, payment_method=payment_method
         )
-        return payment_intent
+        return {
+            **data,
+            "payment_intent_id": payment_intent.id,
+            "amount": payment_intent.amount,
+        }

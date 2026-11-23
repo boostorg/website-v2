@@ -154,6 +154,7 @@ urlpatterns = (
             name="account_confirm_email",
         ),
         path("accounts/", include("allauth.urls")),
+        path("donations/", include("donations.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         path("users/me/delete/", DeleteUserView.as_view(), name="profile-delete"),
         path(
