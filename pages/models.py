@@ -303,7 +303,8 @@ class PostPageManager(PageManager):
             output_field=FloatField(),
         )
         score = ExpressionWrapper(
-            F("page_views") / Power(age_in_hours + Value(2.0), Value(gravity)),
+            (F("page_views") + Value(10))
+            / Power(age_in_hours + Value(2.0), Value(gravity)),
             output_field=FloatField(),
         )
         return (
