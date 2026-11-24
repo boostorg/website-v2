@@ -43,7 +43,7 @@ def test_v3_page_links_the_individual_sheets_without_the_bundle(client, settings
     assert _stylesheets(client) == [
         "/static/css/styles.css",
         "/static/css/components.css",
-        "/static/css/v3/boostlook-v3.css",
+        "/static/css/boostlook.css",
         "/static/css/v3/v3-style-overrides.css",
         "/static/css/v3/components.css",
     ]
