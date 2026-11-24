@@ -1,8 +1,10 @@
 import re
+from functools import partial
 from pathlib import Path
 from uuid import uuid4
 
 import structlog
+from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models, transaction
 from django.db.models.signals import post_delete
@@ -13,6 +15,7 @@ from django.db.models.functions import Lower
 from wagtail.admin.forms.models import WagtailAdminModelForm
 from wagtail.admin.panels import FieldPanel
 from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
+from wagtail.models import Task, TaskState
 
 from libraries.path_matcher import PathMatchResult
 from libraries.path_matcher.utils import get_path_match_from_chain
@@ -395,3 +398,65 @@ def delete_wysiwyg_image(sender, instance, **kwargs):
             logger.warning("Could not delete WYSIWYG image from storage", exc_info=True)
 
     transaction.on_commit(remove_from_storage)
+
+
+class CallAIModerationTask(Task):
+    """
+    Calls an AI moderator to determine whether the given content requires additional human moderation.
+    Only ever returns two states:
+    APPROVED         - Content should be published
+    NEEDS MODERATION - Content should be moved to human moderation
+
+    The object being passed in should have a method or property called `_ai_moderation_content`
+    which will then be passed to the AI moderator.
+    """
+
+    def _call_ai_moderation(self, user, obj, ct_id, task_state, revision):
+        from core.tasks import ai_moderate_content_task
+        from celery.exceptions import OperationalError
+
+        try:
+            ai_moderate_content_task.delay(
+                user.id if user else None,
+                obj.id,
+                ct_id,
+                task_state.id,
+                revision.as_object()._ai_moderation_content,
+                settings.MODERATION_MODEL,
+            )
+
+        except OperationalError:
+            # If we fail to start the AI moderation due to an
+            # opertational error (backend not found), we move to
+            # human moderation instead
+            task_state.approve()
+
+    def start(self, workflow_state, user=None):
+
+        task_state = super().start(workflow_state, user)
+
+        # Enqueue the AI moderation task
+        obj = workflow_state.content_object
+        revision = task_state.revision
+        ct_id = workflow_state.content_type.id
+        transaction.on_commit(
+            partial(
+                self._call_ai_moderation,
+                user=user,
+                obj=obj,
+                ct_id=ct_id,
+                task_state=task_state,
+                revision=revision,
+            )
+        )
+
+        return task_state
+
+    def on_action(self, task_state: TaskState, user: User, action_name: str, **kwargs):
+        if action_name == "approve":
+            # On approval, we directly complete the workflow, skipping human moderation
+            task_state.approve(update=False)
+            task_state.workflow_state.finish(user=user)
+        if action_name == "needs_moderation":
+            # If we need moderation, instead we "approve" the step, which moves to additional moderation
+            task_state.approve()

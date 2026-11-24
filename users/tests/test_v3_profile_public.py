@@ -44,11 +44,11 @@ def test_public_profile_shows_bio_empty_state_when_no_bio(user, tp):
 
 
 @waffle.testutils.override_flag("v3", active=True)
-def test_public_profile_renders_biography_as_markdown(user, tp):
+def test_public_profile_renders_biography_as_markdown(user, user_biography, tp):
     """A stored biography replaces the empty state and is rendered as Markdown
     rather than escaped into the page as its raw source."""
-    user.biography = "I maintain **Beast** and work on HTTP."
-    user.save(update_fields=["biography"])
+    user_biography.value = "I maintain **Beast** and work on HTTP."
+    user_biography.save(update_fields=["value"])
     with tp.login(user):
         response = tp.get("profile-account")
     content = response.content.decode()
