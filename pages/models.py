@@ -15,6 +15,7 @@ from wagtail.fields import StreamField
 from wagtail.search import index
 
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.db.models import (
     ExpressionWrapper,
@@ -31,6 +32,7 @@ from django.db.models.functions import Coalesce, Greatest, Now, Power
 from django.db import models
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.functional import cached_property
 from django.utils.html import strip_tags
@@ -727,6 +729,17 @@ class DonationPage(BasePage):
             ("button", ButtonBlock()),
         ]
     )
+    post_form_body = StreamField(
+        [
+            ("text", RichTextBlock(features=settings.RICH_TEXT_FEATURES)),
+        ],
+        blank=True,
+        null=True,
+    )
+    legal_copy = RichTextField(
+        help_text="Text that will appear in small font underneath the form as a disclaimer.",
+        default="",
+    )
     image = models.ForeignKey(
         "wagtailimages.Image",
         verbose_name=("Image"),
@@ -747,8 +760,9 @@ class DonationPage(BasePage):
 
     content_panels = BasePage.content_panels + [
         "body",
-        "image",
         "donation_product_id",
+        "legal_copy",
+        "post_form_body",
     ]
 
     def get_context(self, request, *args, **kwargs):
@@ -794,7 +808,37 @@ class DonationPage(BasePage):
                     email=order.get("email"),
                     amount=order.get("amount"),
                     stripe_payment_id=order.get("payment_intent_id"),
+                    corporation_name=order.get("organization"),
                 )
+
+                card_last_4 = order.get("card4")
+                card_brand = order.get("card_brand")
+
+                ctx = {
+                    "order": donation,
+                    "card_last_4": card_last_4,
+                    "card_brand": str(card_brand).capitalize(),
+                }
+
+                text_content = render_to_string(
+                    "emails/donation_thank_you.txt",
+                    context=ctx,
+                )
+
+                html_content = render_to_string(
+                    "emails/donation_thank_you.html",
+                    context=ctx,
+                )
+
+                msg = EmailMultiAlternatives(
+                    subject="Thank you for backing Boost (your receipt is inside)",
+                    body=text_content,
+                    from_email="giving@boost.org",
+                    to=[order.get("email")],
+                )
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+
                 return JsonResponse(
                     {
                         "redirect_url": reverse_lazy(

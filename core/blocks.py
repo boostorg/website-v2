@@ -13,7 +13,8 @@ class ButtonValue(StructValue):
     def url(self):
         external_url = self.get("link")
         page = self.get("page")
-        return external_url or page.url
+        href = self.get("href")
+        return external_url or href or page.url
 
 
 class ButtonBlock(StructBlock):
@@ -25,6 +26,8 @@ class ButtonBlock(StructBlock):
     label = CharBlock()
     page = PageChooserBlock(required=False)
     link = URLBlock(required=False)
+    href = CharBlock(required=False)
 
     class Meta:
+        template = "blocks/button.html"
         value_class = ButtonValue

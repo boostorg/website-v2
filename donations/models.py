@@ -15,7 +15,7 @@ class CharitableDonation(models.Model):
     corporation_name = models.CharField(
         max_length=255, editable=False, blank=True, default=""
     )
-    uuid = models.UUIDField(default=uuid4())
+    uuid = models.UUIDField(default=uuid4)
 
     def __str__(self):
         return (

@@ -1,23 +1,19 @@
-Subject line: Thank you for backing Boost (your receipt is inside)
-Preheader: Your receipt for your ${{amount}} gift to Boost.
-From: The Boost Team · Reply-to: [giving@boost.org or similar, monitored]
-Body
-Hi {{first_name}},
-Thank you. Your ${{amount}} gift funds the testing, releases, and maintenance of 180+ free C++ libraries.
+Hi {{order.donation_name}},
+Thank you. Your {{order.display_amount}} gift funds the testing, releases, and maintenance of 180+ free C++ libraries.
 One small ask. If your company uses Boost, forward this email to whoever handles giving, or ask HR about a match. It's the fastest way to double what you just did.
 Thanks for your support,
 The Boost Team
 P.S. Keep this email. It's your official receipt.
-Receipt block
+
 Donation receipt
 Organization: [The C++ Alliance, Inc.], fiscal sponsor of the Boost C++ Libraries
 Tax status: 501(c)(3) nonprofit, EIN 82-2439331
-Donor: {{donor_name}} {{organization_name}}
-Date of gift: {{gift_date}}
-Gift amount: ${{amount}}
-Payment: {{card_brand}} ending in {{last4}} · Transaction {{transaction_id}}
+Donor: {{order.donation_name}} {{order.corporation_name}}
+Date of gift: {{order.created_at}}
+Gift amount: {{order.display_amount}}
+Payment: {{card_brand}} ending in {{card_last_4}} · Transaction {{order.uuid}}
 
 No goods or services were provided in exchange for this contribution.
 Your gift is tax-deductible. Your accountant or tax advisor can tell you how much you can deduct on your return. Please keep this receipt for your records.
-Fine print (footer)
-[The C++ Alliance, Inc.] is a 501(c)(3) nonprofit organization, EIN 82-2439331, and the fiscal sponsor of the Boost C++ Libraries. Contributions are tax-deductible. This message is not tax advice. [Mailing address] · [Update email preferences]
+
+[The C++ Alliance, Inc.] is a 501(c)(3) nonprofit organization, EIN 82-2439331, and the fiscal sponsor of the Boost C++ Libraries. Contributions are tax-deductible. This message is not tax advice.

@@ -4,6 +4,7 @@ from donations.utils import (
     create_payment_intent_from_products,
     retrive_price,
     OrderItem,
+    get_payment_method,
 )
 
 
@@ -47,8 +48,11 @@ class DonationForm(forms.Form):
         payment_intent = create_payment_intent_from_products(
             order_items=order_items, payment_method=payment_method
         )
+        payment_method_object = get_payment_method(payment_method)
         return {
             **data,
             "payment_intent_id": payment_intent.id,
             "amount": payment_intent.amount,
+            "card4": payment_method_object.card.last4,
+            "card_brand": payment_method_object.card.display_brand,
         }

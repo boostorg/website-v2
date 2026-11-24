@@ -11,8 +11,10 @@
 {% block content %}
     <div class="donation_page">
         <h1>{{ page.title }}</h1>
-        {% include_block self.body %}
-        <form class="donation_form" method="post" @submit="onSubmit">
+        {% for block in self.body %}
+            {% include_block block %}
+        {% endfor %}
+        <form class="donation_form" method="post" @submit="onSubmit" id="donation-form">
             {% csrf_token %}
             <div class="donation__prices">
                 {% for price in donation_prices %}
@@ -23,7 +25,11 @@
                                value="{{ price.id }}"
                                {% if price.id == default_donation_price %}checked{% endif %} />
                         <label for="{{ price.id }}">
-                            {% include "v3/includes/_button.html" with label=price.unit_amount style="secondary" %}
+                            {% if price.unit_amount %}
+                                {% with price.unit_amount|stringformat:"s"|slice:":-2" as dollar_price %}
+                                    {% include "v3/includes/_button.html" with label="$"|add:dollar_price style="secondary" extra_classes="btn-flex" %}
+                                {% endwith %}
+                            {% endif %}
                         </label>
                     </div>
                 {% endfor %}
@@ -35,9 +41,25 @@
             <div class="donation__row">
                 {% include "v3/includes/_field_include.html" with bound_field=donation_form.email %}
             </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.giving_for_org %}
+            </div>
+            <div class="donation__row donation_form__org_input">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.organization %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.subscribe_mailing %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.donor_opt_out %}
+            </div>
             <div id="payment-element"></div>
             {% include "v3/includes/_button.html" with label="Donate" style="primary" type="submit" %}
         </form>
+        <small>{{ self.legal_copy|richtext }}</small>
+        {% for block in self.post_form_body %}
+            {% include_block block %}
+        {% endfor %}
     </div>
     <script>
         const stripe = Stripe("{{public_key}}");

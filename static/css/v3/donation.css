@@ -53,12 +53,23 @@
 .donation_page {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xl);
-    max-width: 696px;
-    margin: 0 auto;
-    padding: var(--space-xl) var(--space-large);
+    gap: var(--space-large);
     font-family: var(--font-sans);
     color: var(--color-text-primary);
+    padding: 80px 10% 43px 10%;
+
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-loose);
+    letter-spacing: var(--letter-spacing-tight);
+    justify-content: center;
+}
+
+.donation_page ul {
+    list-style: unset;
+    list-style-position: inside;
 }
 
 .donation_page p {
@@ -69,11 +80,24 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-default);
+    padding: var(--space-xl);
+    margin: var(--space-xl) 0;
+    background-color: var(--color-surface-weak);
+    border-radius: var(--border-radius-xl);
+    border: 1px solid var(--color-stroke-weak);
+}
+
+.donation_form__org_input {
+    display: none;
+}
+
+.donation__row:has(input[id='checkbox-giving_for_org']:checked) + .donation_form__org_input {
+    display: flex;
 }
 
 .donation__prices {
     display: grid;
-    grid-template-columns: repeat(4, min-content);
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--space-default);
 }
 
@@ -83,6 +107,7 @@
 
 .donation__prices .btn {
     pointer-events: none;
+    width: 100%;
 }
 
 .donation__prices label {

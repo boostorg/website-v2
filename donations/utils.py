@@ -27,9 +27,13 @@ def get_default_price_for_product(
     return client.v1.products.retrieve(prod_id).to_dict().get("default_price")
 
 
+def get_payment_method(pm_id: str) -> PaymentMethod:
+    return client.v1.payment_methods.retrieve(pm_id)
+
+
 def create_payment_intent(
     amount: int,
-    payment_method: PaymentMethod,
+    payment_method: str,
 ):
     return client.v1.payment_intents.create(
         {
@@ -53,7 +57,7 @@ def retrive_price(
 
 def create_payment_intent_from_products(
     order_items: List[OrderItem],
-    payment_method: PaymentMethod,
+    payment_method: str,
 ):
     total = 0
     for item in order_items:
