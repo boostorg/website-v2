@@ -49,7 +49,8 @@ class DonationForm(forms.Form):
             )
         else:
             if (
-                price.custom_unit_amount.minimum
+                price.custom_unit_amount
+                and price.custom_unit_amount.minimum
                 and custom_amount * 100 < price.custom_unit_amount.minimum
             ):
                 raise forms.ValidationError("Selected price less than the minimum.")

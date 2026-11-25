@@ -65,6 +65,7 @@
                 {% include "v3/includes/_field_include.html" with bound_field=donation_form.donor_opt_out %}
             </div>
             <div id="payment-element"></div>
+            <small x-text="errors.stripe_errors"></small>
             {% include "v3/includes/_button.html" with label="Donate" style="primary" type="submit" alpine_disabled="submitting" %}
         </form>
         <small>{{ self.legal_copy|richtext }}</small>
@@ -80,6 +81,7 @@
             return {
                 errors:{
                     'custom_amount': ""
+                    "stripe_errors": ""
                 },
                 submitting: false,
                 init() {
@@ -94,7 +96,12 @@
                     const formData = new FormData(form)
                     await elements.submit()
                     const result = await stripe.createPaymentMethod({elements})
-                    formData.append('payment_method', result.paymentMethod?.id)
+                    if(response.paymentMethod) {
+                        formData.append('payment_method', result.paymentMethod?.id)
+                    }
+                    else {
+                        this.errors.stripe_errors = result.error
+                    }
 
                     await fetch(
                         form.target,
