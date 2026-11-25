@@ -57,6 +57,17 @@
   min-width: 128px;
 }
 
+.btn-accent {
+  background-color: var(--color-button-accent);
+  color: var(--color-text-primary)
+}
+
+.btn-accent:hover,
+.btn-accent[data-hover] {
+  background-color: var(--color-surface-brand-accent-hovered);
+  color: var(--color-text-link-accent)
+}
+
 .btn-primary {
   background-color: var(--color-button-primary);
   color: var(--color-text-primary);
