@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags %}
+{% block title %}{{ page.title }}{% endblock %}
+{% block description %}{{ page.search_description }}{% endblock %}
+{% block donation_popup %}
+{% endblock donation_popup %}
+{% block extra_head %}
+    {{ block.super }}
+    <script src="https://js.stripe.com/endive/stripe.js"></script>
+{% endblock %}
+{% block content %}
+    <div class="donation_page" x-data="createDonationForm()">
+        <h1>{{ page.title }}</h1>
+        {% for block in self.body %}
+            {% include_block block %}
+        {% endfor %}
+        <form class="donation_form"
+              method="post"
+              @submit="onSubmit"
+              id="donation-form">
+            {% csrf_token %}
+            <div class="donation__prices">
+                {% for price in donation_prices %}
+                    <div class="donation__price-group">
+                        <input type="radio"
+                               id="{{ price.id }}"
+                               class="{% if not price.unit_amount %}custom-amount-button{% endif %}"
+                               name="price"
+                               value="{{ price.id }}"
+                               {% if price.id == default_donation_price %}checked{% endif %} />
+                        <label for="{{ price.id }}">
+                            {% if price.unit_amount %}
+                                {% with price.unit_amount|stringformat:"s"|slice:":-2" as dollar_price %}
+                                    {% with price.unit_amount|stringformat:"s"|slice:"-2:" as cents_price %}
+                                        {% include "v3/includes/_button.html" with label="$"|add:dollar_price|add:"."|add:cents_price style="secondary" extra_classes="btn-flex" %}
+                                    {% endwith %}
+                                {% endwith %}
+                            {% else %}
+                                {% include "v3/includes/_button.html" with label="Other" style="secondary" extra_classes="btn-flex" %}
+                            {% endif %}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="donation__row donation_form__custom_amount">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.custom_amount alpine_error="errors.custom_amount" %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.first_name %}
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.last_name %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.email %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.giving_for_org %}
+            </div>
+            <div class="donation__row donation_form__org_input">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.organization %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.subscribe_mailing %}
+            </div>
+            <div class="donation__row">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.donor_opt_out %}
+            </div>
+            <div id="payment-element"></div>
+            <small x-text="errors.stripe_errors"></small>
+            {% include "v3/includes/_button.html" with label="Donate" style="accent" type="submit" alpine_disabled="submitting" %}
+        </form>
+        <small>{{ self.legal_copy|richtext }}</small>
+        {% for block in self.post_form_body %}
+            {% include_block block %}
+        {% endfor %}
+    </div>
+    <script>
+        window.createDonationForm = function ()
+        {
+            const stripe = Stripe("{{public_key}}");
+            const elements = stripe.elements({mode: 'setup', currency: 'usd', allowedPaymentMethodTypes: ['card'], paymentMethodCreation: 'manual'});
+            return {
+                errors:{
+                    'custom_amount': "",
+                    "stripe_errors": ""
+                },
+                submitting: false,
+                init() {
+                    const payment = elements.create('payment');
+                    payment.mount("#payment-element");
+                },
+                async onSubmit(event) {
+                    event.preventDefault()
+                    this.submitting = true;
+                    const form = event.target;
+
+                    const formData = new FormData(form)
+                    await elements.submit()
+                    const result = await stripe.createPaymentMethod({elements})
+                    if(response.paymentMethod) {
+                        formData.append('payment_method', result.paymentMethod?.id)
+                    }
+                    else {
+                        this.errors.stripe_errors = result.error
+                    }
+
+                    await fetch(
+                        form.target,
+                        {
+                            method: form.method,
+                            body: formData,
+                        }
+                        ).then(async (response)=> {
+                            const json = await response.json()
+                            if(response.status >= 300) {
+                                this.errors.custom_amount = json.custom_amount
+                                console.error(json)
+                            }
+                            else{
+                                const url = json['redirect_url']
+                                window.location.href = url;
+                            }
+                        }
+                        ).finally(() => {
+                            this.submitting = false;
+                        })
+                }
+            }
+        }
+    </script>
+{% endblock content %}

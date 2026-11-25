@@ -1,12 +1,17 @@
 import re
 from datetime import timedelta
 from html import unescape
+from operator import itemgetter
+from functools import cmp_to_key
 
 from structlog import get_logger
 from wagtail.admin.panels import FieldPanel
+from wagtail.blocks import RichTextBlock
+from wagtail.contrib.table_block.blocks import TableBlock
+from wagtail.fields import RichTextField
 from wagtail.models import PageManager
 from wagtail.url_routing import RouteResult
-from wagtail.fields import RichTextField, StreamField
+from wagtail.fields import StreamField
 from wagtail.search import index
 
 from django.conf import settings
@@ -24,6 +29,8 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce, Greatest, Now, Power
 from django.db import models
+from django.http import JsonResponse
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.functional import cached_property
 from django.utils.html import strip_tags
@@ -36,6 +43,9 @@ from waffle import flag_is_active
 
 
 from badges.display import active_badges_prefetch
+from core.blocks import ButtonBlock
+from donations.models import CharitableDonation
+from donations.utils import get_prices_for_product, get_default_price_for_product
 from libraries.utils import library_filter_options
 from pages.blocks import POST_BLOCKS, LegalPageCardBlock
 from pages.feed import (
@@ -44,8 +54,10 @@ from pages.feed import (
     UNKNOWN_CONTENT_TYPE,
     PostFeedFilters,
 )
+from pages.forms import DonationForm
 from pages.mixins import BasePage
 from pages.notifications import mark_post_seen, mark_posts_seen
+from pages.tasks import send_donation_receipt
 
 from news.constants import DESCRIPTION_SUMMARY_MAX_LENGTH
 from news.tasks import summary_dispatcher
@@ -82,6 +94,7 @@ class RoutableHomePage(BasePage):
     subpage_types = [
         "pages.PostIndexPage",
         "marketing.OutreachHomePage",
+        "pages.DonationPage",
     ]
     max_count = 1
 
@@ -692,3 +705,131 @@ class LegalPage(BasePage):
     @property
     def odd_cards(self):
         return self.cards[1::2]
+
+
+class DonationPage(BasePage):
+    """
+    Simple copy + form page for accepting donations.
+
+    Handles the logic for submitted payments, and allows for
+    customizing page copy as well accepted donation amounts and
+    minimums
+    """
+
+    template = "v3/donation_page.html"
+
+    parent_page_types = ["pages.RoutableHomePage"]
+    subpage_types = []
+
+    body = StreamField(
+        [
+            ("text", RichTextBlock(features=settings.RICH_TEXT_FEATURES)),
+            ("table", TableBlock()),
+            ("button", ButtonBlock()),
+        ]
+    )
+    post_form_body = StreamField(
+        [
+            ("text", RichTextBlock(features=settings.RICH_TEXT_FEATURES)),
+        ],
+        blank=True,
+        null=True,
+    )
+    legal_copy = RichTextField(
+        help_text="Text that will appear in small font underneath the form as a disclaimer.",
+        default="",
+    )
+    image = models.ForeignKey(
+        "wagtailimages.Image",
+        verbose_name=("Image"),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+    donation_product_id = models.CharField(
+        default="",
+        help_text=(
+            "Stripe Product ID for the donation product. Used to submit the purchase,"
+            " and automatically populates the available donation amounts with the prices from stripe."
+            " A user selects amount price will be presented as a fillable field, and the minimum price"
+            " from stripe will be respected by the form."
+        ),
+    )
+
+    content_panels = BasePage.content_panels + [
+        "body",
+        "donation_product_id",
+        "legal_copy",
+        "post_form_body",
+    ]
+
+    def get_context(self, request, *args, **kwargs):
+        ctx = super().get_context(request, *args, **kwargs)
+        ctx["donation_form"] = DonationForm()
+        ctx["public_key"] = settings.STRIPE_PUBLIC_KEY
+
+        def cmp(a, b):
+            """
+            Comparison function. Handle null case, and returns class -1, 0, 1. Null is always treated as max value
+            so it will be sorted to the end of the list.
+            """
+            a_val = itemgetter("unit_amount")(a)
+            b_val = itemgetter("unit_amount")(b)
+
+            if not a_val and b_val:
+                return 1
+            elif not b_val and a_val:
+                return -1
+            elif not a_val and not b_val:
+                return 0
+            else:
+                return (int(a_val) > int(b_val)) - (int(a_val) < int(b_val))
+
+        ctx["donation_prices"] = sorted(
+            get_prices_for_product(self.donation_product_id).to_dict().get("data"),
+            key=cmp_to_key(cmp),
+        )
+        ctx["default_donation_price"] = get_default_price_for_product(
+            self.donation_product_id
+        )
+        return ctx
+
+    def serve(self, request):
+        context = self.get_context(request)
+
+        if request.method == "POST":
+            form = DonationForm(request.POST)
+            if form.is_valid():
+                order = form.save()
+                donation = CharitableDonation.objects.create(
+                    donation_name=f"{order.get("first_name")} {order.get("last_name")}",
+                    email=order.get("email"),
+                    amount=order.get("amount"),
+                    stripe_payment_id=order.get("payment_intent_id"),
+                    corporation_name=order.get("organization"),
+                )
+
+                card_last_4 = order.get("card4")
+                card_brand = order.get("card_brand")
+                email = order.get("email")
+
+                send_donation_receipt.delay(donation.id, card_last_4, card_brand, email)
+
+                return JsonResponse(
+                    {
+                        "redirect_url": reverse_lazy(
+                            "thank_you", kwargs={"slug": donation.uuid}
+                        )
+                    }
+                )
+            else:
+                response = JsonResponse(form.errors)
+                response.status_code = 400
+                return response
+
+        return render(
+            request,
+            self.get_template(request),
+            context,
+        )

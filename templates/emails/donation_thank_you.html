@@ -1,0 +1,31 @@
+{% extends "emails/base_email.html" %}
+{% load custom_static %}
+{% block title %}Thank you for your donation{% endblock %}
+{% block preheader %}Your receipt for your {{ order.display_amount }} gift to Boost.{% endblock %}
+{% block card_title %}Thank you for your donation{% endblock %}
+{% block card_body %}
+  <p style="margin: 0px;">Hi {{ order.donation_name }},</p>
+  <p style="margin:14px 0 0 0;">Thank you. Your {{ order.display_amount }} gift funds the testing, releases, and maintenance of 180+ free C++ libraries.</p>
+  <p style="margin:14px 0 0 0;">One small ask. If your company uses Boost, forward this email to whoever handles giving, or ask HR about a match. It's the fastest way to double what you just did.</p>
+  <p style="margin:14px 0 0 0;">Thanks for your support,</p>
+  <p style="margin:0 0 0 0;">The Boost Team</p>
+  <p style="margin:14px 0 0 0;">P.S. Keep this email. It's your official receipt.</p>
+  <div style="margin: 14px; padding: 14px; border: 1px solid black; border-radius: 20px;">
+  <p style="margin: 0px;">Donation receipt</p>
+  <p style="margin:14px 0 0 0;">Organization: [The C++ Alliance, Inc.], fiscal sponsor of the Boost C++ Libraries</p>
+  <p style="margin:14px 0 0 0;">Tax status: 501(c)(3) nonprofit, EIN 82-2439331</p>
+  <p style="margin:14px 0 0 0;">Donor: {{ order.donation_name }} {{ order.corporation_name }}</p>
+  <p style="margin:14px 0 0 0;">Date of gift: {{ order.created_at }}</p>
+  <p style="margin:14px 0 0 0;">Gift amount: {{ order.display_amount }}</p>
+  <p style="margin:14px 0 0 0;">Payment: {{ card_brand }} ending in {{ card_last_4 }} · Transaction {{ order.uuid }}</p>
+  <p style="margin:14px 0 0 0;">No goods or services were provided in exchange for this contribution.</p>
+  <p style="margin:14px 0 0 0;">Your gift is tax-deductible. Your accountant or tax advisor can tell you how much you can deduct on your return. Please keep this receipt for your records.</p>
+  </div>
+{% endblock %}
+{% block cta %}
+{% endblock cta %}
+{% block after_card %}
+<small>
+  [The C++ Alliance, Inc.] is a 501(c)(3) nonprofit organization, EIN 82-2439331, and the fiscal sponsor of the Boost C++ Libraries. Contributions are tax-deductible. This message is not tax advice.
+</small>
+{% endblock %}

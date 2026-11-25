@@ -154,6 +154,7 @@ urlpatterns = (
             name="account_confirm_email",
         ),
         path("accounts/", include("allauth.urls")),
+        path("donations/", include("donations.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         path("users/me/delete/", DeleteUserView.as_view(), name="profile-delete"),
         path(
@@ -482,7 +483,7 @@ urlpatterns = (
         ),
         # Static content (exclude Wagtail paths)
         re_path(
-            r"^(?!__debug__|outreach/|testimonials/|news/|terms-of-use/|privacy/)(?P<content_path>.+)/?",
+            r"^(?!__debug__|outreach/|testimonials/|news/|terms-of-use/|privacy/|donations/)(?P<content_path>.+)/?",
             StaticContentTemplateView.as_view(),
             name="static-content-page",
         ),

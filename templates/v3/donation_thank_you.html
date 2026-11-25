@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags %}
+{% block title %}Thank You for Donating!{% endblock %}
+{% block donation_popup %}
+{% endblock donation_popup %}
+{% block content %}
+    <div class="donation_page">
+        <p>Thank you, {{ object.donation_name }}.</p>
+        <p>Your receipt is on its way to {{ object.email }}. Want to double your impact?</p>
+        <ul>
+            <li>Share it. Pre-filled post: "I just gave to Boost to keep the C++ libraries I use every day free and maintained. Join me: [link] #GivingTuesday #cpp"</li>
+            <li>Ask your employer to match. "Many companies match employee gifts. Check your giving portal or ask HR."</li>
+        </ul>
+    </div>
+{% endblock %}

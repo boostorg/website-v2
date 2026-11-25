@@ -1,0 +1,48 @@
+# Blocks for use sitewide, or on the Home Page
+
+from django.db.models import TextChoices
+from wagtail.blocks import (
+    StructBlock,
+    URLBlock,
+    CharBlock,
+    PageChooserBlock,
+    StructValue,
+    ChoiceBlock,
+)
+
+
+class ButtonValue(StructValue):
+    def url(self):
+        external_url = self.get("link")
+        page = self.get("page")
+        href = self.get("href")
+        return external_url or href or page.url
+
+
+class ButonStyleChoices(TextChoices):
+    PRIMARY = "primary"
+    SECONDARY = "secondary"
+    ACCENT = "accent"
+    GREEN = "green"
+    YELLOW = "yellow"
+    TEAL = "teal"
+    ERROR = "error"
+
+
+class ButtonBlock(StructBlock):
+    """
+    A block representing a customizable button. Requires a label,
+    and may either follow an arbitrary url or link to another page.
+    """
+
+    label = CharBlock()
+    page = PageChooserBlock(required=False)
+    link = URLBlock(required=False)
+    href = CharBlock(required=False)
+    style = ChoiceBlock(
+        choices=ButonStyleChoices.choices, default=ButonStyleChoices.PRIMARY
+    )
+
+    class Meta:
+        template = "blocks/button.html"
+        value_class = ButtonValue
