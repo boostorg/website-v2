@@ -99,7 +99,7 @@
     display: none;
 }
 
-.donation__prices:has(.custom-amount-button:checked) ~ .donation_form__custom_amount {
+.donation__prices:has(.custom-amount-button:checked)~.donation_form__custom_amount {
     display: flex;
 }
 
@@ -138,5 +138,19 @@
 
     .donation__popup {
         width: 95%;
+    }
+
+    .donation_page {
+        padding-top: 32px;
+        padding-left: var(--space-medium);
+        padding-right: var(--space-medium);
+    }
+
+    .donation__prices {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .donation__row {
+        flex-direction: column;
     }
 }
