@@ -128,6 +128,16 @@
     color: var(--color-text-reversed);
 }
 
+.donation_page table {
+    border: 1px solid var(--color-stroke-weak);
+}
+
+.donation_page th, td {
+    padding: var(--space-default);
+    border: 1px solid var(--color-stroke-weak);
+    text-align: start;
+}
+
 
 @media screen and (max-width: 768px) {
     .donation__container {
