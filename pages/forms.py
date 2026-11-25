@@ -30,17 +30,28 @@ class DonationForm(forms.Form):
         required=False,
     )
     price = forms.CharField()
+    custom_amount = forms.IntegerField(
+        min_value=10,
+        required=False,
+        widget=forms.TextInput(),
+        label="Custom Amount",
+        help_text="Donation amount in USD. Minimum $10.",
+    )
     payment_method = forms.CharField()
 
     def save(self):
         data = self.cleaned_data
         payment_method = data.get("payment_method")
+        price = retrive_price(data.get("price"))
+        price_amount = (
+            price.unit_amount
+            if not price.custom_unit_amount
+            else data.get("custom_amount") * 100
+        )
 
         order_items = [
             OrderItem(
-                price=retrive_price(
-                    data.get("price"),
-                ),
+                price=price_amount,
                 amount=1,
             )
         ]

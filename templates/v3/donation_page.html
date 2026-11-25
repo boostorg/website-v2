@@ -14,13 +14,17 @@
         {% for block in self.body %}
             {% include_block block %}
         {% endfor %}
-        <form class="donation_form" method="post" @submit="onSubmit" id="donation-form">
+        <form class="donation_form"
+              method="post"
+              @submit="onSubmit"
+              id="donation-form">
             {% csrf_token %}
             <div class="donation__prices">
                 {% for price in donation_prices %}
                     <div class="donation__price-group">
                         <input type="radio"
                                id="{{ price.id }}"
+                               class="{% if not price.unit_amount %}custom-amount-button{% endif %}"
                                name="price"
                                value="{{ price.id }}"
                                {% if price.id == default_donation_price %}checked{% endif %} />
@@ -29,10 +33,15 @@
                                 {% with price.unit_amount|stringformat:"s"|slice:":-2" as dollar_price %}
                                     {% include "v3/includes/_button.html" with label="$"|add:dollar_price style="secondary" extra_classes="btn-flex" %}
                                 {% endwith %}
+                            {% else %}
+                                {% include "v3/includes/_button.html" with label="Other" style="secondary" extra_classes="btn-flex" %}
                             {% endif %}
                         </label>
                     </div>
                 {% endfor %}
+            </div>
+            <div class="donation__row donation_form__custom_amount">
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.custom_amount %}
             </div>
             <div class="donation__row">
                 {% include "v3/includes/_field_include.html" with bound_field=donation_form.first_name %}

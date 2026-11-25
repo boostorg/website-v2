@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 from stripe import StripeClient
-from stripe import Price, PaymentMethod
+from stripe import PaymentMethod
 
 from django.conf import settings
 
@@ -11,7 +11,7 @@ client = StripeClient(settings.STRIPE_PRIVATE_KEY)
 
 @dataclass
 class OrderItem:
-    price: Price
+    price: int
     amount: int
 
 
@@ -61,5 +61,5 @@ def create_payment_intent_from_products(
 ):
     total = 0
     for item in order_items:
-        total += item.amount * item.price.unit_amount
+        total += item.amount * item.price
     return create_payment_intent(total, payment_method)

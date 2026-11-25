@@ -91,7 +91,15 @@
     display: none;
 }
 
-.donation__row:has(input[id='checkbox-giving_for_org']:checked) + .donation_form__org_input {
+.donation__row:has(input[id='checkbox-giving_for_org']:checked)+.donation_form__org_input {
+    display: flex;
+}
+
+.donation_form__custom_amount {
+    display: none;
+}
+
+.donation__prices:has(.custom-amount-button:checked) ~ .donation_form__custom_amount {
     display: flex;
 }
 
