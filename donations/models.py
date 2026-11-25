@@ -23,7 +23,8 @@ class CharitableDonation(models.Model):
         )
 
     def display_amount(self):
-        return f"${str(self.amount)[:-2]}"
+        str_amount = str(self.amount)
+        return f"${str_amount[:-2]}.{str_amount[-2:]}"
 
     def send_thank_you_email(self):
         pass

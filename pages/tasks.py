@@ -69,3 +69,35 @@ def send_post_published_email(page_id):
     )
     msg.attach_alternative(render_to_string(f"{prefix}.html", context), "text/html")
     msg.send(fail_silently=False)
+
+
+@shared_task
+def send_donation_receipt(donation_id, card_last_4, card_brand, email):
+    from donations.models import CharitableDonation
+
+    donation = CharitableDonation.objects.get(id=donation_id)
+
+    ctx = {
+        "order": donation,
+        "card_last_4": card_last_4,
+        "card_brand": str(card_brand).capitalize(),
+    }
+
+    text_content = render_to_string(
+        "emails/donation_thank_you.txt",
+        context=ctx,
+    )
+
+    html_content = render_to_string(
+        "emails/donation_thank_you.html",
+        context=ctx,
+    )
+
+    msg = EmailMultiAlternatives(
+        subject="Thank you for backing Boost (your receipt is inside)",
+        body=text_content,
+        from_email="giving@boost.org",
+        to=[email],
+    )
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()

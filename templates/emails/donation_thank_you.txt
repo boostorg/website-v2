@@ -1,3 +1,4 @@
+{% autoescape off %}
 Hi {{order.donation_name}},
 Thank you. Your {{order.display_amount}} gift funds the testing, releases, and maintenance of 180+ free C++ libraries.
 One small ask. If your company uses Boost, forward this email to whoever handles giving, or ask HR about a match. It's the fastest way to double what you just did.
@@ -17,3 +18,4 @@ No goods or services were provided in exchange for this contribution.
 Your gift is tax-deductible. Your accountant or tax advisor can tell you how much you can deduct on your return. Please keep this receipt for your records.
 
 [The C++ Alliance, Inc.] is a 501(c)(3) nonprofit organization, EIN 82-2439331, and the fiscal sponsor of the Boost C++ Libraries. Contributions are tax-deductible. This message is not tax advice.
+{% endautoescape %}

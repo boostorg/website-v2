@@ -2,4 +2,4 @@ from django.urls import path
 
 from donations.views import DonationThankYouView
 
-urlpatterns = [path("<slug:slug>/", DonationThankYouView.as_view(), name="thank_you")]
+urlpatterns = [path("<uuid:slug>/", DonationThankYouView.as_view(), name="thank_you")]

@@ -9,8 +9,8 @@ from donations.utils import (
 
 
 class DonationForm(forms.Form):
-    first_name = forms.CharField()
-    last_name = forms.CharField()
+    first_name = forms.CharField(max_length=120)
+    last_name = forms.CharField(max_length=120)
     email = forms.EmailField(
         help_text="We'll send your receipt here.",
     )
@@ -39,6 +39,22 @@ class DonationForm(forms.Form):
     )
     payment_method = forms.CharField()
 
+    def clean(self):
+        cleaned_data = super().clean()
+        price = retrive_price(cleaned_data.get("price"))
+        custom_amount = cleaned_data.get("custom_amount")
+        if price.custom_unit_amount and not custom_amount:
+            raise forms.ValidationError(
+                "When selecting other, you must select an amount."
+            )
+        else:
+            if (
+                price.custom_unit_amount.minimum
+                and custom_amount * 100 < price.custom_unit_amount.minimum
+            ):
+                raise forms.ValidationError("Selected price less than the minimum.")
+        return cleaned_data
+
     def save(self):
         data = self.cleaned_data
         payment_method = data.get("payment_method")
@@ -56,10 +72,10 @@ class DonationForm(forms.Form):
             )
         ]
 
+        payment_method_object = get_payment_method(payment_method)
         payment_intent = create_payment_intent_from_products(
             order_items=order_items, payment_method=payment_method
         )
-        payment_method_object = get_payment_method(payment_method)
         return {
             **data,
             "payment_intent_id": payment_intent.id,

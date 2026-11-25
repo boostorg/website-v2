@@ -15,7 +15,6 @@ from wagtail.fields import StreamField
 from wagtail.search import index
 
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.db.models import (
     ExpressionWrapper,
@@ -32,7 +31,6 @@ from django.db.models.functions import Coalesce, Greatest, Now, Power
 from django.db import models
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.functional import cached_property
 from django.utils.html import strip_tags
@@ -59,6 +57,7 @@ from pages.feed import (
 from pages.forms import DonationForm
 from pages.mixins import BasePage
 from pages.notifications import mark_post_seen, mark_posts_seen
+from pages.tasks import send_donation_receipt
 
 from news.constants import DESCRIPTION_SUMMARY_MAX_LENGTH
 from news.tasks import summary_dispatcher
@@ -813,31 +812,9 @@ class DonationPage(BasePage):
 
                 card_last_4 = order.get("card4")
                 card_brand = order.get("card_brand")
+                email = order.get("email")
 
-                ctx = {
-                    "order": donation,
-                    "card_last_4": card_last_4,
-                    "card_brand": str(card_brand).capitalize(),
-                }
-
-                text_content = render_to_string(
-                    "emails/donation_thank_you.txt",
-                    context=ctx,
-                )
-
-                html_content = render_to_string(
-                    "emails/donation_thank_you.html",
-                    context=ctx,
-                )
-
-                msg = EmailMultiAlternatives(
-                    subject="Thank you for backing Boost (your receipt is inside)",
-                    body=text_content,
-                    from_email="giving@boost.org",
-                    to=[order.get("email")],
-                )
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
+                send_donation_receipt.delay(donation.id, card_last_4, card_brand, email)
 
                 return JsonResponse(
                     {
@@ -847,7 +824,9 @@ class DonationPage(BasePage):
                     }
                 )
             else:
-                context["donation_form"] = form
+                response = JsonResponse(form.errors)
+                response.status_code = 400
+                return response
 
         return render(
             request,

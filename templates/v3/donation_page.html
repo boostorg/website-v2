@@ -9,7 +9,7 @@
     <script src="https://js.stripe.com/endive/stripe.js"></script>
 {% endblock %}
 {% block content %}
-    <div class="donation_page">
+    <div class="donation_page" x-data="createDonationForm()">
         <h1>{{ page.title }}</h1>
         {% for block in self.body %}
             {% include_block block %}
@@ -31,7 +31,9 @@
                         <label for="{{ price.id }}">
                             {% if price.unit_amount %}
                                 {% with price.unit_amount|stringformat:"s"|slice:":-2" as dollar_price %}
-                                    {% include "v3/includes/_button.html" with label="$"|add:dollar_price style="secondary" extra_classes="btn-flex" %}
+                                    {% with price.unit_amount|stringformat:"s"|slice:"-2:" as cents_price %}
+                                        {% include "v3/includes/_button.html" with label="$"|add:dollar_price|add:"."|add:cents_price style="secondary" extra_classes="btn-flex" %}
+                                    {% endwith %}
                                 {% endwith %}
                             {% else %}
                                 {% include "v3/includes/_button.html" with label="Other" style="secondary" extra_classes="btn-flex" %}
@@ -41,7 +43,7 @@
                 {% endfor %}
             </div>
             <div class="donation__row donation_form__custom_amount">
-                {% include "v3/includes/_field_include.html" with bound_field=donation_form.custom_amount %}
+                {% include "v3/includes/_field_include.html" with bound_field=donation_form.custom_amount alpine_error="errors.custom_amount" %}
             </div>
             <div class="donation__row">
                 {% include "v3/includes/_field_include.html" with bound_field=donation_form.first_name %}
@@ -63,7 +65,7 @@
                 {% include "v3/includes/_field_include.html" with bound_field=donation_form.donor_opt_out %}
             </div>
             <div id="payment-element"></div>
-            {% include "v3/includes/_button.html" with label="Donate" style="primary" type="submit" %}
+            {% include "v3/includes/_button.html" with label="Donate" style="primary" type="submit" alpine_disabled="submitting" %}
         </form>
         <small>{{ self.legal_copy|richtext }}</small>
         {% for block in self.post_form_body %}
@@ -71,32 +73,52 @@
         {% endfor %}
     </div>
     <script>
-        const stripe = Stripe("{{public_key}}");
-        const elements = stripe.elements({mode: 'setup', currency: 'usd', allowedPaymentMethodTypes: ['card'], paymentMethodCreation: 'manual'});
-        const payment = elements.create('payment');
-        payment.mount("#payment-element");
+        window.createDonationForm = function ()
+        {
+            const stripe = Stripe("{{public_key}}");
+            const elements = stripe.elements({mode: 'setup', currency: 'usd', allowedPaymentMethodTypes: ['card'], paymentMethodCreation: 'manual'});
+            return {
+                errors:{
+                    'custom_amount': ""
+                },
+                submitting: false,
+                init() {
+                    const payment = elements.create('payment');
+                    payment.mount("#payment-element");
+                },
+                async onSubmit(event) {
+                    event.preventDefault()
+                    this.submitting = true;
+                    const form = event.target;
 
-        const onSubmit = async (event) => {
-            event.preventDefault()
-            const form = event.target;
+                    const formData = new FormData(form)
+                    await elements.submit()
+                    const result = await stripe.createPaymentMethod({elements})
+                    formData.append('payment_method', result.paymentMethod?.id)
 
-            const formData = new FormData(form)
-            await elements.submit()
-            const result = await stripe.createPaymentMethod({elements})
-            formData.append('payment_method', result.paymentMethod?.id)
-
-            await fetch(
-                form.target,
-                {
-                    method: form.method,
-                    body: formData,
+                    await fetch(
+                        form.target,
+                        {
+                            method: form.method,
+                            body: formData,
+                        }
+                        ).then(async (response)=> {
+                            const json = await response.json()
+                            if(response.status >= 300) {
+                                this.errors.custom_amount = json.custom_amount
+                                console.error(json)
+                            }
+                            else{
+                                const url = json['redirect_url']
+                                window.location.href = url;
+                            }
+                        }
+                        ).finally(() => {
+                            this.submitting = false;
+                        })
+                    }
                 }
-            ).then(async (response)=> {
-                const json = await response.json()
-                const url = json['redirect_url']
-                window.location.href = url;
-            })
-        }
 
+            }
     </script>
 {% endblock content %}

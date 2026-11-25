@@ -10,24 +10,24 @@
 
 {% with type=bound_field.widget_type field=bound_field.field widget=bound_field.field.widget %}
   {% if type == 'email' %}
-    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.value type='email' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder validate_type="email" error=bound_field.errors.0 only %}
+    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.value type='email' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder validate_type="email" error=bound_field.errors.0 alpine_error=alpine_error only %}
   {% elif type == 'text' %}
-    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.value type='text' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder max_chars=field.max_length display_max_chars=widget.attrs.display_max_chars error=bound_field.errors.0 only %}
+    {% include 'v3/includes/_field_text.html' with name=bound_field.name value=bound_field.value type='text' label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text placeholder=widget.attrs.placeholder max_chars=field.max_length display_max_chars=widget.attrs.display_max_chars error=bound_field.errors.0 alpine_error=alpine_error only %}
   {% elif type == 'checkbox' %}
-    {% include 'v3/includes/_field_checkbox.html' with name=bound_field.name label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text checked=bound_field.value only %}
+    {% include 'v3/includes/_field_checkbox.html' with name=bound_field.name label=bound_field.label required=field.required disabled=field.disabled help_text=field.help_text checked=bound_field.value alpine_error=alpine_error only %}
   {% elif type == 'checkboxselectmultiple' %}
     <div class="checkbox__multi-checkbox-column">
     {% for option in field.choices %}
       {% generate_uuid as uuid %}
       {% if option.0 in bound_field.value %}
-        {% include 'v3/includes/_field_checkbox.html' with id=uuid name=bound_field.name value=option.0 label=option.1 required=field.required disabled=field.disabled checked=True only %}
+        {% include 'v3/includes/_field_checkbox.html' with id=uuid name=bound_field.name value=option.0 label=option.1 required=field.required disabled=field.disabled checked=True alpine_error=alpine_error only %}
       {% else %}
-        {% include 'v3/includes/_field_checkbox.html' with id=uuid name=bound_field.name value=option.0 label=option.1 required=field.required disabled=field.disabled only %}
+        {% include 'v3/includes/_field_checkbox.html' with id=uuid name=bound_field.name value=option.0 label=option.1 required=field.required disabled=field.disabled alpine_error=alpine_error only %}
       {% endif %}
     {% endfor %}
     </div>
   {% elif type == "select" %}
-    {% include 'v3/includes/_field_dropdown.html' with name=bound_field.name label=bound_field.label selected=bound_field.value options=field.choices disabled=field.disabled placeholder=widget.attrs.placeholder %}
+    {% include 'v3/includes/_field_dropdown.html' with name=bound_field.name label=bound_field.label selected=bound_field.value options=field.choices disabled=field.disabled placeholder=widget.attrs.placeholder alpine_error=alpine_error %}
   {% else %}
     {{ type }}
   {% endif %}
