@@ -80,7 +80,7 @@
             const elements = stripe.elements({mode: 'setup', currency: 'usd', allowedPaymentMethodTypes: ['card'], paymentMethodCreation: 'manual'});
             return {
                 errors:{
-                    'custom_amount': ""
+                    'custom_amount': "",
                     "stripe_errors": ""
                 },
                 submitting: false,
@@ -123,9 +123,8 @@
                         ).finally(() => {
                             this.submitting = false;
                         })
-                    }
                 }
-
             }
+        }
     </script>
 {% endblock content %}
